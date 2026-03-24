@@ -1,0 +1,87 @@
+import { create } from 'zustand'
+
+interface CartItem {
+  id: string
+  productId: string
+  name: string
+  priceBs: number
+  priceUsd: number
+  quantity: number
+  supermarket: string
+}
+
+interface Cart {
+  id: string
+  name: string
+  supermarket: string
+  items: CartItem[]
+  totalBs: number
+  totalUsd: number
+  createdAt: Date
+}
+
+interface CartState {
+  carts: Cart[]
+  activeCartId: string | null
+  isLoading: boolean
+  addCart: (cart: Omit<Cart, 'id' | 'createdAt'>) => void
+  updateCart: (id: string, updates: Partial<Cart>) => void
+  deleteCart: (id: string) => void
+  setActiveCart: (id: string | null) => void
+  addItemToCart: (cartId: string, item: Omit<CartItem, 'id'>) => void
+  removeItemFromCart: (cartId: string, itemId: string) => void
+}
+
+export const useCartStore = create<CartState>((set) => ({
+  carts: [],
+  activeCartId: null,
+  isLoading: false,
+  addCart: (cart) =>
+    set((state) => ({
+      carts: [
+        ...state.carts,
+        {
+          ...cart,
+          id: Date.now().toString(),
+          createdAt: new Date(),
+        },
+      ],
+    })),
+  updateCart: (id, updates) =>
+    set((state) => ({
+      carts: state.carts.map((cart) =>
+        cart.id === id ? { ...cart, ...updates } : cart
+      ),
+    })),
+  deleteCart: (id) =>
+    set((state) => ({
+      carts: state.carts.filter((cart) => cart.id !== id),
+      activeCartId: state.activeCartId === id ? null : state.activeCartId,
+    })),
+  setActiveCart: (id) => set({ activeCartId: id }),
+  addItemToCart: (cartId, item) =>
+    set((state) => ({
+      carts: state.carts.map((cart) =>
+        cart.id === cartId
+          ? {
+              ...cart,
+              items: [
+                ...cart.items,
+                { ...item, id: Date.now().toString() },
+              ],
+            }
+          : cart
+      ),
+    })),
+  removeItemFromCart: (cartId, itemId) =>
+    set((state) => ({
+      carts: state.carts.map((cart) =>
+        cart.id === cartId
+          ? {
+              ...cart,
+              items: cart.items.filter((item) => item.id !== itemId),
+            }
+          : cart
+      ),
+    })),
+}))

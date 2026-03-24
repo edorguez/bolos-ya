@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+*.config.js
+.expo/
+.assets/
+gen/
+*.generated.ts
+coverage/
+*.snap

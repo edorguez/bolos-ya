@@ -22,51 +22,97 @@ A mobile application (iOS/Android) that allows users in Venezuela to calculate s
 | **Cache**        | Redis (BCV exchange rate, TTL 24h)                                         |
 | **Infrastructure**| Docker containers, deployed on AWS ECS                                    |
 
+---
+
 ## 3. Monorepo Folder Structure
 
-The entire project lives in a single Git repository.
+The entire project lives in a single Git repository, following a standard Go layout with separate folders for the backend service, shared packages, and the mobile app.
 
 bolos-ya/
+├── .gitignore
+├── docker-compose.yml # local dev: PostgreSQL, Redis, MinIO
 ├── go.mod # module github.com/edorguez/bolos-ya
 ├── go.sum
 ├── Makefile # tasks: build, test, generate, run
-├── docker-compose.yml # local dev (PostgreSQL, Redis, MinIO)
-├── .env.example
+├── .env.example # example environment variables
 ├── cmd/
-│ └── server/
-│ └── main.go # entry point for backend server (Gin setup)
-├── internal/ # private Go packages
-│ ├── api/ # HTTP handlers & DTOs
-│ │ ├── rest/ # Gin handlers
-│ │ ├── middleware/ # auth, logging, CORS
+│ └── server/ # main entry point for the backend service
+│ └── main.go
+├── configs/
+│ └── server/ # configuration for the backend service
+│ └── config.go # loads env vars, returns config struct
+├── env/
+│ ├── example.server.env # example environment file for server
+│ └── example.mobile.env # optional: mobile environment vars
+├── internal/
+│ └── server/ # all backend code, organized by domain
+│ ├── handlers/ # HTTP handlers (Gin)
+│ │ ├── auth_handler.go
+│ │ ├── cart_handler.go
+│ │ ├── product_handler.go
+│ │ ├── sync_handler.go
 │ │ └── dto/ # request/response DTOs
-│ ├── domain/ # core entities & interfaces
+│ │ ├── auth_dto.go
+│ │ ├── cart_dto.go
+│ │ └── ...
+│ ├── models/ # GORM models (database tables)
 │ │ ├── user.go
 │ │ ├── cart.go
+│ │ ├── cart_item.go
 │ │ ├── product.go
 │ │ ├── price.go
-│ │ └── repository.go # interfaces for DB operations
-│ ├── application/ # use cases / services
+│ │ ├── supermarket.go
+│ │ └── config.go
+│ ├── repository/ # data access layer (GORM)
+│ │ ├── user_repo.go
+│ │ ├── cart_repo.go
+│ │ ├── product_repo.go
+│ │ ├── price_repo.go
+│ │ └── ...
+│ ├── services/ # business logic
 │ │ ├── auth_service.go
 │ │ ├── cart_service.go
 │ │ ├── sync_service.go
-│ │ └── price_confidence.go # confidence algorithm
-│ ├── infrastructure/ # adapters to external resources
-│ │ ├── gorm/ # GORM models & repositories
-│ │ │ ├── models/ # GORM model definitions
-│ │ │ └── repositories/ # repository implementations using GORM
-│ │ ├── redis/ # cache client
-│ │ ├── s3/ # AWS S3 client
-│ │ └── http/ # HTTP client for BCV API
-│ └── pkg/ # shared utilities
-│ ├── config/ # env config
-│ ├── logger/ # structured logging
-│ └── errors/ # custom error types
-├── migrations/ # SQL migrations (golang-migrate)
+│ │ ├── price_confidence.go # confidence algorithm
+│ │ └── ...
+│ ├── middleware/ # Gin middlewares
+│ │ ├── auth.go
+│ │ ├── cors.go
+│ │ └── logger.go
+│ └── routes.go # registers all routes (Gin)
+├── pkg/ # shared libraries, reusable across services
+│ ├── constants/
+│ │ ├── constants.go
+│ │ └── user_plans.go # premium/free limits
+│ ├── core/
+│ │ └── errors/
+│ │ └── errors.go # custom error types
+│ ├── database/
+│ │ ├── postgresql/ # PostgreSQL connection (GORM)
+│ │ │ └── postgresql.go
+│ │ └── redis/ # Redis client
+│ │ └── redis.go
+│ ├── firebase/ # Firebase for Google OAuth verification
+│ │ └── firebase.go
+│ ├── middleware/ # reusable middleware (e.g., logging)
+│ │ └── logging.go
+│ └── utils/
+│ ├── http.go # HTTP helpers
+│ ├── jwt.go # JWT creation/validation
+│ └── bcrypt.go # password hashing
+├── migrations/ # SQL migration files (golang-migrate)
 │ ├── 001_create_users_table.up.sql
-│ ├── ...
+│ ├── 002_create_supermarkets_table.up.sql
+│ └── ...
 ├── scripts/ # helper scripts (seed data, etc.)
-├── mobile/ # Expo project
+│ ├── seed_data.go
+│ └── generate_openapi.sh
+├── docs/
+│ └── openapi.yaml # OpenAPI 3.0 specification (source of truth)
+├── gen/ # generated code from OpenAPI
+│ ├── go/ # Go server stubs (oapi-codegen)
+│ └── typescript/ # TypeScript client & models
+├── mobile/ # Expo project (React Native)
 │ ├── package.json
 │ ├── app.json
 │ ├── babel.config.js
@@ -74,44 +120,111 @@ bolos-ya/
 │ ├── tsconfig.json
 │ ├── src/
 │ │ ├── api/ # generated TypeScript client from OpenAPI
-│ │ ├── components/ # reusable UI components
-│ │ ├── screens/ # app screens
-│ │ ├── navigation/ # React Navigation setup
+│ │ ├── components/
+│ │ ├── screens/
+│ │ ├── navigation/
 │ │ ├── store/ # Zustand / MobX state
 │ │ ├── services/
 │ │ │ ├── ocr.ts # Google ML Kit wrapper
 │ │ │ ├── syncManager.ts # offline sync queue logic
 │ │ │ └── database.ts # expo-sqlite setup & queries
-│ │ ├── utils/ # helpers, formatters
-│ │ └── types/ # additional TS types (if needed)
-│ ├── assets/ # images, fonts
+│ │ ├── utils/
+│ │ └── types/
+│ ├── assets/
 │ ├── android/ # native folder (bare workflow)
 │ └── ios/ # native folder (bare workflow)
-├── docs/
-│ └── openapi.yaml # OpenAPI 3.0 specification (source of truth)
-├── gen/ # generated code
-│ ├── go/ # Go server stubs (oapi-codegen)
-│ └── typescript/ # TypeScript client & models
+├── web/ # optional: admin dashboard or static files
+│ └── ...
 └── .github/
 └── workflows/
 ├── backend-ci.yml
 └── mobile-ci.yml
 
-## 4. Backend Architecture (Clean / Hexagonal with Gin & GORM)
+---
 
-The Go backend follows **clean architecture** to separate business logic from frameworks.  
+## 4. Backend Architecture (Layered with Gin & GORM)
+
+The backend follows a **conventional layered architecture** that separates concerns into distinct layers, making the codebase easy to understand, test, and maintain.
+
+### Layers
+
+- **Handlers** (`internal/server/handlers/`):  
+  Gin HTTP handlers that parse requests, validate input, call the appropriate service, and return JSON responses. Each handler is focused on a specific resource (e.g., auth, cart, sync).
+
+- **Services** (`internal/server/services/`):  
+  Contains the core business logic. Services orchestrate data operations, enforce rules (e.g., premium limits, budget validation), and call repositories. They are independent of HTTP concerns and can be unit‑tested with mocks.
+
+- **Repository** (`internal/server/repository/`):  
+  Data access layer using GORM. Each repository implements CRUD and custom queries for a specific model. Repositories are the only place that directly interact with the database.
+
+- **Models** (`internal/server/models/`):  
+  GORM structs that represent database tables. They include field definitions, tags (e.g., `gorm:"primaryKey"`), and sometimes simple validation methods.
+
+- **Middleware** (`internal/server/middleware/`):  
+  Reusable Gin middleware for authentication, CORS, logging, and request context injection.
+
+- **Routes** (`internal/server/routes.go`):  
+  Central place where all routes are registered with their handlers and middleware.
+
+### Technology Stack
+
 - **Gin** is used as the HTTP router and middleware provider.  
-- **GORM** is used as the ORM for database interactions, with models defined in `internal/infrastructure/gorm/models`.  
-- **Domain** (`internal/domain`): Plain Go structs and repository interfaces. Contains core business rules (e.g., confidence score algorithm).  
-- **Application** (`internal/application`): Use cases that orchestrate domain objects and repository calls. Testable without DB/HTTP.  
-- **Infrastructure** (`internal/infrastructure`): Concrete implementations of repositories using GORM, Redis client, etc.  
-- **API** (`internal/api/rest`): Gin handlers that parse requests, call application services, and format responses.  
-- **Dependency Injection**: All dependencies are passed explicitly (constructor injection). No global state.
+- **GORM** is used as the ORM for database interactions, with models defined in `internal/server/models`.
 
-**Key patterns:**
-- **Repository**: Data access abstraction. GORM repositories implement the interfaces defined in `domain`.
-- **CQRS (simplified)**: Commands (writes) are processed through the sync endpoint; queries (reads) go directly to DB.
-- **OpenAPI Contract‑First**: All endpoints defined in `docs/openapi.yaml`. Generate server stubs and client models.
+### Data Flow
+
+1. **HTTP Request** → Gin router → Middleware (auth, logger) → Handler
+2. **Handler** validates request, calls **Service** method
+3. **Service** implements business logic, calls **Repository** methods
+4. **Repository** executes GORM queries against the PostgreSQL database
+5. The result flows back through the layers to produce an HTTP response.
+
+### Dependency Injection
+
+Dependencies (e.g., repositories, external clients) are passed explicitly via constructor injection. This makes the code testable and avoids global state. Example:
+
+```go
+// Service constructor
+func NewCartService(cartRepo repository.CartRepository, productRepo repository.ProductRepository) *CartService {
+    return &CartService{cartRepo: cartRepo, productRepo: productRepo}
+}
+
+// Handler uses the service
+func SetupRoutes(router *gin.Engine, cartService *CartService) {
+    router.POST("/carts", cartHandler.CreateCart(cartService))
+}
+```
+
+### Project Structure (Extract)
+
+internal/server/
+├── handlers/
+│   ├── auth_handler.go
+│   ├── cart_handler.go
+│   ├── sync_handler.go
+│   └── dto/
+├── models/
+│   ├── user.go
+│   ├── cart.go
+│   ├── cart_item.go
+│   └── ...
+├── repository/
+│   ├── user_repo.go
+│   ├── cart_repo.go
+│   └── ...
+├── services/
+│   ├── auth_service.go
+│   ├── cart_service.go
+│   ├── sync_service.go
+│   └── price_confidence.go
+├── middleware/
+│   ├── auth.go
+│   └── logger.go
+└── routes.go
+
+This layered approach keeps the codebase organised, makes it easy to add new features, and follows common patterns in the Go community.
+
+---
 
 ## 5. Mobile Architecture
 
@@ -119,6 +232,8 @@ The Go backend follows **clean architecture** to separate business logic from fr
 - **Sync Manager**: A background process (using `expo-background-fetch` or a timer) sends pending operations to `POST /api/sync`. Uses exponential backoff on failure.
 - **State Management**: Zustand or MobX. Actions call the local repository (which updates SQLite and enqueues sync operations). The store subscribes to SQLite changes.
 - **Google ML Kit**: Integrated via an Expo config plugin (bare workflow). The OCR service captures images from camera, processes with ML Kit, and returns parsed text.
+
+---
 
 ## 6. Shared Types via OpenAPI
 
