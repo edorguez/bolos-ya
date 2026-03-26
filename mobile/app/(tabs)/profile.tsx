@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet } from 'react-native'
-import { useAppTheme } from '../styles/theme'
+import { useAppTheme } from '../../styles/theme'
 
-export default function NotFoundScreen() {
+export default function ProfileTab() {
   const theme = useAppTheme()
-  
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -25,10 +25,8 @@ export default function NotFoundScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.textHeading}>404 - Not Found</Text>
-      <Text style={styles.textBody}>
-        The screen you're looking for doesn't exist.
-      </Text>
+      <Text style={styles.textHeading}>Profile</Text>
+      <Text style={styles.textBody}>Account settings and sync status</Text>
     </View>
   )
 }

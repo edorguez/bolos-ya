@@ -25,10 +25,11 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
-      "expo-router",
+      ["expo-router", { "root": "./app" }],
       [
         "expo-splash-screen",
         {
@@ -37,9 +38,10 @@
           "resizeMode": "contain"
         }
       ],
-      ["expo-camera", { "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera for OCR scanning." }]
-      // Google ML Kit plugin will be added when implementing OCR
-      // ["expo-mlkit", { "textRecognition": true }] or custom config plugin
+      [
+        "expo-camera",
+        { "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera for OCR scanning." }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

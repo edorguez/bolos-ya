@@ -1,6 +1,18 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { safeGetItem, safeSetItem, safeRemoveItem } from '../utils/storage'
+
+const safeStorage = {
+  getItem: (key: string): Promise<string | null> => {
+    return safeGetItem(key)
+  },
+  setItem: (key: string, value: string): Promise<void> => {
+    return safeSetItem(key, value)
+  },
+  removeItem: (key: string): Promise<void> => {
+    return safeRemoveItem(key)
+  },
+}
 
 interface AuthState {
   token: string | null
@@ -17,17 +29,17 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    set => ({
       token: null,
       user: null,
       isLoading: false,
-      setToken: (token) => set({ token }),
-      setUser: (user) => set({ user }),
+      setToken: token => set({ token }),
+      setUser: user => set({ user }),
       logout: () => set({ token: null, user: null }),
     }),
     {
       name: 'auth-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => safeStorage),
     }
   )
 )

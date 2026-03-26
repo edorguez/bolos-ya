@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet } from 'react-native'
-import { useAppTheme } from '../../styles/theme'
+import { useAppTheme } from '../styles/theme'
 
-export default function CartsTab() {
+export default function NotFoundScreen() {
   const theme = useAppTheme()
-  
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -25,10 +25,8 @@ export default function CartsTab() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.textHeading}>My Carts</Text>
-      <Text style={styles.textBody}>
-        Manage your supermarket carts and calculations
-      </Text>
+      <Text style={styles.textHeading}>404 - Not Found</Text>
+      <Text style={styles.textBody}>The screen you're looking for doesn't exist.</Text>
     </View>
   )
 }

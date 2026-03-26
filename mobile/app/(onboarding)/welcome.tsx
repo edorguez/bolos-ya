@@ -1,0 +1,226 @@
+import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native'
+import { useRouter } from 'expo-router'
+import { useAppTheme } from '../../styles/theme'
+// @ts-ignore
+import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
+
+const { width } = Dimensions.get('window')
+
+export default function WelcomeScreen() {
+  const router = useRouter()
+  const theme = useAppTheme()
+
+  const handleNext = () => {
+    router.push('/(onboarding)/login-choice')
+  }
+
+  const handleSkip = () => {
+    router.push('/(onboarding)/login-choice')
+  }
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: theme.spacing.lg,
+      paddingTop: theme.spacing.xl,
+      paddingBottom: theme.spacing.md,
+    },
+    appName: {
+      fontSize: theme.typography.fontSize.xxl,
+      fontWeight: theme.typography.fontWeight.bold,
+      color: theme.colors.primary,
+      letterSpacing: -0.5,
+    },
+    skipButton: {
+      padding: theme.spacing.sm,
+    },
+    skipText: {
+      fontSize: theme.typography.fontSize.sm,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.textSecondary,
+      letterSpacing: 0.5,
+    },
+    main: {
+      flex: 1,
+      paddingHorizontal: theme.spacing.lg,
+      justifyContent: 'center',
+    },
+    illustrationContainer: {
+      width: '100%',
+      aspectRatio: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: theme.spacing.xxl,
+      position: 'relative',
+    },
+    blobBackground: {
+      position: 'absolute',
+      width: '95%',
+      height: '95%',
+      backgroundColor: '#f8eae8',
+      borderRadius: theme.borderRadius.xl,
+      transform: [{ rotate: '3deg' }],
+      opacity: 0.5,
+    },
+    illustration: {
+      width: '100%',
+      height: '100%',
+      backgroundColor: '#f8eae8',
+      borderRadius: theme.borderRadius.xl,
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+    },
+    circle: {
+      width: width * 0.4,
+      height: width * 0.4,
+      backgroundColor: 'rgba(255, 255, 255, 0.4)',
+      borderRadius: width * 0.2,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cartIcon: {
+      color: theme.colors.primary,
+    },
+    priceBubble1: {
+      position: 'absolute',
+      top: -width * 0.04,
+      right: -width * 0.04,
+      backgroundColor: theme.colors.secondary,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.sm,
+      borderRadius: theme.borderRadius.full,
+      transform: [{ rotate: '12deg' }],
+    },
+    priceBubble2: {
+      position: 'absolute',
+      top: '50%',
+      left: -width * 0.06,
+      backgroundColor: theme.colors.tertiaryContainer,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.sm,
+      borderRadius: theme.borderRadius.full,
+      transform: [{ rotate: '-12deg' }],
+    },
+    priceText: {
+      color: theme.colors.onSurface,
+      fontWeight: theme.typography.fontWeight.bold,
+      fontSize: theme.typography.fontSize.sm,
+    },
+    content: {
+      gap: theme.spacing.md,
+    },
+    title: {
+      fontSize: theme.typography.fontSize.xxl,
+      fontWeight: theme.typography.fontWeight.bold,
+      color: theme.colors.secondary,
+      lineHeight: 36,
+      letterSpacing: -0.5,
+    },
+    description: {
+      fontSize: theme.typography.fontSize.lg,
+      lineHeight: 24,
+      color: theme.colors.textSecondary,
+    },
+    boldText: {
+      fontWeight: theme.typography.fontWeight.bold,
+      color: theme.colors.text,
+    },
+    footer: {
+      padding: theme.spacing.lg,
+      gap: theme.spacing.xl,
+    },
+    stepIndicators: {
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
+      justifyContent: 'center',
+    },
+    stepIndicatorActive: {
+      width: width * 0.08,
+      height: 8,
+      backgroundColor: theme.colors.primary,
+      borderRadius: 4,
+    },
+    stepIndicatorInactive: {
+      width: width * 0.02,
+      height: 8,
+      backgroundColor: theme.colors.surfaceContainer,
+      borderRadius: 4,
+    },
+    nextButton: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.full,
+      paddingVertical: theme.spacing.lg,
+      paddingHorizontal: theme.spacing.xl,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.sm,
+      shadowColor: theme.colors.primary,
+      shadowOffset: { width: 0, height: 20 },
+      shadowOpacity: 0.2,
+      shadowRadius: 40,
+      elevation: 8,
+    },
+    nextButtonText: {
+      color: '#FFFFFF',
+      fontSize: theme.typography.fontSize.xl,
+      fontWeight: theme.typography.fontWeight.bold,
+    },
+  })
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.appName}>MercadoLibreta</Text>
+        <Pressable onPress={handleSkip} style={styles.skipButton}>
+          <Text style={styles.skipText}>Omitir</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.main}>
+        <View style={styles.illustrationContainer}>
+          <View style={styles.blobBackground} />
+          <View style={styles.illustration}>
+            <View style={styles.circle}>
+              <MaterialIcons name="shopping_cart" size={96} color={theme.colors.primary} />
+            </View>
+            <View style={styles.priceBubble1}>
+              <Text style={styles.priceText}>$ 12.50</Text>
+            </View>
+            <View style={styles.priceBubble2}>
+              <Text style={styles.priceText}>Bs. 450</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.content}>
+          <Text style={styles.title}>Calcula sobre la marcha</Text>
+          <Text style={styles.description}>
+            Olvídate del miedo en la cola del súper. Registra tus productos en tiempo real y mira el
+            total exacto tanto en <Text style={styles.boldText}>Bolívares</Text> como en{' '}
+            <Text style={styles.boldText}>Dólares</Text>.
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.footer}>
+        <View style={styles.stepIndicators}>
+          <View style={styles.stepIndicatorActive} />
+          <View style={styles.stepIndicatorInactive} />
+        </View>
+
+        <Pressable onPress={handleNext} style={styles.nextButton}>
+          <Text style={styles.nextButtonText}>Siguiente</Text>
+          <MaterialIcons name="arrow_forward" size={24} color="#FFFFFF" />
+        </Pressable>
+      </View>
+    </View>
+  )
+}

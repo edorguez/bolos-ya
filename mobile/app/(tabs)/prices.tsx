@@ -3,7 +3,7 @@ import { useAppTheme } from '../../styles/theme'
 
 export default function PricesTab() {
   const theme = useAppTheme()
-  
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -26,9 +26,7 @@ export default function PricesTab() {
   return (
     <View style={styles.container}>
       <Text style={styles.textHeading}>Price Database</Text>
-      <Text style={styles.textBody}>
-        Browse crowdsourced prices and contribute
-      </Text>
+      <Text style={styles.textBody}>Browse crowdsourced prices and contribute</Text>
     </View>
   )
 }

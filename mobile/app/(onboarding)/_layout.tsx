@@ -1,11 +1,12 @@
 import { Stack } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StyleSheet } from 'react-native'
-import { useAppTheme } from '../styles/theme'
+import { useAppTheme } from '../../styles/theme'
+import { StatusBar } from 'expo-status-bar'
 
-export default function RootLayout() {
+export default function OnboardingLayout() {
   const theme = useAppTheme()
-  
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -14,7 +15,8 @@ export default function RootLayout() {
   })
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
+      <StatusBar style="dark" translucent backgroundColor="transparent" />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -22,10 +24,8 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: 'transparent' },
         }}
       >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="auth" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="welcome" />
+        <Stack.Screen name="login-choice" />
       </Stack>
     </SafeAreaView>
   )

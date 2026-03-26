@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet } from 'react-native'
 import { useAppTheme } from '../../styles/theme'
 
-export default function ProfileTab() {
+export default function HistoryTab() {
   const theme = useAppTheme()
-  
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -25,10 +25,8 @@ export default function ProfileTab() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.textHeading}>Profile</Text>
-      <Text style={styles.textBody}>
-        Account settings and sync status
-      </Text>
+      <Text style={styles.textHeading}>History</Text>
+      <Text style={styles.textBody}>View your shopping cart history and past purchases</Text>
     </View>
   )
 }
