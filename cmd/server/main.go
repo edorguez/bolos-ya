@@ -30,9 +30,7 @@ func main() {
 
 	// Connect to PostgreSQL
 	db, err := postgresql.Connect(postgresql.Config{
-		URL:          cfg.Database.URL,
-		MaxOpenConns: cfg.Database.MaxOpenConns,
-		MaxIdleConns: cfg.Database.MaxIdleConns,
+		URL: cfg.Database.URL,
 	})
 	if err != nil {
 		logger.Fatal("Failed to connect to PostgreSQL", zap.Error(err))

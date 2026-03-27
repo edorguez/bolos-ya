@@ -1,6 +1,6 @@
 # Technical Specification – Bolos Ya
-**Version:** 1.0 – MVP  
-**Date:** March 2026  
+**Version:** 1.0 – MVP
+**Date:** March 2026 
 
 ---
 
@@ -506,13 +506,13 @@ This function is called whenever a new price is reported; it updates the confide
 ## 12. Deployment & Configuration
 
 ### 12.1 Backend (Docker + ECS)
-- **Dockerfile**: Multi‑stage, final image based on `scratch` or `alpine`.  
-- **Environment variables** (provided via ECS task definition or `.env` file locally):  
-  - `DATABASE_URL` (PostgreSQL connection string)  
-  - `REDIS_URL`  
-  - `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`  
-  - `JWT_SECRET`  
-  - `GOOGLE_OAUTH_CLIENT_ID` (if needed for token verification)  
+- **Dockerfile**: Multi‑stage, final image based on `scratch` or `alpine`.
+- **Environment variables** (provided via ECS task definition or `.env` file locally):
+  - `DATABASE_URL` (PostgreSQL connection string)
+  - `REDIS_URL`
+  - `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
+  - `JWT_SECRET`
+  - `GOOGLE_OAUTH_CLIENT_ID` (if needed for token verification)
 - **docker-compose.yml** for local development: spins up PostgreSQL, Redis, and optionally MinIO for S3 mock.
 
 ### 12.2 Mobile (Expo)

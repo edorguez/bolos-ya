@@ -1,5 +1,5 @@
 # Makefile for Bolos Ya Project
-.PHONY: help build test lint run generate docker-up docker-down migrate-up migrate-down clean deps
+.PHONY: help build test lint run generate docker-build docker-up docker-down migrate-up migrate-down clean deps
 
 # Variables
 BINARY_NAME=bolos-ya-server
@@ -23,7 +23,8 @@ help:
 	@echo "  ${GREEN}run${NC}           - Run the backend server"
 	@echo "  ${GREEN}generate${NC}      - Generate code from OpenAPI spec"
 	@echo "  ${GREEN}deps${NC}          - Install dependencies"
-	@echo "  ${GREEN}docker-up${NC}     - Start development services (PostgreSQL, Redis)"
+	@echo "  ${GREEN}docker-build${NC}  - Build Docker image for the server"
+	@echo "  ${GREEN}docker-up${NC}     - Start all development services (PostgreSQL, Redis, MinIO, Server) using .env.docker"
 	@echo "  ${GREEN}docker-down${NC}   - Stop development services"
 	@echo "  ${GREEN}migrate-up${NC}    - Run database migrations"
 	@echo "  ${GREEN}migrate-down${NC}  - Rollback database migrations"
@@ -82,15 +83,20 @@ deps:
 	go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
 	go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
-## Docker Compose: Start development services
+## Docker: Build server image
+docker-build:
+	@echo "${YELLOW}Building Docker image for server...${NC}"
+	docker-compose build server
+
+## Docker Compose: Start development services with .env.docker
 docker-up:
-	@echo "${YELLOW}Starting development services...${NC}"
-	docker-compose up -d
+	@echo "${YELLOW}Starting development services with .env.docker...${NC}"
+	docker-compose --env-file .env.docker up -d
 
 ## Docker Compose: Stop development services
 docker-down:
 	@echo "${YELLOW}Stopping development services...${NC}"
-	docker-compose down
+	docker-compose --env-file .env.docker down
 
 ## Migrations: Run database migrations up
 migrate-up:

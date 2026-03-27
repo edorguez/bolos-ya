@@ -1,89 +1,114 @@
-version: '3.8'
-
 services:
+
+  # server:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     tags:
+  #       - edorguez/bolos-ya:latest
+  #   image: edorguez/bolos-ya:latest
+  #   container_name: bolos-ya-server
+  #   ports:
+  #     - "${PORT}:${PORT}"
+  #   environment:
+  #     PORT: ${PORT}
+  #     SERVER_HOST: ${SERVER_HOST}
+  #     SERVER_READ_TIMEOUT: ${SERVER_READ_TIMEOUT}
+  #     SERVER_WRITE_TIMEOUT: ${SERVER_WRITE_TIMEOUT}
+  #     DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable
+  #     REDIS_URL: redis://redis:6379/${REDIS_DB}
+  #     REDIS_DB: ${REDIS_DB}
+  #     REDIS_PASSWORD: ${REDIS_PASSWORD}
+  #     JWT_SECRET: ${JWT_SECRET}
+  #     JWT_ACCESS_TOKEN_EXPIRY: ${JWT_ACCESS_TOKEN_EXPIRY}
+  #     JWT_REFRESH_TOKEN_EXPIRY: ${JWT_REFRESH_TOKEN_EXPIRY}
+  #     JWT_ISSUER: ${JWT_ISSUER}
+  #     GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID}
+  #     GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET}
+  #     AWS_REGION: ${AWS_REGION}
+  #     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+  #     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+  #     AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+  #     AWS_S3_ENDPOINT: http://minio:9000
+  #     BCV_API_URL: ${BCV_API_URL}
+  #     APP_ENV: ${APP_ENV}
+  #     APP_DEBUG: ${APP_DEBUG}
+  #     APP_ALLOWED_ORIGINS: ${APP_ALLOWED_ORIGINS}
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_started
+  #     minio:
+  #       condition: service_started
+  #   networks:
+  #     - bolos-ya-network
+  #   restart: unless-stopped
+
   postgres:
     image: postgres:15-alpine
-    container_name: bolosya-postgres
+    container_name: bolos-ya-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: bolosya_dev
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     ports:
-      - "5432:5432"
+      - "${DATABASE_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - bolos_ya_db_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - bolos-ya-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - bolosya-network
+    restart: always
 
   redis:
     image: redis:7-alpine
-    container_name: bolosya-redis
+    container_name: bolos-ya-redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
+      - bolos_ya_redis_data:/data
+    networks:
+      - bolos-ya-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - bolosya-network
+    restart: always
 
   minio:
     image: minio/minio:latest
-    container_name: bolosya-minio
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio_data:/data
+    container_name: bolos-ya-minio
     command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    ports:
+      - "${MINIO_PORT_1}:9000"
+      - "${MINIO_PORT_2}:9001"
+    volumes:
+      - bolos_ya_minio_data:/data
+    networks:
+      - bolos-ya-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
-      timeout: 20s
-      retries: 3
-    networks:
-      - bolosya-network
-
-  adminer:
-    image: adminer:latest
-    container_name: bolosya-adminer
-    ports:
-      - "8081:8080"
-    environment:
-      ADMINER_DEFAULT_SERVER: postgres
-    depends_on:
-      - postgres
-    networks:
-      - bolosya-network
-
-  # Optional: MailHog for email testing
-  mailhog:
-    image: mailhog/mailhog:latest
-    container_name: bolosya-mailhog
-    ports:
-      - "1025:1025"
-      - "8025:8025"
-    networks:
-      - bolosya-network
+      timeout: 10s
+      start_period: 30s
+      retries: 5
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
-  redis_data:
-  minio_data:
+  bolos_ya_db_data:
+  bolos_ya_redis_data:
+  bolos_ya_minio_data:
 
 networks:
-  bolosya-network:
+  bolos-ya-network:
     driver: bridge
