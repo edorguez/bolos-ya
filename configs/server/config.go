@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
@@ -168,7 +169,10 @@ func bindEnvVars() error {
 func Load() (*Config, error) {
 	var cfg Config
 
-	viper.SetConfigFile(".env")
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found (or error reading it), relying on existing environment")
+	}
+
 	viper.AutomaticEnv()
 
 	if err := bindEnvVars(); err != nil {
@@ -177,8 +181,6 @@ func Load() (*Config, error) {
 
 	if err := viper.ReadInConfig(); err == nil {
 		log.Println("Using .env file for configuration")
-	} else {
-		log.Println("No .env file found, using environment variables")
 	}
 
 	if err := viper.Unmarshal(&cfg); err != nil {
