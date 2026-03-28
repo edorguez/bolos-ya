@@ -11,18 +11,25 @@ import (
 	"github.com/edorguez/bolos-ya/pkg/core/errors"
 )
 
-// GormProductRepository implements ProductRepository using GORM
-type GormProductRepository struct {
+type ProductRepository interface {
+	Create(ctx context.Context, product *models.Product) error
+	FindByID(ctx context.Context, id uuid.UUID) (*models.Product, error)
+	FindByName(ctx context.Context, name string) ([]*models.Product, error)
+	FindByBarcode(ctx context.Context, barcode string) (*models.Product, error)
+	Update(ctx context.Context, product *models.Product) error
+	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+type productRepository struct {
 	db *gorm.DB
 }
 
-// NewProductRepository creates a new ProductRepository
-func NewProductRepository(db *gorm.DB) *GormProductRepository {
-	return &GormProductRepository{db: db}
+func NewProductRepository(db *gorm.DB) ProductRepository {
+	return &productRepository{db: db}
 }
 
 // Create inserts a new product into the database
-func (r *GormProductRepository) Create(ctx context.Context, product *models.Product) error {
+func (r *productRepository) Create(ctx context.Context, product *models.Product) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -30,7 +37,7 @@ func (r *GormProductRepository) Create(ctx context.Context, product *models.Prod
 }
 
 // FindByID retrieves a product by ID
-func (r *GormProductRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Product, error) {
+func (r *productRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Product, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -46,7 +53,7 @@ func (r *GormProductRepository) FindByID(ctx context.Context, id uuid.UUID) (*mo
 }
 
 // FindByName retrieves products by name (partial match)
-func (r *GormProductRepository) FindByName(ctx context.Context, name string) ([]*models.Product, error) {
+func (r *productRepository) FindByName(ctx context.Context, name string) ([]*models.Product, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -63,7 +70,7 @@ func (r *GormProductRepository) FindByName(ctx context.Context, name string) ([]
 }
 
 // FindByBarcode retrieves a product by barcode
-func (r *GormProductRepository) FindByBarcode(ctx context.Context, barcode string) (*models.Product, error) {
+func (r *productRepository) FindByBarcode(ctx context.Context, barcode string) (*models.Product, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -79,7 +86,7 @@ func (r *GormProductRepository) FindByBarcode(ctx context.Context, barcode strin
 }
 
 // Update updates an existing product
-func (r *GormProductRepository) Update(ctx context.Context, product *models.Product) error {
+func (r *productRepository) Update(ctx context.Context, product *models.Product) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -87,7 +94,7 @@ func (r *GormProductRepository) Update(ctx context.Context, product *models.Prod
 }
 
 // Delete soft deletes a product by ID
-func (r *GormProductRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *productRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

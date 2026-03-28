@@ -11,18 +11,26 @@ import (
 	"github.com/edorguez/bolos-ya/pkg/core/errors"
 )
 
-// GormCartItemRepository implements CartItemRepository using GORM
-type GormCartItemRepository struct {
+type CartItemRepository interface {
+	Create(ctx context.Context, cartItem *models.CartItem) error
+	FindByID(ctx context.Context, id uuid.UUID) (*models.CartItem, error)
+	FindByCartID(ctx context.Context, cartID uuid.UUID) ([]*models.CartItem, error)
+	Update(ctx context.Context, cartItem *models.CartItem) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	DeleteByCartID(ctx context.Context, cartID uuid.UUID) error
+}
+
+type cartItemRepository struct {
 	db *gorm.DB
 }
 
 // NewCartItemRepository creates a new CartItemRepository
-func NewCartItemRepository(db *gorm.DB) *GormCartItemRepository {
-	return &GormCartItemRepository{db: db}
+func NewCartItemRepository(db *gorm.DB) CartItemRepository {
+	return &cartItemRepository{db: db}
 }
 
 // Create inserts a new cart item into the database
-func (r *GormCartItemRepository) Create(ctx context.Context, cartItem *models.CartItem) error {
+func (r *cartItemRepository) Create(ctx context.Context, cartItem *models.CartItem) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -30,7 +38,7 @@ func (r *GormCartItemRepository) Create(ctx context.Context, cartItem *models.Ca
 }
 
 // FindByID retrieves a cart item by ID
-func (r *GormCartItemRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.CartItem, error) {
+func (r *cartItemRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.CartItem, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -46,7 +54,7 @@ func (r *GormCartItemRepository) FindByID(ctx context.Context, id uuid.UUID) (*m
 }
 
 // FindByCartID retrieves all cart items for a specific cart
-func (r *GormCartItemRepository) FindByCartID(ctx context.Context, cartID uuid.UUID) ([]*models.CartItem, error) {
+func (r *cartItemRepository) FindByCartID(ctx context.Context, cartID uuid.UUID) ([]*models.CartItem, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -66,7 +74,7 @@ func (r *GormCartItemRepository) FindByCartID(ctx context.Context, cartID uuid.U
 }
 
 // Update updates an existing cart item
-func (r *GormCartItemRepository) Update(ctx context.Context, cartItem *models.CartItem) error {
+func (r *cartItemRepository) Update(ctx context.Context, cartItem *models.CartItem) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -74,7 +82,7 @@ func (r *GormCartItemRepository) Update(ctx context.Context, cartItem *models.Ca
 }
 
 // Delete deletes a cart item by ID (hard delete)
-func (r *GormCartItemRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *cartItemRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -82,7 +90,7 @@ func (r *GormCartItemRepository) Delete(ctx context.Context, id uuid.UUID) error
 }
 
 // DeleteByCartID deletes all cart items for a specific cart
-func (r *GormCartItemRepository) DeleteByCartID(ctx context.Context, cartID uuid.UUID) error {
+func (r *cartItemRepository) DeleteByCartID(ctx context.Context, cartID uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

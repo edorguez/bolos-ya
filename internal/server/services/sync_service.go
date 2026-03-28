@@ -15,8 +15,7 @@ type SyncService interface {
 	MarkUserSynced(ctx context.Context, userID uuid.UUID) error
 }
 
-// SyncServiceImpl implements SyncService
-type SyncServiceImpl struct {
+type syncService struct {
 	userRepo        repository.UserRepository
 	cartRepo        repository.CartRepository
 	cartItemRepo    repository.CartItemRepository
@@ -25,7 +24,6 @@ type SyncServiceImpl struct {
 	supermarketRepo repository.SupermarketRepository
 }
 
-// NewSyncService creates a new SyncService
 func NewSyncService(
 	userRepo repository.UserRepository,
 	cartRepo repository.CartRepository,
@@ -33,8 +31,8 @@ func NewSyncService(
 	productRepo repository.ProductRepository,
 	priceRepo repository.PriceRepository,
 	supermarketRepo repository.SupermarketRepository,
-) *SyncServiceImpl {
-	return &SyncServiceImpl{
+) SyncService {
+	return &syncService{
 		userRepo:        userRepo,
 		cartRepo:        cartRepo,
 		cartItemRepo:    cartItemRepo,
@@ -93,7 +91,7 @@ type SyncResponse struct {
 }
 
 // ProcessSync processes a batch of sync operations from a mobile client
-func (s *SyncServiceImpl) ProcessSync(ctx context.Context, userID uuid.UUID, req SyncRequest) (*SyncResponse, error) {
+func (s *syncService) ProcessSync(ctx context.Context, userID uuid.UUID, req SyncRequest) (*SyncResponse, error) {
 	results := make([]SyncResult, len(req.Operations))
 
 	for i, op := range req.Operations {
@@ -134,7 +132,7 @@ func (s *SyncServiceImpl) ProcessSync(ctx context.Context, userID uuid.UUID, req
 }
 
 // processUserOperation processes sync operations for users table
-func (s *SyncServiceImpl) processUserOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+func (s *syncService) processUserOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
 	// Users can only modify their own data
 	opUserID, ok := op.Payload["id"].(string)
 	if !ok {
@@ -186,37 +184,37 @@ func (s *SyncServiceImpl) processUserOperation(ctx context.Context, userID uuid.
 }
 
 // processSupermarketOperation processes sync operations for supermarkets table
-func (s *SyncServiceImpl) processSupermarketOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+func (s *syncService) processSupermarketOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
 	// Implementation similar to users, checking ownership
 	return false, "not implemented"
 }
 
 // processProductOperation processes sync operations for products table
-func (s *SyncServiceImpl) processProductOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+func (s *syncService) processProductOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
 	// Products are global, no ownership check needed
 	return false, "not implemented"
 }
 
 // processPriceOperation processes sync operations for prices table
-func (s *SyncServiceImpl) processPriceOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+func (s *syncService) processPriceOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
 	// Price reporting - check if user is the reporter
 	return false, "not implemented"
 }
 
 // processCartOperation processes sync operations for carts table
-func (s *SyncServiceImpl) processCartOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+func (s *syncService) processCartOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
 	// Carts - check if user owns the cart
 	return false, "not implemented"
 }
 
 // processCartItemOperation processes sync operations for cart_items table
-func (s *SyncServiceImpl) processCartItemOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+func (s *syncService) processCartItemOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
 	// Cart items - check if user owns the parent cart
 	return false, "not implemented"
 }
 
 // MarkUserSynced updates the user's last sync timestamp
-func (s *SyncServiceImpl) MarkUserSynced(ctx context.Context, userID uuid.UUID) error {
+func (s *syncService) MarkUserSynced(ctx context.Context, userID uuid.UUID) error {
 	user, err := s.userRepo.FindByID(ctx, userID)
 	if err != nil {
 		return err

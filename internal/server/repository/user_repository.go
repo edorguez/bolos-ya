@@ -11,18 +11,25 @@ import (
 	"github.com/edorguez/bolos-ya/pkg/core/errors"
 )
 
-// GormUserRepository implements UserRepository using GORM
-type GormUserRepository struct {
+type UserRepository interface {
+	Create(ctx context.Context, user *models.User) error
+	FindByID(ctx context.Context, id uuid.UUID) (*models.User, error)
+	FindByEmail(ctx context.Context, email string) (*models.User, error)
+	FindByGoogleID(ctx context.Context, googleID string) (*models.User, error)
+	Update(ctx context.Context, user *models.User) error
+	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+type userRepository struct {
 	db *gorm.DB
 }
 
-// NewUserRepository creates a new UserRepository
-func NewUserRepository(db *gorm.DB) *GormUserRepository {
-	return &GormUserRepository{db: db}
+func NewUserRepository(db *gorm.DB) UserRepository {
+	return &userRepository{db: db}
 }
 
 // Create inserts a new user into the database
-func (r *GormUserRepository) Create(ctx context.Context, user *models.User) error {
+func (r *userRepository) Create(ctx context.Context, user *models.User) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -30,7 +37,7 @@ func (r *GormUserRepository) Create(ctx context.Context, user *models.User) erro
 }
 
 // FindByID retrieves a user by ID
-func (r *GormUserRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
+func (r *userRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -46,7 +53,7 @@ func (r *GormUserRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 }
 
 // FindByEmail retrieves a user by email
-func (r *GormUserRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -62,7 +69,7 @@ func (r *GormUserRepository) FindByEmail(ctx context.Context, email string) (*mo
 }
 
 // FindByGoogleID retrieves a user by Google ID
-func (r *GormUserRepository) FindByGoogleID(ctx context.Context, googleID string) (*models.User, error) {
+func (r *userRepository) FindByGoogleID(ctx context.Context, googleID string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -78,7 +85,7 @@ func (r *GormUserRepository) FindByGoogleID(ctx context.Context, googleID string
 }
 
 // Update updates an existing user
-func (r *GormUserRepository) Update(ctx context.Context, user *models.User) error {
+func (r *userRepository) Update(ctx context.Context, user *models.User) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -86,7 +93,7 @@ func (r *GormUserRepository) Update(ctx context.Context, user *models.User) erro
 }
 
 // Delete soft deletes a user by ID
-func (r *GormUserRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *userRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

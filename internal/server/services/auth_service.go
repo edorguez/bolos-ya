@@ -21,15 +21,13 @@ type AuthService interface {
 	VerifyToken(tokenString string) (string, error)
 }
 
-// AuthServiceImpl implements AuthService
-type AuthServiceImpl struct {
+type authService struct {
 	userRepo  repository.UserRepository
 	jwtSecret string
 }
 
-// NewAuthService creates a new AuthService
-func NewAuthService(userRepo repository.UserRepository, jwtSecret string) *AuthServiceImpl {
-	return &AuthServiceImpl{
+func NewAuthService(userRepo repository.UserRepository, jwtSecret string) AuthService {
+	return &authService{
 		userRepo:  userRepo,
 		jwtSecret: jwtSecret,
 	}
@@ -42,7 +40,7 @@ type RegisterRequest struct {
 }
 
 // Register creates a new user with email/password authentication
-func (s *AuthServiceImpl) Register(ctx context.Context, req RegisterRequest) (*models.User, error) {
+func (s *authService) Register(ctx context.Context, req RegisterRequest) (*models.User, error) {
 	// Check if user already exists
 	existing, err := s.userRepo.FindByEmail(ctx, req.Email)
 	if err == nil && existing != nil {
@@ -83,7 +81,7 @@ type LoginResponse struct {
 }
 
 // Login authenticates a user with email/password
-func (s *AuthServiceImpl) Login(ctx context.Context, req LoginRequest) (*LoginResponse, error) {
+func (s *authService) Login(ctx context.Context, req LoginRequest) (*LoginResponse, error) {
 	// Find user by email
 	user, err := s.userRepo.FindByEmail(ctx, req.Email)
 	if err != nil {
@@ -126,7 +124,7 @@ type GoogleLoginRequest struct {
 }
 
 // LoginWithGoogle authenticates a user using Google OAuth
-func (s *AuthServiceImpl) LoginWithGoogle(ctx context.Context, req GoogleLoginRequest) (*LoginResponse, error) {
+func (s *authService) LoginWithGoogle(ctx context.Context, req GoogleLoginRequest) (*LoginResponse, error) {
 	// In a real implementation, we would verify the Google ID token
 	// and extract user information from it
 	// For now, this is a placeholder
@@ -134,7 +132,7 @@ func (s *AuthServiceImpl) LoginWithGoogle(ctx context.Context, req GoogleLoginRe
 }
 
 // VerifyToken validates a JWT token and returns the user ID
-func (s *AuthServiceImpl) VerifyToken(tokenString string) (string, error) {
+func (s *authService) VerifyToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
@@ -156,7 +154,7 @@ func (s *AuthServiceImpl) VerifyToken(tokenString string) (string, error) {
 }
 
 // generateAccessToken creates a JWT access token
-func (s *AuthServiceImpl) generateAccessToken(userID string) (string, error) {
+func (s *authService) generateAccessToken(userID string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,
 		"exp": time.Now().Add(15 * time.Minute).Unix(),
@@ -170,7 +168,7 @@ func (s *AuthServiceImpl) generateAccessToken(userID string) (string, error) {
 }
 
 // generateRefreshToken creates a JWT refresh token
-func (s *AuthServiceImpl) generateRefreshToken(userID string) (string, error) {
+func (s *authService) generateRefreshToken(userID string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,
 		"exp": time.Now().Add(7 * 24 * time.Hour).Unix(),

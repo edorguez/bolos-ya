@@ -11,18 +11,25 @@ import (
 	"github.com/edorguez/bolos-ya/pkg/core/errors"
 )
 
-// GormSupermarketRepository implements SupermarketRepository using GORM
-type GormSupermarketRepository struct {
+type SupermarketRepository interface {
+	Create(ctx context.Context, supermarket *models.Supermarket) error
+	FindByID(ctx context.Context, id uuid.UUID) (*models.Supermarket, error)
+	FindByName(ctx context.Context, name string) ([]*models.Supermarket, error)
+	FindByChain(ctx context.Context, chain string) ([]*models.Supermarket, error)
+	Update(ctx context.Context, supermarket *models.Supermarket) error
+	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+type supermarketRepository struct {
 	db *gorm.DB
 }
 
-// NewSupermarketRepository creates a new SupermarketRepository
-func NewSupermarketRepository(db *gorm.DB) *GormSupermarketRepository {
-	return &GormSupermarketRepository{db: db}
+func NewSupermarketRepository(db *gorm.DB) SupermarketRepository {
+	return &supermarketRepository{db: db}
 }
 
 // Create inserts a new supermarket into the database
-func (r *GormSupermarketRepository) Create(ctx context.Context, supermarket *models.Supermarket) error {
+func (r *supermarketRepository) Create(ctx context.Context, supermarket *models.Supermarket) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -30,7 +37,7 @@ func (r *GormSupermarketRepository) Create(ctx context.Context, supermarket *mod
 }
 
 // FindByID retrieves a supermarket by ID
-func (r *GormSupermarketRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Supermarket, error) {
+func (r *supermarketRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Supermarket, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -46,7 +53,7 @@ func (r *GormSupermarketRepository) FindByID(ctx context.Context, id uuid.UUID) 
 }
 
 // FindByName retrieves supermarkets by name (partial match)
-func (r *GormSupermarketRepository) FindByName(ctx context.Context, name string) ([]*models.Supermarket, error) {
+func (r *supermarketRepository) FindByName(ctx context.Context, name string) ([]*models.Supermarket, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -63,7 +70,7 @@ func (r *GormSupermarketRepository) FindByName(ctx context.Context, name string)
 }
 
 // FindByChain retrieves supermarkets by chain name
-func (r *GormSupermarketRepository) FindByChain(ctx context.Context, chain string) ([]*models.Supermarket, error) {
+func (r *supermarketRepository) FindByChain(ctx context.Context, chain string) ([]*models.Supermarket, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -80,7 +87,7 @@ func (r *GormSupermarketRepository) FindByChain(ctx context.Context, chain strin
 }
 
 // Update updates an existing supermarket
-func (r *GormSupermarketRepository) Update(ctx context.Context, supermarket *models.Supermarket) error {
+func (r *supermarketRepository) Update(ctx context.Context, supermarket *models.Supermarket) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -88,7 +95,7 @@ func (r *GormSupermarketRepository) Update(ctx context.Context, supermarket *mod
 }
 
 // Delete soft deletes a supermarket by ID
-func (r *GormSupermarketRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *supermarketRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

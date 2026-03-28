@@ -16,14 +16,12 @@ type PriceConfidenceService interface {
 	UpdateAllConfidenceScores(productID, supermarketID uuid.UUID) error
 }
 
-// PriceConfidenceServiceImpl implements PriceConfidenceService
-type PriceConfidenceServiceImpl struct {
+type priceConfidenceService struct {
 	priceRepo repository.PriceRepository
 }
 
-// NewPriceConfidenceService creates a new PriceConfidenceService
-func NewPriceConfidenceService(priceRepo repository.PriceRepository) *PriceConfidenceServiceImpl {
-	return &PriceConfidenceServiceImpl{
+func NewPriceConfidenceService(priceRepo repository.PriceRepository) PriceConfidenceService {
+	return &priceConfidenceService{
 		priceRepo: priceRepo,
 	}
 }
@@ -38,7 +36,7 @@ type PriceCluster struct {
 
 // CalculatePriceConfidence calculates the confidence score for a product at a supermarket
 // based on recent price reports. Returns a score between 0.0 and 1.0.
-func (s *PriceConfidenceServiceImpl) CalculatePriceConfidence(productID, supermarketID uuid.UUID) (float64, error) {
+func (s *priceConfidenceService) CalculatePriceConfidence(productID, supermarketID uuid.UUID) (float64, error) {
 	// Get recent price reports (last 7 days)
 	prices, err := s.priceRepo.FindRecentPrices(nil, productID, supermarketID, 7)
 	if err != nil {
@@ -67,7 +65,7 @@ func (s *PriceConfidenceServiceImpl) CalculatePriceConfidence(productID, superma
 }
 
 // clusterPrices groups similar prices together within the given tolerance
-func (s *PriceConfidenceServiceImpl) clusterPrices(prices []*models.Price, tolerance float64) []PriceCluster {
+func (s *priceConfidenceService) clusterPrices(prices []*models.Price, tolerance float64) []PriceCluster {
 	if len(prices) == 0 {
 		return nil
 	}
@@ -127,7 +125,7 @@ func (s *PriceConfidenceServiceImpl) clusterPrices(prices []*models.Price, toler
 }
 
 // findLargestCluster returns the cluster with the most prices
-func (s *PriceConfidenceServiceImpl) findLargestCluster(clusters []PriceCluster) PriceCluster {
+func (s *priceConfidenceService) findLargestCluster(clusters []PriceCluster) PriceCluster {
 	if len(clusters) == 0 {
 		return PriceCluster{}
 	}
@@ -143,7 +141,7 @@ func (s *PriceConfidenceServiceImpl) findLargestCluster(clusters []PriceCluster)
 }
 
 // UpdatePriceConfidence updates the confidence score for a specific price report
-func (s *PriceConfidenceServiceImpl) UpdatePriceConfidence(price *models.Price) error {
+func (s *priceConfidenceService) UpdatePriceConfidence(price *models.Price) error {
 	confidence, err := s.CalculatePriceConfidence(price.ProductID, price.SupermarketID)
 	if err != nil {
 		return err
@@ -155,7 +153,7 @@ func (s *PriceConfidenceServiceImpl) UpdatePriceConfidence(price *models.Price) 
 }
 
 // UpdateAllConfidenceScores recalculates confidence for all prices of a product at a supermarket
-func (s *PriceConfidenceServiceImpl) UpdateAllConfidenceScores(productID, supermarketID uuid.UUID) error {
+func (s *priceConfidenceService) UpdateAllConfidenceScores(productID, supermarketID uuid.UUID) error {
 	prices, err := s.priceRepo.FindByProductAndSupermarket(nil, productID, supermarketID)
 	if err != nil {
 		return err

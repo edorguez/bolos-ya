@@ -11,18 +11,25 @@ import (
 	"github.com/edorguez/bolos-ya/pkg/core/errors"
 )
 
-// GormCartRepository implements CartRepository using GORM
-type GormCartRepository struct {
+type CartRepository interface {
+	Create(ctx context.Context, cart *models.Cart) error
+	FindByID(ctx context.Context, id uuid.UUID) (*models.Cart, error)
+	FindByUserID(ctx context.Context, userID uuid.UUID, status models.CartStatus) ([]*models.Cart, error)
+	FindActiveByUserID(ctx context.Context, userID uuid.UUID) (*models.Cart, error)
+	Update(ctx context.Context, cart *models.Cart) error
+	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+type cartRepository struct {
 	db *gorm.DB
 }
 
-// NewCartRepository creates a new CartRepository
-func NewCartRepository(db *gorm.DB) *GormCartRepository {
-	return &GormCartRepository{db: db}
+func NewCartRepository(db *gorm.DB) CartRepository {
+	return &cartRepository{db: db}
 }
 
 // Create inserts a new cart into the database
-func (r *GormCartRepository) Create(ctx context.Context, cart *models.Cart) error {
+func (r *cartRepository) Create(ctx context.Context, cart *models.Cart) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -30,7 +37,7 @@ func (r *GormCartRepository) Create(ctx context.Context, cart *models.Cart) erro
 }
 
 // FindByID retrieves a cart by ID
-func (r *GormCartRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Cart, error) {
+func (r *cartRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Cart, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -46,7 +53,7 @@ func (r *GormCartRepository) FindByID(ctx context.Context, id uuid.UUID) (*model
 }
 
 // FindByUserID retrieves carts for a specific user, optionally filtered by status
-func (r *GormCartRepository) FindByUserID(ctx context.Context, userID uuid.UUID, status models.CartStatus) ([]*models.Cart, error) {
+func (r *cartRepository) FindByUserID(ctx context.Context, userID uuid.UUID, status models.CartStatus) ([]*models.Cart, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -68,7 +75,7 @@ func (r *GormCartRepository) FindByUserID(ctx context.Context, userID uuid.UUID,
 }
 
 // FindActiveByUserID retrieves the active cart for a user
-func (r *GormCartRepository) FindActiveByUserID(ctx context.Context, userID uuid.UUID) (*models.Cart, error) {
+func (r *cartRepository) FindActiveByUserID(ctx context.Context, userID uuid.UUID) (*models.Cart, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -86,7 +93,7 @@ func (r *GormCartRepository) FindActiveByUserID(ctx context.Context, userID uuid
 }
 
 // Update updates an existing cart
-func (r *GormCartRepository) Update(ctx context.Context, cart *models.Cart) error {
+func (r *cartRepository) Update(ctx context.Context, cart *models.Cart) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -94,7 +101,7 @@ func (r *GormCartRepository) Update(ctx context.Context, cart *models.Cart) erro
 }
 
 // Delete deletes a cart by ID (hard delete)
-func (r *GormCartRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *cartRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

@@ -10,18 +10,23 @@ import (
 	"github.com/edorguez/bolos-ya/pkg/core/errors"
 )
 
-// GormConfigRepository implements ConfigRepository using GORM
-type GormConfigRepository struct {
+type ConfigRepository interface {
+	Set(ctx context.Context, key, value string) error
+	Get(ctx context.Context, key string) (*models.Config, error)
+	Delete(ctx context.Context, key string) error
+}
+
+type configRepository struct {
 	db *gorm.DB
 }
 
 // NewConfigRepository creates a new ConfigRepository
-func NewConfigRepository(db *gorm.DB) *GormConfigRepository {
-	return &GormConfigRepository{db: db}
+func NewConfigRepository(db *gorm.DB) ConfigRepository {
+	return &configRepository{db: db}
 }
 
 // Set creates or updates a config entry
-func (r *GormConfigRepository) Set(ctx context.Context, key, value string) error {
+func (r *configRepository) Set(ctx context.Context, key, value string) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -34,7 +39,7 @@ func (r *GormConfigRepository) Set(ctx context.Context, key, value string) error
 }
 
 // Get retrieves a config entry by key
-func (r *GormConfigRepository) Get(ctx context.Context, key string) (*models.Config, error) {
+func (r *configRepository) Get(ctx context.Context, key string) (*models.Config, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -50,7 +55,7 @@ func (r *GormConfigRepository) Get(ctx context.Context, key string) (*models.Con
 }
 
 // Delete removes a config entry by key
-func (r *GormConfigRepository) Delete(ctx context.Context, key string) error {
+func (r *configRepository) Delete(ctx context.Context, key string) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 

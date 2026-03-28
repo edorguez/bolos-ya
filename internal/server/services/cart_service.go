@@ -21,22 +21,20 @@ type CartService interface {
 	CheckoutCart(ctx context.Context, cartID uuid.UUID) (*models.Cart, error)
 }
 
-// CartServiceImpl implements CartService
-type CartServiceImpl struct {
+type cartService struct {
 	cartRepo     repository.CartRepository
 	cartItemRepo repository.CartItemRepository
 	productRepo  repository.ProductRepository
 	priceRepo    repository.PriceRepository
 }
 
-// NewCartService creates a new CartService
 func NewCartService(
 	cartRepo repository.CartRepository,
 	cartItemRepo repository.CartItemRepository,
 	productRepo repository.ProductRepository,
 	priceRepo repository.PriceRepository,
-) *CartServiceImpl {
-	return &CartServiceImpl{
+) CartService {
+	return &cartService{
 		cartRepo:     cartRepo,
 		cartItemRepo: cartItemRepo,
 		productRepo:  productRepo,
@@ -53,7 +51,7 @@ type CreateCartRequest struct {
 }
 
 // CreateCart creates a new shopping cart for a user
-func (s *CartServiceImpl) CreateCart(ctx context.Context, req CreateCartRequest) (*models.Cart, error) {
+func (s *cartService) CreateCart(ctx context.Context, req CreateCartRequest) (*models.Cart, error) {
 	// Check if user already has an active cart
 	activeCart, err := s.cartRepo.FindActiveByUserID(ctx, req.UserID)
 	if err == nil && activeCart != nil {
@@ -82,7 +80,7 @@ type AddItemRequest struct {
 }
 
 // AddItem adds a product to a shopping cart
-func (s *CartServiceImpl) AddItem(ctx context.Context, req AddItemRequest) (*models.CartItem, error) {
+func (s *cartService) AddItem(ctx context.Context, req AddItemRequest) (*models.CartItem, error) {
 	// Verify cart exists and is active
 	cart, err := s.cartRepo.FindByID(ctx, req.CartID)
 	if err != nil {
@@ -136,7 +134,7 @@ type UpdateItemQuantityRequest struct {
 }
 
 // UpdateItemQuantity updates the quantity of a cart item
-func (s *CartServiceImpl) UpdateItemQuantity(ctx context.Context, req UpdateItemQuantityRequest) (*models.CartItem, error) {
+func (s *cartService) UpdateItemQuantity(ctx context.Context, req UpdateItemQuantityRequest) (*models.CartItem, error) {
 	cartItem, err := s.cartItemRepo.FindByID(ctx, req.CartItemID)
 	if err != nil {
 		return nil, err
@@ -164,7 +162,7 @@ func (s *CartServiceImpl) UpdateItemQuantity(ctx context.Context, req UpdateItem
 }
 
 // RemoveItem removes an item from a cart
-func (s *CartServiceImpl) RemoveItem(ctx context.Context, cartItemID uuid.UUID) error {
+func (s *cartService) RemoveItem(ctx context.Context, cartItemID uuid.UUID) error {
 	cartItem, err := s.cartItemRepo.FindByID(ctx, cartItemID)
 	if err != nil {
 		return err
@@ -187,7 +185,7 @@ func (s *CartServiceImpl) RemoveItem(ctx context.Context, cartItemID uuid.UUID) 
 }
 
 // GetCartItems retrieves all items in a cart
-func (s *CartServiceImpl) GetCartItems(ctx context.Context, cartID uuid.UUID) ([]*models.CartItem, error) {
+func (s *cartService) GetCartItems(ctx context.Context, cartID uuid.UUID) ([]*models.CartItem, error) {
 	cart, err := s.cartRepo.FindByID(ctx, cartID)
 	if err != nil {
 		return nil, err
@@ -197,7 +195,7 @@ func (s *CartServiceImpl) GetCartItems(ctx context.Context, cartID uuid.UUID) ([
 }
 
 // updateCartTotals recalculates and updates the cart's total estimated costs
-func (s *CartServiceImpl) updateCartTotals(ctx context.Context, cart *models.Cart) error {
+func (s *cartService) updateCartTotals(ctx context.Context, cart *models.Cart) error {
 	items, err := s.cartItemRepo.FindByCartID(ctx, cart.ID)
 	if err != nil {
 		return err
@@ -220,7 +218,7 @@ func (s *CartServiceImpl) updateCartTotals(ctx context.Context, cart *models.Car
 }
 
 // CheckoutCart marks a cart as completed
-func (s *CartServiceImpl) CheckoutCart(ctx context.Context, cartID uuid.UUID) (*models.Cart, error) {
+func (s *cartService) CheckoutCart(ctx context.Context, cartID uuid.UUID) (*models.Cart, error) {
 	cart, err := s.cartRepo.FindByID(ctx, cartID)
 	if err != nil {
 		return nil, err

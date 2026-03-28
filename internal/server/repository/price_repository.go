@@ -11,18 +11,25 @@ import (
 	"github.com/edorguez/bolos-ya/pkg/core/errors"
 )
 
-// GormPriceRepository implements PriceRepository using GORM
-type GormPriceRepository struct {
+type PriceRepository interface {
+	Create(ctx context.Context, price *models.Price) error
+	FindByID(ctx context.Context, id uuid.UUID) (*models.Price, error)
+	FindByProductAndSupermarket(ctx context.Context, productID, supermarketID uuid.UUID) ([]*models.Price, error)
+	FindRecentPrices(ctx context.Context, productID, supermarketID uuid.UUID, days int) ([]*models.Price, error)
+	Update(ctx context.Context, price *models.Price) error
+	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+type priceRepository struct {
 	db *gorm.DB
 }
 
-// NewPriceRepository creates a new PriceRepository
-func NewPriceRepository(db *gorm.DB) *GormPriceRepository {
-	return &GormPriceRepository{db: db}
+func NewPriceRepository(db *gorm.DB) PriceRepository {
+	return &priceRepository{db: db}
 }
 
 // Create inserts a new price into the database
-func (r *GormPriceRepository) Create(ctx context.Context, price *models.Price) error {
+func (r *priceRepository) Create(ctx context.Context, price *models.Price) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -30,7 +37,7 @@ func (r *GormPriceRepository) Create(ctx context.Context, price *models.Price) e
 }
 
 // FindByID retrieves a price by ID
-func (r *GormPriceRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Price, error) {
+func (r *priceRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Price, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -46,7 +53,7 @@ func (r *GormPriceRepository) FindByID(ctx context.Context, id uuid.UUID) (*mode
 }
 
 // FindByProductAndSupermarket retrieves prices for a specific product and supermarket
-func (r *GormPriceRepository) FindByProductAndSupermarket(ctx context.Context, productID, supermarketID uuid.UUID) ([]*models.Price, error) {
+func (r *priceRepository) FindByProductAndSupermarket(ctx context.Context, productID, supermarketID uuid.UUID) ([]*models.Price, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -66,7 +73,7 @@ func (r *GormPriceRepository) FindByProductAndSupermarket(ctx context.Context, p
 }
 
 // FindRecentPrices retrieves prices within the last N days for a product and supermarket
-func (r *GormPriceRepository) FindRecentPrices(ctx context.Context, productID, supermarketID uuid.UUID, days int) ([]*models.Price, error) {
+func (r *priceRepository) FindRecentPrices(ctx context.Context, productID, supermarketID uuid.UUID, days int) ([]*models.Price, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -88,7 +95,7 @@ func (r *GormPriceRepository) FindRecentPrices(ctx context.Context, productID, s
 }
 
 // Update updates an existing price
-func (r *GormPriceRepository) Update(ctx context.Context, price *models.Price) error {
+func (r *priceRepository) Update(ctx context.Context, price *models.Price) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -96,7 +103,7 @@ func (r *GormPriceRepository) Update(ctx context.Context, price *models.Price) e
 }
 
 // Delete deletes a price by ID (hard delete)
-func (r *GormPriceRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *priceRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
