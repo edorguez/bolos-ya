@@ -94,7 +94,7 @@ export const darkTheme = {
   borderRadius: lightTheme.borderRadius,
 } as const
 
-export type AppTheme = typeof lightTheme
+export type AppTheme = typeof lightTheme | typeof darkTheme
 
 export function useAppTheme() {
   const colorScheme = useColorScheme()

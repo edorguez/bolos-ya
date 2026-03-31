@@ -2,6 +2,7 @@ import { Stack } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StyleSheet } from 'react-native'
 import { useAppTheme } from '../styles/theme'
+import '../styles/unistylesConfigured'
 
 export default function RootLayout() {
   const theme = useAppTheme()

@@ -1,7 +1,6 @@
 import { Redirect, SplashScreen } from 'expo-router'
 import { useOnboardingStore } from '../store/onboardingStore'
 import { useEffect, useState } from 'react'
-import { View } from 'react-native'
 import { initializeStorage } from '../utils/storage'
 
 SplashScreen.preventAutoHideAsync()
