@@ -101,12 +101,14 @@ docker-down:
 ## Migrations: Run database migrations up
 migrate-up:
 	@echo "${YELLOW}Running database migrations...${NC}"
-	migrate -path migrations -database "postgres://postgres:postgres@localhost:5432/bolosya_dev?sslmode=disable" up
+	@set -a; . ./.env; set +a; \
+	migrate -path pkg/database/migrations -database "$$DATABASE_URL" up
 
 ## Migrations: Rollback database migrations
 migrate-down:
 	@echo "${YELLOW}Rolling back database migrations...${NC}"
-	migrate -path migrations -database "postgres://postgres:postgres@localhost:5432/bolosya_dev?sslmode=disable" down
+	@set -a; . ./.env; set +a; \
+	migrate -path pkg/database/migrations -database "$$DATABASE_URL" down
 
 ## Clean: Clean build artifacts
 clean:

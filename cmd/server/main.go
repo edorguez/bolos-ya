@@ -6,11 +6,9 @@ import (
 
 	redisv8 "github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 
 	serverconfig "github.com/edorguez/bolos-ya/configs/server"
 	"github.com/edorguez/bolos-ya/internal/server"
-	"github.com/edorguez/bolos-ya/internal/server/models"
 	"github.com/edorguez/bolos-ya/internal/server/repository"
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	"github.com/edorguez/bolos-ya/pkg/database/postgresql"
@@ -34,11 +32,6 @@ func main() {
 	})
 	if err != nil {
 		logger.Fatal("Failed to connect to PostgreSQL", zap.Error(err))
-	}
-
-	// Auto-migrate models
-	if err := autoMigrate(db); err != nil {
-		logger.Fatal("Failed to auto-migrate database", zap.Error(err))
 	}
 
 	// Connect to Redis (optional)
@@ -84,17 +77,4 @@ func main() {
 	if err := router.Run(addr); err != nil {
 		logger.Fatal("Failed to start server", zap.Error(err))
 	}
-}
-
-// autoMigrate runs GORM auto-migration for all models
-func autoMigrate(db *gorm.DB) error {
-	return db.AutoMigrate(
-		&models.User{},
-		&models.Supermarket{},
-		&models.Product{},
-		&models.Price{},
-		&models.Cart{},
-		&models.CartItem{},
-		&models.Config{},
-	)
 }
