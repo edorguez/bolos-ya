@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, ViewStyle, TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
 
@@ -22,6 +22,7 @@ const stylesheet = StyleSheet.create(theme => ({
 
 export function StatusBadge({ status }: StatusBadgeProps) {
   const theme = useAppTheme()
+  const styles = stylesheet(theme)
 
   const getStatusColors = () => {
     switch (status) {
@@ -46,8 +47,8 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   const colors = getStatusColors()
 
   return (
-    <View style={[stylesheet.badge, { backgroundColor: colors.backgroundColor }]}>
-      <Text style={[stylesheet.text, { color: colors.textColor }]}>{status}</Text>
+    <View style={[styles.badge as ViewStyle, { backgroundColor: colors.backgroundColor }]}>
+      <Text style={[styles.text as TextStyle, { color: colors.textColor }]}>{status}</Text>
     </View>
   )
 }

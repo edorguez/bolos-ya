@@ -1,4 +1,4 @@
-import { View, Image, Pressable } from 'react-native'
+import { View, Image, Pressable, ViewStyle, ImageStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
@@ -50,14 +50,16 @@ const stylesheet = StyleSheet.create(theme => ({
 
 export function Avatar({ uri, size = 128, onEditPress }: AvatarProps) {
   const theme = useAppTheme()
-  const styles = stylesheet
+  const styles = stylesheet(theme)
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.avatar, { width: size, height: size }]}>
-        {uri ? <Image source={{ uri }} style={styles.image} resizeMode="cover" /> : null}
+    <View style={styles.container as ViewStyle}>
+      <View style={[styles.avatar as ViewStyle, { width: size, height: size }]}>
+        {uri ? (
+          <Image source={{ uri }} style={styles.image as ImageStyle} resizeMode="cover" />
+        ) : null}
       </View>
-      <Pressable style={styles.editButton} onPress={onEditPress}>
+      <Pressable style={styles.editButton as ViewStyle} onPress={onEditPress}>
         <MaterialIcons name="edit" size={16} color={theme.colors.surfaceContainerLowest} />
       </Pressable>
     </View>

@@ -1,5 +1,6 @@
-import { Pressable, Text } from 'react-native'
+import { Pressable, Text, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
+import { useAppTheme } from '../../styles/theme'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 
@@ -36,14 +37,21 @@ const stylesheet = StyleSheet.create(theme => ({
 }))
 
 export function SupermarketButton({ selected, icon, name, onPress }: SupermarketButtonProps) {
+  const theme = useAppTheme()
+  const styles = stylesheet(theme)
   return (
-    <Pressable style={[stylesheet.button, selected && stylesheet.buttonSelected]} onPress={onPress}>
+    <Pressable
+      style={[styles.button as ViewStyle, selected && (styles.buttonSelected as ViewStyle)]}
+      onPress={onPress}
+    >
       <MaterialIcons
         name={icon as any}
         size={24}
-        color={selected ? stylesheet.buttonSelected.borderColor : stylesheet.label.color}
+        color={selected ? theme.colors.primary : theme.colors.outline}
       />
-      <Text style={[stylesheet.label, selected && stylesheet.labelSelected]}>{name}</Text>
+      <Text style={[styles.label as TextStyle, selected && (styles.labelSelected as TextStyle)]}>
+        {name}
+      </Text>
     </Pressable>
   )
 }

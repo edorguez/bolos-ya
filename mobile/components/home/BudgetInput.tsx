@@ -1,5 +1,6 @@
-import { View, Text, TextInput, TextInputProps } from 'react-native'
+import { View, Text, TextInput, TextInputProps, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
+import { useAppTheme } from '../../styles/theme'
 
 interface BudgetInputProps extends Omit<TextInputProps, 'style'> {
   label: string
@@ -31,13 +32,15 @@ const stylesheet = StyleSheet.create(theme => ({
 }))
 
 export function BudgetInput({ label, currency, inputStyle, ...props }: BudgetInputProps) {
+  const theme = useAppTheme()
+  const styles = stylesheet(theme)
   return (
-    <View style={stylesheet.container}>
-      <Text style={stylesheet.label}>{label}</Text>
+    <View style={styles.container as ViewStyle}>
+      <Text style={styles.label as TextStyle}>{label}</Text>
       <TextInput
-        style={[stylesheet.input, inputStyle]}
+        style={[styles.input as TextStyle, inputStyle]}
         placeholder="0.00"
-        placeholderTextColor={stylesheet.label.color}
+        placeholderTextColor={theme.colors.onSurfaceVariant}
         keyboardType="numeric"
         {...props}
       />

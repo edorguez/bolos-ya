@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
@@ -91,33 +91,33 @@ const stylesheet = StyleSheet.create(theme => ({
 
 export function PremiumCard({ onUpgradePress }: PremiumCardProps) {
   const theme = useAppTheme()
-  const styles = stylesheet
+  const styles = stylesheet(theme)
 
   const premiumFeatures = ['OCR Scanner ilimitado', 'Unlimited Carts']
 
   return (
-    <View style={styles.card}>
-      <View style={styles.blob} />
-      <View style={styles.content}>
-        <View style={styles.badge}>
+    <View style={styles.card as ViewStyle}>
+      <View style={styles.blob as ViewStyle} />
+      <View style={styles.content as ViewStyle}>
+        <View style={styles.badge as ViewStyle}>
           <MaterialIcons name="stars" size={14} color="#FFFFFF" />
-          <Text style={styles.badgeText}>Premium</Text>
+          <Text style={styles.badgeText as TextStyle}>Premium</Text>
         </View>
-        <Text style={styles.title}>Hazte Premium por $3.99/mes</Text>
+        <Text style={styles.title as TextStyle}>Hazte Premium por $3.99/mes</Text>
         {premiumFeatures.map((feature, index) => (
-          <View key={index} style={styles.feature}>
+          <View key={index} style={styles.feature as ViewStyle}>
             <MaterialIcons name="check-circle" size={20} color={theme.colors.primary} />
-            <Text style={styles.featureText}>{feature}</Text>
+            <Text style={styles.featureText as TextStyle}>{feature}</Text>
           </View>
         ))}
         <Pressable
           style={({ pressed }) => [
-            styles.upgradeButton,
+            styles.upgradeButton as ViewStyle,
             pressed && { transform: [{ scale: 0.95 }] },
           ]}
           onPress={onUpgradePress}
         >
-          <Text style={styles.upgradeButtonText}>Mejorar ahora</Text>
+          <Text style={styles.upgradeButtonText as TextStyle}>Mejorar ahora</Text>
         </Pressable>
       </View>
     </View>

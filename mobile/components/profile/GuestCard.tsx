@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
@@ -56,19 +56,21 @@ const stylesheet = StyleSheet.create(theme => ({
 
 export function GuestCard({ onCreateAccountPress }: GuestCardProps) {
   const theme = useAppTheme()
-  const styles = stylesheet
+  const styles = stylesheet(theme)
 
   return (
-    <View style={styles.card}>
-      <View style={styles.icon}>
+    <View style={styles.card as ViewStyle}>
+      <View style={styles.icon as ViewStyle}>
         <MaterialIcons name="person-add" size={24} color={theme.colors.primary} />
       </View>
       <View>
-        <Text style={styles.title}>¡Únete a MercadoLibreta!</Text>
-        <Text style={styles.subtitle}>Regístrate para guardar tu historial y más.</Text>
+        <Text style={styles.title as TextStyle}>¡Únete a MercadoLibreta!</Text>
+        <Text style={styles.subtitle as TextStyle}>
+          Regístrate para guardar tu historial y más.
+        </Text>
       </View>
-      <Pressable style={styles.button} onPress={onCreateAccountPress}>
-        <Text style={styles.buttonText}>Crear cuenta ahora</Text>
+      <Pressable style={styles.button as ViewStyle} onPress={onCreateAccountPress}>
+        <Text style={styles.buttonText as TextStyle}>Crear cuenta ahora</Text>
       </Pressable>
     </View>
   )

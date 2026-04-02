@@ -1,4 +1,4 @@
-import { View, ViewProps } from 'react-native'
+import { View, ViewProps, type ViewStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
 
@@ -36,10 +36,10 @@ export function Card({ variant = 'elevated', style, ...props }: CardProps) {
   return (
     <View
       style={[
-        styles.container,
-        variant === 'elevated' && styles.elevated,
-        variant === 'filled' && styles.filled,
-        variant === 'outlined' && styles.outlined,
+        styles.container as ViewStyle,
+        variant === 'elevated' && (styles.elevated as ViewStyle),
+        variant === 'filled' && (styles.filled as ViewStyle),
+        variant === 'outlined' && (styles.outlined as ViewStyle),
         style,
       ]}
       {...props}

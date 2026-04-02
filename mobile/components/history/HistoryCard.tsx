@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
@@ -95,32 +95,35 @@ export function HistoryCard({
   exceeded,
 }: HistoryCardProps) {
   const theme = useAppTheme()
+  const styles = stylesheet(theme)
 
   return (
-    <View style={stylesheet.card}>
-      <View style={stylesheet.header}>
-        <View style={stylesheet.storeInfo}>
-          <View style={[stylesheet.storeIconContainer, { backgroundColor: iconColor + '20' }]}>
+    <View style={styles.card as ViewStyle}>
+      <View style={styles.header as ViewStyle}>
+        <View style={styles.storeInfo as ViewStyle}>
+          <View
+            style={[styles.storeIconContainer as ViewStyle, { backgroundColor: iconColor + '20' }]}
+          >
             <MaterialIcons name={icon as any} size={24} color={iconColor} />
           </View>
-          <View style={stylesheet.storeDetails}>
-            <Text style={stylesheet.storeName}>{storeName}</Text>
-            <Text style={stylesheet.storeDate}>{date}</Text>
+          <View style={styles.storeDetails as ViewStyle}>
+            <Text style={styles.storeName as TextStyle}>{storeName}</Text>
+            <Text style={styles.storeDate as TextStyle}>{date}</Text>
           </View>
         </View>
         <StatusBadge status={status} />
       </View>
 
-      <View style={stylesheet.amountGrid}>
+      <View style={styles.amountGrid as ViewStyle}>
         <AmountCard label="Total Bs." value={totalBs} exceeded={exceeded} variant="bs" />
         <AmountCard label="Total USD" value={totalUsd} exceeded={exceeded} variant="usd" />
       </View>
 
-      <View style={stylesheet.progressSection}>
-        <View style={stylesheet.progressHeader}>
+      <View style={styles.progressSection as ViewStyle}>
+        <View style={styles.progressHeader as ViewStyle}>
           <Text
             style={[
-              stylesheet.progressLabel,
+              styles.progressLabel as TextStyle,
               { color: exceeded ? theme.colors.error : theme.colors.onSurfaceVariant },
             ]}
           >
@@ -128,7 +131,7 @@ export function HistoryCard({
           </Text>
           <Text
             style={[
-              stylesheet.progressValue,
+              styles.progressValue as TextStyle,
               { color: exceeded ? theme.colors.error : theme.colors.onSurface },
             ]}
           >

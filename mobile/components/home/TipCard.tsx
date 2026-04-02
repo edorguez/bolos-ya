@@ -1,5 +1,6 @@
-import { View, Text } from 'react-native'
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
+import { useAppTheme } from '../../styles/theme'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 
@@ -45,14 +46,16 @@ const stylesheet = StyleSheet.create(theme => ({
 }))
 
 export function TipCard({ title, text, icon = 'lightbulb' }: TipCardProps) {
+  const theme = useAppTheme()
+  const styles = stylesheet(theme)
   return (
-    <View style={stylesheet.card}>
-      <View style={stylesheet.iconContainer}>
+    <View style={styles.card as ViewStyle}>
+      <View style={styles.iconContainer as ViewStyle}>
         <MaterialIcons name={icon as any} size={24} color="#795500" />
       </View>
-      <View style={stylesheet.content}>
-        <Text style={stylesheet.title}>{title}</Text>
-        <Text style={stylesheet.text}>{text}</Text>
+      <View style={styles.content as ViewStyle}>
+        <Text style={styles.title as TextStyle}>{title}</Text>
+        <Text style={styles.text as TextStyle}>{text}</Text>
       </View>
     </View>
   )

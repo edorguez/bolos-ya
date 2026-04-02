@@ -1,5 +1,6 @@
-import { View, Text, Pressable, PressableProps } from 'react-native'
+import { View, Text, Pressable, PressableProps, ViewStyle, TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
+import { useAppTheme } from '../../styles/theme'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 
@@ -41,17 +42,24 @@ const stylesheet = StyleSheet.create(theme => ({
 }))
 
 export function SettingItem({ title, icon, iconColor, iconBgColor, ...props }: SettingItemProps) {
-  const styles = stylesheet
+  const theme = useAppTheme()
+  const styles = stylesheet(theme)
 
   return (
-    <Pressable style={({ pressed }) => [styles.item, pressed && styles.itemPressed]} {...props}>
-      <View style={styles.left}>
-        <View style={[styles.iconContainer, { backgroundColor: iconBgColor }]}>
+    <Pressable
+      style={({ pressed }) => [
+        styles.item as ViewStyle,
+        pressed && (styles.itemPressed as ViewStyle),
+      ]}
+      {...props}
+    >
+      <View style={styles.left as ViewStyle}>
+        <View style={[styles.iconContainer as ViewStyle, { backgroundColor: iconBgColor }]}>
           <MaterialIcons name={icon as any} size={20} color={iconColor} />
         </View>
-        <Text style={styles.text}>{title}</Text>
+        <Text style={styles.text as TextStyle}>{title}</Text>
       </View>
-      <MaterialIcons name="chevron-right" size={24} color={styles.text.color} />
+      <MaterialIcons name="chevron-right" size={24} color={theme.colors.onSurface} />
     </Pressable>
   )
 }

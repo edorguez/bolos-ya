@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, ViewStyle, TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
 
@@ -32,6 +32,7 @@ const stylesheet = StyleSheet.create(theme => ({
 
 export function AmountCard({ label, value, exceeded, variant = 'bs' }: AmountCardProps) {
   const theme = useAppTheme()
+  const styles = stylesheet(theme)
 
   const getValueColor = () => {
     if (exceeded) return theme.colors.error
@@ -42,12 +43,12 @@ export function AmountCard({ label, value, exceeded, variant = 'bs' }: AmountCar
   return (
     <View
       style={[
-        stylesheet.card,
+        styles.card as ViewStyle,
         exceeded && { borderWidth: 1, borderColor: theme.colors.error + '10' },
       ]}
     >
-      <Text style={stylesheet.label}>{label}</Text>
-      <Text style={[stylesheet.value, { color: getValueColor() }]}>{value}</Text>
+      <Text style={styles.label as TextStyle}>{label}</Text>
+      <Text style={[styles.value as TextStyle, { color: getValueColor() }]}>{value}</Text>
     </View>
   )
 }

@@ -1,5 +1,6 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, Pressable, ViewStyle, TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
+import { useAppTheme } from '../../styles/theme'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 
@@ -33,11 +34,13 @@ const stylesheet = StyleSheet.create(theme => ({
 }))
 
 export function SearchBar({ placeholder = 'Buscar por supermercado...', onPress }: SearchBarProps) {
+  const theme = useAppTheme()
+  const styles = stylesheet(theme)
   return (
-    <View style={stylesheet.container}>
-      <Pressable style={stylesheet.input} onPress={onPress}>
-        <MaterialIcons name="search" size={20} color={stylesheet.placeholder.color} />
-        <Text style={stylesheet.placeholder}>{placeholder}</Text>
+    <View style={styles.container as ViewStyle}>
+      <Pressable style={styles.input as ViewStyle} onPress={onPress}>
+        <MaterialIcons name="search" size={20} color={theme.colors.outline} />
+        <Text style={styles.placeholder as TextStyle}>{placeholder}</Text>
       </Pressable>
     </View>
   )

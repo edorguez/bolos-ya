@@ -1,5 +1,6 @@
-import { View, Text } from 'react-native'
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
+import { useAppTheme } from '../../styles/theme'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 
@@ -42,14 +43,16 @@ const stylesheet = StyleSheet.create(theme => ({
 }))
 
 export function HeroSection({ title, subtitle, icon = 'receipt' }: HeroSectionProps) {
+  const theme = useAppTheme()
+  const styles = stylesheet(theme)
   return (
-    <View style={stylesheet.container}>
-      <View style={stylesheet.textContainer}>
-        <Text style={stylesheet.title}>{title}</Text>
-        <Text style={stylesheet.subtitle}>{subtitle}</Text>
+    <View style={styles.container as ViewStyle}>
+      <View style={styles.textContainer as ViewStyle}>
+        <Text style={styles.title as TextStyle}>{title}</Text>
+        <Text style={styles.subtitle as TextStyle}>{subtitle}</Text>
       </View>
-      <View style={stylesheet.iconContainer}>
-        <MaterialIcons name={icon as any} size={64} color={stylesheet.title.color} />
+      <View style={styles.iconContainer as ViewStyle}>
+        <MaterialIcons name={icon as any} size={64} color={theme.colors.primary} />
       </View>
     </View>
   )

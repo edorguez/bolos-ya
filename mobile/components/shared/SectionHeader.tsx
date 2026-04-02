@@ -1,5 +1,6 @@
-import { View, Text, Pressable, PressableProps } from 'react-native'
+import { View, Text, Pressable, PressableProps, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
+import { useAppTheme } from '../../styles/theme'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 
@@ -44,22 +45,24 @@ export function SectionHeader({
   icon,
   iconColor,
 }: SectionHeaderProps) {
+  const theme = useAppTheme()
+  const styles = stylesheet(theme)
   return (
-    <View style={stylesheet.container}>
-      <View style={stylesheet.leftContainer}>
+    <View style={styles.container as ViewStyle}>
+      <View style={styles.leftContainer as ViewStyle}>
         {icon && (
           <MaterialIcons
             name={icon as any}
             size={24}
-            color={iconColor || stylesheet.title.color}
-            style={stylesheet.icon}
+            color={iconColor || theme.colors.onSurface}
+            style={styles.icon as TextStyle}
           />
         )}
-        <Text style={stylesheet.title}>{title}</Text>
+        <Text style={styles.title as TextStyle}>{title}</Text>
       </View>
       {linkText && onLinkPress && (
         <Pressable onPress={onLinkPress}>
-          <Text style={stylesheet.link}>{linkText}</Text>
+          <Text style={styles.link as TextStyle}>{linkText}</Text>
         </Pressable>
       )}
     </View>

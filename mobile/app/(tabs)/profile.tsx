@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable } from 'react-native'
+import { View, Text, ScrollView, Pressable, type ViewStyle, type TextStyle } from 'react-native'
 import { useAuthStore } from '../../store/authStore'
 import Constants from 'expo-constants'
 import { profileStyles } from '../../styles/profileStyles'
@@ -13,7 +13,7 @@ export default function ProfileTab() {
   const { user, logout } = useAuthStore()
   const isLoggedIn = !!user
   const isPremium = user?.isPremium || false
-  const styles = profileStyles
+  const styles = profileStyles(theme)
 
   const settingsItems = [
     {
@@ -52,29 +52,34 @@ export default function ProfileTab() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>MercadoLibreta</Text>
+    <View style={styles.container as ViewStyle}>
+      <View style={styles.header as ViewStyle}>
+        <Text style={styles.headerTitle as TextStyle}>MercadoLibreta</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.content as ViewStyle}
+        showsVerticalScrollIndicator={false}
+      >
         {isLoggedIn ? (
           <>
-            <View style={styles.profileHeader}>
+            <View style={styles.profileHeader as ViewStyle}>
               <Avatar
                 uri="https://lh3.googleusercontent.com/aida-public/AB6AXuALMw21RDhWqJmtNwfLbQ_9DXpMfPF6ZFl1sSIsM_qYnbOCbr68RdeQCeXKn4g9PUuUCZ97Xfh9I4xvNFSHd_BPRvHEPOTqWc5i6lX2iNeGT1UUuS5IasY6ofdQKB3N0ON8l6XP_o5HOiie7jek6UP_EVebOCyNWzPLZDVhVajA98wuD53JHy9qPJiMZvxL0dwy8J7InjugKp2dHmW3HwpDczEzG9uR0TJ2mQPXaokiuTLrTi4Z04XAjCCAdY9_YfjF0Wt-v4aZ-HG3"
                 onEditPress={() => console.log('Edit avatar')}
               />
-              <Text style={styles.profileName}>
+              <Text style={styles.profileName as TextStyle}>
                 {user?.email ? user.email.split('@')[0] : 'Usuario'}
               </Text>
-              <Text style={styles.profileName}>{user?.email || 'juan.perez@email.com'}</Text>
+              <Text style={styles.profileName as TextStyle}>
+                {user?.email || 'juan.perez@email.com'}
+              </Text>
             </View>
 
             {!isPremium && <PremiumCard onUpgradePress={handleUpgrade} />}
 
-            <Text style={styles.sectionTitle}>Ajustes</Text>
-            <View style={styles.settingsContainer}>
+            <Text style={styles.sectionTitle as TextStyle}>Ajustes</Text>
+            <View style={styles.settingsContainer as ViewStyle}>
               {settingsItems.map(item => (
                 <SettingItem
                   key={item.id}
@@ -88,17 +93,20 @@ export default function ProfileTab() {
             </View>
 
             <Pressable
-              style={({ pressed }) => [styles.logoutButton, pressed && styles.logoutButtonPressed]}
+              style={({ pressed }) => [
+                styles.logoutButton as ViewStyle,
+                pressed && (styles.logoutButtonPressed as ViewStyle),
+              ]}
               onPress={logout}
             >
-              <Text style={styles.logoutText}>Cerrar Sesión</Text>
+              <Text style={styles.logoutText as TextStyle}>Cerrar Sesión</Text>
             </Pressable>
           </>
         ) : (
           <GuestCard onCreateAccountPress={handleCreateAccount} />
         )}
 
-        <Text style={styles.versionText}>
+        <Text style={styles.versionText as TextStyle}>
           MercadoLibreta v{Constants.expoConfig?.version || '2.4.0'}
         </Text>
       </ScrollView>
