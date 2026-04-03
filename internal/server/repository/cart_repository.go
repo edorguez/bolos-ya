@@ -14,8 +14,7 @@ import (
 type CartRepository interface {
 	Create(ctx context.Context, cart *models.Cart) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Cart, error)
-	FindByUserID(ctx context.Context, userID uuid.UUID, status models.CartStatus) ([]*models.Cart, error)
-	FindActiveByUserID(ctx context.Context, userID uuid.UUID) (*models.Cart, error)
+	FindByUserID(ctx context.Context, userID uuid.UUID) ([]*models.Cart, error)
 	Update(ctx context.Context, cart *models.Cart) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -53,17 +52,12 @@ func (r *cartRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Ca
 }
 
 // FindByUserID retrieves carts for a specific user, optionally filtered by status
-func (r *cartRepository) FindByUserID(ctx context.Context, userID uuid.UUID, status models.CartStatus) ([]*models.Cart, error) {
+func (r *cartRepository) FindByUserID(ctx context.Context, userID uuid.UUID) ([]*models.Cart, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	var cartList []models.Cart
-	query := r.db.WithContext(ctx).Where("user_id = ?", userID)
-	if status != "" {
-		query = query.Where("status = ?", status)
-	}
-
-	if err := query.Order("created_at DESC").Find(&cartList).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).Order("created_at DESC").Find(&cartList).Error; err != nil {
 		return nil, err
 	}
 
@@ -72,24 +66,6 @@ func (r *cartRepository) FindByUserID(ctx context.Context, userID uuid.UUID, sta
 		result[i] = &cart
 	}
 	return result, nil
-}
-
-// FindActiveByUserID retrieves the active cart for a user
-func (r *cartRepository) FindActiveByUserID(ctx context.Context, userID uuid.UUID) (*models.Cart, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	var cart models.Cart
-	if err := r.db.WithContext(ctx).
-		Where("user_id = ? AND status = ?", userID, models.CartStatusActive).
-		First(&cart).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.ErrNotFound
-		}
-		return nil, err
-	}
-
-	return &cart, nil
 }
 
 // Update updates an existing cart

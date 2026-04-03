@@ -14,8 +14,8 @@ type Cart struct {
 	IsActive          bool      `gorm:"not null;default:true"`
 	BudgetBs          int64     `gorm:"type:bigint;not null;default:0"`
 	BudgetUsd         int64     `gorm:"type:bigint;not null;default:0"`
-	TotalEstimatedBs  int64     `gorm:"type:bigint;not null;default:0"`
-	TotalEstimatedUsd int64     `gorm:"type:bigint;not null;default:0"`
+	TotalEstimatedBs  *int64    `gorm:"type:bigint"`
+	TotalEstimatedUsd *int64    `gorm:"type:bigint"`
 }
 
 // NewCart creates a new Cart with default values
@@ -25,8 +25,6 @@ func NewCart(
 	isActive bool,
 	budgetBs int64,
 	budgetUsd int64,
-	totalEstimatedBs int64,
-	totalEstimatedUsd int64,
 ) *Cart {
 	cart := &Cart{
 		UserID:            userID,
@@ -34,8 +32,8 @@ func NewCart(
 		IsActive:          isActive,
 		BudgetBs:          budgetBs,
 		BudgetUsd:         budgetUsd,
-		TotalEstimatedBs:  totalEstimatedBs,
-		TotalEstimatedUsd: totalEstimatedUsd,
+		TotalEstimatedBs:  nil,
+		TotalEstimatedUsd: nil,
 	}
 	return cart
 }

@@ -45,8 +45,8 @@ CREATE TABLE carts (
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     budget_bs BIGINT NOT NULL DEFAULT 0, -- stored in cents
     budget_usd BIGINT NOT NULL DEFAULT 0, -- stored in cents
-    total_estimated_bs BIGINT NOT NULL DEFAULT 0, -- stored in cents
-    total_estimated_usd BIGINT NOT NULL DEFAULT 0, -- stored in cents
+    total_estimated_bs BIGINT, -- stored in cents
+    total_estimated_usd BIGINT, -- stored in cents
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP

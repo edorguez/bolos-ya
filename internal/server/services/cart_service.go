@@ -14,7 +14,7 @@ import (
 // CartService defines shopping cart operations
 type CartService interface {
 	CreateCart(ctx context.Context, req CreateCartRequest) (*models.Cart, error)
-	AddItem(ctx context.Context, req AddItemRequest) (*models.CartItem, error)
+	AddProduct(ctx context.Context, req AddProductRequest) (*models.CartProduct, error)
 	UpdateItemQuantity(ctx context.Context, req UpdateItemQuantityRequest) (*models.CartItem, error)
 	RemoveItem(ctx context.Context, cartItemID uuid.UUID) error
 	GetCartItems(ctx context.Context, cartID uuid.UUID) ([]*models.CartItem, error)
@@ -22,10 +22,9 @@ type CartService interface {
 }
 
 type cartService struct {
-	cartRepo     repository.CartRepository
-	cartItemRepo repository.CartItemRepository
-	productRepo  repository.ProductRepository
-	priceRepo    repository.PriceRepository
+	cartRepo        repository.CartRepository
+	cartProductRepo repository.CartProductRepository
+	productRepo     repository.ProductRepository
 }
 
 func NewCartService(
@@ -52,18 +51,13 @@ type CreateCartRequest struct {
 
 // CreateCart creates a new shopping cart for a user
 func (s *cartService) CreateCart(ctx context.Context, req CreateCartRequest) (*models.Cart, error) {
-	// Check if user already has an active cart
-	activeCart, err := s.cartRepo.FindActiveByUserID(ctx, req.UserID)
-	if err == nil && activeCart != nil {
-		return nil, apperrors.ErrConflict
-	}
-	if err != nil && !errors.Is(err, apperrors.ErrNotFound) {
-		return nil, err
-	}
-
-	cart := models.NewCart(req.UserID, req.SupermarketID)
-	cart.BudgetBs = req.BudgetBs
-	cart.BudgetUsd = req.BudgetUsd
+	cart := models.NewCart(
+		req.UserID,
+		req.SupermarketID,
+		true,
+		req.BudgetBs,
+		req.BudgetUsd,
+	)
 
 	if err := s.cartRepo.Create(ctx, cart); err != nil {
 		return nil, err
@@ -72,22 +66,19 @@ func (s *cartService) CreateCart(ctx context.Context, req CreateCartRequest) (*m
 	return cart, nil
 }
 
-// AddItemRequest contains data for adding an item to a cart
-type AddItemRequest struct {
+// AddProductRequest contains data for adding a product to a cart
+type AddProductRequest struct {
 	CartID    uuid.UUID `json:"cartId" binding:"required"`
 	ProductID uuid.UUID `json:"productId" binding:"required"`
 	Quantity  int       `json:"quantity" binding:"required,min=1"`
 }
 
-// AddItem adds a product to a shopping cart
-func (s *cartService) AddItem(ctx context.Context, req AddItemRequest) (*models.CartItem, error) {
-	// Verify cart exists and is active
+// AddProduct adds a product to a shopping cart
+func (s *cartService) AddItem(ctx context.Context, req AddProductRequest) (*models.CartProduct, error) {
+	// Verify cart exists
 	cart, err := s.cartRepo.FindByID(ctx, req.CartID)
 	if err != nil {
 		return nil, err
-	}
-	if !cart.IsActive() {
-		return nil, apperrors.ErrConflict
 	}
 
 	// Verify product exists
@@ -110,10 +101,8 @@ func (s *cartService) AddItem(ctx context.Context, req AddItemRequest) (*models.
 	}
 
 	cartItem := models.NewCartItem(req.CartID, req.ProductID, req.Quantity)
-	cartItem.PriceSnapshotBs = priceSnapshotBs
-	cartItem.PriceSnapshotUsd = priceSnapshotUsd
 
-	if err := s.cartItemRepo.Create(ctx, cartItem); err != nil {
+	if err := s.cartProductRepo.Create(ctx, cartItem); err != nil {
 		return nil, err
 	}
 

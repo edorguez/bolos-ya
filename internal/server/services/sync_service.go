@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 
@@ -12,32 +11,28 @@ import (
 // SyncService defines offline synchronization operations
 type SyncService interface {
 	ProcessSync(ctx context.Context, userID uuid.UUID, req SyncRequest) (*SyncResponse, error)
-	MarkUserSynced(ctx context.Context, userID uuid.UUID) error
 }
 
 type syncService struct {
 	userRepo        repository.UserRepository
 	cartRepo        repository.CartRepository
-	cartItemRepo    repository.CartItemRepository
+	cartProductRepo repository.CartProductRepository
 	productRepo     repository.ProductRepository
-	priceRepo       repository.PriceRepository
 	supermarketRepo repository.SupermarketRepository
 }
 
 func NewSyncService(
 	userRepo repository.UserRepository,
 	cartRepo repository.CartRepository,
-	cartItemRepo repository.CartItemRepository,
+	cartProductRepo repository.CartProductRepository,
 	productRepo repository.ProductRepository,
-	priceRepo repository.PriceRepository,
 	supermarketRepo repository.SupermarketRepository,
 ) SyncService {
 	return &syncService{
 		userRepo:        userRepo,
 		cartRepo:        cartRepo,
-		cartItemRepo:    cartItemRepo,
+		cartProductRepo: cartProductRepo,
 		productRepo:     productRepo,
-		priceRepo:       priceRepo,
 		supermarketRepo: supermarketRepo,
 	}
 }
@@ -58,9 +53,8 @@ const (
 	SyncTableUsers        SyncTable = "users"
 	SyncTableSupermarkets SyncTable = "supermarkets"
 	SyncTableProducts     SyncTable = "products"
-	SyncTablePrices       SyncTable = "prices"
 	SyncTableCarts        SyncTable = "carts"
-	SyncTableCartItems    SyncTable = "cart_items"
+	SyncTableCartProducts SyncTable = "cart_products"
 )
 
 // SyncOperation represents a single sync operation from the mobile client
@@ -108,12 +102,10 @@ func (s *syncService) ProcessSync(ctx context.Context, userID uuid.UUID, req Syn
 			result.Success, result.Error = s.processSupermarketOperation(ctx, userID, op)
 		case SyncTableProducts:
 			result.Success, result.Error = s.processProductOperation(ctx, userID, op)
-		case SyncTablePrices:
-			result.Success, result.Error = s.processPriceOperation(ctx, userID, op)
 		case SyncTableCarts:
 			result.Success, result.Error = s.processCartOperation(ctx, userID, op)
-		case SyncTableCartItems:
-			result.Success, result.Error = s.processCartItemOperation(ctx, userID, op)
+		case SyncTableCartProducts:
+			result.Success, result.Error = s.processCartProductOperation(ctx, userID, op)
 		default:
 			result.Error = "unknown table"
 		}
@@ -208,20 +200,7 @@ func (s *syncService) processCartOperation(ctx context.Context, userID uuid.UUID
 }
 
 // processCartItemOperation processes sync operations for cart_items table
-func (s *syncService) processCartItemOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+func (s *syncService) processCartProductOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
 	// Cart items - check if user owns the parent cart
 	return false, "not implemented"
-}
-
-// MarkUserSynced updates the user's last sync timestamp
-func (s *syncService) MarkUserSynced(ctx context.Context, userID uuid.UUID) error {
-	user, err := s.userRepo.FindByID(ctx, userID)
-	if err != nil {
-		return err
-	}
-
-	now := time.Now()
-	user.LastSyncAt = &now
-
-	return s.userRepo.Update(ctx, user)
 }

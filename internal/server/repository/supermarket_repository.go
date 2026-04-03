@@ -15,7 +15,6 @@ type SupermarketRepository interface {
 	Create(ctx context.Context, supermarket *models.Supermarket) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Supermarket, error)
 	FindByName(ctx context.Context, name string) ([]*models.Supermarket, error)
-	FindByChain(ctx context.Context, chain string) ([]*models.Supermarket, error)
 	Update(ctx context.Context, supermarket *models.Supermarket) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -59,23 +58,6 @@ func (r *supermarketRepository) FindByName(ctx context.Context, name string) ([]
 
 	var supermarketList []models.Supermarket
 	if err := r.db.WithContext(ctx).Where("name ILIKE ?", "%"+name+"%").Find(&supermarketList).Error; err != nil {
-		return nil, err
-	}
-
-	result := make([]*models.Supermarket, len(supermarketList))
-	for i, supermarket := range supermarketList {
-		result[i] = &supermarket
-	}
-	return result, nil
-}
-
-// FindByChain retrieves supermarkets by chain name
-func (r *supermarketRepository) FindByChain(ctx context.Context, chain string) ([]*models.Supermarket, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	var supermarketList []models.Supermarket
-	if err := r.db.WithContext(ctx).Where("chain = ?", chain).Find(&supermarketList).Error; err != nil {
 		return nil, err
 	}
 
