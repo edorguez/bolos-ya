@@ -14,7 +14,7 @@ export function createHistoryStyles(theme: AppTheme) {
       paddingBottom: 100,
     },
     header: {
-      backgroundColor: theme.colors.surfaceContainerLowest + '80',
+      backgroundColor: theme.colors.surfaceContainerLowest,
       paddingHorizontal: theme.spacing.lg,
       paddingVertical: theme.spacing.md,
       alignItems: 'center',

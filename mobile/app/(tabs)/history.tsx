@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Pressable } from 'react-native'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+
 import { createHistoryStyles } from '../../styles/historyStyles'
 import { HeroSection } from '../../components/history/HeroSection'
 import { SearchBar } from '../../components/history/SearchBar'
@@ -53,7 +53,7 @@ export default function HistoryTab() {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView edges={['top']} style={styles.header}>
+      <View style={styles.header}>
         <View style={styles.headerRow}>
           <View style={{ width: 40 }} />
           <Text style={styles.headerTitle}>MercadoLibreta</Text>
@@ -61,7 +61,7 @@ export default function HistoryTab() {
             <MaterialIcons name="filter-list" size={24} color={theme.colors.textSecondary} />
           </Pressable>
         </View>
-      </SafeAreaView>
+      </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <HeroSection

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-interface CartItem {
+export interface CartItem {
   id: string
   productId: string
   name: string
@@ -8,9 +8,10 @@ interface CartItem {
   priceUsd: number
   quantity: number
   supermarket: string
+  productImageUrl?: string
 }
 
-interface Cart {
+export interface Cart {
   id: string
   name: string
   supermarket: string
@@ -32,12 +33,12 @@ interface CartState {
   removeItemFromCart: (cartId: string, itemId: string) => void
 }
 
-export const useCartStore = create<CartState>((set) => ({
+export const useCartStore = create<CartState>(set => ({
   carts: [],
   activeCartId: null,
   isLoading: false,
-  addCart: (cart) =>
-    set((state) => ({
+  addCart: cart =>
+    set(state => ({
       carts: [
         ...state.carts,
         {
@@ -48,38 +49,33 @@ export const useCartStore = create<CartState>((set) => ({
       ],
     })),
   updateCart: (id, updates) =>
-    set((state) => ({
-      carts: state.carts.map((cart) =>
-        cart.id === id ? { ...cart, ...updates } : cart
-      ),
+    set(state => ({
+      carts: state.carts.map(cart => (cart.id === id ? { ...cart, ...updates } : cart)),
     })),
-  deleteCart: (id) =>
-    set((state) => ({
-      carts: state.carts.filter((cart) => cart.id !== id),
+  deleteCart: id =>
+    set(state => ({
+      carts: state.carts.filter(cart => cart.id !== id),
       activeCartId: state.activeCartId === id ? null : state.activeCartId,
     })),
-  setActiveCart: (id) => set({ activeCartId: id }),
+  setActiveCart: id => set({ activeCartId: id }),
   addItemToCart: (cartId, item) =>
-    set((state) => ({
-      carts: state.carts.map((cart) =>
+    set(state => ({
+      carts: state.carts.map(cart =>
         cart.id === cartId
           ? {
               ...cart,
-              items: [
-                ...cart.items,
-                { ...item, id: Date.now().toString() },
-              ],
+              items: [...cart.items, { ...item, id: Date.now().toString() }],
             }
           : cart
       ),
     })),
   removeItemFromCart: (cartId, itemId) =>
-    set((state) => ({
-      carts: state.carts.map((cart) =>
+    set(state => ({
+      carts: state.carts.map(cart =>
         cart.id === cartId
           ? {
               ...cart,
-              items: cart.items.filter((item) => item.id !== itemId),
+              items: cart.items.filter(item => item.id !== itemId),
             }
           : cart
       ),
