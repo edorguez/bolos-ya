@@ -3,46 +3,44 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
-
 	"github.com/edorguez/bolos-ya/pkg/constants"
 	"github.com/edorguez/bolos-ya/pkg/models"
 )
 
 // User represents a user in the system
 type User struct {
-	models.SoftDeleteModel
-	Email        string  `gorm:"type:varchar(255);uniqueIndex"`
+	models.BaseModel
+	Email        string  `gorm:"type:varchar(100);uniqueIndex"`
+	PasswordHash *string `gorm:"type:varchar"`
 	GoogleID     *string `gorm:"type:varchar(255);uniqueIndex"`
 	AuthProvider string  `gorm:"type:varchar(50);check:auth_provider IN ('email', 'google', 'guest')"`
-	PasswordHash *string `gorm:"type:varchar(255)"`
 	IsPremium    bool    `gorm:"default:false"`
 	PremiumUntil *time.Time
-	LastSyncAt   *time.Time
 }
 
-// TableName returns the table name for the model
-func (User) TableName() string {
-	return "users"
-}
-
-// NewUser creates a new User with default values
-func NewUser(email, authProvider string) *User {
-	now := time.Now()
+// NewUserWithEmail creates a new user with email/password authentication
+func NewUserEmail(email, passwordHash string) *User {
 	user := &User{
 		Email:        email,
-		AuthProvider: authProvider,
+		PasswordHash: &passwordHash,
+		GoogleID:     nil,
+		AuthProvider: constants.AuthProviderEmail,
 		IsPremium:    false,
+		PremiumUntil: nil,
 	}
-	user.CreatedAt = now
-	user.UpdatedAt = now
 	return user
 }
 
-// NewUserWithPassword creates a new user with email/password authentication
-func NewUserWithPassword(email, passwordHash string) *User {
-	user := NewUser(email, constants.AuthProviderEmail)
-	user.PasswordHash = &passwordHash
+// NewUserGoogle creates a new with Google provider
+func NewUserGoogle(email, googleId string) *User {
+	user := &User{
+		Email:        email,
+		PasswordHash: nil,
+		GoogleID:     &googleId,
+		AuthProvider: constants.AuthProviderGoogle,
+		IsPremium:    false,
+		PremiumUntil: nil,
+	}
 	return user
 }
 
@@ -65,14 +63,4 @@ func (u *User) IsActivePremium() bool {
 // HasPassword returns true if the user has a password set
 func (u *User) HasPassword() bool {
 	return u.PasswordHash != nil && *u.PasswordHash != ""
-}
-
-// BeforeCreate ensures default values before creation
-func (u *User) BeforeCreate(tx *gorm.DB) error {
-	return u.SoftDeleteModel.BeforeCreate(tx)
-}
-
-// BeforeUpdate ensures updated_at is set before update
-func (u *User) BeforeUpdate(tx *gorm.DB) error {
-	return u.SoftDeleteModel.BeforeUpdate(tx)
 }

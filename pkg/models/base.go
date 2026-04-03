@@ -12,6 +12,7 @@ type BaseModel struct {
 	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 
 // BeforeCreate sets UUID and timestamps before creating a new record
@@ -30,13 +31,19 @@ func (m *BaseModel) BeforeUpdate(tx *gorm.DB) error {
 	return nil
 }
 
-// SoftDeleteModel extends BaseModel with soft delete capability
-type SoftDeleteModel struct {
-	BaseModel
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+// BeforeDelete updates the DeletedAt timestamp
+func (m *BaseModel) BeforeDelete(tx *gorm.DB) error {
+	now := time.Now()
+	m.DeletedAt = &now
+	return nil
 }
 
 // IsZero checks if the model has zero ID (not persisted)
 func (m *BaseModel) IsZero() bool {
 	return m.ID == uuid.Nil
+}
+
+// IsDeleted checks if record is deleted
+func (m *BaseModel) IsDeleted() bool {
+	return m.DeletedAt != nil
 }
