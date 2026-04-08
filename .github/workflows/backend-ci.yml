@@ -81,7 +81,7 @@ jobs:
           flags: unittests
   
   build:
-    name: Build Docker Image (no push)
+    name: Build Docker Image
     runs-on: ubuntu-latest
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
