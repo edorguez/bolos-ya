@@ -59,11 +59,11 @@ const (
 
 // SyncOperation represents a single sync operation from the mobile client
 type SyncOperation struct {
-	Table     SyncTable              `json:"table"`
-	Action    SyncOperationType      `json:"action"`
-	Payload   map[string]interface{} `json:"payload"`
-	Timestamp int64                  `json:"timestamp"` // Unix timestamp in milliseconds
-	LocalID   string                 `json:"localId"`   // Client-generated ID for conflict resolution
+	Table     SyncTable         `json:"table"`
+	Action    SyncOperationType `json:"action"`
+	Payload   map[string]any    `json:"payload"`
+	Timestamp int64             `json:"timestamp"` // Unix timestamp in milliseconds
+	LocalID   string            `json:"localId"`   // Client-generated ID for conflict resolution
 }
 
 // SyncRequest contains a batch of sync operations
@@ -73,10 +73,10 @@ type SyncRequest struct {
 
 // SyncResult represents the result of processing a single sync operation
 type SyncResult struct {
-	Success       bool                   `json:"success"`
-	Error         string                 `json:"error,omitempty"`
-	ServerVersion map[string]interface{} `json:"serverVersion,omitempty"`
-	LocalID       string                 `json:"localId"`
+	Success       bool           `json:"success"`
+	Error         string         `json:"error,omitempty"`
+	ServerVersion map[string]any `json:"serverVersion,omitempty"`
+	LocalID       string         `json:"localId"`
 }
 
 // SyncResponse contains the results of processing sync operations
@@ -98,14 +98,14 @@ func (s *syncService) ProcessSync(ctx context.Context, userID uuid.UUID, req Syn
 		switch op.Table {
 		case SyncTableUsers:
 			result.Success, result.Error = s.processUserOperation(ctx, userID, op)
-		case SyncTableSupermarkets:
-			result.Success, result.Error = s.processSupermarketOperation(ctx, userID, op)
-		case SyncTableProducts:
-			result.Success, result.Error = s.processProductOperation(ctx, userID, op)
-		case SyncTableCarts:
-			result.Success, result.Error = s.processCartOperation(ctx, userID, op)
-		case SyncTableCartProducts:
-			result.Success, result.Error = s.processCartProductOperation(ctx, userID, op)
+		// case SyncTableSupermarkets:
+		// 	result.Success, result.Error = s.processSupermarketOperation(ctx, userID, op)
+		// case SyncTableProducts:
+		// 	result.Success, result.Error = s.processProductOperation(ctx, userID, op)
+		// case SyncTableCarts:
+		// 	result.Success, result.Error = s.processCartOperation(ctx, userID, op)
+		// case SyncTableCartProducts:
+		// 	result.Success, result.Error = s.processCartProductOperation(ctx, userID, op)
 		default:
 			result.Error = "unknown table"
 		}
@@ -114,7 +114,7 @@ func (s *syncService) ProcessSync(ctx context.Context, userID uuid.UUID, req Syn
 		if result.Error == "conflict" {
 			// For simplicity, we return empty server version
 			// In production, we would fetch the current server state
-			result.ServerVersion = map[string]interface{}{}
+			result.ServerVersion = map[string]any{}
 		}
 
 		results[i] = result
@@ -175,32 +175,32 @@ func (s *syncService) processUserOperation(ctx context.Context, userID uuid.UUID
 	}
 }
 
-// processSupermarketOperation processes sync operations for supermarkets table
-func (s *syncService) processSupermarketOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
-	// Implementation similar to users, checking ownership
-	return false, "not implemented"
-}
-
-// processProductOperation processes sync operations for products table
-func (s *syncService) processProductOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
-	// Products are global, no ownership check needed
-	return false, "not implemented"
-}
-
-// processPriceOperation processes sync operations for prices table
-func (s *syncService) processPriceOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
-	// Price reporting - check if user is the reporter
-	return false, "not implemented"
-}
-
-// processCartOperation processes sync operations for carts table
-func (s *syncService) processCartOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
-	// Carts - check if user owns the cart
-	return false, "not implemented"
-}
-
-// processCartItemOperation processes sync operations for cart_items table
-func (s *syncService) processCartProductOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
-	// Cart items - check if user owns the parent cart
-	return false, "not implemented"
-}
+// // processSupermarketOperation processes sync operations for supermarkets table
+// func (s *syncService) processSupermarketOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+// 	// Implementation similar to users, checking ownership
+// 	return false, "not implemented"
+// }
+//
+// // processProductOperation processes sync operations for products table
+// func (s *syncService) processProductOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+// 	// Products are global, no ownership check needed
+// 	return false, "not implemented"
+// }
+//
+// // processPriceOperation processes sync operations for prices table
+// func (s *syncService) processPriceOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+// 	// Price reporting - check if user is the reporter
+// 	return false, "not implemented"
+// }
+//
+// // processCartOperation processes sync operations for carts table
+// func (s *syncService) processCartOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+// 	// Carts - check if user owns the cart
+// 	return false, "not implemented"
+// }
+//
+// // processCartItemOperation processes sync operations for cart_items table
+// func (s *syncService) processCartProductOperation(ctx context.Context, userID uuid.UUID, op SyncOperation) (bool, string) {
+// 	// Cart items - check if user owns the parent cart
+// 	return false, "not implemented"
+// }
