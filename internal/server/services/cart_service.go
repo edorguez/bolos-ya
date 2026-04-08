@@ -172,6 +172,9 @@ func (s *cartService) updateCartTotals(ctx context.Context, cart *models.Cart) e
 	}
 
 	products, err := s.productRepo.FindAllByIDs(ctx, productIDs)
+	if err != nil {
+		return err
+	}
 
 	priceMap := make(map[uuid.UUID]struct{ bs, usd int64 })
 	for _, p := range products {
