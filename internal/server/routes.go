@@ -18,7 +18,6 @@ func SetupRoutes(
 	authService services.AuthService,
 	cartService services.CartService,
 	syncService services.SyncService,
-	priceConfidenceService services.PriceConfidenceService,
 	log *logger.Logger,
 ) *gin.Engine {
 	router := gin.New()
@@ -70,8 +69,8 @@ func SetupRoutes(
 			// Cart item routes
 			cartItemsGroup := protected.Group("/cart-items")
 			{
-				cartItemsGroup.POST("", cartHandler.AddItem)
-				cartItemsGroup.PUT("/:cartItemId", cartHandler.UpdateItemQuantity)
+				cartItemsGroup.POST("", cartHandler.AddProduct)
+				cartItemsGroup.PUT("/:cartItemId", cartHandler.UpdateProductQuantity)
 				cartItemsGroup.DELETE("/:cartItemId", cartHandler.RemoveItem)
 			}
 
@@ -79,7 +78,6 @@ func SetupRoutes(
 			syncGroup := protected.Group("/sync")
 			{
 				syncGroup.POST("", syncHandler.ProcessSync)
-				syncGroup.POST("/mark-synced", syncHandler.MarkUserSynced)
 			}
 		}
 

@@ -14,6 +14,7 @@ import (
 type ProductRepository interface {
 	Create(ctx context.Context, product *models.Product) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Product, error)
+	FindAllByIDs(ctx context.Context, ids []uuid.UUID) ([]*models.Product, error)
 	FindByName(ctx context.Context, name string) ([]*models.Product, error)
 	FindByBarcode(ctx context.Context, barcode string) (*models.Product, error)
 	Update(ctx context.Context, product *models.Product) error
@@ -50,6 +51,27 @@ func (r *productRepository) FindByID(ctx context.Context, id uuid.UUID) (*models
 	}
 
 	return &product, nil
+}
+
+// FindAllByIDs retrieves a list of product by IDs
+func (r *productRepository) FindAllByIDs(ctx context.Context, ids []uuid.UUID) ([]*models.Product, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	if len(ids) == 0 {
+		return nil, errors.ErrInvalidParams
+	}
+
+	var products []models.Product
+	if err := r.db.WithContext(ctx).Where("id IN ?", ids).Find(&products).Error; err != nil {
+		return nil, err
+	}
+
+	result := make([]*models.Product, len(products))
+	for i := range products {
+		result[i] = &products[i]
+	}
+	return result, nil
 }
 
 // FindByName retrieves products by name (partial match)

@@ -57,7 +57,7 @@ func (s *authService) Register(ctx context.Context, req RegisterRequest) (*model
 	}
 
 	hashedPasswordStr := string(hashedPassword)
-	user := models.NewUserWithPassword(req.Email, hashedPasswordStr)
+	user := models.NewUserEmail(req.Email, hashedPasswordStr)
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
 		return nil, err

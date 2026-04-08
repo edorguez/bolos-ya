@@ -40,32 +40,32 @@ func (h *CartHandler) CreateCart(c *gin.Context) {
 	utils.SuccessResponse(c, cart)
 }
 
-// AddItem handles adding an item to a cart
-func (h *CartHandler) AddItem(c *gin.Context) {
-	var req services.AddItemRequest
+// AddProduct handles adding an product to a cart
+func (h *CartHandler) AddProduct(c *gin.Context) {
+	var req services.AddProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.handleValidationError(c, err)
 		return
 	}
 
-	cartItem, err := h.cartService.AddItem(c.Request.Context(), req)
+	cartProduct, err := h.cartService.AddProduct(c.Request.Context(), req)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
 
-	utils.SuccessResponse(c, cartItem)
+	utils.SuccessResponse(c, cartProduct)
 }
 
-// UpdateItemQuantity handles updating cart item quantity
-func (h *CartHandler) UpdateItemQuantity(c *gin.Context) {
-	var req services.UpdateItemQuantityRequest
+// UpdateProductQuantity handles updating cart product quantity
+func (h *CartHandler) UpdateProductQuantity(c *gin.Context) {
+	var req services.UpdateProductQuantityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.handleValidationError(c, err)
 		return
 	}
 
-	cartItem, err := h.cartService.UpdateItemQuantity(c.Request.Context(), req)
+	cartItem, err := h.cartService.UpdateProductQuantity(c.Request.Context(), req)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -82,7 +82,7 @@ func (h *CartHandler) RemoveItem(c *gin.Context) {
 		return
 	}
 
-	if err := h.cartService.RemoveItem(c.Request.Context(), cartItemID); err != nil {
+	if err := h.cartService.RemoveProduct(c.Request.Context(), cartItemID); err != nil {
 		h.handleError(c, err)
 		return
 	}
@@ -98,7 +98,7 @@ func (h *CartHandler) GetCartItems(c *gin.Context) {
 		return
 	}
 
-	items, err := h.cartService.GetCartItems(c.Request.Context(), cartID)
+	items, err := h.cartService.GetCartProducts(c.Request.Context(), cartID)
 	if err != nil {
 		h.handleError(c, err)
 		return

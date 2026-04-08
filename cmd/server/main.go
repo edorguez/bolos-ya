@@ -52,22 +52,19 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	supermarketRepo := repository.NewSupermarketRepository(db)
 	productRepo := repository.NewProductRepository(db)
-	priceRepo := repository.NewPriceRepository(db)
 	cartRepo := repository.NewCartRepository(db)
-	cartItemRepo := repository.NewCartItemRepository(db)
+	cartProductRepo := repository.NewCartProductRepository(db)
 
 	// Initialize services
 	authService := services.NewAuthService(userRepo, cfg.JWT.Secret)
-	cartService := services.NewCartService(cartRepo, cartItemRepo, productRepo, priceRepo)
-	syncService := services.NewSyncService(userRepo, cartRepo, cartItemRepo, productRepo, priceRepo, supermarketRepo)
-	priceConfidenceService := services.NewPriceConfidenceService(priceRepo)
+	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo)
+	syncService := services.NewSyncService(userRepo, cartRepo, cartProductRepo, productRepo, supermarketRepo)
 
 	// Setup Gin router
 	router := server.SetupRoutes(
 		authService,
 		cartService,
 		syncService,
-		priceConfidenceService,
 		logger,
 	)
 

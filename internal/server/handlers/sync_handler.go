@@ -46,22 +46,6 @@ func (h *SyncHandler) ProcessSync(c *gin.Context) {
 	utils.SuccessResponse(c, resp)
 }
 
-// MarkUserSynced updates user's last sync timestamp
-func (h *SyncHandler) MarkUserSynced(c *gin.Context) {
-	userID, err := utils.ParseUUID(c.Param("userId"))
-	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "invalid user ID")
-		return
-	}
-
-	if err := h.syncService.MarkUserSynced(c.Request.Context(), userID); err != nil {
-		h.handleError(c, err)
-		return
-	}
-
-	utils.SuccessResponse(c, nil)
-}
-
 // handleValidationError converts validation errors to proper HTTP response
 func (h *SyncHandler) handleValidationError(c *gin.Context, err error) {
 	if validationErrors, ok := err.(validator.ValidationErrors); ok {
