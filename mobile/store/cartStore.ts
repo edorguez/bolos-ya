@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { calculateTotal } from '../utils/formatters'
 
 export interface CartItem {
   id: string
@@ -18,6 +19,8 @@ export interface Cart {
   items: CartItem[]
   totalBs: number
   totalUsd: number
+  budgetBs: number
+  budgetUsd: number
   createdAt: Date
 }
 
@@ -65,19 +68,26 @@ export const useCartStore = create<CartState>(set => ({
           ? {
               ...cart,
               items: [...cart.items, { ...item, id: Date.now().toString() }],
+              totalBs: cart.totalBs + item.priceBs * item.quantity,
+              totalUsd: cart.totalUsd + item.priceUsd * item.quantity,
             }
           : cart
       ),
     })),
   removeItemFromCart: (cartId, itemId) =>
     set(state => ({
-      carts: state.carts.map(cart =>
-        cart.id === cartId
-          ? {
-              ...cart,
-              items: cart.items.filter(item => item.id !== itemId),
-            }
-          : cart
-      ),
+      carts: state.carts.map(cart => {
+        if (cart.id !== cartId) return cart
+
+        const itemToRemove = cart.items.find(item => item.id === itemId)
+        if (!itemToRemove) return cart
+
+        return {
+          ...cart,
+          items: cart.items.filter(item => item.id !== itemId),
+          totalBs: cart.totalBs - itemToRemove.priceBs * itemToRemove.quantity,
+          totalUsd: cart.totalUsd - itemToRemove.priceUsd * itemToRemove.quantity,
+        }
+      }),
     })),
 }))

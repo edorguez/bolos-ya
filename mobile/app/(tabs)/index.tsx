@@ -1,10 +1,10 @@
-import { View, Text, ScrollView, Pressable } from 'react-native'
-import { useState } from 'react'
+import { View, Text, ScrollView, Pressable, TextInput, Animated } from 'react-native'
+import { useState, useRef, useEffect } from 'react'
 // @ts-ignore
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 import { useRouter } from 'expo-router'
 import { createHomeStyles } from '../../styles/homeStyles'
-import { SupermarketButton } from '../../components/home/SupermarketButton'
+import { SupermarketCarousel } from '../../components/home/SupermarketCarousel'
 import { BudgetInput } from '../../components/home/BudgetInput'
 import { CartCard } from '../../components/home/CartCard'
 import { TipCard } from '../../components/home/TipCard'
@@ -19,10 +19,51 @@ export default function HomeTab() {
   const [supermarkets, setSupermarkets] = useState([
     { id: '1', name: "Plaza's", icon: 'storefront', selected: true },
     { id: '2', name: 'Gamma', icon: 'store', selected: false },
-    { id: '3', name: 'Others', icon: 'local_mall', selected: false },
+    { id: '3', name: 'Central M.', icon: 'shopping_cart', selected: false },
+    { id: '4', name: 'Plan Suarez', icon: 'local_mall', selected: false },
+    { id: '5', name: 'Otro', icon: 'add_circle', selected: false },
   ])
   const [budgetBs, setBudgetBs] = useState('')
   const [budgetUsd, setBudgetUsd] = useState('')
+  const [customMarketName, setCustomMarketName] = useState('')
+  const [showCustomMarket, setShowCustomMarket] = useState(false)
+  const [renderCustomMarket, setRenderCustomMarket] = useState(false)
+
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  const slideAnim = useRef(new Animated.Value(-20)).current
+
+  useEffect(() => {
+    if (showCustomMarket) {
+      setRenderCustomMarket(true)
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start()
+    } else {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: -20,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setRenderCustomMarket(false)
+      })
+    }
+  }, [showCustomMarket])
 
   const handleSupermarketSelect = (id: string) => {
     setSupermarkets(prev =>
@@ -31,6 +72,12 @@ export default function HomeTab() {
         selected: s.id === id,
       }))
     )
+    const selected = supermarkets.find(s => s.id === id)
+    if (selected?.name === 'Otro') {
+      setShowCustomMarket(true)
+    } else {
+      setShowCustomMarket(false)
+    }
   }
 
   const router = useRouter()
@@ -38,18 +85,24 @@ export default function HomeTab() {
 
   const handleStartList = () => {
     const selectedSupermarket = supermarkets.find(s => s.selected)
-    const cartName = `${selectedSupermarket?.name || 'New'} Cart`
+    let supermarketName = selectedSupermarket?.name || "Plaza's"
+    if (selectedSupermarket?.name === 'Otro' && customMarketName.trim()) {
+      supermarketName = customMarketName.trim()
+    }
+    const cartName = `${supermarketName} - ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`
 
     const newCart = {
       name: cartName,
-      supermarket: selectedSupermarket?.name || "Plaza's",
+      supermarket: supermarketName,
       items: [],
       totalBs: 0,
       totalUsd: 0,
+      budgetBs: parseFloat(budgetBs) || 0,
+      budgetUsd: parseFloat(budgetUsd) || 0,
     }
 
     addCart(newCart)
-    const cartId = Date.now().toString() // Store generates ID based on timestamp
+    const cartId = Date.now().toString()
     setActiveCart(cartId)
     // @ts-ignore
     router.push({ pathname: '/(cart)/[id]', params: { id: cartId } })
@@ -58,20 +111,20 @@ export default function HomeTab() {
   const latestCarts = [
     {
       id: '1',
-      title: 'Week Groceries',
-      subtitle: '85% completed',
+      title: 'Semana de Víveres',
+      subtitle: '85% completado',
       date: '12 OCT',
       progress: 85,
-      color: theme.colors.secondary,
+      color: theme.colors.primary,
       icon: 'bakery_dining',
     },
     {
       id: '2',
-      title: 'Monthly Cleaning',
-      subtitle: '40% completed',
+      title: 'Limpieza Mensual',
+      subtitle: '40% completado',
       date: '05 OCT',
       progress: 40,
-      color: theme.colors.tertiary,
+      color: '#ffc456',
       icon: 'cleaning_services',
     },
   ]
@@ -85,54 +138,73 @@ export default function HomeTab() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
           <SectionHeader
-            title="Configure New Cart"
-            icon="shopping_cart"
+            title="Configurar Nuevo Carrito"
+            icon="shopping_basket"
             iconColor={theme.colors.primary}
+            iconPosition="right"
           />
 
           <View style={styles.card}>
             <View>
-              <Text
-                style={{
-                  fontSize: theme.typography.fontSize.xs,
-                  fontWeight: theme.typography.fontWeight.bold,
-                  textTransform: 'uppercase',
-                  letterSpacing: 1,
-                  color: theme.colors.onSurfaceVariant,
-                }}
-              >
-                Supermarket
-              </Text>
-              <View style={styles.supermarketGrid}>
-                {supermarkets.map(supermarket => (
-                  <SupermarketButton
-                    key={supermarket.id}
-                    selected={supermarket.selected}
-                    icon={supermarket.icon}
-                    name={supermarket.name}
-                    onPress={() => handleSupermarketSelect(supermarket.id)}
-                  />
-                ))}
-              </View>
+              <Text style={styles.supermarketLabel}>Supermercado</Text>
+              <SupermarketCarousel supermarkets={supermarkets} onSelect={handleSupermarketSelect} />
+
+              {renderCustomMarket && (
+                <Animated.View
+                  style={[
+                    styles.customMarketContainer,
+                    {
+                      opacity: fadeAnim,
+                      transform: [{ translateY: slideAnim }],
+                    },
+                  ]}
+                >
+                  <View style={{ gap: theme.spacing.xs }}>
+                    <Text style={styles.supermarketLabel}>Nombre del Supermercado</Text>
+                    <TextInput
+                      style={styles.customMarketInput}
+                      placeholder="Ej. Plan Suarez"
+                      placeholderTextColor={theme.colors.onSurfaceVariant}
+                      value={customMarketName}
+                      onChangeText={setCustomMarketName}
+                    />
+                  </View>
+                </Animated.View>
+              )}
             </View>
 
             <View style={styles.budgetGrid}>
               <BudgetInput
-                label="Budget Bs."
+                label="Presupuesto Bs."
                 value={budgetBs}
                 onChangeText={setBudgetBs}
                 keyboardType="numeric"
+                inputStyle={{
+                  fontSize: theme.typography.fontSize.lg,
+                  fontWeight: theme.typography.fontWeight.bold,
+                }}
               />
               <BudgetInput
-                label="Budget USD"
+                label="Presupuesto USD"
                 value={budgetUsd}
                 onChangeText={setBudgetUsd}
                 keyboardType="numeric"
+                inputStyle={{
+                  fontSize: theme.typography.fontSize.lg,
+                  fontWeight: theme.typography.fontWeight.bold,
+                }}
               />
             </View>
 
-            <Pressable style={styles.primaryButton} onPress={handleStartList}>
-              <Text style={styles.primaryButtonText}>Start List</Text>
+            <Pressable
+              style={({ pressed }) => [
+                styles.primaryButton,
+                pressed && { transform: [{ scale: 0.98 }] },
+              ]}
+              onPress={handleStartList}
+            >
+              <View style={styles.primaryButtonOverlay} />
+              <Text style={styles.primaryButtonText}>Comenzar Lista</Text>
               <MaterialIcons name="arrow_forward" size={24} color="#FFFFFF" />
             </Pressable>
           </View>
@@ -140,9 +212,9 @@ export default function HomeTab() {
 
         <View style={styles.section}>
           <SectionHeader
-            title="Latest Carts"
-            linkText="View all"
-            onLinkPress={() => console.log('View all carts')}
+            title="Últimos Carritos"
+            linkText="Ver todos"
+            onLinkPress={() => console.log('Ver todos')}
           />
 
           <ScrollView
@@ -166,8 +238,8 @@ export default function HomeTab() {
 
         <View style={styles.section}>
           <TipCard
-            title="Savings Tip"
-            text="Buying white-label brands at Plaza's can save you up to 15% on your final cart."
+            title="Tip de Ahorro"
+            text="Comprar marcas blancas en Plaza's puede ahorrarte hasta un 15% en tu carrito final."
           />
         </View>
       </ScrollView>

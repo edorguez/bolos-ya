@@ -18,9 +18,16 @@ const stylesheet = StyleSheet.create(theme => ({
   card: {
     minWidth: 280,
     backgroundColor: theme.colors.surfaceContainerLow,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
     gap: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: '#0000000d',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   header: {
     flexDirection: 'row',
@@ -30,15 +37,20 @@ const stylesheet = StyleSheet.create(theme => ({
   iconContainer: {
     width: 48,
     height: 48,
-    backgroundColor: theme.colors.secondary + '20',
-    borderRadius: theme.borderRadius.full,
+    borderRadius: theme.borderRadius.xl,
     alignItems: 'center',
     justifyContent: 'center',
   },
   date: {
     fontSize: theme.typography.fontSize.xs,
     fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.outline,
+    color: theme.colors.onSurfaceVariant,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.full,
+    borderWidth: 1,
+    borderColor: '#0000000d',
   },
   title: {
     fontSize: theme.typography.fontSize.md,
@@ -66,7 +78,7 @@ export function CartCard({ title, subtitle, date, progress, color, icon }: CartC
         <Text style={styles.title as TextStyle}>{title}</Text>
         <Text style={styles.subtitle as TextStyle}>{subtitle}</Text>
       </View>
-      <ProgressBar progress={progress} color={color} />
+      <ProgressBar progress={progress} color={color} height={10} />
     </View>
   )
 }

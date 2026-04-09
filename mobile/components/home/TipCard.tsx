@@ -12,29 +12,46 @@ interface TipCardProps {
 
 const stylesheet = StyleSheet.create(theme => ({
   card: {
-    backgroundColor: theme.colors.tertiaryContainer,
+    backgroundColor: '#ffc456',
     borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.lg,
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: theme.spacing.md,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  blurCircle: {
+    position: 'absolute',
+    right: -theme.spacing.lg,
+    bottom: -theme.spacing.lg,
+    width: 128,
+    height: 128,
+    backgroundColor: '#ffffff33',
+    borderRadius: 64,
+    blurRadius: 32,
   },
   iconContainer: {
     backgroundColor: '#FFFFFF',
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.xl,
     padding: theme.spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    zIndex: 10,
   },
   content: {
     flex: 1,
+    zIndex: 10,
   },
   title: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.lg,
     fontWeight: theme.typography.fontWeight.bold,
     color: '#583d00',
   },
@@ -42,6 +59,7 @@ const stylesheet = StyleSheet.create(theme => ({
     fontSize: theme.typography.fontSize.sm,
     color: '#583d00',
     opacity: 0.8,
+    fontWeight: theme.typography.fontWeight.semibold,
   },
 }))
 
@@ -50,6 +68,7 @@ export function TipCard({ title, text, icon = 'lightbulb' }: TipCardProps) {
   const styles = stylesheet(theme)
   return (
     <View style={styles.card as ViewStyle}>
+      <View style={styles.blurCircle as ViewStyle} />
       <View style={styles.iconContainer as ViewStyle}>
         <MaterialIcons name={icon as any} size={24} color="#795500" />
       </View>

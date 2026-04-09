@@ -1,0 +1,360 @@
+import { useState, useEffect, useRef } from 'react'
+import { View, Text, Pressable, Animated, Dimensions, StyleSheet } from 'react-native'
+import { useRouter } from 'expo-router'
+import { CameraView, Camera } from 'expo-camera'
+// @ts-ignore
+import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
+import { useAppTheme } from '../../styles/theme'
+import { TopAppBar } from '../../components/shared/TopAppBar'
+import { ProductScanResultModal } from '../../components/shared/ProductScanResultModal'
+import { useCartStore } from '../../store/cartStore'
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
+const SCANNER_FRAME_WIDTH = SCREEN_WIDTH * 0.8
+const SCANNER_FRAME_HEIGHT = SCREEN_WIDTH * 0.6
+
+export default function ScanScreen() {
+  const router = useRouter()
+  const theme = useAppTheme()
+  const { activeCartId, carts, addItemToCart } = useCartStore()
+
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null)
+  const [cameraType, setCameraType] = useState<'back' | 'front'>('back')
+  const [isScanning, setIsScanning] = useState(false)
+  const [scanResult, setScanResult] = useState<{
+    name: string
+    priceBs: number
+    priceUsd: number
+  } | null>(null)
+
+  const scanLineAnim = useRef(new Animated.Value(0)).current
+  const cameraRef = useRef<CameraView>(null)
+
+  const activeCart = activeCartId ? carts.find(c => c.id === activeCartId) : null
+
+  useEffect(() => {
+    ;(async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync()
+      setHasPermission(status === 'granted')
+    })()
+  }, [])
+
+  useEffect(() => {
+    if (isScanning) {
+      const animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(scanLineAnim, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scanLineAnim, {
+            toValue: 0,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+        ])
+      )
+      animation.start()
+
+      // Simulate OCR detection after 3 seconds
+      const timer = setTimeout(() => {
+        setIsScanning(false)
+        setScanResult({
+          name: 'Harina de Maíz Precocida',
+          priceBs: 42.5,
+          priceUsd: 1.15,
+        })
+        animation.stop()
+      }, 3000)
+
+      return () => {
+        clearTimeout(timer)
+        animation.stop()
+      }
+    }
+  }, [isScanning])
+
+  const startScanning = () => {
+    if (!isScanning) {
+      setIsScanning(true)
+    }
+  }
+
+  const handleAddToCart = () => {
+    if (!scanResult || !activeCart) return
+
+    addItemToCart(activeCart.id, {
+      productId: `scanned_${Date.now()}`,
+      name: scanResult.name,
+      priceBs: scanResult.priceBs,
+      priceUsd: scanResult.priceUsd,
+      quantity: 1,
+      supermarket: activeCart.supermarket,
+    })
+
+    setScanResult(null)
+    router.back()
+  }
+
+  const toggleCameraType = () => {
+    setCameraType(current => (current === 'back' ? 'front' : 'back'))
+  }
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#000',
+    },
+    cameraContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    scannerOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    scannerFrame: {
+      width: SCANNER_FRAME_WIDTH,
+      height: SCANNER_FRAME_HEIGHT,
+      borderWidth: 2,
+      borderColor: 'rgba(255, 255, 255, 0.4)',
+      borderRadius: 24,
+      overflow: 'hidden',
+      backgroundColor: 'transparent',
+    },
+    scanLineContainer: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 2,
+    },
+    cornerTL: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: 24,
+      height: 24,
+      borderTopWidth: 4,
+      borderLeftWidth: 4,
+      borderColor: '#FFFFFF',
+      borderTopLeftRadius: 8,
+    },
+    cornerTR: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      width: 24,
+      height: 24,
+      borderTopWidth: 4,
+      borderRightWidth: 4,
+      borderColor: '#FFFFFF',
+      borderTopRightRadius: 8,
+    },
+    cornerBL: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      width: 24,
+      height: 24,
+      borderBottomWidth: 4,
+      borderLeftWidth: 4,
+      borderColor: '#FFFFFF',
+      borderBottomLeftRadius: 8,
+    },
+    cornerBR: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      width: 24,
+      height: 24,
+      borderBottomWidth: 4,
+      borderRightWidth: 4,
+      borderColor: '#FFFFFF',
+      borderBottomRightRadius: 8,
+    },
+    statusContainer: {
+      marginTop: 32,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderRadius: 999,
+    },
+    statusDot: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      backgroundColor: theme.colors.primary,
+    },
+    statusText: {
+      color: theme.colors.onSurface,
+      fontSize: 14,
+      fontWeight: '600',
+      letterSpacing: 0.5,
+    },
+    floatingCameraButton: {
+      position: 'absolute',
+      bottom: 140,
+      alignSelf: 'center',
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: '#0619fc',
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#0619fc',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 8,
+    },
+    flipCameraButton: {
+      position: 'absolute',
+      bottom: 140,
+      right: 32,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  })
+
+  if (hasPermission === null) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: '#FFFFFF' }}>Requesting camera permission...</Text>
+      </View>
+    )
+  }
+
+  if (hasPermission === false) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: '#FFFFFF' }}>No access to camera</Text>
+        <Pressable onPress={() => router.back()}>
+          <Text style={{ color: theme.colors.primary, marginTop: 16 }}>Go back</Text>
+        </Pressable>
+      </View>
+    )
+  }
+
+  return (
+    <View style={styles.container}>
+      <TopAppBar
+        title="Escanear Etiqueta"
+        leftLabel={activeCart?.supermarket}
+        onBackPress={() => router.back()}
+      />
+
+      <View style={styles.cameraContainer}>
+        <CameraView
+          ref={cameraRef}
+          style={StyleSheet.absoluteFillObject}
+          facing={cameraType}
+          ratio="16:9"
+        />
+
+        <View style={styles.scannerOverlay}>
+          {/* Scanner frame overlay */}
+          <View
+            style={[
+              styles.scannerFrame,
+              {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.4,
+                shadowRadius: 400,
+                elevation: 10,
+              },
+            ]}
+          >
+            {/* Corner indicators */}
+            <View style={styles.cornerTL} />
+            <View style={styles.cornerTR} />
+            <View style={styles.cornerBL} />
+            <View style={styles.cornerBR} />
+
+            {/* Scanning line */}
+            {isScanning && (
+              <Animated.View
+                style={[
+                  styles.scanLineContainer,
+                  {
+                    transform: [
+                      {
+                        translateY: scanLineAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, SCANNER_FRAME_HEIGHT],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <View
+                  style={{
+                    height: 2,
+                    backgroundColor: theme.colors.primaryContainer,
+                    shadowColor: theme.colors.primaryContainer,
+                    shadowOffset: { width: 0, height: 0 },
+                    shadowOpacity: 0.8,
+                    shadowRadius: 8,
+                  }}
+                />
+              </Animated.View>
+            )}
+          </View>
+
+          {/* Scanning status */}
+          {isScanning && (
+            <View style={styles.statusContainer}>
+              <View style={[styles.statusDot, { backgroundColor: theme.colors.primary }]} />
+              <Text style={styles.statusText}>Scanning...</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Floating camera action button */}
+        <Pressable
+          style={styles.floatingCameraButton}
+          onPress={startScanning}
+          disabled={isScanning}
+        >
+          <MaterialIcons
+            name="photo_camera"
+            size={40}
+            color="#FFFFFF"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+          />
+        </Pressable>
+
+        {/* Flip camera button */}
+        <Pressable style={styles.flipCameraButton} onPress={toggleCameraType}>
+          <MaterialIcons name="flip_camera_ios" size={28} color="#FFFFFF" />
+        </Pressable>
+      </View>
+
+      {/* Product scan result modal */}
+      <ProductScanResultModal
+        isVisible={!!scanResult}
+        onClose={() => setScanResult(null)}
+        productName={scanResult?.name || ''}
+        priceBs={scanResult?.priceBs || 0}
+        priceUsd={scanResult?.priceUsd || 0}
+        onAddToCart={handleAddToCart}
+      />
+    </View>
+  )
+}

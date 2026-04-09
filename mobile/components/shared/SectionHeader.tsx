@@ -10,6 +10,7 @@ interface SectionHeaderProps {
   onLinkPress?: () => void
   icon?: string
   iconColor?: string
+  iconPosition?: 'left' | 'right'
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -20,7 +21,7 @@ const stylesheet = StyleSheet.create(theme => ({
     marginBottom: theme.spacing.md,
   },
   title: {
-    fontSize: theme.typography.fontSize.lg,
+    fontSize: theme.typography.fontSize.xl,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
   },
@@ -32,7 +33,14 @@ const stylesheet = StyleSheet.create(theme => ({
   icon: {
     marginRight: theme.spacing.sm,
   },
+  iconRight: {
+    marginLeft: theme.spacing.sm,
+  },
   leftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -44,13 +52,18 @@ export function SectionHeader({
   onLinkPress,
   icon,
   iconColor,
+  iconPosition = 'left',
 }: SectionHeaderProps) {
   const theme = useAppTheme()
   const styles = stylesheet(theme)
+
+  const leftIcon = icon && iconPosition === 'left'
+  const rightIcon = icon && iconPosition === 'right'
+
   return (
     <View style={styles.container as ViewStyle}>
       <View style={styles.leftContainer as ViewStyle}>
-        {icon && (
+        {leftIcon && (
           <MaterialIcons
             name={icon as any}
             size={24}
@@ -60,11 +73,22 @@ export function SectionHeader({
         )}
         <Text style={styles.title as TextStyle}>{title}</Text>
       </View>
-      {linkText && onLinkPress && (
-        <Pressable onPress={onLinkPress}>
-          <Text style={styles.link as TextStyle}>{linkText}</Text>
-        </Pressable>
-      )}
+
+      <View style={styles.rightContainer as ViewStyle}>
+        {rightIcon && (
+          <MaterialIcons
+            name={icon as any}
+            size={24}
+            color={iconColor || theme.colors.onSurface}
+            style={styles.iconRight as TextStyle}
+          />
+        )}
+        {linkText && onLinkPress && (
+          <Pressable onPress={onLinkPress}>
+            <Text style={styles.link as TextStyle}>{linkText}</Text>
+          </Pressable>
+        )}
+      </View>
     </View>
   )
 }

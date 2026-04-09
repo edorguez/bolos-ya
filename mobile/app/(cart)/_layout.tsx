@@ -13,6 +13,7 @@ export default function CartLayout() {
       }}
     >
       <Stack.Screen name="[id]" />
+      <Stack.Screen name="scan" />
     </Stack>
   )
 }
