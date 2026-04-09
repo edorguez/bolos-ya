@@ -41,7 +41,7 @@ export default function HistoryTab() {
       id: '3',
       storeName: 'Central Madeirense',
       date: '28 Sep 2023',
-      icon: 'local_mall',
+      icon: 'storefront',
       iconColor: theme.colors.primary,
       status: 'Completado',
       totalBs: '980.00',

@@ -61,6 +61,7 @@ export function createHomeStyles(theme: AppTheme) {
       letterSpacing: 1,
       color: theme.colors.onSurfaceVariant,
       marginLeft: theme.spacing.xs,
+      marginBottom: theme.spacing.sm
     },
     customMarketContainer: {
       marginTop: theme.spacing.sm,
@@ -86,8 +87,8 @@ export function createHomeStyles(theme: AppTheme) {
     primaryButton: {
       backgroundColor: '#5918af',
       borderRadius: theme.borderRadius.full * 2,
-      paddingVertical: theme.spacing.lg,
-      paddingHorizontal: theme.spacing.xl,
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.md,
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'row',
@@ -116,6 +117,6 @@ export function createHomeStyles(theme: AppTheme) {
     cartCardsContainer: {
       flexDirection: 'row',
       gap: theme.spacing.md,
-    },
+    }
   })
 }

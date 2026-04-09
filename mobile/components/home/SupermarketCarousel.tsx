@@ -1,8 +1,7 @@
 import { ScrollView, View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
+import { MaterialIcons } from '@expo/vector-icons';
 
 export interface SupermarketOption {
   id: string
@@ -46,6 +45,7 @@ const stylesheet = StyleSheet.create(theme => ({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
+    marginVertical: 2
   },
   optionSelected: {
     borderColor: '#5918af',

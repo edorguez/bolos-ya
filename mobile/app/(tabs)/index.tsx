@@ -1,7 +1,6 @@
 import { View, Text, ScrollView, Pressable, TextInput, Animated } from 'react-native'
 import { useState, useRef, useEffect } from 'react'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
+import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router'
 import { createHomeStyles } from '../../styles/homeStyles'
 import { SupermarketCarousel } from '../../components/home/SupermarketCarousel'
@@ -137,13 +136,6 @@ export default function HomeTab() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
-          <SectionHeader
-            title="Configurar Nuevo Carrito"
-            icon="shopping_basket"
-            iconColor={theme.colors.primary}
-            iconPosition="right"
-          />
-
           <View style={styles.card}>
             <View>
               <Text style={styles.supermarketLabel}>Supermercado</Text>
@@ -205,7 +197,8 @@ export default function HomeTab() {
             >
               <View style={styles.primaryButtonOverlay} />
               <Text style={styles.primaryButtonText}>Comenzar Lista</Text>
-              <MaterialIcons name="arrow_forward" size={24} color="#FFFFFF" />
+              {/* <MaterialIcons name="arrow_forward" size={24} color="#FFFFFF" /> */}
+              <MaterialIcons name="home" size={24} color="#FFFFFF" />
             </Pressable>
           </View>
         </View>

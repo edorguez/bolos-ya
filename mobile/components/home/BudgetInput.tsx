@@ -24,9 +24,9 @@ const stylesheet = StyleSheet.create(theme => ({
   input: {
     backgroundColor: '#ffffff',
     borderRadius: theme.borderRadius.xl,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    fontSize: theme.typography.fontSize.lg,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
     shadowColor: '#000',
