@@ -88,7 +88,7 @@ export function createHomeStyles(theme: AppTheme) {
       backgroundColor: '#5918af',
       borderRadius: theme.borderRadius.full * 2,
       paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'row',
@@ -101,7 +101,7 @@ export function createHomeStyles(theme: AppTheme) {
       marginTop: theme.spacing.md,
     },
     primaryButtonText: {
-      fontSize: theme.typography.fontSize.lg,
+      fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.bold,
       color: '#FFFFFF',
     },

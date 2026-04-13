@@ -45,11 +45,12 @@ export default function LoginChoiceScreen() {
     router.replace('/(tabs)')
   }
 
-  const headerHeight = isExtraLargeScreen
-    ? height * 0.45
-    : isLargeScreen
-      ? height * 0.5
-      : height * 0.55
+  // const headerHeight = isExtraLargeScreen
+  //   ? height * 0.45
+  //   : isLargeScreen
+  //     ? height * 0.5
+  //     : height * 0.55
+  const headerHeight = 200
   const phoneWidth = Math.min(width * 0.5, 280)
   const phoneHeight = phoneWidth * 1.4
   const phoneScale = isExtraLargeScreen ? 0.9 : isLargeScreen ? 0.8 : 0.7
@@ -72,13 +73,11 @@ export default function LoginChoiceScreen() {
       ? theme.typography.fontSize.xl
       : theme.typography.fontSize.lg
   const titleLineHeight = titleFontSize * 1.2
-  const buttonPaddingVertical = isExtraLargeScreen ? theme.spacing.lg : theme.spacing.md
-  const buttonPaddingHorizontal = isExtraLargeScreen ? theme.spacing.xl : theme.spacing.lg
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background,
+      backgroundColor: theme.colors.background
     },
     header: {
       width: '100%',
@@ -152,6 +151,7 @@ export default function LoginChoiceScreen() {
       width: 80 * phoneScale,
       height: 12 * phoneScale,
       backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      // backgroundColor: 'blue',
       borderRadius: 6 * phoneScale,
     },
     phoneDots: {
@@ -254,7 +254,6 @@ export default function LoginChoiceScreen() {
       backgroundColor: theme.colors.surfaceContainerLowest,
       borderTopLeftRadius: 48,
       borderTopRightRadius: 48,
-      marginTop: mainMarginTop,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: -10 },
       shadowOpacity: 0.05,
@@ -294,8 +293,8 @@ export default function LoginChoiceScreen() {
       alignItems: 'center',
       justifyContent: 'center',
       gap: theme.spacing.md,
-      paddingVertical: buttonPaddingVertical,
-      paddingHorizontal: buttonPaddingHorizontal,
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
       backgroundColor: theme.colors.surfaceContainerLow,
       borderRadius: theme.borderRadius.full,
     },
@@ -310,8 +309,8 @@ export default function LoginChoiceScreen() {
       alignItems: 'center',
       justifyContent: 'center',
       gap: theme.spacing.md,
-      paddingVertical: buttonPaddingVertical,
-      paddingHorizontal: buttonPaddingHorizontal,
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
       backgroundColor: theme.colors.primary,
       borderRadius: theme.borderRadius.full,
       shadowColor: theme.colors.primary,
@@ -321,7 +320,7 @@ export default function LoginChoiceScreen() {
       elevation: 8,
     },
     emailButtonText: {
-      fontSize: theme.typography.fontSize.lg,
+      fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.bold,
       color: '#FFFFFF',
     },
@@ -329,7 +328,7 @@ export default function LoginChoiceScreen() {
       flexDirection: 'row',
       alignItems: 'center',
       gap: theme.spacing.md,
-      paddingVertical: buttonPaddingVertical,
+      paddingVertical: theme.spacing.md,
     },
     dividerLine: {
       flex: 1,
@@ -349,8 +348,8 @@ export default function LoginChoiceScreen() {
       alignItems: 'center',
       justifyContent: 'center',
       gap: theme.spacing.md,
-      paddingVertical: buttonPaddingVertical,
-      paddingHorizontal: buttonPaddingHorizontal,
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
       backgroundColor: 'transparent',
       borderRadius: theme.borderRadius.full,
       borderWidth: 2,

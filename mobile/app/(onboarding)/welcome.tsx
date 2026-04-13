@@ -140,7 +140,7 @@ export default function WelcomeScreen() {
     },
     nextButtonText: {
       color: '#FFFFFF',
-      fontSize: theme.typography.fontSize.lg,
+      fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.bold,
     },
   })
