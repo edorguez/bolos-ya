@@ -197,7 +197,6 @@ export default function HomeTab() {
             >
               <View style={styles.primaryButtonOverlay} />
               <Text style={styles.primaryButtonText}>Comenzar Lista</Text>
-              {/* <MaterialIcons name="arrow_forward" size={24} color="#FFFFFF" /> */}
               <MaterialIcons name="home" size={24} color="#FFFFFF" />
             </Pressable>
           </View>

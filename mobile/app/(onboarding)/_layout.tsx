@@ -15,7 +15,7 @@ export default function OnboardingLayout() {
   })
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <StatusBar style="dark" translucent backgroundColor="transparent" />
       <Stack
         screenOptions={{

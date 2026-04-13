@@ -4,9 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppTheme } from '../../styles/theme'
 import { useOnboardingStore } from '../../store/onboardingStore'
 import { useAuthStore } from '../../store/authStore'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 import Svg, { Path } from 'react-native-svg'
+import { MaterialIcons } from '@expo/vector-icons'
 
 const { width, height } = Dimensions.get('window')
 const isLargeScreen = height > 800
@@ -88,6 +87,7 @@ export default function LoginChoiceScreen() {
       justifyContent: 'center',
       overflow: 'hidden',
       position: 'relative',
+      zIndex: 1,
     },
     blob1: {
       position: 'absolute',
@@ -436,7 +436,7 @@ export default function LoginChoiceScreen() {
                 <View style={[styles.phoneItemLine, { width: 80 }]} />
               </View>
               <View style={styles.phoneCart}>
-                <MaterialIcons name="add_shopping_cart" size={24} color={theme.colors.primary} />
+                <MaterialIcons name="add-shopping-cart" size={24} color={theme.colors.primary} />
               </View>
             </View>
           </View>
@@ -444,7 +444,7 @@ export default function LoginChoiceScreen() {
 
         <View style={styles.floatingBadge1}>
           <View style={styles.badgeIcon}>
-            <MaterialIcons name="local_mall" size={12} color="#FFFFFF" />
+            <MaterialIcons name="local-mall" size={12} color="#FFFFFF" />
           </View>
           <Text style={styles.badgeText}>Lista lista!</Text>
         </View>
@@ -486,7 +486,7 @@ export default function LoginChoiceScreen() {
 
           <Pressable onPress={handleGuestLogin} style={styles.guestButton}>
             <Text style={styles.guestButtonText}>Entrar como Invitado</Text>
-            <MaterialIcons name="arrow_forward" size={20} color={theme.colors.secondary} />
+            <MaterialIcons name="arrow-forward" size={20} color={theme.colors.secondary} />
           </Pressable>
         </View>
 

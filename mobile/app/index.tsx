@@ -33,13 +33,9 @@ export default function Index() {
     return null
   }
 
-  if (storageFailed) {
-    return <Redirect href="/(tabs)" />
-  }
-
-  if (hasCompletedOnboarding) {
-    return <Redirect href="/(tabs)" />
-  }
+  // if (hasCompletedOnboarding || storageFailed) {
+  //   return <Redirect href="/(tabs)" />
+  // }
 
   return <Redirect href="/(onboarding)/welcome" />
 }

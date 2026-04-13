@@ -125,8 +125,6 @@ const styles = StyleSheet.create({
 })
 
 export default function TabsLayout() {
-  const theme = useAppTheme()
-
   return (
     <Tabs
       screenOptions={{
