@@ -14,70 +14,96 @@ interface BudgetSummaryProps {
 
 const stylesheet = StyleSheet.create(theme => ({
   container: {
-    marginBottom: theme.spacing.lg,
+    backgroundColor: theme.colors.surfaceContainerLowest,
+    borderRadius: 24,
+    padding: 16,
+    shadowColor: theme.colors.onSurface,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: `${theme.colors.surfaceContainerLow}80`,
+    marginBottom: 16,
+  },
+  limitRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  limitLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    color: theme.colors.onSurfaceVariant,
+  },
+  limitUsd: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: theme.colors.onSurfaceVariant,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    marginBottom: theme.spacing.md,
+    marginBottom: 12,
   },
-  totalAmount: {
-    fontSize: theme.typography.fontSize.xxl,
+  totalLeft: {
+    flex: 1,
+  },
+  totalLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    color: theme.colors.onSurfaceVariant,
+    marginBottom: 4,
+  },
+  totalAmountRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+  },
+  totalBs: {
+    fontSize: 28,
     fontWeight: '800',
     color: theme.colors.onSurface,
   },
   totalUsd: {
-    fontSize: theme.typography.fontSize.lg,
+    fontSize: 14,
     fontWeight: '700',
-    color: theme.colors.secondary,
+    color: theme.colors.onSurfaceVariant,
   },
-  budgetLabel: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    color: theme.colors.outline,
-    textAlign: 'right',
-    marginBottom: theme.spacing.xs,
-  },
-  budgetAmount: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: '600',
-    color: theme.colors.onSurface,
-  },
-  progressBarContainer: {
-    marginBottom: theme.spacing.sm,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginBottom: theme.spacing.sm,
+  badgeRight: {
+    marginLeft: 8,
   },
   badge: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 9999,
+    backgroundColor: theme.colors.error + '10',
   },
   badgeText: {
-    fontSize: theme.typography.fontSize.xs,
+    fontSize: 12,
     fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    color: theme.colors.error,
+  },
+  progressBarContainer: {
+    marginBottom: 12,
   },
   warningContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing.xs,
-    padding: theme.spacing.sm,
-    backgroundColor: theme.colors.errorContainer,
-    borderRadius: theme.borderRadius.md,
+    gap: 8,
+    padding: 8,
+    backgroundColor: theme.colors.error + '08',
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: theme.colors.error,
+    borderColor: theme.colors.error + '20',
   },
   warningText: {
-    fontSize: theme.typography.fontSize.xs,
+    fontSize: 11,
     fontWeight: '700',
     color: theme.colors.error,
   },
@@ -90,51 +116,44 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
   const isOverBudget = totalBs > budgetBs
   const overBudgetAmount = Math.max(0, totalBs - budgetBs)
   const progressPercentage = Math.min(100, (totalBs / budgetBs) * 100)
+  const exchangeRate = budgetBs > 0 ? budgetUsd / budgetBs : 36.42
+  const overBudgetUsd = overBudgetAmount * exchangeRate
 
   return (
     <View style={styles.container as ViewStyle}>
+      {/* Limit row */}
+      <View style={styles.limitRow as ViewStyle}>
+        <Text style={styles.limitLabel as TextStyle}>
+          LÍMITE: Bs. {budgetBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+        </Text>
+        <Text style={styles.limitUsd as TextStyle}>
+          ($ {budgetUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })})
+        </Text>
+      </View>
+
+      {/* Total spent row */}
       <View style={styles.totalRow as ViewStyle}>
-        <View>
-          <Text style={styles.totalAmount as TextStyle}>
-            Bs. {totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
-          </Text>
-          <Text style={styles.totalUsd as TextStyle}>
-            ${totalUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD
-          </Text>
+        <View style={styles.totalLeft as ViewStyle}>
+          <Text style={styles.totalLabel as TextStyle}>TOTAL GASTADO</Text>
+          <View style={styles.totalAmountRow as ViewStyle}>
+            <Text style={styles.totalBs as TextStyle}>
+              Bs. {totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+            </Text>
+            <Text style={styles.totalUsd as TextStyle}>
+              ($ {totalUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })})
+            </Text>
+          </View>
         </View>
-        <View>
-          <Text style={styles.budgetLabel as TextStyle}>LÍMITE</Text>
-          <Text style={styles.budgetAmount as TextStyle}>
-            Bs. {budgetBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
-          </Text>
-          <Text style={[styles.budgetLabel as TextStyle, { marginBottom: 0 }]}>
-            ${budgetUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD
-          </Text>
-        </View>
+        {isOverBudget && (
+          <View style={styles.badgeRight as ViewStyle}>
+            <View style={styles.badge as ViewStyle}>
+              <Text style={styles.badgeText as TextStyle}>Excedido</Text>
+            </View>
+          </View>
+        )}
       </View>
 
-      <View style={styles.badgeRow as ViewStyle}>
-        <View
-          style={[
-            styles.badge as ViewStyle,
-            {
-              backgroundColor: isOverBudget
-                ? theme.colors.errorContainer
-                : theme.colors.success + '20',
-            },
-          ]}
-        >
-          <Text
-            style={[
-              styles.badgeText as TextStyle,
-              { color: isOverBudget ? theme.colors.error : theme.colors.success },
-            ]}
-          >
-            {isOverBudget ? 'Excedido' : 'Bien'}
-          </Text>
-        </View>
-      </View>
-
+      {/* Progress bar */}
       <View style={styles.progressBarContainer as ViewStyle}>
         <ProgressBar
           progress={progressPercentage}
@@ -144,12 +163,14 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
         />
       </View>
 
+      {/* Warning message */}
       {isOverBudget && (
         <View style={styles.warningContainer as ViewStyle}>
           <MaterialIcons name="warning" size={16} color={theme.colors.error} />
           <Text style={styles.warningText as TextStyle}>
             Te has excedido por Bs.{' '}
-            {overBudgetAmount.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+            {overBudgetAmount.toLocaleString('es-VE', { minimumFractionDigits: 2 })} / $
+            {overBudgetUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </Text>
         </View>
       )}

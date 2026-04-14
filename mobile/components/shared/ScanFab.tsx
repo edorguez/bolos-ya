@@ -27,18 +27,13 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }))
 
-export function ScanFab({ icon = 'photo_camera', ...pressableProps }: ScanFabProps) {
+export function ScanFab({ icon = 'photo-camera', ...pressableProps }: ScanFabProps) {
   const theme = useAppTheme()
   const styles = stylesheet(theme)
 
   return (
     <Pressable style={styles.fab as ViewStyle} {...pressableProps}>
-      <MaterialIcons
-        name={icon as any}
-        size={32}
-        color="#FFFFFF"
-        style={{ fontVariationSettings: "'FILL' 1" }}
-      />
+      <MaterialIcons name={icon as any} size={32} color="#FFFFFF" />
     </Pressable>
   )
 }

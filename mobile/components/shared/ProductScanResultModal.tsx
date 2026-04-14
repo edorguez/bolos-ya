@@ -177,7 +177,7 @@ export function ProductScanResultModal({
               onClose()
             }}
           >
-            <MaterialIcons name="add_circle" size={20} color="#FFFFFF" />
+            <MaterialIcons name="add-circle" size={20} color="#FFFFFF" />
             <Text style={styles.addButtonText as TextStyle}>Añadir a la libreta</Text>
           </Pressable>
         </Pressable>

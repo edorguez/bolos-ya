@@ -1,11 +1,10 @@
-import { View, Text, ScrollView, Pressable, Image, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 import { useCartStore, type Cart, type CartItem } from '../../store/cartStore'
 import { useAppTheme } from '../../styles/theme'
 import { ProductCard } from '../../components/cart/ProductCard'
 import { BudgetSummary } from '../../components/cart/BudgetSummary'
+import { SupermarketHeader } from '../../components/cart/SupermarketHeader'
 import { TopAppBar } from '../../components/shared/TopAppBar'
 import { ManualAddButton } from '../../components/cart/ManualAddButton'
 import { ScanFab } from '../../components/shared/ScanFab'
@@ -77,41 +76,41 @@ export default function CartDetailScreen() {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
-
-    content: {
-      flex: 1,
-      paddingTop: 80,
+    headerContainer: {
+      backgroundColor: theme.colors.surfaceContainerLowest,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.surfaceContainer,
       paddingHorizontal: 24,
-      paddingBottom: 120,
+      paddingBottom: 16,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingHorizontal: 24,
+      paddingBottom: 60,
     },
     heroSection: {
-      marginBottom: 32,
+      marginBottom: 16,
     },
-
     productList: {
       gap: 16,
     },
     sectionHeader: {
-      fontSize: 12,
+      fontSize: 18,
       fontWeight: '800',
-      textTransform: 'uppercase',
-      letterSpacing: 2,
-      color: theme.colors.outline,
+      color: theme.colors.onSurface,
       marginBottom: 16,
+      marginTop: 8,
     },
   })
 
   return (
     <View style={styles.container}>
-      {/* Top App Bar */}
-      <TopAppBar
-        title="MercadoLibreta"
-        leftLabel={cart.supermarket}
-        onBackPress={() => router.back()}
-      />
-
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Budget & Total Hero Section */}
+      {/* Fixed White Header */}
+      <View style={styles.headerContainer}>
+        <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} variant="solid-white" />
+        <SupermarketHeader supermarket={cart.supermarket} itemCount={cart.items.length} />
         <View style={styles.heroSection}>
           <BudgetSummary
             totalBs={totalBs}
@@ -120,15 +119,24 @@ export default function CartDetailScreen() {
             budgetUsd={budgetUsd}
           />
         </View>
+      </View>
 
+      {/* Scrollable Content Area */}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Manual Add Product Button */}
         <ManualAddButton onPress={() => setShowAddProduct(true)} />
 
         {/* Product List */}
-        <Text style={styles.sectionHeader}>Tu Carrito</Text>
+        <Text style={styles.sectionHeader}>Artículos en Carrito</Text>
         <View style={styles.productList}>
           {cart.items.length > 0 ? (
-            cart.items.map((item: CartItem) => <ProductCard key={item.id} item={item} />)
+            cart.items.map((item: CartItem) => (
+              <ProductCard key={item.id} item={item} cartId={cart.id} />
+            ))
           ) : (
             <Text
               style={{

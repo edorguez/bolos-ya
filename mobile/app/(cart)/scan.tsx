@@ -332,17 +332,12 @@ export default function ScanScreen() {
           onPress={startScanning}
           disabled={isScanning}
         >
-          <MaterialIcons
-            name="photo_camera"
-            size={40}
-            color="#FFFFFF"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          />
+          <MaterialIcons name="photo-camera" size={40} color="#FFFFFF" />
         </Pressable>
 
         {/* Flip camera button */}
         <Pressable style={styles.flipCameraButton} onPress={toggleCameraType}>
-          <MaterialIcons name="flip_camera_ios" size={28} color="#FFFFFF" />
+          <MaterialIcons name="flip-camera-ios" size={28} color="#FFFFFF" />
         </Pressable>
       </View>
 

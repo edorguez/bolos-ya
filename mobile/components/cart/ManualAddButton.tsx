@@ -12,29 +12,20 @@ const stylesheet = StyleSheet.create(theme => ({
   button: {
     width: '100%',
     padding: 24,
-    backgroundColor: theme.colors.surfaceContainerLow,
+    backgroundColor: theme.colors.surfaceContainerLowest,
     borderRadius: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  leftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: theme.colors.primary,
+    borderWidth: 2,
+    borderColor: `${theme.colors.primary}30`,
+    borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
   },
   text: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: theme.colors.onSurface,
+    fontSize: 14,
+    fontWeight: '800',
+    color: theme.colors.primary,
+    textAlign: 'center',
   },
 }))
 
@@ -47,13 +38,8 @@ export function ManualAddButton({
 
   return (
     <Pressable style={styles.button as ViewStyle} {...pressableProps}>
-      <View style={styles.leftContainer as ViewStyle}>
-        <View style={styles.iconContainer as ViewStyle}>
-          <MaterialIcons name="add" size={24} color="#FFFFFF" />
-        </View>
-        <Text style={styles.text as TextStyle}>{title}</Text>
-      </View>
-      <MaterialIcons name="chevron_right" size={24} color={theme.colors.outline} />
+      <MaterialIcons name="add-circle" size={24} color={theme.colors.primary} />
+      <Text style={styles.text as TextStyle}>{title}</Text>
     </Pressable>
   )
 }

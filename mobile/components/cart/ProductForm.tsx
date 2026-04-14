@@ -22,6 +22,7 @@ const EXCHANGE_RATE = 36.7 // Mock exchange rate: 4000 Bs = 109 USD
 
 const stylesheet = StyleSheet.create(theme => ({
   container: {
+    flex: 1,
     gap: theme.spacing.xl,
   },
   illustrationRow: {
@@ -172,6 +173,9 @@ const stylesheet = StyleSheet.create(theme => ({
     marginLeft: theme.spacing.sm,
     marginTop: theme.spacing.xs,
   },
+  buttonContainer: {
+    marginTop: 'auto',
+  },
 }))
 
 export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProps) {
@@ -307,7 +311,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProp
       <View style={styles.illustrationRow as ViewStyle}>
         <View style={styles.iconContainer as ViewStyle}>
           <MaterialIcons
-            name="inventory_2"
+            name="inventory-2"
             size={36}
             color={theme.colors.secondary}
             style={styles.icon as TextStyle}
@@ -388,7 +392,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProp
         <View style={styles.syncContainer as ViewStyle}>
           <Pressable style={styles.syncButton as ViewStyle} onPress={toggleEditableCurrency}>
             <MaterialIcons
-              name="sync_alt"
+              name="sync-alt"
               size={20}
               color={getSyncIconColor()}
               style={{ transform: [{ rotate: bsEditable ? '0deg' : '180deg' }] }}
@@ -423,13 +427,15 @@ export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProp
       {errors.price && <Text style={styles.errorText as TextStyle}>{errors.price}</Text>}
 
       {/* Action Button */}
-      <Button
-        title="Agregar Producto"
-        onPress={handleSubmit}
-        variant="primary"
-        size="large"
-        fullWidth
-      />
+      <View style={styles.buttonContainer as ViewStyle}>
+        <Button
+          title="Agregar Producto"
+          onPress={handleSubmit}
+          variant="primary"
+          size="large"
+          fullWidth
+        />
+      </View>
     </View>
   )
 }

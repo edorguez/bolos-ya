@@ -25,7 +25,7 @@ interface BottomSheetModalProps {
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window')
-const MODAL_HEIGHT = SCREEN_HEIGHT * 0.8 // 80% of screen height
+const MODAL_HEIGHT = SCREEN_HEIGHT * 0.9 // 90% of screen height
 
 const stylesheet = StyleSheet.create(theme => ({
   backdrop: {
@@ -41,6 +41,7 @@ const stylesheet = StyleSheet.create(theme => ({
     position: 'absolute',
     left: 0,
     right: 0,
+    bottom: 0,
     height: MODAL_HEIGHT,
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderTopLeftRadius: theme.borderRadius.xl,
@@ -114,7 +115,7 @@ export function BottomSheetModal({
   const theme = useAppTheme()
   const styles = stylesheet(theme)
 
-  const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current
+  const translateY = useRef(new Animated.Value(MODAL_HEIGHT)).current
   const backdropOpacity = useRef(new Animated.Value(0)).current
 
   const panResponder = useRef(
@@ -124,9 +125,9 @@ export function BottomSheetModal({
         return gestureState.dy > 5 // Only respond to downward gestures
       },
       onPanResponderMove: (_, gestureState) => {
-        // Prevent moving above initial position
+        // Prevent moving above initial position and limit to MODAL_HEIGHT
         if (gestureState.dy > 0) {
-          translateY.setValue(gestureState.dy)
+          translateY.setValue(Math.min(gestureState.dy, MODAL_HEIGHT))
         }
       },
       onPanResponderRelease: (_, gestureState) => {
@@ -164,7 +165,7 @@ export function BottomSheetModal({
   const closeModal = () => {
     Animated.parallel([
       Animated.timing(translateY, {
-        toValue: SCREEN_HEIGHT,
+        toValue: MODAL_HEIGHT,
         duration: 250,
         useNativeDriver: true,
       }),
@@ -217,7 +218,7 @@ export function BottomSheetModal({
           <View style={styles.headerLeft as ViewStyle}>
             {showBackButton && (
               <Pressable style={styles.backButton as ViewStyle} onPress={closeModal}>
-                <MaterialIcons name="arrow_back" size={24} color={theme.colors.onSurfaceVariant} />
+                <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurfaceVariant} />
               </Pressable>
             )}
             <View>

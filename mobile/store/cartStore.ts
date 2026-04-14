@@ -34,6 +34,8 @@ interface CartState {
   setActiveCart: (id: string | null) => void
   addItemToCart: (cartId: string, item: Omit<CartItem, 'id'>) => void
   removeItemFromCart: (cartId: string, itemId: string) => void
+  updateItemQuantity: (cartId: string, itemId: string, newQuantity: number) => void
+  updateItem: (cartId: string, itemId: string, updates: Partial<CartItem>) => void
 }
 
 export const useCartStore = create<CartState>(set => ({
@@ -87,6 +89,61 @@ export const useCartStore = create<CartState>(set => ({
           items: cart.items.filter(item => item.id !== itemId),
           totalBs: cart.totalBs - itemToRemove.priceBs * itemToRemove.quantity,
           totalUsd: cart.totalUsd - itemToRemove.priceUsd * itemToRemove.quantity,
+        }
+      }),
+    })),
+  updateItemQuantity: (cartId, itemId, newQuantity) =>
+    set(state => ({
+      carts: state.carts.map(cart => {
+        if (cart.id !== cartId) return cart
+
+        const itemIndex = cart.items.findIndex(item => item.id === itemId)
+        if (itemIndex === -1) return cart
+
+        const oldItem = cart.items[itemIndex]
+        const quantityDiff = newQuantity - oldItem.quantity
+        const newTotalBs = cart.totalBs + oldItem.priceBs * quantityDiff
+        const newTotalUsd = cart.totalUsd + oldItem.priceUsd * quantityDiff
+
+        const updatedItems = [...cart.items]
+        updatedItems[itemIndex] = { ...oldItem, quantity: newQuantity }
+
+        return {
+          ...cart,
+          items: updatedItems,
+          totalBs: newTotalBs,
+          totalUsd: newTotalUsd,
+        }
+      }),
+    })),
+  updateItem: (cartId, itemId, updates) =>
+    set(state => ({
+      carts: state.carts.map(cart => {
+        if (cart.id !== cartId) return cart
+
+        const itemIndex = cart.items.findIndex(item => item.id === itemId)
+        if (itemIndex === -1) return cart
+
+        const oldItem = cart.items[itemIndex]
+        const newItem = { ...oldItem, ...updates }
+
+        // Recalculate totals based on changes
+        const oldContributionBs = oldItem.priceBs * oldItem.quantity
+        const oldContributionUsd = oldItem.priceUsd * oldItem.quantity
+        const newContributionBs = newItem.priceBs * newItem.quantity
+        const newContributionUsd = newItem.priceUsd * newItem.quantity
+
+        const totalBsDiff = newContributionBs - oldContributionBs
+        const totalUsdDiff = newContributionUsd - oldContributionUsd
+
+        const updatedItems = [...cart.items]
+        updatedItems[itemIndex] = newItem
+
+        return {
+          ...cart,
+          items: updatedItems,
+          totalBs: cart.totalBs + totalBsDiff,
+          totalUsd: cart.totalUsd + totalUsdDiff,
         }
       }),
     })),
