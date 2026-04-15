@@ -75,20 +75,6 @@ const stylesheet = StyleSheet.create(theme => ({
     fontWeight: '700',
     color: theme.colors.onSurfaceVariant,
   },
-  badgeRight: {
-    marginLeft: 8,
-  },
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 9999,
-    backgroundColor: theme.colors.error + '10',
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: theme.colors.error,
-  },
   progressBarContainer: {
     marginBottom: 12,
   },
@@ -144,13 +130,6 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
             </Text>
           </View>
         </View>
-        {isOverBudget && (
-          <View style={styles.badgeRight as ViewStyle}>
-            <View style={styles.badge as ViewStyle}>
-              <Text style={styles.badgeText as TextStyle}>Excedido</Text>
-            </View>
-          </View>
-        )}
       </View>
 
       {/* Progress bar */}

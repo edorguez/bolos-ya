@@ -20,8 +20,6 @@ interface HorizontalScrollWithIndicatorsProps extends Omit<ScrollViewProps, 'hor
   iconNameLeft?: string
   iconNameRight?: string
   iconSize?: number
-  iconColor?: string
-  iconOpacity?: number
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -57,7 +55,8 @@ const stylesheet = StyleSheet.create(theme => ({
     justifyContent: 'center',
   },
   icon: {
-    opacity: 0.7,
+    opacity: 1,
+    color: 'white'
   },
 }))
 
@@ -68,8 +67,6 @@ export function HorizontalScrollWithIndicators({
   iconNameLeft = 'chevron-left',
   iconNameRight = 'chevron-right',
   iconSize = 24,
-  iconColor,
-  iconOpacity = 0.7,
   ...scrollViewProps
 }: HorizontalScrollWithIndicatorsProps) {
   const theme = useAppTheme()
@@ -93,9 +90,8 @@ export function HorizontalScrollWithIndicators({
   }
 
   const showLeftArrow = scrollX > 0
-  const showRightArrow = contentWidth > containerWidth && scrollX < contentWidth - containerWidth - 1
-
-  const arrowColor = iconColor || theme.colors.onSurfaceVariant
+  const showRightArrow =
+    contentWidth > containerWidth && scrollX < contentWidth - containerWidth - 1
 
   return (
     <View style={styles.container as ViewStyle}>
@@ -114,26 +110,38 @@ export function HorizontalScrollWithIndicators({
       </ScrollView>
 
       {showLeftArrow && (
-        <View style={[styles.arrowContainer as ViewStyle, styles.leftArrowContainer as ViewStyle, leftArrowStyle]} pointerEvents="none">
+        <View
+          style={[
+            styles.arrowContainer as ViewStyle,
+            styles.leftArrowContainer as ViewStyle,
+            leftArrowStyle,
+          ]}
+          pointerEvents="none"
+        >
           <View style={styles.arrowBackground as ViewStyle}>
             <MaterialIcons
               name={iconNameLeft as any}
               size={iconSize}
-              color={arrowColor}
-              style={[styles.icon as TextStyle, { opacity: iconOpacity }]}
+              style={styles.icon as TextStyle}
             />
           </View>
         </View>
       )}
 
       {showRightArrow && (
-        <View style={[styles.arrowContainer as ViewStyle, styles.rightArrowContainer as ViewStyle, rightArrowStyle]} pointerEvents="none">
+        <View
+          style={[
+            styles.arrowContainer as ViewStyle,
+            styles.rightArrowContainer as ViewStyle,
+            rightArrowStyle,
+          ]}
+          pointerEvents="none"
+        >
           <View style={styles.arrowBackground as ViewStyle}>
             <MaterialIcons
               name={iconNameRight as any}
               size={iconSize}
-              color={arrowColor}
-              style={[styles.icon as TextStyle, { opacity: iconOpacity }]}
+              style={styles.icon as TextStyle}
             />
           </View>
         </View>

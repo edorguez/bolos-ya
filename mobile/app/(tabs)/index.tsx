@@ -104,7 +104,6 @@ export default function HomeTab() {
     addCart(newCart)
     const cartId = Date.now().toString()
     setActiveCart(cartId)
-    // @ts-ignore
     router.push({ pathname: '/(cart)/[id]', params: { id: cartId } })
   }
 
@@ -202,10 +201,7 @@ export default function HomeTab() {
             onLinkPress={() => console.log('Ver todos')}
           />
 
-          <HorizontalScrollWithIndicators
-            contentContainerStyle={styles.cartCardsContainer}
-            iconOpacity={0.5}
-          >
+          <HorizontalScrollWithIndicators contentContainerStyle={styles.cartCardsContainer}>
             {latestCarts.map(cart => (
               <CartCard
                 key={cart.id}

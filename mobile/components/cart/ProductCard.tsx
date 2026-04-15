@@ -9,9 +9,8 @@ import {
 } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 import { CartItem, useCartStore } from '../../store/cartStore'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface ProductCardProps {
   item: CartItem

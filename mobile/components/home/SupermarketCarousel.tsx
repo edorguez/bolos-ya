@@ -46,7 +46,7 @@ const stylesheet = StyleSheet.create(theme => ({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
-    marginVertical: 2
+    marginVertical: 2,
   },
   optionSelected: {
     borderColor: '#5918af',
@@ -79,7 +79,6 @@ export function SupermarketCarousel({ supermarkets, onSelect }: SupermarketCarou
       <HorizontalScrollWithIndicators
         contentContainerStyle={styles.carouselContent as ViewStyle}
         style={styles.carousel as ViewStyle}
-        iconOpacity={0.5}
       >
         {supermarkets.map(supermarket => (
           <Pressable

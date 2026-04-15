@@ -8,37 +8,34 @@ interface ManualAddButtonProps extends PressableProps {
 }
 
 const stylesheet = StyleSheet.create(theme => ({
-  button: {
-    width: '100%',
-    padding: 24,
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: 24,
-    borderWidth: 2,
-    borderColor: `${theme.colors.primary}30`,
-    borderStyle: 'dashed',
+  fab: {
+    position: 'absolute',
+    bottom: 100,
+    right: theme.spacing.lg,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderCurve: 'continuous',
+    backgroundColor: theme.colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-  },
-  text: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: theme.colors.primary,
-    textAlign: 'center',
+    shadowColor: theme.colors.secondary,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: 24,
+    elevation: 8,
   },
 }))
 
 export function ManualAddButton({
-  title = 'Agregar producto manualmente',
   ...pressableProps
 }: ManualAddButtonProps) {
   const theme = useAppTheme()
   const styles = stylesheet(theme)
 
   return (
-    <Pressable style={styles.button as ViewStyle} {...pressableProps}>
-      <MaterialIcons name="add-circle" size={24} color={theme.colors.primary} />
-      <Text style={styles.text as TextStyle}>{title}</Text>
+    <Pressable style={styles.fab as ViewStyle} {...pressableProps}>
+      <MaterialIcons name="add" size={32} color="#FFFFFF" />
     </Pressable>
   )
 }

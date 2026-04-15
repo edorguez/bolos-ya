@@ -11,6 +11,7 @@ import { ScanFab } from '../../components/shared/ScanFab'
 import { BottomSheetModal } from '../../components/shared/BottomSheetModal'
 import { ProductForm } from '../../components/cart/ProductForm'
 import { useState, useEffect } from 'react'
+import { MaterialIcons } from '@expo/vector-icons'
 
 export default function CartDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -80,11 +81,14 @@ export default function CartDetailScreen() {
       backgroundColor: theme.colors.surfaceContainerLowest,
       borderBottomWidth: 1,
       borderBottomColor: theme.colors.surfaceContainer,
-      paddingHorizontal: 24,
-      paddingBottom: 16,
+      paddingHorizontal: theme.spacing.lg,
+    },
+    supermarketHeaderContainer: {
+      paddingTop: theme.spacing.md
     },
     scrollView: {
       flex: 1,
+      paddingTop: theme.spacing.sm
     },
     scrollContent: {
       paddingHorizontal: 24,
@@ -103,14 +107,28 @@ export default function CartDetailScreen() {
       marginBottom: 16,
       marginTop: 8,
     },
+    emptyState: {
+      paddingVertical: theme.spacing.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      opacity: 0.4,
+    },
+    emptyStateText: {
+      fontSize: theme.typography.fontSize.sm,
+      fontWeight: theme.typography.fontWeight.medium,
+      color: theme.colors.onSurface,
+      marginTop: theme.spacing.md,
+    },
   })
 
   return (
     <View style={styles.container}>
       {/* Fixed White Header */}
+      <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} variant="solid-white" />
       <View style={styles.headerContainer}>
-        <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} variant="solid-white" />
-        <SupermarketHeader supermarket={cart.supermarket} itemCount={cart.items.length} />
+        <View style={styles.supermarketHeaderContainer}>
+          <SupermarketHeader supermarket={cart.supermarket} itemCount={cart.items.length} />
+        </View>
         <View style={styles.heroSection}>
           <BudgetSummary
             totalBs={totalBs}
@@ -127,29 +145,37 @@ export default function CartDetailScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Manual Add Product Button */}
-        <ManualAddButton onPress={() => setShowAddProduct(true)} />
-
         {/* Product List */}
-        <Text style={styles.sectionHeader}>Artículos en Carrito</Text>
+        <Text style={styles.sectionHeader}>Productos en Carrito</Text>
         <View style={styles.productList}>
           {cart.items.length > 0 ? (
             cart.items.map((item: CartItem) => (
               <ProductCard key={item.id} item={item} cartId={cart.id} />
             ))
           ) : (
-            <Text
-              style={{
-                color: theme.colors.onSurfaceVariant,
-                textAlign: 'center',
-                paddingVertical: 32,
-              }}
-            >
-              No products yet. Add your first product!
-            </Text>
+            <View style={styles.emptyState}>
+              <View style={{ width: 96, height: 96 }}>
+                <View
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: theme.colors.outline + '20',
+                    borderRadius: theme.borderRadius.lg,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <MaterialIcons name="shopping-bag" size={48} color={theme.colors.outline} />
+                </View>
+              </View>
+              <Text style={styles.emptyStateText}>Sin productos</Text>
+            </View>
           )}
         </View>
       </ScrollView>
+
+      {/* Manual Product */}
+      <ManualAddButton onPress={() => setShowAddProduct(true)} />
 
       {/* Scan FAB */}
       <ScanFab onPress={handleScanPress} />
