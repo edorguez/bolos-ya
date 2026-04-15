@@ -1,7 +1,8 @@
-import { ScrollView, View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native'
+import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons'
+import { HorizontalScrollWithIndicators } from '../shared/HorizontalScrollWithIndicators'
 
 export interface SupermarketOption {
   id: string
@@ -74,12 +75,11 @@ export function SupermarketCarousel({ supermarkets, onSelect }: SupermarketCarou
   const styles = stylesheet(theme)
 
   return (
-    <View style={styles.container as ViewStyle}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
+    <View style={[styles.container as ViewStyle, { position: 'relative' }]}>
+      <HorizontalScrollWithIndicators
         contentContainerStyle={styles.carouselContent as ViewStyle}
         style={styles.carousel as ViewStyle}
+        iconOpacity={0.5}
       >
         {supermarkets.map(supermarket => (
           <Pressable
@@ -105,7 +105,7 @@ export function SupermarketCarousel({ supermarkets, onSelect }: SupermarketCarou
             </Text>
           </Pressable>
         ))}
-      </ScrollView>
+      </HorizontalScrollWithIndicators>
     </View>
   )
 }

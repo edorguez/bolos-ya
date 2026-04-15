@@ -19,11 +19,10 @@ const stylesheet = StyleSheet.create(theme => ({
     textTransform: 'uppercase',
     letterSpacing: 1,
     color: theme.colors.onSurfaceVariant,
-    marginLeft: theme.spacing.xs,
   },
   input: {
     backgroundColor: '#ffffff',
-    borderRadius: theme.borderRadius.xl,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
     fontSize: theme.typography.fontSize.sm,

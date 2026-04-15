@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, TextInput, Animated } from 'react-native'
 import { useState, useRef, useEffect } from 'react'
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { createHomeStyles } from '../../styles/homeStyles'
 import { SupermarketCarousel } from '../../components/home/SupermarketCarousel'
@@ -8,6 +8,7 @@ import { BudgetInput } from '../../components/home/BudgetInput'
 import { CartCard } from '../../components/home/CartCard'
 import { TipCard } from '../../components/home/TipCard'
 import { SectionHeader } from '../../components/shared/SectionHeader'
+import { HorizontalScrollWithIndicators } from '../../components/shared/HorizontalScrollWithIndicators'
 import { useCartStore } from '../../store/cartStore'
 import { useAppTheme } from '../../styles/theme'
 
@@ -167,24 +168,16 @@ export default function HomeTab() {
 
             <View style={styles.budgetGrid}>
               <BudgetInput
-                label="Presupuesto Bs."
+                label="Presupuesto Bs"
                 value={budgetBs}
                 onChangeText={setBudgetBs}
                 keyboardType="numeric"
-                inputStyle={{
-                  fontSize: theme.typography.fontSize.lg,
-                  fontWeight: theme.typography.fontWeight.bold,
-                }}
               />
               <BudgetInput
                 label="Presupuesto USD"
                 value={budgetUsd}
                 onChangeText={setBudgetUsd}
                 keyboardType="numeric"
-                inputStyle={{
-                  fontSize: theme.typography.fontSize.lg,
-                  fontWeight: theme.typography.fontWeight.bold,
-                }}
               />
             </View>
 
@@ -197,7 +190,7 @@ export default function HomeTab() {
             >
               <View style={styles.primaryButtonOverlay} />
               <Text style={styles.primaryButtonText}>Comenzar Lista</Text>
-              <MaterialIcons name="home" size={24} color="#FFFFFF" />
+              <MaterialIcons name="play-circle-outline" size={24} color="#FFFFFF" />
             </Pressable>
           </View>
         </View>
@@ -209,10 +202,9 @@ export default function HomeTab() {
             onLinkPress={() => console.log('Ver todos')}
           />
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
+          <HorizontalScrollWithIndicators
             contentContainerStyle={styles.cartCardsContainer}
+            iconOpacity={0.5}
           >
             {latestCarts.map(cart => (
               <CartCard
@@ -225,7 +217,7 @@ export default function HomeTab() {
                 icon={cart.icon}
               />
             ))}
-          </ScrollView>
+          </HorizontalScrollWithIndicators>
         </View>
 
         <View style={styles.section}>

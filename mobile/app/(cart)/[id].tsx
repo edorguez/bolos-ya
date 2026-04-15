@@ -158,8 +158,7 @@ export default function CartDetailScreen() {
       <BottomSheetModal
         isVisible={showAddProduct}
         onClose={() => setShowAddProduct(false)}
-        title="Add Product"
-        subtitle="Ingresa los detalles del producto"
+        title="Agregar Producto"
         showBackButton={true}
       >
         {cart && (

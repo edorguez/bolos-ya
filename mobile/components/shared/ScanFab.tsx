@@ -1,21 +1,17 @@
-import { Pressable, PressableProps, type ViewStyle } from 'react-native'
+import { Pressable, type ViewStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
-
-interface ScanFabProps extends PressableProps {
-  icon?: string
-}
+import { MaterialIcons } from '@expo/vector-icons'
 
 const stylesheet = StyleSheet.create(theme => ({
   fab: {
     position: 'absolute',
-    bottom: 120,
-    right: 24,
+    bottom: theme.spacing.lg,
+    right: theme.spacing.lg,
     width: 64,
     height: 64,
     borderRadius: 32,
+    borderCurve: 'continuous',
     backgroundColor: theme.colors.secondary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -27,13 +23,13 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }))
 
-export function ScanFab({ icon = 'photo-camera', ...pressableProps }: ScanFabProps) {
+export function ScanFab({ ...pressableProps }) {
   const theme = useAppTheme()
   const styles = stylesheet(theme)
 
   return (
     <Pressable style={styles.fab as ViewStyle} {...pressableProps}>
-      <MaterialIcons name={icon as any} size={32} color="#FFFFFF" />
+      <MaterialIcons name="camera-alt" size={32} color="#FFFFFF" />
     </Pressable>
   )
 }
