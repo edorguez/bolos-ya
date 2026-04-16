@@ -13,8 +13,9 @@ import { CartItem, useCartStore } from '../../store/cartStore'
 import { MaterialIcons } from '@expo/vector-icons'
 
 interface ProductCardProps {
-  item: CartItem
-  cartId: string
+  item: CartItem,
+  cartId: string,
+  onEditPress: () => void
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -22,20 +23,20 @@ const stylesheet = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderWidth: 1,
     borderColor: `${theme.colors.outlineVariant}10`,
-    padding: 16,
-    borderRadius: 24,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.lg,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: theme.spacing.md,
     shadowColor: theme.colors.onSurface,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
   },
   imageContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
+    width: 60,
+    height: 60,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.surfaceContainer,
     overflow: 'hidden',
     flexShrink: 0,
@@ -52,37 +53,37 @@ const stylesheet = StyleSheet.create(theme => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: theme.spacing.md,
   },
   title: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
     flex: 1,
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: theme.spacing.md,
   },
   actionButton: {
-    padding: 4,
+    paddingRight: theme.spacing.xs,
   },
   priceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    alignItems: 'cener',
   },
   priceColumn: {
     flexDirection: 'column',
-    gap: 2,
+    gap: 1,
   },
   priceBs: {
-    fontSize: theme.typography.fontSize.lg,
+    fontSize: theme.typography.fontSize.xs,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
   },
   priceUsd: {
-    fontSize: theme.typography.fontSize.xs,
+    fontSize: theme.typography.fontSize.xxs,
     color: theme.colors.onSurfaceVariant,
   },
   quantityControls: {
@@ -90,9 +91,8 @@ const stylesheet = StyleSheet.create(theme => ({
     alignItems: 'center',
     backgroundColor: theme.colors.surfaceContainer,
     borderRadius: 9999,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    gap: 16,
+    padding: theme.spacing.xs,
+    gap: theme.spacing.md,
   },
   quantityButton: {
     width: 24,
@@ -103,7 +103,7 @@ const stylesheet = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.surfaceContainerLowest,
   },
   quantityText: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.xs,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
     minWidth: 20,
@@ -111,7 +111,11 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }))
 
-export function ProductCard({ item, cartId }: ProductCardProps) {
+export function ProductCard({ 
+  item, 
+  cartId,
+  onEditPress
+}: ProductCardProps) {
   const theme = useAppTheme()
   const styles = stylesheet(theme)
   const { updateItemQuantity, removeItemFromCart } = useCartStore()
@@ -124,17 +128,11 @@ export function ProductCard({ item, cartId }: ProductCardProps) {
   const handleDecrease = () => {
     if (item.quantity > 1) {
       updateItemQuantity(cartId, item.id, item.quantity - 1)
-    } else {
-      removeItemFromCart(cartId, item.id)
-    }
+    } 
   }
 
   const handleIncrease = () => {
     updateItemQuantity(cartId, item.id, item.quantity + 1)
-  }
-
-  const handleEdit = () => {
-    // TODO: Open edit modal
   }
 
   const handleDelete = () => {
@@ -150,7 +148,7 @@ export function ProductCard({ item, cartId }: ProductCardProps) {
         <View style={styles.header as ViewStyle}>
           <Text style={styles.title as TextStyle}>{item.name}</Text>
           <View style={styles.actionButtons as ViewStyle}>
-            <Pressable onPress={handleEdit} style={styles.actionButton as ViewStyle}>
+            <Pressable onPress={onEditPress} style={styles.actionButton as ViewStyle}>
               <MaterialIcons name="edit" size={20} color={theme.colors.onSurfaceVariant} />
             </Pressable>
             <Pressable onPress={handleDelete} style={styles.actionButton as ViewStyle}>
@@ -164,7 +162,7 @@ export function ProductCard({ item, cartId }: ProductCardProps) {
               Bs. {item.priceBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
             </Text>
             <Text style={styles.priceUsd as TextStyle}>
-              $ {item.priceUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD
+              $ {item.priceUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
             </Text>
           </View>
           <View style={styles.quantityControls as ViewStyle}>

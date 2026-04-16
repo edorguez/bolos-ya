@@ -97,9 +97,6 @@ export default function CartDetailScreen() {
       paddingHorizontal: 24,
       paddingBottom: scrollContentPaddingBottom,
     },
-    heroSection: {
-      marginBottom: 16,
-    },
     productList: {
       gap: 16,
     },
@@ -169,14 +166,12 @@ export default function CartDetailScreen() {
         <View style={styles.supermarketHeaderContainer}>
           <SupermarketHeader supermarket={cart.supermarket} itemCount={cart.items.length} />
         </View>
-        <View style={styles.heroSection}>
-          <BudgetSummary
-            totalBs={totalBs}
-            totalUsd={totalUsd}
-            budgetBs={budgetBs}
-            budgetUsd={budgetUsd}
-          />
-        </View>
+        <BudgetSummary
+          totalBs={totalBs}
+          totalUsd={totalUsd}
+          budgetBs={budgetBs}
+          budgetUsd={budgetUsd}
+        />
       </View>
 
       {/* Scrollable Content Area */}
@@ -190,7 +185,7 @@ export default function CartDetailScreen() {
         <View style={styles.productList}>
           {cart.items.length > 0 ? (
             cart.items.map((item: CartItem) => (
-              <ProductCard key={item.id} item={item} cartId={cart.id} />
+              <ProductCard key={item.id} item={item} cartId={cart.id} onEditPress={() => setShowAddProduct(true)} />
             ))
           ) : (
             <View style={styles.emptyState}>

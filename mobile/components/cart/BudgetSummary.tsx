@@ -32,14 +32,14 @@ const stylesheet = StyleSheet.create(theme => ({
     marginBottom: 8,
   },
   limitLabel: {
-    fontSize: 10,
+    fontSize: theme.typography.fontSize.xxs,
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 1,
     color: theme.colors.onSurfaceVariant,
   },
   limitUsd: {
-    fontSize: 10,
+    fontSize: theme.typography.fontSize.xxs,
     fontWeight: '700',
     color: theme.colors.onSurfaceVariant,
   },
@@ -53,7 +53,7 @@ const stylesheet = StyleSheet.create(theme => ({
     flex: 1,
   },
   totalLabel: {
-    fontSize: 10,
+    fontSize: theme.typography.fontSize.xxs,
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 1,

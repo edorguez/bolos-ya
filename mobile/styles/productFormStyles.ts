@@ -82,7 +82,7 @@ export function createProductFormStyles(theme: AppTheme) {
     },
     quantityNumber: {
       fontSize: theme.typography.fontSize.xs,
-      fontWeight: '800',
+      fontWeight: theme.typography.fontWeight.bold,
       minWidth: 32,
       textAlign: 'center',
     },
