@@ -7,6 +7,7 @@ import { BudgetSummary } from '../../components/cart/BudgetSummary'
 import { SupermarketHeader } from '../../components/cart/SupermarketHeader'
 import { TopAppBar } from '../../components/shared/TopAppBar'
 import { BottomSheetModal } from '../../components/shared/BottomSheetModal'
+import { ActionSheetModal } from '../../components/shared/ActionSheetModal'
 import { ProductForm } from '../../components/cart/ProductForm'
 import { useState, useEffect } from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -17,8 +18,13 @@ export default function CartDetailScreen() {
   const router = useRouter()
   const theme = useAppTheme()
   const insets = useSafeAreaInsets()
-  const { carts, activeCartId, addItemToCart, setActiveCart } = useCartStore()
+  const { carts, activeCartId, addItemToCart, setActiveCart, updateItem, removeItemFromCart } =
+    useCartStore()
   const [showAddProduct, setShowAddProduct] = useState(false)
+  const [showActionSheet, setShowActionSheet] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<CartItem | null>(null)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingItem, setEditingItem] = useState<CartItem | null>(null)
 
   useEffect(() => {
     setActiveCart(id)
@@ -48,6 +54,27 @@ export default function CartDetailScreen() {
     })
 
     setShowAddProduct(false)
+  }
+
+  const handleEditProduct = (product: {
+    name: string
+    priceBs: number
+    priceUsd: number
+    quantity: number
+    supermarket: string
+  }) => {
+    if (!cart || !editingItem) return
+
+    updateItem(cart.id, editingItem.id, {
+      name: product.name,
+      priceBs: product.priceBs,
+      priceUsd: product.priceUsd,
+      quantity: product.quantity,
+      supermarket: product.supermarket,
+    })
+
+    setShowEditModal(false)
+    setEditingItem(null)
   }
 
   const cart = carts.find((c: Cart) => c.id === id)
@@ -185,7 +212,15 @@ export default function CartDetailScreen() {
         <View style={styles.productList}>
           {cart.items.length > 0 ? (
             cart.items.map((item: CartItem) => (
-              <ProductCard key={item.id} item={item} cartId={cart.id} onEditPress={() => setShowAddProduct(true)} />
+              <ProductCard
+                key={item.id}
+                item={item}
+                cartId={cart.id}
+                onMenuPress={() => {
+                  setSelectedItem(item)
+                  setShowActionSheet(true)
+                }}
+              />
             ))
           ) : (
             <View style={styles.emptyState}>
@@ -249,6 +284,59 @@ export default function CartDetailScreen() {
           />
         )}
       </BottomSheetModal>
+
+      {/* Edit Product Modal */}
+      <BottomSheetModal
+        isVisible={showEditModal}
+        onClose={() => {
+          setShowEditModal(false)
+          setEditingItem(null)
+        }}
+        title="Editar Producto"
+        showBackButton={true}
+      >
+        {cart && editingItem && (
+          <ProductForm
+            onSubmit={handleEditProduct}
+            supermarket={cart.supermarket}
+            initialData={editingItem}
+            onCancel={() => {
+              setShowEditModal(false)
+              setEditingItem(null)
+            }}
+          />
+        )}
+      </BottomSheetModal>
+
+      {/* Action Sheet for Product Options */}
+      <ActionSheetModal
+        isVisible={showActionSheet}
+        onClose={() => {
+          setShowActionSheet(false)
+          setSelectedItem(null)
+        }}
+        options={[
+          {
+            label: 'Editar',
+            icon: 'edit',
+            color: theme.colors.primary,
+            onPress: () => {
+              setEditingItem(selectedItem)
+              setShowEditModal(true)
+            },
+          },
+          {
+            label: 'Eliminar',
+            icon: 'delete',
+            color: theme.colors.error,
+            onPress: () => {
+              if (selectedItem && cart) {
+                removeItemFromCart(cart.id, selectedItem.id)
+              }
+            },
+          },
+        ]}
+      />
     </View>
   )
 }

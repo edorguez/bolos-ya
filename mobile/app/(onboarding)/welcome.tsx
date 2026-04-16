@@ -173,7 +173,7 @@ export default function WelcomeScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Pressable onPress={handleNext} style={styles.nextButton}>
+        <Pressable onPress={handleNext} style={({ pressed }) => [styles.nextButton, pressed && { opacity: 0.8 }]}>
           <Text style={styles.nextButtonText}>Siguiente</Text>
           <MaterialIcons name="arrow-forward" size={24} color="#FFFFFF" />
         </Pressable>

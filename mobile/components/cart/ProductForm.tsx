@@ -15,11 +15,18 @@ interface ProductFormProps {
   }) => void
   supermarket: string
   onCancel?: () => void
+  initialData?: {
+    name: string
+    priceBs: number
+    priceUsd: number
+    quantity: number
+    supermarket: string
+  }
 }
 
 const EXCHANGE_RATE = 475.7 // Mock exchange rate: 4000 Bs = 109 USD
 
-export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProps) {
+export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: ProductFormProps) {
   const theme = useAppTheme()
   const styles = createProductFormStyles(theme)
 
@@ -55,6 +62,18 @@ export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProp
       }
     }
   }, [usdPrice, bsEditable])
+
+  // Initialize form with initialData
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name)
+      setQuantity(initialData.quantity)
+      setBsPrice(initialData.priceBs.toFixed(2))
+      setUsdPrice(initialData.priceUsd.toFixed(2))
+      setBsEditable(true)
+      setErrors({})
+    }
+  }, [initialData])
 
   const handleBsPriceChange = (text: string) => {
     // Allow empty string, numbers, and single decimal point
@@ -146,6 +165,8 @@ export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProp
     return bsEditable ? theme.colors.primary : theme.colors.primary
   }
 
+  const buttonTitle = initialData ? 'Editar Producto' : 'Agregar Producto'
+
   return (
     <View style={styles.container as ViewStyle}>
       {/* Illustration Row */}
@@ -186,9 +207,10 @@ export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProp
         <View style={styles.quantitySection as ViewStyle}>
           <View style={styles.quantityControls as ViewStyle}>
             <Pressable
-              style={[
+              style={({ pressed }) => [
                 styles.quantityButton as ViewStyle,
                 { backgroundColor: theme.colors.surfaceContainerHigh },
+                pressed && { opacity: 0.8 }
               ]}
               onPress={decrementQuantity}
             >
@@ -196,7 +218,11 @@ export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProp
             </Pressable>
             <Text style={styles.quantityNumber as TextStyle}>{quantity}</Text>
             <Pressable
-              style={[styles.quantityButton as ViewStyle, { backgroundColor: theme.colors.primary }]}
+              style={({ pressed }) => [
+                styles.quantityButton as ViewStyle,
+                { backgroundColor: theme.colors.primary },
+                pressed && { opacity: 0.8 }
+              ]}
               onPress={incrementQuantity}
             >
               <MaterialIcons name="add" size={24} color="#FFFFFF" />
@@ -229,7 +255,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProp
 
         {/* Sync Icon */}
         <View style={styles.syncContainer as ViewStyle}>
-          <Pressable style={styles.syncButton as ViewStyle} onPress={toggleEditableCurrency}>
+          <Pressable style={({ pressed }) => [styles.syncButton as ViewStyle, pressed && { opacity: 0.8 }]} onPress={toggleEditableCurrency}>
             <MaterialIcons
               name="swap-vert"
               size={20}
@@ -241,9 +267,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProp
 
         {/* USD Input */}
         <View style={styles.priceInputContainer as ViewStyle}>
-          <Text style={styles.label as TextStyle}>
-            Precio en Dólares ($)
-          </Text>
+          <Text style={styles.label as TextStyle}>Precio en Dólares ($)</Text>
           <View style={styles.priceInputWrapper as ViewStyle}>
             <TextInput
               style={[
@@ -268,7 +292,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel }: ProductFormProp
       {/* Action Button */}
       <View style={styles.buttonContainer as ViewStyle}>
         <Button
-          title="Agregar Producto"
+          title={buttonTitle}
           onPress={handleSubmit}
           variant="primary"
           size="large"

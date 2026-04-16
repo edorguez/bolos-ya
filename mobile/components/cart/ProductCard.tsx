@@ -13,9 +13,9 @@ import { CartItem, useCartStore } from '../../store/cartStore'
 import { MaterialIcons } from '@expo/vector-icons'
 
 interface ProductCardProps {
-  item: CartItem,
-  cartId: string,
-  onEditPress: () => void
+  item: CartItem
+  cartId: string
+  onMenuPress: () => void
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -53,7 +53,7 @@ const stylesheet = StyleSheet.create(theme => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
   },
   title: {
     fontSize: theme.typography.fontSize.sm,
@@ -68,14 +68,32 @@ const stylesheet = StyleSheet.create(theme => ({
   actionButton: {
     paddingRight: theme.spacing.xs,
   },
+  leftColumn: {
+    flex: 1,
+    marginRight: theme.spacing.md,
+  },
+  rightColumn: {
+    alignItems: 'flex-end',
+  },
+  menuButton: {
+    paddingLeft: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
+  },
+  quantityRow: {
+    marginTop: theme.spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
   priceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'cener',
+    alignItems: 'center',
   },
   priceColumn: {
     flexDirection: 'column',
     gap: 1,
+    alignItems: 'flex-end',
   },
   priceBs: {
     fontSize: theme.typography.fontSize.xs,
@@ -111,11 +129,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }))
 
-export function ProductCard({ 
-  item, 
-  cartId,
-  onEditPress
-}: ProductCardProps) {
+export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
   const theme = useAppTheme()
   const styles = stylesheet(theme)
   const { updateItemQuantity, removeItemFromCart } = useCartStore()
@@ -128,15 +142,11 @@ export function ProductCard({
   const handleDecrease = () => {
     if (item.quantity > 1) {
       updateItemQuantity(cartId, item.id, item.quantity - 1)
-    } 
+    }
   }
 
   const handleIncrease = () => {
     updateItemQuantity(cartId, item.id, item.quantity + 1)
-  }
-
-  const handleDelete = () => {
-    removeItemFromCart(cartId, item.id)
   }
 
   return (
@@ -146,33 +156,32 @@ export function ProductCard({
       </View>
       <View style={styles.content as ViewStyle}>
         <View style={styles.header as ViewStyle}>
-          <Text style={styles.title as TextStyle}>{item.name}</Text>
-          <View style={styles.actionButtons as ViewStyle}>
-            <Pressable onPress={onEditPress} style={styles.actionButton as ViewStyle}>
-              <MaterialIcons name="edit" size={20} color={theme.colors.onSurfaceVariant} />
-            </Pressable>
-            <Pressable onPress={handleDelete} style={styles.actionButton as ViewStyle}>
-              <MaterialIcons name="delete" size={20} color={theme.colors.error} />
-            </Pressable>
+          <View style={styles.leftColumn as ViewStyle}>
+            <Text style={styles.title as TextStyle}>{item.name}</Text>
+            <View style={styles.quantityRow as ViewStyle}>
+              <View style={styles.quantityControls as ViewStyle}>
+                <Pressable onPress={handleDecrease} style={({ pressed }) => [styles.quantityButton as ViewStyle, pressed && { opacity: 0.7 }]}>
+                  <MaterialIcons name="remove" size={16} color={theme.colors.primary} />
+                </Pressable>
+                <Text style={styles.quantityText as TextStyle}>{item.quantity}</Text>
+                <Pressable onPress={handleIncrease} style={({ pressed }) => [styles.quantityButton as ViewStyle, pressed && { opacity: 0.7 }]}>
+                  <MaterialIcons name="add" size={16} color={theme.colors.primary} />
+                </Pressable>
+              </View>
+            </View>
           </View>
-        </View>
-        <View style={styles.priceRow as ViewStyle}>
-          <View style={styles.priceColumn as ViewStyle}>
-            <Text style={styles.priceBs as TextStyle}>
-              Bs. {item.priceBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
-            </Text>
-            <Text style={styles.priceUsd as TextStyle}>
-              $ {item.priceUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
-            </Text>
-          </View>
-          <View style={styles.quantityControls as ViewStyle}>
-            <Pressable onPress={handleDecrease} style={styles.quantityButton as ViewStyle}>
-              <MaterialIcons name="remove" size={16} color={theme.colors.primary} />
+          <View style={styles.rightColumn as ViewStyle}>
+            <Pressable onPress={onMenuPress} style={({ pressed }) => [styles.menuButton as ViewStyle, pressed && { opacity: 0.7 }]}>
+              <MaterialIcons name="more-vert" size={20} color={theme.colors.onSurfaceVariant} />
             </Pressable>
-            <Text style={styles.quantityText as TextStyle}>{item.quantity}</Text>
-            <Pressable onPress={handleIncrease} style={styles.quantityButton as ViewStyle}>
-              <MaterialIcons name="add" size={16} color={theme.colors.primary} />
-            </Pressable>
+            <View style={styles.priceColumn as ViewStyle}>
+              <Text style={styles.priceBs as TextStyle}>
+                Bs. {item.priceBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+              </Text>
+              <Text style={styles.priceUsd as TextStyle}>
+                $ {item.priceUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+              </Text>
+            </View>
           </View>
         </View>
       </View>

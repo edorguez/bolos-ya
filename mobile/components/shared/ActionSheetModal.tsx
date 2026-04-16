@@ -5,27 +5,29 @@ import {
   Animated,
   Dimensions,
   PanResponder,
-  ScrollView,
   type ViewStyle,
   type TextStyle,
 } from 'react-native'
 import { useEffect, useRef } from 'react'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
+import { MaterialIcons } from '@expo/vector-icons'
 
-interface BottomSheetModalProps {
+interface ActionSheetOption {
+  label: string
+  icon: string
+  color: string
+  onPress: () => void
+}
+
+interface ActionSheetModalProps {
   isVisible: boolean
   onClose: () => void
-  title: string
-  subtitle?: string
-  children: React.ReactNode
-  showBackButton?: boolean
+  options: ActionSheetOption[]
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window')
-const MODAL_HEIGHT = SCREEN_HEIGHT * 0.9 // 90% of screen height
+const MODAL_HEIGHT = SCREEN_HEIGHT * 0.2;
 
 const stylesheet = StyleSheet.create(theme => ({
   backdrop: {
@@ -64,54 +66,37 @@ const stylesheet = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.surfaceContainer,
     borderRadius: theme.borderRadius.full,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.surfaceContainerLow,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.surfaceContainerLow,
-  },
-  headerTitle: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.onSurface,
-  },
-  headerSubtitle: {
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.colors.onSurfaceVariant,
-    marginTop: theme.spacing.xs,
-  },
   content: {
     flex: 1,
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxl,
+    paddingBottom: theme.spacing.lg,
+  },
+  optionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: theme.spacing.md,
+  },
+  optionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.surfaceContainerLow,
+  },
+  optionIcon: {
+    width: 24,
+    alignItems: 'center',
+  },
+  optionLabel: {
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: theme.typography.fontWeight.bold,
+    flex: 1,
   },
 }))
 
-export function BottomSheetModal({
-  isVisible,
-  onClose,
-  title,
-  subtitle,
-  children,
-  showBackButton = true,
-}: BottomSheetModalProps) {
+export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetModalProps) {
   const theme = useAppTheme()
   const styles = stylesheet(theme)
 
@@ -214,23 +199,27 @@ export function BottomSheetModal({
           <View style={styles.handle as ViewStyle} />
         </View>
 
-        <View style={styles.header as ViewStyle}>
-          <View style={styles.headerLeft as ViewStyle}>
-            {showBackButton && (
-              <Pressable style={({pressed}) => [styles.backButton as ViewStyle, pressed && { opacity: 0.8 }]} onPress={closeModal}>
-                <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurfaceVariant} />
+        <View style={styles.content as ViewStyle}>
+          <View style={styles.optionContainer as ViewStyle}>
+            {options.map((option, index) => (
+              <Pressable
+                key={index}
+                style={({pressed}) => [styles.optionButton as ViewStyle, pressed && { opacity: 0.8 }]}
+                onPress={() => {
+                  option.onPress()
+                  closeModal()
+                }}
+              >
+                <View style={styles.optionIcon as ViewStyle}>
+                  <MaterialIcons name={option.icon as any} size={24} color={option.color} />
+                </View>
+                <Text style={[styles.optionLabel as TextStyle, { color: option.color }]}>
+                  {option.label}
+                </Text>
               </Pressable>
-            )}
-            <View>
-              <Text style={styles.headerTitle as TextStyle}>{title}</Text>
-              {subtitle && <Text style={styles.headerSubtitle as TextStyle}>{subtitle}</Text>}
-            </View>
+            ))}
           </View>
         </View>
-
-        <ScrollView style={styles.content as ViewStyle} showsVerticalScrollIndicator={false}>
-          {children}
-        </ScrollView>
       </Animated.View>
     </>
   )
