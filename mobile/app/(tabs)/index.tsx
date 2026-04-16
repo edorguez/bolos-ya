@@ -19,9 +19,9 @@ export default function HomeTab() {
   const [supermarkets, setSupermarkets] = useState([
     { id: '1', name: "Plaza's", icon: 'storefront', selected: true },
     { id: '2', name: 'Gamma', icon: 'store', selected: false },
-    { id: '3', name: 'Central M.', icon: 'shopping_cart', selected: false },
-    { id: '4', name: 'Plan Suarez', icon: 'local_mall', selected: false },
-    { id: '5', name: 'Otro', icon: 'add_circle', selected: false },
+    { id: '3', name: 'Central M.', icon: 'shopping-cart', selected: false },
+    { id: '4', name: 'Plan Suarez', icon: 'local-mall', selected: false },
+    { id: '5', name: 'Otro', icon: 'add-circle', selected: false },
   ])
   const [budgetBs, setBudgetBs] = useState('')
   const [budgetUsd, setBudgetUsd] = useState('')
@@ -107,6 +107,20 @@ export default function HomeTab() {
     router.push({ pathname: '/(cart)/[id]', params: { id: cartId } })
   }
 
+  const handleBsBudgetChange = (text: string) => {
+    // Allow empty string, numbers, and single decimal point
+    if (text === '' || /^\d*\.?\d*$/.test(text)) {
+      setBudgetBs(text)
+    }
+  }
+
+  const handleUsdBudgetChange = (text: string) => {
+    // Allow empty string, numbers, and single decimal point
+    if (text === '' || /^\d*\.?\d*$/.test(text)) {
+      setBudgetUsd(text)
+    }
+  }
+
   const latestCarts = [
     {
       id: '1',
@@ -169,13 +183,13 @@ export default function HomeTab() {
               <BudgetInput
                 label="Presupuesto Bs"
                 value={budgetBs}
-                onChangeText={setBudgetBs}
+                onChangeText={handleBsBudgetChange}
                 keyboardType="numeric"
               />
               <BudgetInput
                 label="Presupuesto USD"
                 value={budgetUsd}
-                onChangeText={setBudgetUsd}
+                onChangeText={handleUsdBudgetChange}
                 keyboardType="numeric"
               />
             </View>

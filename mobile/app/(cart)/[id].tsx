@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCartStore, type Cart, type CartItem } from '../../store/cartStore'
 import { useAppTheme } from '../../styles/theme'
@@ -6,17 +6,17 @@ import { ProductCard } from '../../components/cart/ProductCard'
 import { BudgetSummary } from '../../components/cart/BudgetSummary'
 import { SupermarketHeader } from '../../components/cart/SupermarketHeader'
 import { TopAppBar } from '../../components/shared/TopAppBar'
-import { ManualAddButton } from '../../components/cart/ManualAddButton'
-import { ScanFab } from '../../components/shared/ScanFab'
 import { BottomSheetModal } from '../../components/shared/BottomSheetModal'
 import { ProductForm } from '../../components/cart/ProductForm'
 import { useState, useEffect } from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function CartDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
   const theme = useAppTheme()
+  const insets = useSafeAreaInsets()
   const { carts, activeCartId, addItemToCart, setActiveCart } = useCartStore()
   const [showAddProduct, setShowAddProduct] = useState(false)
 
@@ -72,6 +72,9 @@ export default function CartDetailScreen() {
   const budgetBs = cart.budgetBs || 4000
   const budgetUsd = cart.budgetUsd || 109
 
+  const buttonBarHeight = 56 + theme.spacing.lg * 2 + insets.bottom
+  const scrollContentPaddingBottom = buttonBarHeight + theme.spacing.md
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -84,15 +87,15 @@ export default function CartDetailScreen() {
       paddingHorizontal: theme.spacing.lg,
     },
     supermarketHeaderContainer: {
-      paddingTop: theme.spacing.md
+      paddingTop: theme.spacing.md,
     },
     scrollView: {
       flex: 1,
-      paddingTop: theme.spacing.sm
+      paddingTop: theme.spacing.sm,
     },
     scrollContent: {
       paddingHorizontal: 24,
-      paddingBottom: 60,
+      paddingBottom: scrollContentPaddingBottom,
     },
     heroSection: {
       marginBottom: 16,
@@ -118,6 +121,43 @@ export default function CartDetailScreen() {
       fontWeight: theme.typography.fontWeight.medium,
       color: theme.colors.onSurface,
       marginTop: theme.spacing.md,
+    },
+    buttonBarContainer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: theme.colors.surfaceContainerLowest,
+      paddingTop: theme.spacing.md,
+      paddingBottom: theme.spacing.md,
+      paddingHorizontal: theme.spacing.md,
+      alignItems: 'center',
+    },
+    buttonBar: {
+      flexDirection: 'row',
+      gap: theme.spacing.md,
+      width: '100%',
+      maxWidth: 400,
+      alignSelf: 'center',
+    },
+    button: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.xs,
+      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
+      backgroundColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.lg,
+      borderCurve: 'continuous',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    },
+    buttonText: {
+      fontSize: theme.typography.fontSize.sm,
+      fontWeight: theme.typography.fontWeight.bold,
+      color: '#FFFFFF',
+      flexShrink: 1,
     },
   })
 
@@ -174,11 +214,30 @@ export default function CartDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Manual Product */}
-      <ManualAddButton onPress={() => setShowAddProduct(true)} />
+      {/* Fixed Bottom Button Bar */}
+      <View style={styles.buttonBarContainer}>
+        <View style={styles.buttonBar}>
+          <Pressable
+            style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
+            onPress={() => setShowAddProduct(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Agregar producto"
+          >
+            <MaterialIcons name="add" size={12} color="#FFFFFF" />
+            <Text style={styles.buttonText}>Agregar</Text>
+          </Pressable>
 
-      {/* Scan FAB */}
-      <ScanFab onPress={handleScanPress} />
+          <Pressable
+            style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
+            onPress={handleScanPress}
+            accessibilityRole="button"
+            accessibilityLabel="Escanear producto"
+          >
+            <MaterialIcons name="camera-alt" size={12} color="#FFFFFF" />
+            <Text style={styles.buttonText}>Escanear</Text>
+          </Pressable>
+        </View>
+      </View>
 
       {/* Add Product Modal */}
       <BottomSheetModal
