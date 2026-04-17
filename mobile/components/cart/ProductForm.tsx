@@ -1,4 +1,12 @@
-import { View, Text, TextInput, Pressable, type ViewStyle, type TextStyle } from 'react-native'
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  type ViewStyle,
+  type TextStyle,
+  LayoutAnimation,
+} from 'react-native'
 import { useState, useEffect } from 'react'
 import { useAppTheme } from '../../styles/theme'
 import { Button } from '../Button'
@@ -34,8 +42,10 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
   const [quantity, setQuantity] = useState(1)
   const [bsPrice, setBsPrice] = useState('')
   const [usdPrice, setUsdPrice] = useState('')
-  const [bsEditable, setBsEditable] = useState(true)
+  const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS')
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const bsEditable = topCurrency === 'BS'
 
   // Update USD price when Bs price changes and Bs is editable
   useEffect(() => {
@@ -70,7 +80,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
       setQuantity(initialData.quantity)
       setBsPrice(initialData.priceBs.toFixed(2))
       setUsdPrice(initialData.priceUsd.toFixed(2))
-      setBsEditable(true)
+      setTopCurrency('BS')
       setErrors({})
     }
   }, [initialData])
@@ -91,7 +101,8 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
   }
 
   const toggleEditableCurrency = () => {
-    setBsEditable(!bsEditable)
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    setTopCurrency(prev => (prev === 'BS' ? 'USD' : 'BS'))
   }
 
   const incrementQuantity = () => {
@@ -157,7 +168,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
     setQuantity(1)
     setBsPrice('')
     setUsdPrice('')
-    setBsEditable(true)
+    setTopCurrency('BS')
     setErrors({})
   }
 
@@ -210,7 +221,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
               style={({ pressed }) => [
                 styles.quantityButton as ViewStyle,
                 { backgroundColor: theme.colors.surfaceContainerHigh },
-                pressed && { opacity: 0.8 }
+                pressed && { opacity: 0.8 },
               ]}
               onPress={decrementQuantity}
             >
@@ -221,7 +232,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
               style={({ pressed }) => [
                 styles.quantityButton as ViewStyle,
                 { backgroundColor: theme.colors.primary },
-                pressed && { opacity: 0.8 }
+                pressed && { opacity: 0.8 },
               ]}
               onPress={incrementQuantity}
             >
@@ -231,60 +242,129 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
         </View>
       </View>
 
-      {/* Bs Input */}
+      {/* Currency Inputs */}
       <View>
-        <View style={styles.priceInputContainer as ViewStyle}>
-          <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs.)</Text>
-          <View style={styles.priceInputWrapper as ViewStyle}>
-            <TextInput
-              style={[
-                styles.priceInput as TextStyle,
-                !bsEditable && { color: theme.colors.onSurfaceVariant },
-              ]}
-              placeholder="0.00"
-              placeholderTextColor={theme.colors.onSurfaceVariant}
-              value={bsPrice}
-              onChangeText={handleBsPriceChange}
-              keyboardType="numeric"
-              editable={bsEditable}
-            />
-            <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>
-          </View>
-          {errors.bsPrice && <Text style={styles.errorText as TextStyle}>{errors.bsPrice}</Text>}
-        </View>
+        {topCurrency === 'BS' ? (
+          <>
+            {/* BS Input (Top) */}
+            <View style={styles.priceInputContainer as ViewStyle}>
+              <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs.)</Text>
+              <View style={styles.priceInputWrapper as ViewStyle}>
+                <TextInput
+                  style={styles.priceInput as TextStyle}
+                  placeholder="0.00"
+                  placeholderTextColor={theme.colors.onSurfaceVariant}
+                  value={bsPrice}
+                  onChangeText={handleBsPriceChange}
+                  keyboardType="numeric"
+                  editable={true}
+                />
+                <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>
+              </View>
+              {errors.bsPrice && (
+                <Text style={styles.errorText as TextStyle}>{errors.bsPrice}</Text>
+              )}
+            </View>
 
-        {/* Sync Icon */}
-        <View style={styles.syncContainer as ViewStyle}>
-          <Pressable style={({ pressed }) => [styles.syncButton as ViewStyle, pressed && { opacity: 0.8 }]} onPress={toggleEditableCurrency}>
-            <MaterialIcons
-              name="swap-vert"
-              size={20}
-              color={getSyncIconColor()}
-              style={{ transform: [{ rotate: bsEditable ? '0deg' : '180deg' }] }}
-            />
-          </Pressable>
-        </View>
+            {/* Sync Icon */}
+            <View style={styles.syncContainer as ViewStyle}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.syncButton as ViewStyle,
+                  pressed && { opacity: 0.8 },
+                ]}
+                onPress={toggleEditableCurrency}
+              >
+                <MaterialIcons
+                  name="swap-vert"
+                  size={20}
+                  color={getSyncIconColor()}
+                  style={{ transform: [{ rotate: '0deg' }] }}
+                />
+              </Pressable>
+            </View>
 
-        {/* USD Input */}
-        <View style={styles.priceInputContainer as ViewStyle}>
-          <Text style={styles.label as TextStyle}>Precio en Dólares ($)</Text>
-          <View style={styles.priceInputWrapper as ViewStyle}>
-            <TextInput
-              style={[
-                styles.priceInput as TextStyle,
-                bsEditable && { color: theme.colors.onSurfaceVariant },
-              ]}
-              placeholder="0.00"
-              placeholderTextColor={theme.colors.onSurfaceVariant}
-              value={usdPrice}
-              onChangeText={handleUsdPriceChange}
-              keyboardType="numeric"
-              editable={!bsEditable}
-            />
-            <Text style={styles.currencySymbol as TextStyle}>$</Text>
-          </View>
-          {errors.usdPrice && <Text style={styles.errorText as TextStyle}>{errors.usdPrice}</Text>}
-        </View>
+            {/* USD Input (Bottom) */}
+            <View style={styles.priceInputContainer as ViewStyle}>
+              <Text style={styles.label as TextStyle}>Precio en Dólares ($)</Text>
+              <View style={styles.priceInputWrapper as ViewStyle}>
+                <TextInput
+                  style={[styles.priceInput as TextStyle, { color: theme.colors.onSurfaceVariant }]}
+                  placeholder="0.00"
+                  placeholderTextColor={theme.colors.onSurfaceVariant}
+                  value={usdPrice}
+                  onChangeText={handleUsdPriceChange}
+                  keyboardType="numeric"
+                  editable={false}
+                />
+                <Text style={styles.currencySymbol as TextStyle}>$</Text>
+              </View>
+              {errors.usdPrice && (
+                <Text style={styles.errorText as TextStyle}>{errors.usdPrice}</Text>
+              )}
+            </View>
+          </>
+        ) : (
+          <>
+            {/* USD Input (Top) */}
+            <View style={styles.priceInputContainer as ViewStyle}>
+              <Text style={styles.label as TextStyle}>Precio en Dólares ($)</Text>
+              <View style={styles.priceInputWrapper as ViewStyle}>
+                <TextInput
+                  style={styles.priceInput as TextStyle}
+                  placeholder="0.00"
+                  placeholderTextColor={theme.colors.onSurfaceVariant}
+                  value={usdPrice}
+                  onChangeText={handleUsdPriceChange}
+                  keyboardType="numeric"
+                  editable={true}
+                />
+                <Text style={styles.currencySymbol as TextStyle}>$</Text>
+              </View>
+              {errors.usdPrice && (
+                <Text style={styles.errorText as TextStyle}>{errors.usdPrice}</Text>
+              )}
+            </View>
+
+            {/* Sync Icon */}
+            <View style={styles.syncContainer as ViewStyle}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.syncButton as ViewStyle,
+                  pressed && { opacity: 0.8 },
+                ]}
+                onPress={toggleEditableCurrency}
+              >
+                <MaterialIcons
+                  name="swap-vert"
+                  size={20}
+                  color={getSyncIconColor()}
+                  style={{ transform: [{ rotate: '180deg' }] }}
+                />
+              </Pressable>
+            </View>
+
+            {/* BS Input (Bottom) */}
+            <View style={styles.priceInputContainer as ViewStyle}>
+              <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs.)</Text>
+              <View style={styles.priceInputWrapper as ViewStyle}>
+                <TextInput
+                  style={[styles.priceInput as TextStyle, { color: theme.colors.onSurfaceVariant }]}
+                  placeholder="0.00"
+                  placeholderTextColor={theme.colors.onSurfaceVariant}
+                  value={bsPrice}
+                  onChangeText={handleBsPriceChange}
+                  keyboardType="numeric"
+                  editable={false}
+                />
+                <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>
+              </View>
+              {errors.bsPrice && (
+                <Text style={styles.errorText as TextStyle}>{errors.bsPrice}</Text>
+              )}
+            </View>
+          </>
+        )}
 
         {errors.price && <Text style={styles.errorText as TextStyle}>{errors.price}</Text>}
       </View>

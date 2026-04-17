@@ -2,12 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 import { View, Text, Pressable, Animated, Dimensions, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import { CameraView, Camera } from 'expo-camera'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 import { useAppTheme } from '../../styles/theme'
 import { TopAppBar } from '../../components/shared/TopAppBar'
 import { ProductScanResultModal } from '../../components/shared/ProductScanResultModal'
 import { useCartStore } from '../../store/cartStore'
+import { MaterialIcons } from '@expo/vector-icons'
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 const SCANNER_FRAME_WIDTH = SCREEN_WIDTH * 0.8

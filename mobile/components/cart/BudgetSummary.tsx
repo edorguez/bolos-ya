@@ -1,9 +1,8 @@
 import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 import { ProgressBar } from '../shared/ProgressBar'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface BudgetSummaryProps {
   totalBs: number
@@ -33,14 +32,14 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   limitLabel: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: '800',
+    fontWeight: theme.typography.fontWeight.bold,
     textTransform: 'uppercase',
     letterSpacing: 1,
     color: theme.colors.onSurfaceVariant,
   },
   limitUsd: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: '700',
+    fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurfaceVariant,
   },
   totalRow: {
@@ -54,7 +53,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   totalLabel: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: '800',
+    fontWeight: theme.typography.fontWeight.bold,
     textTransform: 'uppercase',
     letterSpacing: 1,
     color: theme.colors.onSurfaceVariant,
@@ -67,12 +66,12 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   totalBs: {
     fontSize: 28,
-    fontWeight: '800',
+    fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
   },
   totalUsd: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurfaceVariant,
   },
   progressBarContainer: {
@@ -90,7 +89,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   warningText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.error,
   },
 }))
@@ -113,7 +112,7 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
           LÍMITE: Bs. {budgetBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
         </Text>
         <Text style={styles.limitUsd as TextStyle}>
-          ($ {budgetUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })})
+          ($ {budgetUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })})
         </Text>
       </View>
 
@@ -126,7 +125,7 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
               Bs. {totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
             </Text>
             <Text style={styles.totalUsd as TextStyle}>
-              ($ {totalUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })})
+              ($ {totalUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })})
             </Text>
           </View>
         </View>
@@ -147,9 +146,9 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
         <View style={styles.warningContainer as ViewStyle}>
           <MaterialIcons name="warning" size={16} color={theme.colors.error} />
           <Text style={styles.warningText as TextStyle}>
-            Te has excedido por Bs.{' '}
+            Excedido por Bs.{' '}
             {overBudgetAmount.toLocaleString('es-VE', { minimumFractionDigits: 2 })} / $
-            {overBudgetUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {overBudgetUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
           </Text>
         </View>
       )}

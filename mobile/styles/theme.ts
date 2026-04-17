@@ -29,6 +29,7 @@ export const lightTheme = {
     success: '#10B981',
   },
   spacing: {
+    xxs: 2,
     xs: 4,
     sm: 8,
     md: 16,

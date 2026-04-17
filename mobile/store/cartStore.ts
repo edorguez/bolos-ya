@@ -22,6 +22,8 @@ export interface Cart {
   budgetBs: number
   budgetUsd: number
   createdAt: Date
+  completed?: boolean
+  completedAt?: Date
 }
 
 interface CartState {
@@ -36,6 +38,7 @@ interface CartState {
   removeItemFromCart: (cartId: string, itemId: string) => void
   updateItemQuantity: (cartId: string, itemId: string, newQuantity: number) => void
   updateItem: (cartId: string, itemId: string, updates: Partial<CartItem>) => void
+  completeCart: (id: string) => void
 }
 
 export const useCartStore = create<CartState>(set => ({
@@ -146,5 +149,11 @@ export const useCartStore = create<CartState>(set => ({
           totalUsd: cart.totalUsd + totalUsdDiff,
         }
       }),
+    })),
+  completeCart: id =>
+    set(state => ({
+      carts: state.carts.map(cart =>
+        cart.id === id ? { ...cart, completed: true, completedAt: new Date() } : cart
+      ),
     })),
 }))

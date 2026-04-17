@@ -9,8 +9,7 @@ import {
 } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
+import { MaterialIcons } from '@expo/vector-icons'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const MODAL_WIDTH = Math.min(SCREEN_WIDTH * 0.9, 400)
@@ -141,7 +140,7 @@ export function ProductScanResultModal({
   }
 
   const formatPriceUsd = (price: number) => {
-    return `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    return `$${price.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
 
   return (

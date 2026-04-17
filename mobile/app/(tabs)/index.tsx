@@ -129,7 +129,7 @@ export default function HomeTab() {
       date: '12 OCT',
       progress: 85,
       color: theme.colors.primary,
-      icon: 'bakery_dining',
+      icon: 'bakery-dining',
     },
     {
       id: '2',
@@ -138,7 +138,7 @@ export default function HomeTab() {
       date: '05 OCT',
       progress: 40,
       color: '#ffc456',
-      icon: 'cleaning_services',
+      icon: 'cleaning-services',
     },
   ]
 

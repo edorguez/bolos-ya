@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useCartStore, type Cart, type CartItem } from '../../store/cartStore'
 import { useAppTheme } from '../../styles/theme'
@@ -10,7 +10,7 @@ import { BottomSheetModal } from '../../components/shared/BottomSheetModal'
 import { ActionSheetModal } from '../../components/shared/ActionSheetModal'
 import { ProductForm } from '../../components/cart/ProductForm'
 import { useState, useEffect } from 'react'
-import { MaterialIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function CartDetailScreen() {
@@ -18,10 +18,18 @@ export default function CartDetailScreen() {
   const router = useRouter()
   const theme = useAppTheme()
   const insets = useSafeAreaInsets()
-  const { carts, activeCartId, addItemToCart, setActiveCart, updateItem, removeItemFromCart } =
-    useCartStore()
+  const {
+    carts,
+    activeCartId,
+    addItemToCart,
+    setActiveCart,
+    updateItem,
+    removeItemFromCart,
+    completeCart,
+  } = useCartStore()
   const [showAddProduct, setShowAddProduct] = useState(false)
   const [showActionSheet, setShowActionSheet] = useState(false)
+  const [showCompleteCartSheet, setShowCompleteCartSheet] = useState(false)
   const [selectedItem, setSelectedItem] = useState<CartItem | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [editingItem, setEditingItem] = useState<CartItem | null>(null)
@@ -163,6 +171,7 @@ export default function CartDetailScreen() {
       width: '100%',
       maxWidth: 400,
       alignSelf: 'center',
+      position: 'relative',
     },
     button: {
       flex: 1,
@@ -182,6 +191,32 @@ export default function CartDetailScreen() {
       fontWeight: theme.typography.fontWeight.bold,
       color: '#FFFFFF',
       flexShrink: 1,
+    },
+    buttonCircle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.spacing.sm,
+      backgroundColor: theme.colors.secondary,
+      borderRadius: theme.borderRadius.full,
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    },
+    buttonCircleComplete: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: theme.spacing.md,
+      backgroundColor: theme.colors.secondary,
+      borderRadius: theme.borderRadius.full,
+      borderCurve: 'continuous',
+      borderWidth: 2,
+      borderColor: '#FFFFFF',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
+      position: 'absolute',
+      top: -10,
+      left: '50%',
+      transform: [{ translateX: '-50%' }],
+      zIndex: 10,
     },
   })
 
@@ -255,6 +290,16 @@ export default function CartDetailScreen() {
           >
             <MaterialIcons name="add" size={12} color="#FFFFFF" />
             <Text style={styles.buttonText}>Agregar</Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [styles.buttonCircleComplete, pressed && { opacity: 0.8 }]}
+            onPress={() => setShowCompleteCartSheet(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Completar Carrito"
+          >
+            <MaterialCommunityIcons name="cart-check" size={24} color="#FFFFFF" />
+            {/* <Text style={styles.buttonText}>Completar</Text> */}
           </Pressable>
 
           <Pressable
@@ -334,6 +379,32 @@ export default function CartDetailScreen() {
                 removeItemFromCart(cart.id, selectedItem.id)
               }
             },
+          },
+        ]}
+      />
+
+      {/* Completion Confirmation Modal */}
+      <ActionSheetModal
+        isVisible={showCompleteCartSheet}
+        onClose={() => setShowCompleteCartSheet(false)}
+        options={[
+          {
+            label: 'Sí, completar carrito',
+            icon: 'check-circle',
+            color: theme.colors.success,
+            onPress: () => {
+              if (cart) {
+                completeCart(cart.id)
+                setShowCompleteCartSheet(false)
+                Alert.alert('Carrito completado', 'El carrito ha sido movido al historial.')
+              }
+            },
+          },
+          {
+            label: 'Cancelar',
+            icon: 'cancel',
+            color: theme.colors.outline,
+            onPress: () => setShowCompleteCartSheet(false),
           },
         ]}
       />

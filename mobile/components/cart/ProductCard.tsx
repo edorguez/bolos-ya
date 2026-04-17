@@ -76,8 +76,9 @@ const stylesheet = StyleSheet.create(theme => ({
     alignItems: 'flex-end',
   },
   menuButton: {
-    paddingLeft: theme.spacing.sm,
-    marginBottom: theme.spacing.xs,
+    padding: theme.spacing.xxs,
+    backgroundColor: theme.colors.surfaceContainerLow,
+    borderRadius: theme.borderRadius.full,
   },
   quantityRow: {
     marginTop: theme.spacing.sm,
@@ -172,7 +173,7 @@ export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
           </View>
           <View style={styles.rightColumn as ViewStyle}>
             <Pressable onPress={onMenuPress} style={({ pressed }) => [styles.menuButton as ViewStyle, pressed && { opacity: 0.7 }]}>
-              <MaterialIcons name="more-vert" size={20} color={theme.colors.onSurfaceVariant} />
+              <MaterialIcons name="more-horiz" size={20} color={theme.colors.onSurfaceVariant} />
             </Pressable>
             <View style={styles.priceColumn as ViewStyle}>
               <Text style={styles.priceBs as TextStyle}>
