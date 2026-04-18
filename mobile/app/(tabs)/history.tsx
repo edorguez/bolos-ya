@@ -29,7 +29,7 @@ export default function HistoryTab() {
       id: '2',
       storeName: 'Gamma',
       date: '05 Oct 2023',
-      icon: 'shopping_cart',
+      icon: 'shopping-cart',
       iconColor: theme.colors.tertiary,
       status: 'Excedido',
       totalBs: '2,890.50',
@@ -54,15 +54,8 @@ export default function HistoryTab() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <View style={{ width: 40 }} />
-          <Text style={styles.headerTitle}>MercadoLibreta</Text>
-          <Pressable style={styles.filterButton}>
-            <MaterialIcons name="filter-list" size={24} color={theme.colors.textSecondary} />
-          </Pressable>
-        </View>
+        <Text style={styles.headerTitle}>MercadoLibreta</Text>
       </View>
-
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <HeroSection
           title="Historial de Compras"

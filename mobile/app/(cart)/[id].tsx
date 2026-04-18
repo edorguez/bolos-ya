@@ -117,8 +117,6 @@ export default function CartDetailScreen() {
     },
     headerContainer: {
       backgroundColor: theme.colors.surfaceContainerLowest,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.surfaceContainer,
       paddingHorizontal: theme.spacing.lg,
     },
     supermarketHeaderContainer: {
@@ -293,13 +291,12 @@ export default function CartDetailScreen() {
           </Pressable>
 
           <Pressable
-            style={({ pressed }) => [styles.buttonCircleComplete, pressed && { opacity: 0.8 }]}
+            style={({ pressed }) => [styles.buttonCircleComplete, pressed && { backgroundColor: '#6670ff' }]}
             onPress={() => setShowCompleteCartSheet(true)}
             accessibilityRole="button"
             accessibilityLabel="Completar Carrito"
           >
             <MaterialCommunityIcons name="cart-check" size={24} color="#FFFFFF" />
-            {/* <Text style={styles.buttonText}>Completar</Text> */}
           </Pressable>
 
           <Pressable

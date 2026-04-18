@@ -1,9 +1,8 @@
 import { Tabs } from 'expo-router'
 import { useAppTheme } from '../../styles/theme'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs'
+import { MaterialIcons } from '@expo/vector-icons'
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const theme = useAppTheme()

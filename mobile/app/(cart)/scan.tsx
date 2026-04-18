@@ -252,8 +252,7 @@ export default function ScanScreen() {
   return (
     <View style={styles.container}>
       <TopAppBar
-        title="Escanear Etiqueta"
-        leftLabel={activeCart?.supermarket}
+        title="MercadoLibreta"
         onBackPress={() => router.back()}
       />
 
