@@ -2,11 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { User } from './User';
+import type { User } from './User'
 export type AuthResponse = {
-    access_token?: string;
-    refresh_token?: string;
-    expires_in?: number;
-    user?: User;
-};
-
+  access_token?: string
+  refresh_token?: string
+  expires_in?: number
+  user?: User
+}
