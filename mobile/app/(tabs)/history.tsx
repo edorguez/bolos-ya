@@ -1,12 +1,10 @@
 import { View, Text, ScrollView, Pressable } from 'react-native'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 
 import { createHistoryStyles } from '../../styles/historyStyles'
 import { HeroSection } from '../../components/history/HeroSection'
-import { SearchBar } from '../../components/history/SearchBar'
 import { HistoryCard } from '../../components/history/HistoryCard'
 import { useAppTheme } from '../../styles/theme'
+import { MaterialIcons } from '@expo/vector-icons'
 
 export default function HistoryTab() {
   const theme = useAppTheme()
@@ -59,10 +57,8 @@ export default function HistoryTab() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <HeroSection
           title="Historial de Compras"
-          subtitle="Revisa tus gastos pasados y optimiza tu presupuesto familiar."
+          subtitle="Revisa tus gastos pasados y optimiza tu presupuesto."
         />
-
-        <SearchBar />
 
         <View style={styles.historyList}>
           {historyItems.map(item => (

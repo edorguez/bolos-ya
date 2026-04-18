@@ -14,7 +14,7 @@ const stylesheet = StyleSheet.create(theme => ({
   container: {
     borderRadius: theme.borderRadius.xl,
     backgroundColor: theme.colors.primaryContainer + '20',
-    padding: theme.spacing.xl,
+    padding: theme.spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.lg,
@@ -24,13 +24,13 @@ const stylesheet = StyleSheet.create(theme => ({
     flex: 1,
   },
   title: {
-    fontSize: theme.typography.fontSize.xxl,
+    fontSize: theme.typography.fontSize.lg,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.primary,
     marginBottom: theme.spacing.xs,
   },
   subtitle: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.sm,
     color: theme.colors.onSurfaceVariant,
     lineHeight: 24,
   },

@@ -197,7 +197,7 @@ export default function HomeTab() {
             <Pressable
               style={({ pressed }) => [
                 styles.primaryButton,
-                pressed && { transform: [{ scale: 0.98 }] },
+                pressed && { opacity: 0.8 },
               ]}
               onPress={handleStartList}
             >

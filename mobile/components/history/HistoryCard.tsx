@@ -23,7 +23,7 @@ const stylesheet = StyleSheet.create(theme => ({
   card: {
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.xl,
+    padding: theme.spacing.md,
     shadowColor: theme.colors.primary,
     shadowOffset: { width: 0, height: 20 },
     shadowOpacity: 0.04,
@@ -52,7 +52,7 @@ const stylesheet = StyleSheet.create(theme => ({
     gap: theme.spacing.xs,
   },
   storeName: {
-    fontSize: theme.typography.fontSize.lg,
+    fontSize: theme.typography.fontSize.md,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
   },

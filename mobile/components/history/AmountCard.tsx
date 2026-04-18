@@ -13,11 +13,11 @@ const stylesheet = StyleSheet.create(theme => ({
   card: {
     flex: 1,
     backgroundColor: theme.colors.surfaceContainerLow,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.sm,
   },
   label: {
-    fontSize: 10,
+    fontSize: theme.typography.fontSize.xxs,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.outline,
     textTransform: 'uppercase',
@@ -25,7 +25,7 @@ const stylesheet = StyleSheet.create(theme => ({
     marginBottom: theme.spacing.xs,
   },
   value: {
-    fontSize: theme.typography.fontSize.xl,
+    fontSize: theme.typography.fontSize.md,
     fontWeight: theme.typography.fontWeight.bold,
   },
 }))
