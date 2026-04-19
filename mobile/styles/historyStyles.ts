@@ -24,7 +24,7 @@ export function createHistoryStyles(theme: AppTheme) {
     headerTitle: {
       fontSize: theme.typography.fontSize.xl,
       fontWeight: theme.typography.fontWeight.bold,
-      color: '#5918af',
+      color: theme.colors.primary,
       letterSpacing: -0.5,
     },
     searchContainer: {

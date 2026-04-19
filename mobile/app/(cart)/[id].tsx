@@ -221,7 +221,7 @@ export default function CartDetailScreen() {
   return (
     <View style={styles.container}>
       {/* Fixed White Header */}
-      <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} variant="solid-white" />
+      <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} />
       <View style={styles.headerContainer}>
         <View style={styles.supermarketHeaderContainer}>
           <SupermarketHeader supermarket={cart.supermarket} itemCount={cart.items.length} />
