@@ -1,4 +1,4 @@
-import { View, Text, Pressable, PressableProps, type ViewStyle, type TextStyle } from 'react-native'
+import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -83,7 +83,7 @@ export function SectionHeader({
           />
         )}
         {linkText && onLinkPress && (
-          <Pressable onPress={onLinkPress}>
+          <Pressable onPress={onLinkPress} style={({ pressed }) => pressed && { opacity: 0.8 }}>
             <Text style={styles.link as TextStyle}>{linkText}</Text>
           </Pressable>
         )}

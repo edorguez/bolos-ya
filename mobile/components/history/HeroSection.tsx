@@ -1,8 +1,7 @@
 import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface HeroSectionProps {
   title: string
@@ -12,7 +11,7 @@ interface HeroSectionProps {
 
 const stylesheet = StyleSheet.create(theme => ({
   container: {
-    borderRadius: theme.borderRadius.xl,
+    borderRadius: theme.borderRadius.lg,
     backgroundColor: theme.colors.primaryContainer + '20',
     padding: theme.spacing.md,
     flexDirection: 'row',

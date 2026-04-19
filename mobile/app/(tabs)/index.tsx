@@ -121,6 +121,10 @@ export default function HomeTab() {
     }
   }
 
+  const handleViewAll = () => {
+    router.push({ pathname: '/history' })
+  }
+
   const latestCarts = [
     {
       id: '1',
@@ -212,7 +216,7 @@ export default function HomeTab() {
           <SectionHeader
             title="Últimos Carritos"
             linkText="Ver todos"
-            onLinkPress={() => console.log('Ver todos')}
+            onLinkPress={handleViewAll}
           />
 
           <HorizontalScrollWithIndicators contentContainerStyle={styles.cartCardsContainer}>

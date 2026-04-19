@@ -1,9 +1,8 @@
 import { View, Pressable, type ViewStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 import { useRouter, useSegments } from 'expo-router'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface BottomNavBarProps {
   activeRoute?: string

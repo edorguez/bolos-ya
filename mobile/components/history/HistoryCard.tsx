@@ -1,11 +1,10 @@
 import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 import { StatusBadge } from './StatusBadge'
 import { AmountCard } from './AmountCard'
 import { ProgressBar } from '../shared/ProgressBar'
 import { useAppTheme } from '../../styles/theme'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface HistoryCardProps {
   storeName: string
@@ -34,7 +33,7 @@ const stylesheet = StyleSheet.create(theme => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
   },
   storeInfo: {
     flexDirection: 'row',
@@ -52,18 +51,18 @@ const stylesheet = StyleSheet.create(theme => ({
     gap: theme.spacing.xs,
   },
   storeName: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
   },
   storeDate: {
-    fontSize: theme.typography.fontSize.sm,
+    fontSize: theme.typography.fontSize.xs,
     color: theme.colors.outline,
   },
   amountGrid: {
     flexDirection: 'row',
     gap: theme.spacing.md,
-    marginBottom: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
   },
   progressSection: {
     gap: theme.spacing.xs,
@@ -115,8 +114,8 @@ export function HistoryCard({
       </View>
 
       <View style={styles.amountGrid as ViewStyle}>
-        <AmountCard label="Total Bs." value={totalBs} exceeded={exceeded} variant="bs" />
-        <AmountCard label="Total USD" value={totalUsd} exceeded={exceeded} variant="usd" />
+        <AmountCard label="Total Bs" value={totalBs} />
+        <AmountCard label="Total USD" value={totalUsd} />
       </View>
 
       <View style={styles.progressSection as ViewStyle}>

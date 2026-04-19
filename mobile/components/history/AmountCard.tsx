@@ -5,8 +5,6 @@ import { useAppTheme } from '../../styles/theme'
 interface AmountCardProps {
   label: string
   value: string
-  exceeded?: boolean
-  variant?: 'bs' | 'usd'
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -25,30 +23,23 @@ const stylesheet = StyleSheet.create(theme => ({
     marginBottom: theme.spacing.xs,
   },
   value: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.xs,
     fontWeight: theme.typography.fontWeight.bold,
   },
 }))
 
-export function AmountCard({ label, value, exceeded, variant = 'bs' }: AmountCardProps) {
+export function AmountCard({ label, value }: AmountCardProps) {
   const theme = useAppTheme()
   const styles = stylesheet(theme)
 
-  const getValueColor = () => {
-    if (exceeded) return theme.colors.error
-    if (variant === 'usd') return theme.colors.primary
-    return theme.colors.onSurface
-  }
-
   return (
     <View
-      style={[
-        styles.card as ViewStyle,
-        exceeded && { borderWidth: 1, borderColor: theme.colors.error + '10' },
-      ]}
+      style={
+        styles.card as ViewStyle
+      }
     >
       <Text style={styles.label as TextStyle}>{label}</Text>
-      <Text style={[styles.value as TextStyle, { color: getValueColor() }]}>{value}</Text>
+      <Text style={styles.value as TextStyle}>{value}</Text>
     </View>
   )
 }

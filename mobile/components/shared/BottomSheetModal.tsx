@@ -12,8 +12,7 @@ import {
 import { useEffect, useRef } from 'react'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface BottomSheetModalProps {
   isVisible: boolean

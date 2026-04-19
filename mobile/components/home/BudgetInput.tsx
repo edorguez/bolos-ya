@@ -21,11 +21,11 @@ const stylesheet = StyleSheet.create(theme => ({
     color: theme.colors.onSurfaceVariant,
   },
   input: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surfaceContainerLowest,
     borderRadius: theme.borderRadius.md,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
-    fontSize: theme.typography.fontSize.sm,
+    fontSize: theme.typography.fontSize.xs,
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
     shadowColor: '#000',

@@ -13,10 +13,9 @@ const stylesheet = StyleSheet.create(theme => ({
     borderRadius: theme.borderRadius.full,
   },
   text: {
-    fontSize: theme.typography.fontSize.xs,
+    fontSize: theme.typography.fontSize.xxs,
     fontWeight: theme.typography.fontWeight.bold,
     textTransform: 'uppercase',
-    letterSpacing: 1,
   },
 }))
 
@@ -34,7 +33,7 @@ export function StatusBadge({ status }: StatusBadgeProps) {
       case 'Excedido':
         return {
           backgroundColor: theme.colors.errorContainer,
-          textColor: theme.colors.error,
+          textColor: theme.colors.surfaceContainerLowest,
         }
       default:
         return {

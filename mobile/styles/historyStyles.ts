@@ -10,8 +10,7 @@ export function createHistoryStyles(theme: AppTheme) {
     scrollContent: {
       paddingHorizontal: theme.spacing.lg,
       paddingVertical: theme.spacing.lg,
-      gap: theme.spacing.xl,
-      paddingBottom: 100,
+      gap: theme.spacing.lg,
     },
     header: {
       backgroundColor: '#ffffffcc',
@@ -50,7 +49,7 @@ export function createHistoryStyles(theme: AppTheme) {
       fontSize: theme.typography.fontSize.sm,
     },
     historyList: {
-      gap: theme.spacing.lg,
+      gap: theme.spacing.md,
     },
     emptyState: {
       paddingVertical: theme.spacing.xxl,

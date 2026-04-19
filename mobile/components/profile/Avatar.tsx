@@ -1,8 +1,7 @@
 import { View, Image, Pressable, ViewStyle, ImageStyle } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
-// @ts-ignore
-import MaterialIcons from '@expo/vector-icons/build/MaterialIcons'
 import { useAppTheme } from '../../styles/theme'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface AvatarProps {
   uri?: string

@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable } from 'react-native'
+import { View, Text, ScrollView } from 'react-native'
 
 import { createHistoryStyles } from '../../styles/historyStyles'
 import { HeroSection } from '../../components/history/HeroSection'
@@ -18,8 +18,8 @@ export default function HistoryTab() {
       icon: 'storefront',
       iconColor: theme.colors.secondary,
       status: 'Completado',
-      totalBs: '1,450.00',
-      totalUsd: '$ 41.20',
+      totalBs: '1.450,00',
+      totalUsd: '$ 41,20',
       budgetUsage: 82,
       exceeded: false,
     },
@@ -30,8 +30,8 @@ export default function HistoryTab() {
       icon: 'shopping-cart',
       iconColor: theme.colors.tertiary,
       status: 'Excedido',
-      totalBs: '2,890.50',
-      totalUsd: '$ 82.58',
+      totalBs: '2.890,50',
+      totalUsd: '$ 82,58',
       budgetUsage: 115,
       exceeded: true,
     },
@@ -42,8 +42,8 @@ export default function HistoryTab() {
       icon: 'storefront',
       iconColor: theme.colors.primary,
       status: 'Completado',
-      totalBs: '980.00',
-      totalUsd: '$ 28.00',
+      totalBs: '980,00',
+      totalUsd: '$ 28,00',
       budgetUsage: 45,
       exceeded: false,
     },

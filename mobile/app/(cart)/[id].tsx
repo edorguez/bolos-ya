@@ -154,7 +154,7 @@ export default function CartDetailScreen() {
     },
     buttonBarContainer: {
       position: 'absolute',
-      bottom: 0,
+      bottom: theme.spacing.md,
       left: 0,
       right: 0,
       backgroundColor: theme.colors.surfaceContainerLowest,

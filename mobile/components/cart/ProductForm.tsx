@@ -248,7 +248,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
           <>
             {/* BS Input (Top) */}
             <View style={styles.priceInputContainer as ViewStyle}>
-              <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs.)</Text>
+              <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs)</Text>
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <TextInput
                   style={styles.priceInput as TextStyle}
@@ -346,7 +346,7 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
 
             {/* BS Input (Bottom) */}
             <View style={styles.priceInputContainer as ViewStyle}>
-              <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs.)</Text>
+              <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs)</Text>
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <TextInput
                   style={[styles.priceInput as TextStyle, { color: theme.colors.onSurfaceVariant }]}
