@@ -2,7 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { SyncOperation } from './SyncOperation'
+import type { SyncOperation } from './SyncOperation';
 export type SyncRequest = {
-  operations?: Array<SyncOperation>
-}
+    operations?: Array<SyncOperation>;
+};
+

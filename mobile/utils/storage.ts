@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Platform } from 'react-native'
 
 let storageReady = false
-let memoryStorage = new Map<string, string>()
+const memoryStorage = new Map<string, string>()
 let asyncStorageAvailable = false
 
 try {

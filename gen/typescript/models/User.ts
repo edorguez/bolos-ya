@@ -5,7 +5,7 @@
 export type User = {
     id?: string;
     email?: string;
-    is_premium?: boolean;
-    created_at?: string;
+    isPremium?: boolean;
+    createdAt?: string;
 };
 

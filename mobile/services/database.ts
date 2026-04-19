@@ -22,7 +22,7 @@ class DatabaseService {
     const migrations: DatabaseMigration[] = [
       {
         version: 1,
-        up: async (db) => {
+        up: async db => {
           await db.execAsync(`
             CREATE TABLE IF NOT EXISTS sync_queue (
               id TEXT PRIMARY KEY,

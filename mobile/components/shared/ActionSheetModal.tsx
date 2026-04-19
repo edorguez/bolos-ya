@@ -27,7 +27,7 @@ interface ActionSheetModalProps {
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window')
-const MODAL_HEIGHT = SCREEN_HEIGHT * 0.2;
+const MODAL_HEIGHT = SCREEN_HEIGHT * 0.2
 
 const stylesheet = StyleSheet.create(theme => ({
   backdrop: {
@@ -204,7 +204,10 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
             {options.map((option, index) => (
               <Pressable
                 key={index}
-                style={({pressed}) => [styles.optionButton as ViewStyle, pressed && { opacity: 0.8 }]}
+                style={({ pressed }) => [
+                  styles.optionButton as ViewStyle,
+                  pressed && { opacity: 0.8 },
+                ]}
                 onPress={() => {
                   option.onPress()
                   closeModal()

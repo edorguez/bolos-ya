@@ -15,7 +15,6 @@ const stylesheet = StyleSheet.create(theme => ({
     left: 0,
     right: 0,
     backgroundColor: `${theme.colors.surfaceContainerLowest}80`,
-    backdropFilter: 'blur(20px)',
     borderTopWidth: 1,
     borderTopColor: theme.colors.surfaceContainer,
     paddingVertical: 16,

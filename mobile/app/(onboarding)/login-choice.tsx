@@ -77,7 +77,7 @@ export default function LoginChoiceScreen() {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background
+      backgroundColor: theme.colors.background,
     },
     header: {
       width: '100%',
@@ -467,12 +467,18 @@ export default function LoginChoiceScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Pressable onPress={handleGoogleLogin} style={({pressed}) => [styles.googleButton, pressed && {opacity: 0.8}]}>
+          <Pressable
+            onPress={handleGoogleLogin}
+            style={({ pressed }) => [styles.googleButton, pressed && { opacity: 0.8 }]}
+          >
             <GoogleIcon />
             <Text style={styles.googleButtonText}>Continuar con Google</Text>
           </Pressable>
 
-          <Pressable onPress={handleEmailLogin} style={({pressed}) => [styles.emailButton, pressed && { opacity: 0.8 }]}>
+          <Pressable
+            onPress={handleEmailLogin}
+            style={({ pressed }) => [styles.emailButton, pressed && { opacity: 0.8 }]}
+          >
             <MaterialIcons name="mail" size={20} color="#FFFFFF" />
             <Text style={styles.emailButtonText}>Iniciar con Correo</Text>
           </Pressable>
@@ -483,7 +489,10 @@ export default function LoginChoiceScreen() {
             <View style={styles.dividerLine} />
           </View>
 
-          <Pressable onPress={handleGuestLogin} style={({pressed}) => [styles.guestButton, pressed && { opacity: 0.8 }]}>
+          <Pressable
+            onPress={handleGuestLogin}
+            style={({ pressed }) => [styles.guestButton, pressed && { opacity: 0.8 }]}
+          >
             <Text style={styles.guestButtonText}>Entrar como Invitado</Text>
             <MaterialIcons name="arrow-forward" size={20} color={theme.colors.secondary} />
           </Pressable>

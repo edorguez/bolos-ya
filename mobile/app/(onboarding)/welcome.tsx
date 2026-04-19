@@ -166,14 +166,18 @@ export default function WelcomeScreen() {
         <View style={styles.content}>
           <Text style={styles.title}>Calcula sobre la marcha</Text>
           <Text style={styles.description}>
-            Olvídate del miedo en la cola del mercado. Registra tus productos en tiempo real y mira el
-            total exacto tanto en <Text style={styles.boldText}>Bolívares</Text> como en <Text style={styles.boldText}>Dólares</Text>.
+            Olvídate del miedo en la cola del mercado. Registra tus productos en tiempo real y mira
+            el total exacto tanto en <Text style={styles.boldText}>Bolívares</Text> como en{' '}
+            <Text style={styles.boldText}>Dólares</Text>.
           </Text>
         </View>
       </View>
 
       <View style={styles.footer}>
-        <Pressable onPress={handleNext} style={({ pressed }) => [styles.nextButton, pressed && { opacity: 0.8 }]}>
+        <Pressable
+          onPress={handleNext}
+          style={({ pressed }) => [styles.nextButton, pressed && { opacity: 0.8 }]}
+        >
           <Text style={styles.nextButtonText}>Siguiente</Text>
           <MaterialIcons name="arrow-forward" size={24} color="#FFFFFF" />
         </Pressable>

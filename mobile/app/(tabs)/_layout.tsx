@@ -23,7 +23,6 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       borderRadius: 9999,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.sm,
-      backdropFilter: 'blur(20px)',
       shadowColor: theme.colors.primary,
       shadowOffset: { width: 0, height: 20 },
       shadowOpacity: 0.08,
@@ -52,7 +51,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       fontSize: theme.typography.fontSize.xxs,
       fontWeight: theme.typography.fontWeight.bold,
     },
-  });
+  })
 
   return (
     <View style={styles.container}>

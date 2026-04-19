@@ -33,11 +33,7 @@ export function AmountCard({ label, value }: AmountCardProps) {
   const styles = stylesheet(theme)
 
   return (
-    <View
-      style={
-        styles.card as ViewStyle
-      }
-    >
+    <View style={styles.card as ViewStyle}>
       <Text style={styles.label as TextStyle}>{label}</Text>
       <Text style={styles.value as TextStyle}>{value}</Text>
     </View>

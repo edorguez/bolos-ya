@@ -82,7 +82,7 @@ export function Button({
 
   return (
     <Pressable
-      style={({pressed}) => [getButtonStyle(), pressed && {opacity: 0.8 }]}
+      style={({ pressed }) => [getButtonStyle(), pressed && { opacity: 0.8 }]}
       onPress={onPress}
       disabled={disabled || isLoading}
     >

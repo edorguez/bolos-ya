@@ -56,7 +56,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   icon: {
     opacity: 1,
-    color: 'white'
+    color: 'white',
   },
 }))
 

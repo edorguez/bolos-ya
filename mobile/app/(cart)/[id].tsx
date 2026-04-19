@@ -291,7 +291,10 @@ export default function CartDetailScreen() {
           </Pressable>
 
           <Pressable
-            style={({ pressed }) => [styles.buttonCircleComplete, pressed && { backgroundColor: '#6670ff' }]}
+            style={({ pressed }) => [
+              styles.buttonCircleComplete,
+              pressed && { backgroundColor: '#6670ff' },
+            ]}
             onPress={() => setShowCompleteCartSheet(true)}
             accessibilityRole="button"
             accessibilityLabel="Completar Carrito"

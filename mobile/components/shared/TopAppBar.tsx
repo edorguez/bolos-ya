@@ -1,13 +1,13 @@
-import { View, Text, Pressable, type ViewStyle } from 'react-native';
-import { StyleSheet as RNStyleSheet } from 'react-native';
-import { useAppTheme } from '../../styles/theme';
-import { MaterialIcons } from '@expo/vector-icons';
+import { View, Text, Pressable, type ViewStyle } from 'react-native'
+import { StyleSheet as RNStyleSheet } from 'react-native'
+import { useAppTheme } from '../../styles/theme'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface TopAppBarProps {
-  title: string;
-  rightLabel?: string;   
-  onBackPress?: () => void;
-  showBackButton?: boolean;
+  title: string
+  rightLabel?: string
+  onBackPress?: () => void
+  showBackButton?: boolean
 }
 
 export function TopAppBar({
@@ -16,7 +16,7 @@ export function TopAppBar({
   onBackPress,
   showBackButton = true,
 }: TopAppBarProps) {
-  const theme = useAppTheme();
+  const theme = useAppTheme()
 
   const baseContainerStyle: ViewStyle = {
     height: 64,
@@ -25,7 +25,7 @@ export function TopAppBar({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     zIndex: 50,
-  };
+  }
 
   const styles = RNStyleSheet.create({
     container: {
@@ -47,7 +47,7 @@ export function TopAppBar({
       backgroundColor: theme.colors.surfaceContainerLow,
     },
     centerContainer: {
-      flex: 1, 
+      flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -66,13 +66,16 @@ export function TopAppBar({
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.onSurfaceVariant,
     },
-  });
+  })
 
   return (
     <View style={styles.container}>
       <View style={styles.leftContainer}>
         {showBackButton && (
-          <Pressable style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.8 }]} onPress={onBackPress}>
+          <Pressable
+            style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.8 }]}
+            onPress={onBackPress}
+          >
             <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurfaceVariant} />
           </Pressable>
         )}
@@ -86,5 +89,5 @@ export function TopAppBar({
         {rightLabel && <Text style={styles.rightLabel}>{rightLabel}</Text>}
       </View>
     </View>
-  );
+  )
 }

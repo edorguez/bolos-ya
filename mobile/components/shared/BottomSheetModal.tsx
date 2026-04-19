@@ -216,7 +216,13 @@ export function BottomSheetModal({
         <View style={styles.header as ViewStyle}>
           <View style={styles.headerLeft as ViewStyle}>
             {showBackButton && (
-              <Pressable style={({pressed}) => [styles.backButton as ViewStyle, pressed && { opacity: 0.8 }]} onPress={closeModal}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.backButton as ViewStyle,
+                  pressed && { opacity: 0.8 },
+                ]}
+                onPress={closeModal}
+              >
                 <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurfaceVariant} />
               </Pressable>
             )}

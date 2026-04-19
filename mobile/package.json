@@ -11,7 +11,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "tsc --noEmit",
-    "generate-api": "openapi-typescript-codegen --input ../docs/openapi.yaml --output ../gen/typescript --client axios && cp -r ../gen/typescript/* src/api/"
+    "generate-api": "npx openapi-typescript-codegen --input ../docs/openapi.yaml --output ../gen/typescript --client axios && cp -r ../gen/typescript/* api/"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -47,9 +47,11 @@
     "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/parser": "^8.57.2",
     "babel-preset-expo": "^55.0.12",
-    "eslint": "^10.1.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react": "^7.34.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "openapi-typescript-codegen": "^0.30.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",

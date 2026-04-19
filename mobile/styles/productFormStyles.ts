@@ -116,7 +116,7 @@ export function createProductFormStyles(theme: AppTheme) {
     syncContainer: {
       paddingTop: theme.spacing.md,
       paddingBottom: theme.spacing.md,
-      alignSelf: 'center'
+      alignSelf: 'center',
     },
     syncButton: {
       width: 40,

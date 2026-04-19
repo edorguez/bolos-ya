@@ -26,6 +26,7 @@ export default function NotFoundScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.textHeading}>404 - Not Found</Text>
+      {/* eslint-disable-next-line react/no-unescaped-entities */}
       <Text style={styles.textBody}>The screen you're looking for doesn't exist.</Text>
     </View>
   )

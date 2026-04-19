@@ -18,7 +18,6 @@ export function createHistoryStyles(theme: AppTheme) {
       paddingVertical: theme.spacing.md,
       alignItems: 'center',
       justifyContent: 'center',
-      backdropFilter: 'blur(10px)',
       width: '100%',
     },
     headerTitle: {

@@ -161,18 +161,33 @@ export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
             <Text style={styles.title as TextStyle}>{item.name}</Text>
             <View style={styles.quantityRow as ViewStyle}>
               <View style={styles.quantityControls as ViewStyle}>
-                <Pressable onPress={handleDecrease} style={({ pressed }) => [styles.quantityButton as ViewStyle, pressed && { opacity: 0.7 }]}>
+                <Pressable
+                  onPress={handleDecrease}
+                  style={({ pressed }) => [
+                    styles.quantityButton as ViewStyle,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                >
                   <MaterialIcons name="remove" size={16} color={theme.colors.primary} />
                 </Pressable>
                 <Text style={styles.quantityText as TextStyle}>{item.quantity}</Text>
-                <Pressable onPress={handleIncrease} style={({ pressed }) => [styles.quantityButton as ViewStyle, pressed && { opacity: 0.7 }]}>
+                <Pressable
+                  onPress={handleIncrease}
+                  style={({ pressed }) => [
+                    styles.quantityButton as ViewStyle,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                >
                   <MaterialIcons name="add" size={16} color={theme.colors.primary} />
                 </Pressable>
               </View>
             </View>
           </View>
           <View style={styles.rightColumn as ViewStyle}>
-            <Pressable onPress={onMenuPress} style={({ pressed }) => [styles.menuButton as ViewStyle, pressed && { opacity: 0.7 }]}>
+            <Pressable
+              onPress={onMenuPress}
+              style={({ pressed }) => [styles.menuButton as ViewStyle, pressed && { opacity: 0.7 }]}
+            >
               <MaterialIcons name="more-horiz" size={20} color={theme.colors.onSurfaceVariant} />
             </Pressable>
             <View style={styles.priceColumn as ViewStyle}>

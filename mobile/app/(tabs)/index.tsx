@@ -199,10 +199,7 @@ export default function HomeTab() {
             </View>
 
             <Pressable
-              style={({ pressed }) => [
-                styles.primaryButton,
-                pressed && { opacity: 0.8 },
-              ]}
+              style={({ pressed }) => [styles.primaryButton, pressed && { opacity: 0.8 }]}
               onPress={handleStartList}
             >
               <View style={styles.primaryButtonOverlay} />
