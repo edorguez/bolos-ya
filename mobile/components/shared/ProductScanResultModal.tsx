@@ -32,11 +32,10 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   modalContent: {
     width: MODAL_WIDTH,
-    backgroundColor: `${theme.colors.surfaceContainerLowest}EE`,
-
+    backgroundColor: theme.colors.surfaceContainerLowest,
     borderRadius: theme.borderRadius.lg,
-    padding: 24,
-    marginBottom: 24,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing.lg,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.4)',
     shadowColor: '#000',
@@ -49,56 +48,56 @@ const stylesheet = StyleSheet.create(theme => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: theme.spacing.md,
   },
   titleContainer: {
     flex: 1,
   },
   subtitle: {
-    fontSize: 10,
-    fontWeight: '800',
+    fontSize: theme.typography.fontSize.xxs,
+    fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 2,
-    marginBottom: 4,
+    marginBottom: theme.spacing.xs,
   },
   productName: {
-    fontSize: 20,
-    fontWeight: '800',
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
     lineHeight: 24,
   },
   verifiedBadge: {
     backgroundColor: `${theme.colors.tertiaryContainer}30`,
-    padding: 8,
+    padding: theme.spacing.sm,
     borderRadius: theme.borderRadius.lg,
   },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: 16,
-    marginTop: 8,
-    marginBottom: 24,
+    marginTop: theme.spacing.sm,
+    marginBottom: theme.spacing.lg,
   },
   priceColumn: {
     flex: 1,
   },
   priceLabel: {
-    fontSize: 10,
-    fontWeight: '800',
+    fontSize: theme.typography.fontSize.xxs,
+    fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.outline,
     textTransform: 'uppercase',
-    marginBottom: 4,
+    marginBottom: theme.spacing.xs,
   },
   priceBs: {
-    fontSize: 32,
-    fontWeight: '900',
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.onSurface,
     letterSpacing: -0.5,
   },
   priceUsd: {
-    fontSize: 20,
-    fontWeight: '800',
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.secondary,
     letterSpacing: -0.3,
   },
@@ -106,21 +105,25 @@ const stylesheet = StyleSheet.create(theme => ({
     width: 1,
     height: 40,
     backgroundColor: `${theme.colors.outlineVariant}30`,
-    marginBottom: 4,
+    marginBottom: theme.spacing.xs,
   },
   addButton: {
     backgroundColor: theme.colors.primary,
     borderRadius: theme.borderRadius.full,
-    paddingVertical: 16,
+    paddingVertical: theme.spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: theme.colors.primary,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
     gap: 8,
   },
   addButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '800',
+    color: theme.colors.surfaceContainerLowest,
+    fontSize: theme.typography.fontSize.md,
+    fontWeight: theme.typography.fontWeight.bold,
   },
 }))
 
@@ -149,7 +152,7 @@ export function ProductScanResultModal({
         <Pressable style={styles.modalContent as ViewStyle} onPress={e => e.stopPropagation()}>
           <View style={styles.headerRow as ViewStyle}>
             <View style={styles.titleContainer as ViewStyle}>
-              <Text style={styles.subtitle as TextStyle}>Price Detected</Text>
+              <Text style={styles.subtitle as TextStyle}>Producto Detectado</Text>
               <Text style={styles.productName as TextStyle}>{productName}</Text>
             </View>
             <View style={styles.verifiedBadge as ViewStyle}>
@@ -159,18 +162,18 @@ export function ProductScanResultModal({
 
           <View style={styles.priceRow as ViewStyle}>
             <View style={styles.priceColumn as ViewStyle}>
-              <Text style={styles.priceLabel as TextStyle}>En Bolívares</Text>
+              <Text style={styles.priceLabel as TextStyle}>Bolívares</Text>
               <Text style={styles.priceBs as TextStyle}>{formatPriceBs(priceBs)}</Text>
             </View>
             <View style={styles.divider as ViewStyle} />
             <View style={styles.priceColumn as ViewStyle}>
-              <Text style={styles.priceLabel as TextStyle}>En Dólares</Text>
+              <Text style={styles.priceLabel as TextStyle}>Dólares</Text>
               <Text style={styles.priceUsd as TextStyle}>{formatPriceUsd(priceUsd)}</Text>
             </View>
           </View>
 
           <Pressable
-            style={styles.addButton as ViewStyle}
+            style={({ pressed }) => [styles.addButton as ViewStyle, pressed && { opacity: 0.8 }]}
             onPress={() => {
               onAddToCart()
               onClose()

@@ -61,7 +61,7 @@ export default function ScanScreen() {
         setIsScanning(false)
         setScanResult({
           name: 'Harina de Maíz Precocida',
-          priceBs: 42.5,
+          priceBs: 10000.5,
           priceUsd: 1.15,
         })
         animation.stop()
