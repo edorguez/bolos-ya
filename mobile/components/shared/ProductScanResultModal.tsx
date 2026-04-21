@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   View,
   Text,
@@ -6,6 +7,7 @@ import {
   Dimensions,
   type ViewStyle,
   type TextStyle,
+  ScrollView,
 } from 'react-native'
 import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
@@ -20,6 +22,7 @@ interface ProductScanResultModalProps {
   productName: string
   priceBs: number
   priceUsd: number
+  rawText?: string
   onAddToCart: () => void
 }
 
@@ -71,6 +74,32 @@ const stylesheet = StyleSheet.create(theme => ({
     backgroundColor: `${theme.colors.tertiaryContainer}30`,
     padding: theme.spacing.sm,
     borderRadius: theme.borderRadius.lg,
+  },
+  toggleButton: {
+    backgroundColor: `${theme.colors.outlineVariant}20`,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.md,
+    marginLeft: theme.spacing.sm,
+  },
+  toggleButtonText: {
+    color: theme.colors.primary,
+    fontSize: theme.typography.fontSize.xs,
+    fontWeight: theme.typography.fontWeight.medium,
+  },
+  rawTextContainer: {
+    marginTop: theme.spacing.md,
+    maxHeight: 150,
+    borderWidth: 1,
+    borderColor: `${theme.colors.outlineVariant}30`,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.sm,
+    backgroundColor: `${theme.colors.surfaceContainerLow}20`,
+  },
+  rawText: {
+    fontSize: theme.typography.fontSize.xs,
+    color: theme.colors.outline,
+    fontFamily: 'monospace',
   },
   priceRow: {
     flexDirection: 'row',
@@ -133,10 +162,12 @@ export function ProductScanResultModal({
   productName,
   priceBs,
   priceUsd,
+  rawText,
   onAddToCart,
 }: ProductScanResultModalProps) {
   const theme = useAppTheme()
   const styles = stylesheet(theme)
+  const [showRawText, setShowRawText] = useState(false)
 
   const formatPriceBs = (price: number) => {
     return `Bs. ${price.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -155,8 +186,20 @@ export function ProductScanResultModal({
               <Text style={styles.subtitle as TextStyle}>Producto Detectado</Text>
               <Text style={styles.productName as TextStyle}>{productName}</Text>
             </View>
-            <View style={styles.verifiedBadge as ViewStyle}>
-              <MaterialIcons name="verified" size={24} color={theme.colors.tertiary} />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {rawText && (
+                <Pressable
+                  style={styles.toggleButton as ViewStyle}
+                  onPress={() => setShowRawText(!showRawText)}
+                >
+                  <Text style={styles.toggleButtonText as TextStyle}>
+                    {showRawText ? 'Ocultar texto' : 'Ver texto'}
+                  </Text>
+                </Pressable>
+              )}
+              <View style={styles.verifiedBadge as ViewStyle}>
+                <MaterialIcons name="verified" size={24} color={theme.colors.tertiary} />
+              </View>
             </View>
           </View>
 
@@ -171,6 +214,14 @@ export function ProductScanResultModal({
               <Text style={styles.priceUsd as TextStyle}>{formatPriceUsd(priceUsd)}</Text>
             </View>
           </View>
+
+          {rawText && showRawText && (
+            <View style={styles.rawTextContainer as ViewStyle}>
+              <ScrollView>
+                <Text style={styles.rawText as TextStyle}>{rawText}</Text>
+              </ScrollView>
+            </View>
+          )}
 
           <Pressable
             style={({ pressed }) => [styles.addButton as ViewStyle, pressed && { opacity: 0.8 }]}

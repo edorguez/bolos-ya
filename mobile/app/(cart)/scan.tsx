@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
-import { View, Text, Pressable, Animated, Dimensions, StyleSheet } from 'react-native'
+import { View, Text, Pressable, Animated, Dimensions, StyleSheet, Alert } from 'react-native'
 import { useRouter } from 'expo-router'
 import { CameraView, Camera } from 'expo-camera'
 import { useAppTheme } from '../../styles/theme'
 import { TopAppBar } from '../../components/shared/TopAppBar'
 import { ProductScanResultModal } from '../../components/shared/ProductScanResultModal'
 import { useCartStore } from '../../store/cartStore'
+import { scanImage } from '../../services/ocr'
 import { MaterialIcons } from '@expo/vector-icons'
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
@@ -24,6 +25,8 @@ export default function ScanScreen() {
     name: string
     priceBs: number
     priceUsd: number
+    rawText?: string
+    confidence?: number
   } | null>(null)
 
   const scanLineAnim = useRef(new Animated.Value(0)).current
@@ -38,45 +41,58 @@ export default function ScanScreen() {
     })()
   }, [])
 
-  useEffect(() => {
-    if (isScanning) {
-      const animation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(scanLineAnim, {
-            toValue: 1,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scanLineAnim, {
-            toValue: 0,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-        ])
+  const startScanning = async () => {
+    if (isScanning || !cameraRef.current) return
+
+    setIsScanning(true)
+
+    // Start scanning animation
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(scanLineAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scanLineAnim, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    )
+    animation.start()
+
+    try {
+      // Capture image from camera
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.8,
+        base64: false,
+        exif: false,
+      })
+
+      // Process image with OCR
+      const result = await scanImage(photo.uri)
+
+      // Update scan result with parsed data
+      setScanResult({
+        name: result.productName,
+        priceBs: result.priceBs,
+        priceUsd: result.priceUsd,
+        rawText: result.rawText,
+        confidence: result.confidence,
+      })
+    } catch (error) {
+      console.error('OCR scanning failed:', error)
+      Alert.alert(
+        'Error de escaneo',
+        error instanceof Error ? error.message : 'No se pudo leer la etiqueta. Intenta nuevamente.',
+        [{ text: 'OK', onPress: () => {} }]
       )
-      animation.start()
-
-      // Simulate OCR detection after 3 seconds
-      const timer = setTimeout(() => {
-        setIsScanning(false)
-        setScanResult({
-          name: 'Harina de Maíz Precocida',
-          priceBs: 10000.5,
-          priceUsd: 1.15,
-        })
-        animation.stop()
-      }, 3000)
-
-      return () => {
-        clearTimeout(timer)
-        animation.stop()
-      }
-    }
-  }, [isScanning])
-
-  const startScanning = () => {
-    if (!isScanning) {
-      setIsScanning(true)
+    } finally {
+      // Stop animation and reset scanning state
+      animation.stop()
+      setIsScanning(false)
     }
   }
 
@@ -343,6 +359,7 @@ export default function ScanScreen() {
         productName={scanResult?.name || ''}
         priceBs={scanResult?.priceBs || 0}
         priceUsd={scanResult?.priceUsd || 0}
+        rawText={scanResult?.rawText}
         onAddToCart={handleAddToCart}
       />
     </View>

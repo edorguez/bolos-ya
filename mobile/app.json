@@ -12,9 +12,18 @@
       "backgroundColor": "#ffffff"
     },
     "scheme": "bolosya",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera for OCR scanning.",
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photo library for OCR scanning."
+      },
+      "bundleIdentifier": "com.anonymous.mobile"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,14 +32,25 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "webpack"
     },
     "plugins": [
-      ["expo-router", { "root": "./app" }],
+      [
+        "expo-router",
+        {
+          "root": "./app"
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -41,8 +61,22 @@
       ],
       [
         "expo-camera",
-        { "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera for OCR scanning." }
-      ]
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera for OCR scanning."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1"
+          },
+          "android": {
+            "compileSdkVersion": 35
+          }
+        }
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
