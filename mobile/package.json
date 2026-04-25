@@ -5,6 +5,7 @@
   "scripts": {
     "start": "expo start",
     "start-clear": "npx expo start --clear",
+    "start-local-device": "npx expo run:ios --device",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -20,6 +21,7 @@
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/native": "^7.2.0",
     "axios": "^1.13.6",
+    "dnssd-advertise": "^1.1.4",
     "expo": "^55.0.0",
     "expo-camera": "~55.0.11",
     "expo-constants": "~55.0.13",
