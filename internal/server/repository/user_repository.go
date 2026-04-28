@@ -15,7 +15,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *models.User) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.User, error)
 	FindByEmail(ctx context.Context, email string) (*models.User, error)
-	FindByGoogleID(ctx context.Context, googleID string) (*models.User, error)
+	FindByBetterAuthUserID(ctx context.Context, betterAuthUserID string) (*models.User, error)
 	Update(ctx context.Context, user *models.User) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -28,7 +28,6 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
-// Create inserts a new user into the database
 func (r *userRepository) Create(ctx context.Context, user *models.User) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -36,7 +35,6 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) error {
 	return r.db.WithContext(ctx).Create(user).Error
 }
 
-// FindByID retrieves a user by ID
 func (r *userRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -52,7 +50,6 @@ func (r *userRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Us
 	return &user, nil
 }
 
-// FindByEmail retrieves a user by email
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -68,13 +65,12 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*models
 	return &user, nil
 }
 
-// FindByGoogleID retrieves a user by Google ID
-func (r *userRepository) FindByGoogleID(ctx context.Context, googleID string) (*models.User, error) {
+func (r *userRepository) FindByBetterAuthUserID(ctx context.Context, betterAuthUserID string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	var user models.User
-	if err := r.db.WithContext(ctx).First(&user, "google_id = ?", googleID).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&user, "better_auth_user_id = ?", betterAuthUserID).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.ErrNotFound
 		}
@@ -84,7 +80,6 @@ func (r *userRepository) FindByGoogleID(ctx context.Context, googleID string) (*
 	return &user, nil
 }
 
-// Update updates an existing user
 func (r *userRepository) Update(ctx context.Context, user *models.User) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -92,7 +87,6 @@ func (r *userRepository) Update(ctx context.Context, user *models.User) error {
 	return r.db.WithContext(ctx).Save(user).Error
 }
 
-// Delete soft deletes a user by ID
 func (r *userRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()

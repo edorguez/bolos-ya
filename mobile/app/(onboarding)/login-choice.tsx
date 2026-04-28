@@ -1,78 +1,68 @@
-import { View, Text, StyleSheet, Pressable, Dimensions, ScrollView } from 'react-native'
-import { useRouter } from 'expo-router'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAppTheme } from '../../styles/theme'
-import { useOnboardingStore } from '../../store/onboardingStore'
-import { useAuthStore } from '../../store/authStore'
-import Svg, { Path } from 'react-native-svg'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, StyleSheet, Pressable, Dimensions, ScrollView, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppTheme } from '../../styles/theme';
+import { signIn, authClient } from '../../lib/auth-client';
+import Svg, { Path } from 'react-native-svg';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useState } from 'react';
 
-const { width, height } = Dimensions.get('window')
-const isLargeScreen = height > 800
-const isExtraLargeScreen = height > 900
+const { width, height } = Dimensions.get('window');
+const isLargeScreen = height > 800;
+const isExtraLargeScreen = height > 900;
 
 export default function LoginChoiceScreen() {
-  const router = useRouter()
-  const theme = useAppTheme()
-  const insets = useSafeAreaInsets()
-  const { completeOnboarding } = useOnboardingStore()
-  const { setToken, setUser } = useAuthStore()
+  const router = useRouter();
+  const theme = useAppTheme();
+  const insets = useSafeAreaInsets();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const isAnyLoading = isGoogleLoading || isGuestLoading;
 
-  const handleGoogleLogin = () => {
-    completeOnboarding()
-    setToken('dummy-google-token')
-    setUser({
-      id: 'google-user-123',
-      email: 'user@gmail.com',
-      isPremium: false,
-    })
-    router.replace('/(tabs)')
-  }
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signIn.social({
+        provider: 'google',
+        callbackURL: 'bolosya://callback',
+      });
+    } catch {
+      setIsGoogleLoading(false);
+    }
+  };
 
-  const handleEmailLogin = () => {
-    completeOnboarding()
-    setToken('dummy-email-token')
-    setUser({
-      id: 'email-user-123',
-      email: 'user@example.com',
-      isPremium: false,
-    })
-    router.replace('/(tabs)')
-  }
+  const handleGuestLogin = async () => {
+    setIsGuestLoading(true);
+    try {
+      await authClient.$fetch('/sign-in/anonymous', { method: 'POST' });
+    } catch {
+      setIsGuestLoading(false);
+    }
+  };
 
-  const handleGuestLogin = () => {
-    completeOnboarding()
-    router.replace('/(tabs)')
-  }
-
-  // const headerHeight = isExtraLargeScreen
-  //   ? height * 0.45
-  //   : isLargeScreen
-  //     ? height * 0.5
-  //     : height * 0.55
-  const headerHeight = 200
-  const phoneWidth = Math.min(width * 0.5, 280)
-  const phoneHeight = phoneWidth * 1.4
-  const phoneScale = isExtraLargeScreen ? 0.9 : isLargeScreen ? 0.8 : 0.7
-  const scaledPhoneWidth = phoneWidth * phoneScale
-  const scaledPhoneHeight = phoneHeight * phoneScale
-  const blobScale = isExtraLargeScreen ? 1 : isLargeScreen ? 0.9 : 0.8
-  const badgeLeft = -Math.min(40, width * 0.08)
-  const badgeRight = -Math.min(50, width * 0.1)
-  const mainMarginTop = isExtraLargeScreen ? -30 : isLargeScreen ? -35 : -40
+  const headerHeight = 200;
+  const phoneWidth = Math.min(width * 0.5, 280);
+  const phoneHeight = phoneWidth * 1.4;
+  const phoneScale = isExtraLargeScreen ? 0.9 : isLargeScreen ? 0.8 : 0.7;
+  const scaledPhoneWidth = phoneWidth * phoneScale;
+  const scaledPhoneHeight = phoneHeight * phoneScale;
+  const blobScale = isExtraLargeScreen ? 1 : isLargeScreen ? 0.9 : 0.8;
+  const badgeLeft = -Math.min(40, width * 0.08);
+  const badgeRight = -Math.min(50, width * 0.1);
+  const mainMarginTop = isExtraLargeScreen ? -30 : isLargeScreen ? -35 : -40;
   const mainPaddingBottom = isExtraLargeScreen
     ? theme.spacing.xl
     : isLargeScreen
       ? theme.spacing.xl
-      : theme.spacing.xxl
-  const headlineMarginBottom = isExtraLargeScreen ? theme.spacing.lg : theme.spacing.xl
-  const actionsGap = isExtraLargeScreen ? theme.spacing.md : theme.spacing.md
+      : theme.spacing.xxl;
+  const headlineMarginBottom = isExtraLargeScreen ? theme.spacing.lg : theme.spacing.xl;
+  const actionsGap = isExtraLargeScreen ? theme.spacing.md : theme.spacing.md;
   const titleFontSize = isExtraLargeScreen
     ? theme.typography.fontSize.xxl
     : isLargeScreen
       ? theme.typography.fontSize.xl
-      : theme.typography.fontSize.lg
-  const titleLineHeight = titleFontSize * 1.2
+      : theme.typography.fontSize.lg;
+  const titleLineHeight = titleFontSize * 1.2;
 
   const styles = StyleSheet.create({
     container: {
@@ -151,7 +141,6 @@ export default function LoginChoiceScreen() {
       width: 80 * phoneScale,
       height: 12 * phoneScale,
       backgroundColor: 'rgba(255, 255, 255, 0.3)',
-      // backgroundColor: 'blue',
       borderRadius: 6 * phoneScale,
     },
     phoneDots: {
@@ -324,6 +313,24 @@ export default function LoginChoiceScreen() {
       fontWeight: theme.typography.fontWeight.bold,
       color: '#FFFFFF',
     },
+    registerButton: {
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.md,
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+      backgroundColor: 'transparent',
+      borderRadius: theme.borderRadius.full,
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
+    },
+    registerButtonText: {
+      fontSize: theme.typography.fontSize.md,
+      fontWeight: theme.typography.fontWeight.bold,
+      color: theme.colors.primary,
+    },
     divider: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -375,7 +382,7 @@ export default function LoginChoiceScreen() {
       fontWeight: theme.typography.fontWeight.semibold,
       color: `${theme.colors.primary}70`,
     },
-  })
+  });
 
   const GoogleIcon = () => (
     <Svg width={20} height={20} viewBox="0 0 24 24">
@@ -396,7 +403,7 @@ export default function LoginChoiceScreen() {
         fill="#EA4335"
       />
     </Svg>
-  )
+  );
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
@@ -469,18 +476,45 @@ export default function LoginChoiceScreen() {
         <View style={styles.actions}>
           <Pressable
             onPress={handleGoogleLogin}
-            style={({ pressed }) => [styles.googleButton, pressed && { opacity: 0.8 }]}
+            disabled={isAnyLoading}
+            style={({ pressed }) => [
+              styles.googleButton,
+              pressed && { opacity: 0.8 },
+              isAnyLoading && { opacity: 0.6 },
+            ]}
           >
-            <GoogleIcon />
+            {isGoogleLoading ? (
+              <ActivityIndicator size="small" color={theme.colors.text} />
+            ) : (
+              <GoogleIcon />
+            )}
             <Text style={styles.googleButtonText}>Continuar con Google</Text>
           </Pressable>
 
           <Pressable
-            onPress={handleEmailLogin}
-            style={({ pressed }) => [styles.emailButton, pressed && { opacity: 0.8 }]}
+            onPress={() => router.push('/(onboarding)/login')}
+            disabled={isAnyLoading}
+            style={({ pressed }) => [
+              styles.emailButton,
+              pressed && { opacity: 0.8 },
+              isAnyLoading && { opacity: 0.6 },
+            ]}
           >
             <MaterialIcons name="mail" size={20} color="#FFFFFF" />
             <Text style={styles.emailButtonText}>Iniciar con Correo</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.push('/(onboarding)/register')}
+            disabled={isAnyLoading}
+            style={({ pressed }) => [
+              styles.registerButton,
+              pressed && { opacity: 0.8 },
+              isAnyLoading && { opacity: 0.6 },
+            ]}
+          >
+            <MaterialIcons name="person-add" size={20} color={theme.colors.primary} />
+            <Text style={styles.registerButtonText}>Registrarse con correo</Text>
           </Pressable>
 
           <View style={styles.divider}>
@@ -491,10 +525,21 @@ export default function LoginChoiceScreen() {
 
           <Pressable
             onPress={handleGuestLogin}
-            style={({ pressed }) => [styles.guestButton, pressed && { opacity: 0.8 }]}
+            disabled={isAnyLoading}
+            style={({ pressed }) => [
+              styles.guestButton,
+              pressed && { opacity: 0.8 },
+              isAnyLoading && { opacity: 0.6 },
+            ]}
           >
-            <Text style={styles.guestButtonText}>Entrar como Invitado</Text>
-            <MaterialIcons name="arrow-forward" size={20} color={theme.colors.secondary} />
+            {isGuestLoading ? (
+              <ActivityIndicator size="small" color={theme.colors.secondary} />
+            ) : (
+              <>
+                <Text style={styles.guestButtonText}>Entrar como Invitado</Text>
+                <MaterialIcons name="arrow-forward" size={20} color={theme.colors.secondary} />
+              </>
+            )}
           </Pressable>
         </View>
 
@@ -506,5 +551,5 @@ export default function LoginChoiceScreen() {
         </View>
       </View>
     </ScrollView>
-  )
+  );
 }

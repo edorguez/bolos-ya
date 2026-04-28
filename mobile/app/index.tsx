@@ -1,39 +1,30 @@
-import { Redirect, SplashScreen } from 'expo-router'
-import { useOnboardingStore } from '../store/onboardingStore'
-import { useEffect, useState } from 'react'
-import { initializeStorage } from '../utils/storage'
-
-SplashScreen.preventAutoHideAsync()
+import { Redirect } from 'expo-router'
+import { useSession } from '../lib/auth-client'
+import { View, ActivityIndicator, StyleSheet } from 'react-native'
+import { useAppTheme } from '../styles/theme'
 
 export default function Index() {
-  const [isStorageReady, setIsStorageReady] = useState(false)
-  const [storageFailed, setStorageFailed] = useState(false)
-  const hasCompletedOnboarding = useOnboardingStore(state => state.hasCompletedOnboarding)
+  const theme = useAppTheme()
+  const { data: session, isPending } = useSession()
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const success = await initializeStorage()
-        if (!success) {
-          setStorageFailed(true)
-        }
-        setIsStorageReady(true)
-        SplashScreen.hideAsync()
-      } catch (error) {
-        console.warn('Storage initialization failed:', error)
-        setStorageFailed(true)
-        setIsStorageReady(true)
-        SplashScreen.hideAsync()
-      }
-    }
-    init()
-  }, [])
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.colors.background,
+    },
+  })
 
-  if (!isStorageReady) {
-    return null
+  if (isPending) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    )
   }
 
-  if (hasCompletedOnboarding || storageFailed) {
+  if (session) {
     return <Redirect href="/(tabs)" />
   }
 

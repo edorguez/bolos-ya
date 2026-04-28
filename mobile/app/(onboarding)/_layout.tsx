@@ -26,6 +26,8 @@ export default function OnboardingLayout() {
       >
         <Stack.Screen name="welcome" />
         <Stack.Screen name="login-choice" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="register" />
       </Stack>
     </SafeAreaView>
   )

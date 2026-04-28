@@ -51,6 +51,12 @@
     },
     "plugins": [
       [
+        "@better-auth/expo",
+        {
+          "scheme": "bolosya"
+        }
+      ],
+      [
         "expo-router",
         {
           "root": "./app"

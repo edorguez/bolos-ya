@@ -8,34 +8,32 @@ import (
 
 	"github.com/edorguez/bolos-ya/internal/server/handlers"
 	internalmiddleware "github.com/edorguez/bolos-ya/internal/server/middleware"
+	"github.com/edorguez/bolos-ya/internal/server/repository"
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	"github.com/edorguez/bolos-ya/pkg/logger"
 	pkgmiddleware "github.com/edorguez/bolos-ya/pkg/middleware"
 )
 
-// SetupRoutes creates and configures the Gin router with all routes
 func SetupRoutes(
 	authService services.AuthService,
 	cartService services.CartService,
 	syncService services.SyncService,
+	userRepo repository.UserRepository,
+	internalAPIKey string,
 	log *logger.Logger,
 ) *gin.Engine {
 	router := gin.New()
 
-	// Middleware
 	router.Use(gin.Recovery())
 	router.Use(pkgmiddleware.LoggingMiddleware(log))
 	router.Use(corsMiddleware())
 
-	// Handlers
 	authHandler := handlers.NewAuthHandler(authService)
 	cartHandler := handlers.NewCartHandler(cartService)
 	syncHandler := handlers.NewSyncHandler(syncService)
 
-	// Auth middleware
-	authMiddleware := internalmiddleware.NewAuthMiddleware(authService)
+	authMiddleware := internalmiddleware.NewAuthMiddleware(userRepo, internalAPIKey)
 
-	// Health check
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":    "ok",
@@ -43,22 +41,18 @@ func SetupRoutes(
 		})
 	})
 
-	// API v1 routes
 	apiV1 := router.Group("/api/v1")
 	{
-		// Auth routes (no auth required)
 		authGroup := apiV1.Group("/auth")
 		{
-			authGroup.POST("/register", authHandler.Register)
-			authGroup.POST("/login", authHandler.Login)
-			authGroup.POST("/google", authHandler.LoginWithGoogle)
+			authGroup.POST("/sync", authHandler.SyncUser)
 		}
 
-		// Protected routes
 		protected := apiV1.Group("")
 		protected.Use(authMiddleware.Handler())
 		{
-			// Cart routes
+			protected.GET("/auth/me", authHandler.GetMe)
+
 			cartsGroup := protected.Group("/carts")
 			{
 				cartsGroup.POST("", cartHandler.CreateCart)
@@ -66,7 +60,6 @@ func SetupRoutes(
 				cartsGroup.POST("/:cartId/checkout", cartHandler.CheckoutCart)
 			}
 
-			// Cart item routes
 			cartItemsGroup := protected.Group("/cart-items")
 			{
 				cartItemsGroup.POST("", cartHandler.AddProduct)
@@ -74,14 +67,12 @@ func SetupRoutes(
 				cartItemsGroup.DELETE("/:cartItemId", cartHandler.RemoveItem)
 			}
 
-			// Sync routes
 			syncGroup := protected.Group("/sync")
 			{
 				syncGroup.POST("", syncHandler.ProcessSync)
 			}
 		}
 
-		// Public routes (if any)
 		apiV1.GET("/", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Bolos Ya API v1",
@@ -93,12 +84,11 @@ func SetupRoutes(
 	return router
 }
 
-// corsMiddleware provides basic CORS support
 func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With, X-User-ID, X-User-Email, X-Auth-Provider")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
 
 		if c.Request.Method == "OPTIONS" {

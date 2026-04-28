@@ -18,7 +18,7 @@ A mobile application (iOS/Android) that allows users in Venezuela to calculate s
 | **Mobile**       | React Native (Expo) with TypeScript, expo-sqlite                           |
 | **OCR**          | Google ML Kit (Text Recognition) – on‑device, no external API costs        |
 | **Image Storage**| AWS S3 (for premium users)                                                 |
-| **Auth**         | JWT + Google OAuth, email/password                                         |
+| **Auth**         | better-auth (Expo API Routes), header-based validation in Go backend       |
 | **Cache**        | Redis (BCV exchange rate, TTL 24h)                                         |
 | **Infrastructure**| Docker containers, deployed on AWS ECS                                    |
 
@@ -92,14 +92,10 @@ bolos-ya/
 │ │ │ └── postgresql.go
 │ │ └── redis/ # Redis client
 │ │ └── redis.go
-│ ├── firebase/ # Firebase for Google OAuth verification
-│ │ └── firebase.go
 │ ├── middleware/ # reusable middleware (e.g., logging)
 │ │ └── logging.go
 │ └── utils/
-│ ├── http.go # HTTP helpers
-│ ├── jwt.go # JWT creation/validation
-│ └── bcrypt.go # password hashing
+│ └── http.go # HTTP helpers
 ├── migrations/ # SQL migration files (golang-migrate)
 │ ├── 001_create_users_table.up.sql
 │ ├── 002_create_supermarkets_table.up.sql
@@ -320,19 +316,73 @@ components:
 
 ## 7. Data Models (PostgreSQL with GORM)
 
-GORM models will be defined in `internal/infrastructure/gorm/models`. Below are the corresponding SQL schema (also used for migrations). The GORM models will map to these tables.
+The database contains two sets of tables: **better-auth tables** (identity/credentials managed by better-auth in Expo API Routes) and **application tables** (business logic, managed by the Go backend). Both share the same PostgreSQL database.
+
+### 7.1 better-auth Tables (managed by better-auth)
+```sql
+CREATE TABLE "user" (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    image TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "session" (
+    id TEXT PRIMARY KEY NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ip_address TEXT,
+    user_agent TEXT,
+    user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE
+);
+
+CREATE TABLE "account" (
+    id TEXT PRIMARY KEY NOT NULL,
+    account_id TEXT NOT NULL,
+    provider_id TEXT NOT NULL,
+    user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    access_token TEXT,
+    refresh_token TEXT,
+    id_token TEXT,
+    access_token_expires_at TIMESTAMP,
+    refresh_token_expires_at TIMESTAMP,
+    scope TEXT,
+    password TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "verification" (
+    id TEXT PRIMARY KEY NOT NULL,
+    identifier TEXT NOT NULL,
+    value TEXT NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+```
+
+### 7.2 Application Tables (managed by Go backend)
+
+GORM models are defined in `internal/server/models/`. The application `users` table stores app-specific data and links to better-auth via `better_auth_user_id`.
 
 ```sql
--- Users
+-- Users (application data, linked to better-auth)
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) UNIQUE,
-    google_id VARCHAR(255) UNIQUE,
-    auth_provider VARCHAR(50) CHECK (auth_provider IN ('email', 'google', 'guest')),
+    better_auth_user_id VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    auth_provider VARCHAR(20) CHECK (auth_provider IN ('email', 'google', 'guest')),
     is_premium BOOLEAN DEFAULT FALSE,
     premium_until TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_sync_at TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 -- Supermarkets
@@ -415,11 +465,47 @@ Sync Queue Table (local only) – not on server. The server does not persist a q
 
 ## 8. Authentication & Authorization
 
-- **JWT tokens** with short expiry (15 minutes) and refresh tokens (stored in DB).  
-- **Google OAuth**: Mobile obtains a Google ID token; backend exchanges it for a JWT after verifying the token and creating/linking user.  
-- **Email/Password**: Passwords hashed with bcrypt.  
-- **Middleware**: All protected endpoints validate JWT, extract user ID, and inject into context.  
-- **Role‑based**: Free vs Premium checks happen in application layer (e.g., limit on active carts for free users).
+### 8.1 Architecture
+
+Authentication is handled by **better-auth**, hosted in the Expo app's API Routes (Node.js). The Go backend **does not** handle credential validation, password hashing, or token generation — better-auth manages all of that.
+
+**Flow:**
+1. **Mobile App** sends auth requests (sign-in, sign-up, Google OAuth) to Expo API Routes.
+2. **Expo API Routes** use better-auth to validate credentials/sessions, creating/updating users in better-auth's tables (`user`, `session`, `account`).
+3. **Expo API Routes** forward authenticated business requests to the Go backend with headers:
+   - `Authorization`: Bearer `<INTERNAL_API_KEY>` — shared secret validating the request came from Expo API Routes.
+   - `X-User-ID`: `<better_auth_user_id>` — the user's ID from better-auth's `user` table.
+   - `X-User-Email`: `<user email>` — for auto-creating app user records on first visit.
+   - `X-Auth-Provider`: `email` | `google` | `guest` — the authentication method used.
+4. **Go Middleware** validates the internal API key, looks up or auto-creates the application user record (in the `users` table, linked via `better_auth_user_id`), and injects the user into the Gin context.
+5. **Handlers** use `GetUserIDFromContext(c)` to access the authenticated user's UUID for business logic.
+
+### 8.2 User Record Strategy
+
+- **better-auth `user` table**: stores identity (name, email, email_verified, avatar). Managed by better-auth.
+- **Application `users` table**: stores app-specific data (is_premium, premium_until, auth_provider, timestamps). Managed by the Go backend.
+- **Link**: `users.better_auth_user_id` → `"user".id`. A one-to-one relationship.
+- **Auto-creation**: When the Go backend receives a request with an unknown `better_auth_user_id`, it auto-creates the application user record with the provided email and auth_provider headers.
+
+### 8.3 Endpoints
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/v1/auth/sync` | Internal API Key | Sync/upsert a user record from better-auth data |
+| GET | `/api/v1/auth/me` | Internal API Key + X-User-ID | Returns current authenticated user info |
+| POST | `/api/v1/carts` | Internal API Key + X-User-ID | Create a cart for the authenticated user |
+| GET | `/api/v1/carts/:cartId/items` | Internal API Key + X-User-ID | Get cart items |
+| POST | `/api/v1/carts/:cartId/checkout` | Internal API Key + X-User-ID | Checkout a cart |
+| POST | `/api/v1/cart-items` | Internal API Key + X-User-ID | Add product to cart |
+| PUT | `/api/v1/cart-items/:cartItemId` | Internal API Key + X-User-ID | Update quantity |
+| DELETE | `/api/v1/cart-items/:cartItemId` | Internal API Key + X-User-ID | Remove item |
+| POST | `/api/v1/sync` | Internal API Key + X-User-ID | Process offline sync batch |
+
+### 8.4 Authorization
+
+- **Free vs Premium**: Premium status is stored in the application `users` table. Middleware injects the full user object; handlers check `user.IsActivePremium()` for feature gates.
+- **Guest users**: Supported via better-auth's anonymous/guest session support. Tracked in the `users` table with `auth_provider = 'guest'`.
+- **Internal API Key**: A shared secret between Expo API Routes and the Go backend. Protects the Go backend from unauthorized direct access.
 
 ---
 
@@ -511,8 +597,8 @@ This function is called whenever a new price is reported; it updates the confide
   - `DATABASE_URL` (PostgreSQL connection string)
   - `REDIS_URL`
   - `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
-  - `JWT_SECRET`
-  - `GOOGLE_OAUTH_CLIENT_ID` (if needed for token verification)
+  - `INTERNAL_API_KEY` — shared secret between Expo API Routes and Go backend
+  - `BETTER_AUTH_URL` — URL of the Expo API Routes (for health checks)
 - **docker-compose.yml** for local development: spins up PostgreSQL, Redis, and optionally MinIO for S3 mock.
 
 ### 12.2 Mobile (Expo)
@@ -539,7 +625,7 @@ This function is called whenever a new price is reported; it updates the confide
 
 ## 14. Future Considerations
 
-- **Push notifications**: Implement using Firebase Cloud Messaging.  
+- **Push notifications**: Implement using Expo Push Notifications.  
 - **Analytics**: Track user actions for KPIs (retention, OCR accuracy).  
 - **Premium payments**: Integrate Stripe (via WebView) or USDT (via manual verification).
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"strconv"
 
 	redisv8 "github.com/go-redis/redis/v8"
@@ -17,24 +16,20 @@ import (
 )
 
 func main() {
-	// Load configuration
 	cfg, err := serverconfig.Load()
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		logger.New(false).Fatal("Failed to load config", zap.Error(err))
 	}
 
-	// Initialize logger
-	logger := logger.New(cfg.App.Debug)
+	log := logger.New(cfg.App.Debug)
 
-	// Connect to PostgreSQL
 	db, err := postgresql.Connect(postgresql.Config{
 		URL: cfg.Database.URL,
 	})
 	if err != nil {
-		logger.Fatal("Failed to connect to PostgreSQL", zap.Error(err))
+		log.Fatal("Failed to connect to PostgreSQL", zap.Error(err))
 	}
 
-	// Connect to Redis (optional)
 	var redisClient *redisv8.Client
 	if cfg.Redis.URL != "" {
 		redisClient, err = redis.Connect(redis.Config{
@@ -43,35 +38,33 @@ func main() {
 			DB:       cfg.Redis.DB,
 		})
 		if err != nil {
-			logger.Fatal("Failed to connect to Redis", zap.Error(err))
+			log.Fatal("Failed to connect to Redis", zap.Error(err))
 		}
 		defer redis.Close(redisClient)
 	}
 
-	// Initialize repositories
 	userRepo := repository.NewUserRepository(db)
 	supermarketRepo := repository.NewSupermarketRepository(db)
 	productRepo := repository.NewProductRepository(db)
 	cartRepo := repository.NewCartRepository(db)
 	cartProductRepo := repository.NewCartProductRepository(db)
 
-	// Initialize services
-	authService := services.NewAuthService(userRepo, cfg.JWT.Secret)
+	authService := services.NewAuthService(userRepo, cfg.Auth.InternalAPIKey)
 	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo)
 	syncService := services.NewSyncService(userRepo, cartRepo, cartProductRepo, productRepo, supermarketRepo)
 
-	// Setup Gin router
 	router := server.SetupRoutes(
 		authService,
 		cartService,
 		syncService,
-		logger,
+		userRepo,
+		cfg.Auth.InternalAPIKey,
+		log,
 	)
 
-	// Start server
 	addr := cfg.Server.Host + ":" + strconv.Itoa(cfg.Server.Port)
-	logger.Info("Starting server", zap.String("addr", addr))
+	log.Info("Starting server", zap.String("addr", addr))
 	if err := router.Run(addr); err != nil {
-		logger.Fatal("Failed to start server", zap.Error(err))
+		log.Fatal("Failed to start server", zap.Error(err))
 	}
 }

@@ -11,27 +11,29 @@ import (
 	"github.com/edorguez/bolos-ya/pkg/utils"
 )
 
-// AuthHandler handles authentication HTTP requests
 type AuthHandler struct {
 	authService services.AuthService
 }
 
-// NewAuthHandler creates a new AuthHandler
 func NewAuthHandler(authService services.AuthService) *AuthHandler {
 	return &AuthHandler{
 		authService: authService,
 	}
 }
 
-// Register handles user registration
-func (h *AuthHandler) Register(c *gin.Context) {
-	var req services.RegisterRequest
+func (h *AuthHandler) SyncUser(c *gin.Context) {
+	var req services.SyncUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.handleValidationError(c, err)
 		return
 	}
 
-	user, err := h.authService.Register(c.Request.Context(), req)
+	user, err := h.authService.GetOrCreateUser(
+		c.Request.Context(),
+		req.BetterAuthUserID,
+		req.Email,
+		req.AuthProvider,
+	)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -42,41 +44,13 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	})
 }
 
-// Login handles user login with email/password
-func (h *AuthHandler) Login(c *gin.Context) {
-	var req services.LoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		h.handleValidationError(c, err)
-		return
-	}
-
-	loginResp, err := h.authService.Login(c.Request.Context(), req)
-	if err != nil {
-		h.handleError(c, err)
-		return
-	}
-
-	utils.SuccessResponse(c, loginResp)
+func (h *AuthHandler) GetMe(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	utils.SuccessResponse(c, gin.H{
+		"userId": userID,
+	})
 }
 
-// LoginWithGoogle handles Google OAuth login
-func (h *AuthHandler) LoginWithGoogle(c *gin.Context) {
-	var req services.GoogleLoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		h.handleValidationError(c, err)
-		return
-	}
-
-	loginResp, err := h.authService.LoginWithGoogle(c.Request.Context(), req)
-	if err != nil {
-		h.handleError(c, err)
-		return
-	}
-
-	utils.SuccessResponse(c, loginResp)
-}
-
-// handleValidationError converts validation errors to proper HTTP response
 func (h *AuthHandler) handleValidationError(c *gin.Context, err error) {
 	if validationErrors, ok := err.(validator.ValidationErrors); ok {
 		errorsMap := make(map[string]string)
@@ -89,7 +63,6 @@ func (h *AuthHandler) handleValidationError(c *gin.Context, err error) {
 	}
 }
 
-// handleError maps service errors to HTTP responses
 func (h *AuthHandler) handleError(c *gin.Context, err error) {
 	switch err {
 	case apperrors.ErrConflict:
@@ -98,8 +71,6 @@ func (h *AuthHandler) handleError(c *gin.Context, err error) {
 		utils.UnauthorizedResponse(c)
 	case apperrors.ErrNotFound:
 		utils.NotFoundResponse(c, "user")
-	case apperrors.ErrNotImplemented:
-		utils.ErrorResponse(c, http.StatusNotImplemented, "feature not implemented")
 	default:
 		utils.InternalErrorResponse(c)
 	}

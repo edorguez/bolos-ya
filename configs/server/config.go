@@ -13,11 +13,10 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	Redis    RedisConfig
-	JWT      JWTConfig
-	Google   GoogleOAuthConfig
 	AWS      AWSConfig
 	BCV      BCVConfig
 	App      AppConfig
+	Auth     AuthConfig
 }
 
 // ServerConfig holds HTTP server configuration
@@ -40,20 +39,6 @@ type RedisConfig struct {
 	URL      string `mapstructure:"url"`
 }
 
-// JWTConfig holds JWT authentication configuration
-type JWTConfig struct {
-	Secret             string `mapstructure:"secret"`
-	AccessTokenExpiry  string `mapstructure:"access_token_expiry"`
-	RefreshTokenExpiry string `mapstructure:"refresh_token_expiry"`
-	Issuer             string `mapstructure:"issuer"`
-}
-
-// GoogleOAuthConfig holds Google OAuth configuration
-type GoogleOAuthConfig struct {
-	ClientID     string `mapstructure:"client_id"`
-	ClientSecret string `mapstructure:"client_secret"`
-}
-
 // AWSConfig holds AWS S3 configuration
 type AWSConfig struct {
 	Region          string `mapstructure:"region"`
@@ -66,6 +51,12 @@ type AWSConfig struct {
 // BCVConfig holds BCV API configuration
 type BCVConfig struct {
 	URL string `mapstructure:"url"`
+}
+
+// AuthConfig holds better-auth integration configuration
+type AuthConfig struct {
+	InternalAPIKey string `mapstructure:"internal_api_key"`
+	BetterAuthURL  string `mapstructure:"better_auth_url"`
 }
 
 // AppConfig holds general application configuration
@@ -107,26 +98,12 @@ func bindEnvVars() error {
 		return fmt.Errorf("failed to bind REDIS_URL: %w", err)
 	}
 
-	// JWT
-	if err := viper.BindEnv("jwt.secret", "JWT_SECRET"); err != nil {
-		return fmt.Errorf("failed to bind JWT_SECRET: %w", err)
+	// Auth (better-auth integration)
+	if err := viper.BindEnv("auth.internal_api_key", "INTERNAL_API_KEY"); err != nil {
+		return fmt.Errorf("failed to bind INTERNAL_API_KEY: %w", err)
 	}
-	if err := viper.BindEnv("jwt.access_token_expiry", "JWT_ACCESS_TOKEN_EXPIRY"); err != nil {
-		return fmt.Errorf("failed to bind JWT_ACCESS_TOKEN_EXPIRY: %w", err)
-	}
-	if err := viper.BindEnv("jwt.refresh_token_expiry", "JWT_REFRESH_TOKEN_EXPIRY"); err != nil {
-		return fmt.Errorf("failed to bind JWT_REFRESH_TOKEN_EXPIRY: %w", err)
-	}
-	if err := viper.BindEnv("jwt.issuer", "JWT_ISSUER"); err != nil {
-		return fmt.Errorf("failed to bind JWT_ISSUER: %w", err)
-	}
-
-	// Google OAuth
-	if err := viper.BindEnv("google.client_id", "GOOGLE_OAUTH_CLIENT_ID"); err != nil {
-		return fmt.Errorf("failed to bind GOOGLE_OAUTH_CLIENT_ID: %w", err)
-	}
-	if err := viper.BindEnv("google.client_secret", "GOOGLE_OAUTH_CLIENT_SECRET"); err != nil {
-		return fmt.Errorf("failed to bind GOOGLE_OAUTH_CLIENT_SECRET: %w", err)
+	if err := viper.BindEnv("auth.better_auth_url", "BETTER_AUTH_URL"); err != nil {
+		return fmt.Errorf("failed to bind BETTER_AUTH_URL: %w", err)
 	}
 
 	// AWS
