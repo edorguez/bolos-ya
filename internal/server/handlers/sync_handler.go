@@ -4,40 +4,45 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 
+	"github.com/edorguez/bolos-ya/internal/server/dto"
+	"github.com/edorguez/bolos-ya/internal/server/middleware"
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
 	"github.com/edorguez/bolos-ya/pkg/utils"
 )
 
-// SyncHandler handles offline synchronization HTTP requests
 type SyncHandler struct {
 	syncService services.SyncService
 }
 
-// NewSyncHandler creates a new SyncHandler
 func NewSyncHandler(syncService services.SyncService) *SyncHandler {
 	return &SyncHandler{
 		syncService: syncService,
 	}
 }
 
-// ProcessSync handles batch sync operations
 func (h *SyncHandler) ProcessSync(c *gin.Context) {
-	userID, err := utils.ParseUUID(c.Param("userId"))
-	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "invalid user ID")
-		return
-	}
-
-	var req services.SyncRequest
+	var req dto.SyncRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		h.handleValidationError(c, err)
+		utils.ValidationError(c, dto.ValidateRequest(req))
 		return
 	}
 
-	resp, err := h.syncService.ProcessSync(c.Request.Context(), userID, req)
+	userIDStr, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		return
+	}
+
+	resp, err := h.syncService.ProcessSync(c.Request.Context(), userID, req.Operations)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -46,24 +51,10 @@ func (h *SyncHandler) ProcessSync(c *gin.Context) {
 	utils.SuccessResponse(c, resp)
 }
 
-// handleValidationError converts validation errors to proper HTTP response
-func (h *SyncHandler) handleValidationError(c *gin.Context, err error) {
-	if validationErrors, ok := err.(validator.ValidationErrors); ok {
-		errorsMap := make(map[string]string)
-		for _, fieldErr := range validationErrors {
-			errorsMap[fieldErr.Field()] = fieldErr.Tag()
-		}
-		utils.ValidationError(c, errorsMap)
-	} else {
-		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
-	}
-}
-
-// handleError maps service errors to HTTP responses
 func (h *SyncHandler) handleError(c *gin.Context, err error) {
 	switch err {
 	case apperrors.ErrNotFound:
-		utils.NotFoundResponse(c, "user")
+		utils.NotFoundResponse(c, "usuario")
 	default:
 		utils.InternalErrorResponse(c)
 	}

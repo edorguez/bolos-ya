@@ -4,6 +4,7 @@ import (
 	"context"
 
 	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
+	"github.com/edorguez/bolos-ya/pkg/constants"
 
 	"github.com/edorguez/bolos-ya/internal/server/models"
 	"github.com/edorguez/bolos-ya/internal/server/repository"
@@ -14,6 +15,7 @@ import (
 // is delegated to better-auth via the Expo API Routes.
 type AuthService interface {
 	GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string) (*models.User, error)
+	GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string) (*models.User, error)
 	GetUserByID(ctx context.Context, betterAuthUserID string) (*models.User, error)
 }
 
@@ -27,14 +29,6 @@ func NewAuthService(userRepo repository.UserRepository, internalAPIKey string) A
 		userRepo:       userRepo,
 		internalAPIKey: internalAPIKey,
 	}
-}
-
-type SyncUserRequest struct {
-	BetterAuthUserID string `json:"betterAuthUserId" binding:"required"`
-	Email            string `json:"email" binding:"required,email"`
-	AuthProvider     string `json:"authProvider" binding:"required"`
-	IsPremium        bool   `json:"isPremium"`
-	PremiumUntil     string `json:"premiumUntil"`
 }
 
 func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string) (*models.User, error) {
@@ -67,6 +61,43 @@ func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, ema
 
 func (s *authService) GetUserByID(ctx context.Context, betterAuthUserID string) (*models.User, error) {
 	return s.userRepo.FindByBetterAuthUserID(ctx, betterAuthUserID)
+}
+
+func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string) (*models.User, error) {
+	user, err := s.userRepo.FindByBetterAuthUserID(ctx, userID)
+	if err != nil {
+		if err != apperrors.ErrNotFound {
+			return nil, err
+		}
+
+		if userEmail == "" {
+			return nil, apperrors.ErrUnauthorized
+		}
+
+		provider := authProvider
+		if provider == "" {
+			provider = constants.AuthProviderEmail
+		}
+
+		user = models.NewUserFromBetterAuth(userID, userEmail, provider)
+		if err := s.userRepo.Create(ctx, user); err != nil {
+			return nil, err
+		}
+
+		return user, nil
+	}
+
+	if userEmail != "" && user.Email != userEmail {
+		user.Email = userEmail
+	}
+	if authProvider != "" {
+		user.AuthProvider = authProvider
+	}
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (s *authService) ValidateAPIKey(apiKey string) bool {

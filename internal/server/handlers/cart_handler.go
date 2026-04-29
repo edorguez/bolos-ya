@@ -4,81 +4,154 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 
+	"github.com/edorguez/bolos-ya/internal/server/dto"
+	"github.com/edorguez/bolos-ya/internal/server/middleware"
+	"github.com/edorguez/bolos-ya/internal/server/models"
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
 	"github.com/edorguez/bolos-ya/pkg/utils"
 )
 
-// CartHandler handles shopping cart HTTP requests
 type CartHandler struct {
 	cartService services.CartService
 }
 
-// NewCartHandler creates a new CartHandler
 func NewCartHandler(cartService services.CartService) *CartHandler {
 	return &CartHandler{
 		cartService: cartService,
 	}
 }
 
-// CreateCart handles creating a new shopping cart
 func (h *CartHandler) CreateCart(c *gin.Context) {
-	var req services.CreateCartRequest
+	var req dto.CreateCartRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		h.handleValidationError(c, err)
+		utils.ValidationError(c, dto.ValidateRequest(req))
 		return
 	}
 
-	cart, err := h.cartService.CreateCart(c.Request.Context(), req)
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		return
+	}
+
+	supermarketID, err := uuid.Parse(req.SupermarketID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de supermercado inválido")
+		return
+	}
+
+	cart := models.NewCart(userUUID, supermarketID, true, req.BudgetBs, req.BudgetUsd)
+
+	result, err := h.cartService.CreateCart(c.Request.Context(), cart)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
 
-	utils.SuccessResponse(c, cart)
+	resp := dto.CartResponse{
+		ID:               result.ID.String(),
+		SupermarketID:    result.SupermarketID.String(),
+		UserID:           result.UserID.String(),
+		IsActive:         result.IsActive,
+		BudgetBs:         result.BudgetBs,
+		BudgetUsd:        result.BudgetUsd,
+		TotalEstimatedBs: result.TotalEstimatedBs,
+		TotalEstimatedUsd: result.TotalEstimatedUsd,
+	}
+	utils.SuccessResponse(c, resp)
 }
 
-// AddProduct handles adding an product to a cart
 func (h *CartHandler) AddProduct(c *gin.Context) {
-	var req services.AddProductRequest
+	var req dto.AddProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		h.handleValidationError(c, err)
+		utils.ValidationError(c, dto.ValidateRequest(req))
 		return
 	}
 
-	cartProduct, err := h.cartService.AddProduct(c.Request.Context(), req)
+	cartID, err := uuid.Parse(req.CartID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de carrito inválido")
+		return
+	}
+
+	productID, err := uuid.Parse(req.ProductID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de producto inválido")
+		return
+	}
+
+	cartProduct := models.NewCartProduct(cartID, productID, req.Quantity, req.IsManualEntry)
+
+	result, err := h.cartService.AddProduct(c.Request.Context(), cartProduct)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
 
-	utils.SuccessResponse(c, cartProduct)
+	resp := dto.CartProductResponse{
+		ID:            result.ID.String(),
+		CartID:        result.CartID.String(),
+		ProductID:     result.ProductID.String(),
+		Quantity:      result.Quantity,
+		IsManualEntry: result.IsManualEntry,
+	}
+	utils.SuccessResponse(c, resp)
 }
 
-// UpdateProductQuantity handles updating cart product quantity
 func (h *CartHandler) UpdateProductQuantity(c *gin.Context) {
-	var req services.UpdateProductQuantityRequest
+	var req dto.UpdateProductQuantityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		h.handleValidationError(c, err)
+		utils.ValidationError(c, dto.ValidateRequest(req))
 		return
 	}
 
-	cartItem, err := h.cartService.UpdateProductQuantity(c.Request.Context(), req)
+	cartProductID, err := uuid.Parse(req.CartProductID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de producto en carrito inválido")
+		return
+	}
+
+	cartID, err := uuid.Parse(req.CartID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de carrito inválido")
+		return
+	}
+
+	cartProduct := &models.CartProduct{
+		CartID:   cartID,
+		Quantity: req.Quantity,
+	}
+	cartProduct.ID = cartProductID
+
+	result, err := h.cartService.UpdateProductQuantity(c.Request.Context(), cartProduct)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
 
-	utils.SuccessResponse(c, cartItem)
+	resp := dto.CartProductResponse{
+		ID:            result.ID.String(),
+		CartID:        result.CartID.String(),
+		ProductID:     result.ProductID.String(),
+		Quantity:      result.Quantity,
+		IsManualEntry: result.IsManualEntry,
+	}
+	utils.SuccessResponse(c, resp)
 }
 
-// RemoveItem handles removing an item from a cart
 func (h *CartHandler) RemoveItem(c *gin.Context) {
 	cartItemID, err := utils.ParseUUID(c.Param("cartItemId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "invalid cart item ID")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de producto en carrito inválido")
 		return
 	}
 
@@ -90,11 +163,10 @@ func (h *CartHandler) RemoveItem(c *gin.Context) {
 	utils.SuccessResponse(c, nil)
 }
 
-// GetCartItems handles retrieving cart items
 func (h *CartHandler) GetCartItems(c *gin.Context) {
 	cartID, err := utils.ParseUUID(c.Param("cartId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "invalid cart ID")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de carrito inválido")
 		return
 	}
 
@@ -104,14 +176,23 @@ func (h *CartHandler) GetCartItems(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, items)
+	resp := make([]dto.CartProductResponse, len(items))
+	for i, item := range items {
+		resp[i] = dto.CartProductResponse{
+			ID:            item.ID.String(),
+			CartID:        item.CartID.String(),
+			ProductID:     item.ProductID.String(),
+			Quantity:      item.Quantity,
+			IsManualEntry: item.IsManualEntry,
+		}
+	}
+	utils.SuccessResponse(c, resp)
 }
 
-// CheckoutCart handles cart checkout
 func (h *CartHandler) CheckoutCart(c *gin.Context) {
 	cartID, err := utils.ParseUUID(c.Param("cartId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "invalid cart ID")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de carrito inválido")
 		return
 	}
 
@@ -121,29 +202,25 @@ func (h *CartHandler) CheckoutCart(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, cart)
-}
-
-// handleValidationError converts validation errors to proper HTTP response
-func (h *CartHandler) handleValidationError(c *gin.Context, err error) {
-	if validationErrors, ok := err.(validator.ValidationErrors); ok {
-		errorsMap := make(map[string]string)
-		for _, fieldErr := range validationErrors {
-			errorsMap[fieldErr.Field()] = fieldErr.Tag()
-		}
-		utils.ValidationError(c, errorsMap)
-	} else {
-		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	resp := dto.CartResponse{
+		ID:               cart.ID.String(),
+		SupermarketID:    cart.SupermarketID.String(),
+		UserID:           cart.UserID.String(),
+		IsActive:         cart.IsActive,
+		BudgetBs:         cart.BudgetBs,
+		BudgetUsd:        cart.BudgetUsd,
+		TotalEstimatedBs: cart.TotalEstimatedBs,
+		TotalEstimatedUsd: cart.TotalEstimatedUsd,
 	}
+	utils.SuccessResponse(c, resp)
 }
 
-// handleError maps service errors to HTTP responses
 func (h *CartHandler) handleError(c *gin.Context, err error) {
 	switch err {
 	case apperrors.ErrConflict:
-		utils.ErrorResponse(c, http.StatusConflict, "cart conflict")
+		utils.ErrorResponse(c, http.StatusConflict, "conflicto en el carrito")
 	case apperrors.ErrNotFound:
-		utils.NotFoundResponse(c, "resource")
+		utils.NotFoundResponse(c, "recurso")
 	default:
 		utils.InternalErrorResponse(c)
 	}

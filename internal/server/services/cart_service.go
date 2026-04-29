@@ -11,9 +11,9 @@ import (
 
 // CartService defines shopping cart operations
 type CartService interface {
-	CreateCart(ctx context.Context, req CreateCartRequest) (*models.Cart, error)
-	AddProduct(ctx context.Context, req AddProductRequest) (*models.CartProduct, error)
-	UpdateProductQuantity(ctx context.Context, req UpdateProductQuantityRequest) (*models.CartProduct, error)
+	CreateCart(ctx context.Context, cart *models.Cart) (*models.Cart, error)
+	AddProduct(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error)
+	UpdateProductQuantity(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error)
 	RemoveProduct(ctx context.Context, cartProductID uuid.UUID) error
 	GetCartProducts(ctx context.Context, cartID uuid.UUID) ([]*models.CartProduct, error)
 	CheckoutCart(ctx context.Context, cartID uuid.UUID) (*models.Cart, error)
@@ -37,60 +37,30 @@ func NewCartService(
 	}
 }
 
-// CreateCartRequest contains data for creating a new cart
-type CreateCartRequest struct {
-	UserID        uuid.UUID `json:"userId" binding:"required"`
-	SupermarketID uuid.UUID `json:"supermarketId" binding:"required"`
-	BudgetBs      int64     `json:"budgetBs" binding:"min=0"`
-	BudgetUsd     int64     `json:"budgetUsd" binding:"min=0"`
-}
-
 // CreateCart creates a new shopping cart for a user
-func (s *cartService) CreateCart(ctx context.Context, req CreateCartRequest) (*models.Cart, error) {
-	cart := models.NewCart(
-		req.UserID,
-		req.SupermarketID,
-		true,
-		req.BudgetBs,
-		req.BudgetUsd,
-	)
-
+func (s *cartService) CreateCart(ctx context.Context, cart *models.Cart) (*models.Cart, error) {
 	if err := s.cartRepo.Create(ctx, cart); err != nil {
 		return nil, err
 	}
-
 	return cart, nil
 }
 
-// AddProductRequest contains data for adding a product to a cart
-type AddProductRequest struct {
-	CartID        uuid.UUID `json:"cartId" binding:"required"`
-	ProductID     uuid.UUID `json:"productId" binding:"required"`
-	Quantity      int       `json:"quantity" binding:"required,min=1"`
-	IsManualEntry bool      `json:"isManualEntry" binding:"required"`
-}
-
 // AddProduct adds a product to a shopping cart
-func (s *cartService) AddProduct(ctx context.Context, req AddProductRequest) (*models.CartProduct, error) {
-	// Verify cart exists
-	cart, err := s.cartRepo.FindByID(ctx, req.CartID)
+func (s *cartService) AddProduct(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error) {
+	cart, err := s.cartRepo.FindByID(ctx, cartProduct.CartID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Verify product exists
-	_, err = s.productRepo.FindByID(ctx, req.ProductID)
+	_, err = s.productRepo.FindByID(ctx, cartProduct.ProductID)
 	if err != nil {
 		return nil, err
 	}
-
-	cartProduct := models.NewCartProduct(req.CartID, req.ProductID, req.Quantity, req.IsManualEntry)
 
 	if err := s.cartProductRepo.Create(ctx, cartProduct); err != nil {
 		return nil, err
 	}
 
-	// Update cart totals
 	if err := s.updateCartTotals(ctx, cart); err != nil {
 		return cartProduct, err
 	}
@@ -98,30 +68,17 @@ func (s *cartService) AddProduct(ctx context.Context, req AddProductRequest) (*m
 	return cartProduct, nil
 }
 
-// UpdateProductQuantityRequest contains data for updating product quantity
-type UpdateProductQuantityRequest struct {
-	CartProductID uuid.UUID `json:"cartProductId" binding:"required"`
-	Quantity      int       `json:"quantity" binding:"required,min=1"`
-}
-
 // UpdateProductQuantity updates the quantity of a cart product
-func (s *cartService) UpdateProductQuantity(ctx context.Context, req UpdateProductQuantityRequest) (*models.CartProduct, error) {
-	cartProduct, err := s.cartProductRepo.FindByID(ctx, req.CartProductID)
-	if err != nil {
-		return nil, err
-	}
-
+func (s *cartService) UpdateProductQuantity(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error) {
 	cart, err := s.cartRepo.FindByID(ctx, cartProduct.CartID)
 	if err != nil {
 		return nil, err
 	}
 
-	cartProduct.Quantity = req.Quantity
 	if err := s.cartProductRepo.Update(ctx, cartProduct); err != nil {
 		return nil, err
 	}
 
-	// Update cart totals
 	if err := s.updateCartTotals(ctx, cart); err != nil {
 		return cartProduct, err
 	}

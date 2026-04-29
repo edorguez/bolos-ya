@@ -5,21 +5,19 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/edorguez/bolos-ya/internal/server/models"
-	"github.com/edorguez/bolos-ya/internal/server/repository"
+	"github.com/edorguez/bolos-ya/internal/server/services"
 	"github.com/edorguez/bolos-ya/pkg/constants"
-	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
 	"github.com/edorguez/bolos-ya/pkg/utils"
 )
 
 type AuthMiddleware struct {
-	userRepo       repository.UserRepository
+	authService  services.AuthService
 	internalAPIKey string
 }
 
-func NewAuthMiddleware(userRepo repository.UserRepository, internalAPIKey string) *AuthMiddleware {
+func NewAuthMiddleware(authService services.AuthService, internalAPIKey string) *AuthMiddleware {
 	return &AuthMiddleware{
-		userRepo:       userRepo,
+		authService:  authService,
 		internalAPIKey: internalAPIKey,
 	}
 }
@@ -56,37 +54,11 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 		userEmail := c.GetHeader(constants.UserEmailHeader)
 		authProvider := c.GetHeader(constants.UserProviderHeader)
 
-		user, err := m.userRepo.FindByBetterAuthUserID(c.Request.Context(), userID)
+		user, err := m.authService.GetOrCreateUserFromHeaders(c.Request.Context(), userID, userEmail, authProvider)
 		if err != nil {
-			if err != apperrors.ErrNotFound {
-				utils.InternalErrorResponse(c)
-				c.Abort()
-				return
-			}
-
-			if userEmail == "" {
-				utils.UnauthorizedResponse(c)
-				c.Abort()
-				return
-			}
-
-			provider := authProvider
-			if provider == "" {
-				provider = constants.AuthProviderEmail
-			}
-
-			user = models.NewUserFromBetterAuth(userID, userEmail, provider)
-			if err := m.userRepo.Create(c.Request.Context(), user); err != nil {
-				utils.InternalErrorResponse(c)
-				c.Abort()
-				return
-			}
-		} else if userEmail != "" && user.Email != userEmail {
-			user.Email = userEmail
-			if authProvider != "" {
-				user.AuthProvider = authProvider
-			}
-			_ = m.userRepo.Update(c.Request.Context(), user)
+			utils.InternalErrorResponse(c)
+			c.Abort()
+			return
 		}
 
 		c.Set(constants.CtxUserIDKey, user.ID.String())
@@ -103,11 +75,10 @@ func GetUserIDFromContext(c *gin.Context) (string, bool) {
 	return userID.(string), true
 }
 
-// GetUserFromContext extracts the full User model from Gin context
-func GetUserFromContext(c *gin.Context) (*models.User, bool) {
+func GetUserFromContext(c *gin.Context) (any, bool) {
 	user, exists := c.Get(constants.CtxUserKey)
 	if !exists {
 		return nil, false
 	}
-	return user.(*models.User), true
+	return user, true
 }

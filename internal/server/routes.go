@@ -8,7 +8,6 @@ import (
 
 	"github.com/edorguez/bolos-ya/internal/server/handlers"
 	internalmiddleware "github.com/edorguez/bolos-ya/internal/server/middleware"
-	"github.com/edorguez/bolos-ya/internal/server/repository"
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	"github.com/edorguez/bolos-ya/pkg/logger"
 	pkgmiddleware "github.com/edorguez/bolos-ya/pkg/middleware"
@@ -18,7 +17,6 @@ func SetupRoutes(
 	authService services.AuthService,
 	cartService services.CartService,
 	syncService services.SyncService,
-	userRepo repository.UserRepository,
 	internalAPIKey string,
 	log *logger.Logger,
 ) *gin.Engine {
@@ -32,7 +30,7 @@ func SetupRoutes(
 	cartHandler := handlers.NewCartHandler(cartService)
 	syncHandler := handlers.NewSyncHandler(syncService)
 
-	authMiddleware := internalmiddleware.NewAuthMiddleware(userRepo, internalAPIKey)
+	authMiddleware := internalmiddleware.NewAuthMiddleware(authService, internalAPIKey)
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

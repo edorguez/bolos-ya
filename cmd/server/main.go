@@ -57,7 +57,6 @@ func main() {
 		authService,
 		cartService,
 		syncService,
-		userRepo,
 		cfg.Auth.InternalAPIKey,
 		log,
 	)
