@@ -35,6 +35,7 @@ export default function LoginChoiceScreen() {
     setIsGuestLoading(true);
     try {
       await authClient.$fetch('/sign-in/anonymous', { method: 'POST' });
+      router.replace('/(tabs)');
     } catch {
       setIsGuestLoading(false);
     }
