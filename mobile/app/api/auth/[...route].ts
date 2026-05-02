@@ -1,11 +1,9 @@
-import { auth } from '../../../lib/auth-server'
-
-const handler = auth.handler
-
 export async function GET(request: Request) {
-  return handler(request)
+  const { auth } = await import('../../../lib/auth-server')
+  return auth.handler(request)
 }
 
 export async function POST(request: Request) {
-  return handler(request)
+  const { auth } = await import('../../../lib/auth-server')
+  return auth.handler(request)
 }

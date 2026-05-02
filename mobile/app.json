@@ -51,12 +51,6 @@
     },
     "plugins": [
       [
-        "@better-auth/expo",
-        {
-          "scheme": "bolosya"
-        }
-      ],
-      [
         "expo-router",
         {
           "root": "./app"
@@ -87,7 +81,8 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

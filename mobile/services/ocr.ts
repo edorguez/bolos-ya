@@ -1,4 +1,3 @@
-import { recognizeText } from '@infinitered/react-native-mlkit-text-recognition'
 import * as FileSystem from 'expo-file-system'
 import { getExchangeRate, detectCurrencyFromText, extractPriceFromText } from '../utils/currency'
 import { convertBsToUsd, convertUsdToBs } from '../utils/formatters'
@@ -19,8 +18,41 @@ export interface ScanError {
   error?: unknown
 }
 
-// Fixed exchange rate (1 USD = X BS)
-// TODO: Make this configurable via user settings or sync from backend
+type RecognizeTextFn = (imageUri: string) => Promise<{ text: string; blocks: any[] }>
+
+let recognizeTextImpl: RecognizeTextFn | null = null
+let mlKitLoadAttempted = false
+
+function tryLoadMLKit(): RecognizeTextFn | null {
+  if (mlKitLoadAttempted) return recognizeTextImpl
+  mlKitLoadAttempted = true
+  try {
+    const mlKit = require('@infinitered/react-native-mlkit-text-recognition')
+    recognizeTextImpl = mlKit.recognizeText
+  } catch {
+    console.warn('[OCR] ML Kit not available — using mock data (simulator mode)')
+  }
+  return recognizeTextImpl
+}
+
+async function mockScanImage(_imageUri: string): Promise<ScanResult> {
+  // Simulate OCR processing delay
+  await new Promise(resolve => setTimeout(resolve, 800))
+
+  const exchangeRate = await getExchangeRate()
+  const priceBs = 25.5
+  const priceUsd = convertBsToUsd(priceBs, exchangeRate)
+
+  return {
+    rawText: 'Arroz Paddy\nBs 25,50',
+    productName: 'Arroz Paddy',
+    price: priceBs,
+    currency: 'BS',
+    priceBs,
+    priceUsd,
+    confidence: 0.95,
+  }
+}
 
 /**
  * Extract product name from OCR text blocks
@@ -71,8 +103,19 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
       throw new Error('Image file not found')
     }
 
-    // Perform OCR using ML Kit
-    const { text, blocks } = await recognizeText(imageUri)
+    // Perform OCR using ML Kit (or mock on simulator)
+    const recognizer = tryLoadMLKit()
+    let text: string
+    let blocks: any[]
+
+    if (recognizer) {
+      const result = await recognizer(imageUri)
+      text = result.text
+      blocks = result.blocks
+    } else {
+      // Simulator fallback — return mock data
+      return mockScanImage(imageUri)
+    }
 
     if (!text || text.trim().length === 0) {
       throw new Error('No text detected in image')

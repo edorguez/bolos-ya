@@ -1,12 +1,19 @@
-import { auth } from '../../../lib/auth-server'
-
+const BETTER_AUTH_URL = process.env.EXPO_PUBLIC_BETTER_AUTH_URL || 'http://localhost:8081/api/auth'
 const GO_BACKEND_URL = process.env.GO_BACKEND_URL || 'http://localhost:8080/api/v1'
 const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY || ''
 
+async function getSession(headers: Headers) {
+  try {
+    const response = await fetch(`${BETTER_AUTH_URL}/get-session`, { headers })
+    if (!response.ok) return null
+    return response.json() as Promise<{ user: { id: string; email: string; authProvider?: string } } | null>
+  } catch {
+    return null
+  }
+}
+
 async function proxyRequest(request: Request, pathSegments: string[]): Promise<Response> {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  })
+  const session = await getSession(request.headers)
 
   if (!session) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
@@ -18,13 +25,11 @@ async function proxyRequest(request: Request, pathSegments: string[]): Promise<R
   const searchParams = new URL(request.url).search
   const targetUrl = url + searchParams
 
-  const userRecord = session.user as Record<string, unknown>
-
   const headers: Record<string, string> = {
     Authorization: `Bearer ${INTERNAL_API_KEY}`,
     'X-User-ID': session.user.id,
     'X-User-Email': session.user.email,
-    'X-Auth-Provider': (userRecord.authProvider as string) || 'email',
+    'X-Auth-Provider': (session.user.authProvider as string) || 'email',
   }
 
   const contentType = request.headers.get('Content-Type')
