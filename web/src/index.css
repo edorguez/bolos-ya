@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+:root {
+  --surface-container-lowest: #ffffff;
+  --tertiary: #673900;
+  --primary: #5817ae;
+  --surface-dim: #dfd7e3;
+  --on-primary-fixed-variant: #5b1cb1;
+  --surface-container-low: #f9f1fd;
+  --on-primary-fixed: #270058;
+  --tertiary-fixed: #ffdcc0;
+  --on-error: #ffffff;
+  --on-tertiary-fixed: #2d1600;
+  --error-coral: #b41340;
+  --on-surface: #1a1b2e;
+  --surface-tint: #743cca;
+  --outline-variant: rgba(26, 27, 46, 0.15);
+  --surface: #ffffff;
+  --on-secondary: #ffffff;
+  --surface-container: #f3ebf7;
+  --surface-container-high: #dcdcdc;
+  --on-secondary-container: #bdc1ff;
+  --tertiary-container: #894d00;
+  --primary-fixed: #ecdcff;
+  --background: #fef7ff;
+  --accent-sunny: #fac052;
+  --surface-container-highest: #e8e0ec;
+  --secondary-fixed-dim: #bec2ff;
+  --on-primary-container: #e0cbff;
+  --error: #ba1a1a;
+  --on-error-container: #93000a;
+  --primary-container: #7139c7;
+  --secondary-container: #1222ff;
+  --inverse-primary: #d5bbff;
+  --error-container: #ffdad6;
+  --secondary-fixed: #e0e0ff;
+  --primary-fixed-dim: #d5bbff;
+  --on-tertiary-fixed-variant: #6b3b00;
+  --outline: #7c7485;
+  --on-tertiary: #ffffff;
+  --on-surface-variant: #4a4453;
+  --inverse-surface: #332f38;
+  --tertiary-fixed-dim: #ffb875;
+  --surface-bright: #fef7ff;
+  --on-secondary-fixed-variant: #0012e8;
+  --on-background: #1e1a23;
+  --secondary: #000ec7;
+  --on-tertiary-container: #ffca9c;
+  --on-secondary-fixed: #00046a;
+  --on-primary: #ffffff;
+  --inverse-on-surface: #f6eefa;
+  --surface-variant: #e8e0ec;
+
+  --font-display-lg: 56px/64px 'Plus Jakarta Sans', sans-serif;
+  --font-display-md: 44px/52px 'Plus Jakarta Sans', sans-serif;
+  --font-headline-lg: 32px/40px 'Plus Jakarta Sans', sans-serif;
+  --font-headline-md: 28px/36px 'Plus Jakarta Sans', sans-serif;
+  --font-title-lg: 22px/28px 'Plus Jakarta Sans', sans-serif;
+  --font-title-md: 16px/24px 'Plus Jakarta Sans', sans-serif;
+  --font-body-lg: 16px/26px 'Plus Jakarta Sans', sans-serif;
+  --font-body-md: 14px/22px 'Plus Jakarta Sans', sans-serif;
+  --font-label-md: 700 12px/16px 0.05em 'Plus Jakarta Sans', sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+  background-color: var(--background);
+  color: var(--on-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body ::selection {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-container-high);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--outline);
+}
+
+.dark-section {
+  background-color: var(--on-surface);
+  color: #ffffff;
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gsap-reveal,
+  .gsap-parallax {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,0 +1,112 @@
+.cta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(to bottom right, var(--primary-container), var(--secondary-container));
+  padding: 6rem 1.5rem;
+  min-height: 100vh;
+}
+
+.blob1 {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: var(--primary);
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  filter: blur(100px);
+  opacity: 0.5;
+  animation: spin 20s linear infinite;
+  top: -10%;
+  left: -10%;
+}
+
+.blob2 {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: var(--secondary);
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  filter: blur(100px);
+  opacity: 0.5;
+  animation: spinReverse 15s linear infinite;
+  bottom: -10%;
+  right: -10%;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg) translate(0, 0); }
+  to { transform: rotate(360deg) translate(0, 0); }
+}
+
+@keyframes spinReverse {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.card {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  max-width: 42rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  padding: 3rem;
+  border-radius: 3rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.title {
+  font: var(--font-display-md);
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+}
+
+.description {
+  font: var(--font-body-lg);
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2.5rem;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+  }
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  font: var(--font-title-md);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.btnIos {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.1);
+}
+
+.btnAndroid {
+  background: var(--surface-container-highest);
+  color: var(--on-surface);
+}

@@ -1,0 +1,42 @@
+.footer {
+  background: var(--surface);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  border-top: 1px solid var(--surface-variant);
+  position: relative;
+  z-index: 20;
+}
+
+.brand {
+  font: var(--font-title-lg);
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.links {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.link {
+  font: var(--font-label-md);
+  color: var(--on-surface-variant);
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--primary);
+  }
+}
+
+.copy {
+  font: var(--font-body-md);
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+}

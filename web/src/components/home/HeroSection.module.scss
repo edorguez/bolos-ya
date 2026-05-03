@@ -1,0 +1,80 @@
+.hero {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 5rem 1.5rem;
+}
+
+.glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80vw;
+  height: 80vw;
+  max-width: 800px;
+  max-height: 800px;
+  background: var(--primary);
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.3;
+}
+
+.grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: center;
+  z-index: 10;
+  position: relative;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.textCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  width: fit-content;
+  color: #ffffff;
+  font: var(--font-label-md);
+}
+
+.title {
+  font: var(--font-display-lg);
+  color: #ffffff;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.description {
+  font: var(--font-body-lg);
+  color: var(--surface-container-high);
+  max-width: 36rem;
+}
+
+.mockupCol {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

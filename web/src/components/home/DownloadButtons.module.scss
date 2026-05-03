@@ -1,0 +1,82 @@
+$radius: 9999px;
+$transition: all 0.3s ease;
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-radius: $radius;
+  border: none;
+  cursor: pointer;
+  transition: $transition;
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px -5px rgba(88, 23, 174, 0.2);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.btnIos {
+  background: #ffffff;
+  color: var(--on-surface);
+}
+
+.btnAndroid {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  color: #ffffff;
+}
+
+.btnDark {
+  background: var(--surface-container-highest);
+  color: var(--on-surface);
+}
+
+.btnText {
+  text-align: left;
+}
+
+.btnSub {
+  display: block;
+  font-size: 10px;
+  line-height: 1.2;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.btnMain {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.ripple {
+  animation: rippleAnim 0.6s ease-out;
+}
+
+@keyframes rippleAnim {
+  0% {
+    box-shadow: 0 0 0 0 rgba(88, 23, 174, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba(88, 23, 174, 0);
+  }
+}

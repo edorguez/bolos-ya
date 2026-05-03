@@ -1,0 +1,60 @@
+.pinSpacer {
+  position: relative;
+  min-height: 300vh;
+}
+
+.pinContainer {
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-container-low);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  text-align: center;
+  z-index: 2;
+}
+
+.title {
+  font: var(--font-headline-lg);
+  color: var(--on-surface);
+  margin-bottom: 2rem;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statValue {
+  font: var(--font-display-md);
+  font-weight: 700;
+}
+
+.statPrimary {
+  color: var(--primary);
+}
+
+.statSecondary {
+  color: var(--secondary);
+}
+
+.statLabel {
+  font: var(--font-label-md);
+  color: var(--on-surface-variant);
+}
