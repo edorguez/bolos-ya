@@ -48,15 +48,18 @@ func main() {
 	productRepo := repository.NewProductRepository(db)
 	cartRepo := repository.NewCartRepository(db)
 	cartProductRepo := repository.NewCartProductRepository(db)
+	paymentRepo := repository.NewPaymentRepository(db)
 
 	authService := services.NewAuthService(userRepo, cfg.Auth.InternalAPIKey)
 	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo)
 	syncService := services.NewSyncService(userRepo, cartRepo, cartProductRepo, productRepo, supermarketRepo)
+	paymentService := services.NewPaymentService(paymentRepo)
 
 	router := server.SetupRoutes(
 		authService,
 		cartService,
 		syncService,
+		paymentService,
 		cfg.Auth.InternalAPIKey,
 		log,
 	)

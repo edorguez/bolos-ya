@@ -111,6 +111,22 @@ CREATE TABLE cart_products (
     deleted_at TIMESTAMP
 );
 
+CREATE TABLE payments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    number_of_months INTEGER NOT NULL,
+    reference_number VARCHAR(50) NOT NULL,
+    bank_name VARCHAR(80) NOT NULL,
+    amount_bs BIGINT NOT NULL,
+    price_bcv BIGINT NOT NULL,
+    is_discount BOOLEAN NOT NULL DEFAULT FALSE,
+    paid_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+
 -- Indexes
 CREATE INDEX idx_supermarkets_user ON supermarkets(user_id);
 CREATE INDEX idx_carts_user_active ON carts(user_id, is_active);

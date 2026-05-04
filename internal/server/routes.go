@@ -17,6 +17,7 @@ func SetupRoutes(
 	authService services.AuthService,
 	cartService services.CartService,
 	syncService services.SyncService,
+	paymentService services.PaymentService,
 	internalAPIKey string,
 	log *logger.Logger,
 ) *gin.Engine {
@@ -29,6 +30,7 @@ func SetupRoutes(
 	authHandler := handlers.NewAuthHandler(authService)
 	cartHandler := handlers.NewCartHandler(cartService)
 	syncHandler := handlers.NewSyncHandler(syncService)
+	paymentHandler := handlers.NewPaymentHandler(paymentService)
 
 	authMiddleware := internalmiddleware.NewAuthMiddleware(authService, internalAPIKey)
 
@@ -68,6 +70,17 @@ func SetupRoutes(
 			syncGroup := protected.Group("/sync")
 			{
 				syncGroup.POST("", syncHandler.ProcessSync)
+			}
+
+			paymentsGroup := protected.Group("/payments")
+			{
+				paymentsGroup.POST("", paymentHandler.CreatePayment)
+				paymentsGroup.GET("", paymentHandler.GetAllPayments)
+				paymentsGroup.GET("/:paymentId", paymentHandler.GetPaymentByID)
+				paymentsGroup.GET("/by-user/:userId", paymentHandler.GetPaymentsByUserID)
+				paymentsGroup.GET("/by-email/:email", paymentHandler.GetPaymentsByEmail)
+				paymentsGroup.PUT("/:paymentId", paymentHandler.UpdatePayment)
+				paymentsGroup.DELETE("/:paymentId", paymentHandler.DeletePayment)
 			}
 		}
 
