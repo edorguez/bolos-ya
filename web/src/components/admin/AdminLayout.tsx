@@ -6,11 +6,15 @@ import { Sidebar } from './Sidebar'
 import styles from './AdminLayout.module.scss'
 
 export function AdminLayout() {
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, loading, logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleToggle = useCallback(() => setSidebarOpen((v) => !v), [])
   const handleClose = useCallback(() => setSidebarOpen(false), [])
+
+  if (loading) {
+    return null
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />

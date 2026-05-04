@@ -1,4 +1,61 @@
--- Application users (app-specific data, linked to better-auth user table)
+---------------------------------------------------------------------
+-- better-auth tables (managed by better-auth, PostgreSQL adapter) --
+---------------------------------------------------------------------
+CREATE TABLE "user" (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    emailVerified BOOLEAN NOT NULL DEFAULT FALSE,
+    image TEXT,
+    isAnonymous BOOLEAN DEFAULT FALSE,
+    role TEXT DEFAULT 'user',
+    isPremium BOOLEAN DEFAULT FALSE,
+    premiumUntil TIMESTAMP,
+    authProvider TEXT,
+    deletedAt TIMESTAMP,
+    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "session" (
+    id TEXT PRIMARY KEY NOT NULL,
+    expiresAt TIMESTAMP NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ipAddress TEXT,
+    userAgent TEXT,
+    userId TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE
+);
+
+CREATE TABLE "account" (
+    id TEXT PRIMARY KEY NOT NULL,
+    accountId TEXT NOT NULL,
+    providerId TEXT NOT NULL,
+    userId TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    accessToken TEXT,
+    refreshToken TEXT,
+    idToken TEXT,
+    accessTokenExpiresAt TIMESTAMP,
+    refreshTokenExpiresAt TIMESTAMP,
+    scope TEXT,
+    password TEXT,
+    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "verification" (
+    id TEXT PRIMARY KEY NOT NULL,
+    identifier TEXT NOT NULL,
+    value TEXT NOT NULL,
+    expiresAt TIMESTAMP NOT NULL,
+    createdAt TIMESTAMP,
+    updatedAt TIMESTAMP
+);
+
+------------------------
+-- Application tables --
+------------------------
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     better_auth_user_id VARCHAR(255) UNIQUE NOT NULL,
@@ -11,54 +68,6 @@ CREATE TABLE users (
     deleted_at TIMESTAMP
 );
 
--- better-auth tables (managed by better-auth, PostgreSQL adapter)
-CREATE TABLE "user" (
-    id TEXT PRIMARY KEY NOT NULL,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
-    image TEXT,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE "session" (
-    id TEXT PRIMARY KEY NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    token TEXT NOT NULL UNIQUE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ip_address TEXT,
-    user_agent TEXT,
-    user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE
-);
-
-CREATE TABLE "account" (
-    id TEXT PRIMARY KEY NOT NULL,
-    account_id TEXT NOT NULL,
-    provider_id TEXT NOT NULL,
-    user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-    access_token TEXT,
-    refresh_token TEXT,
-    id_token TEXT,
-    access_token_expires_at TIMESTAMP,
-    refresh_token_expires_at TIMESTAMP,
-    scope TEXT,
-    password TEXT,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE "verification" (
-    id TEXT PRIMARY KEY NOT NULL,
-    identifier TEXT NOT NULL,
-    value TEXT NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
-);
-
--- Application tables
 CREATE TABLE supermarkets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
@@ -133,7 +142,7 @@ CREATE INDEX idx_carts_user_active ON carts(user_id, is_active);
 CREATE INDEX idx_cart_products_product ON cart_products(product_id);
 
 -- better-auth indexes
-CREATE INDEX idx_session_user_id ON "session"(user_id);
+CREATE INDEX idx_session_user_id ON "session"(userId);
 CREATE INDEX idx_session_token ON "session"(token);
-CREATE INDEX idx_account_user_id ON "account"(user_id);
-CREATE INDEX idx_account_provider ON "account"(provider_id, account_id);
+CREATE INDEX idx_account_user_id ON "account"(userId);
+CREATE INDEX idx_account_provider ON "account"(providerId, accountId);

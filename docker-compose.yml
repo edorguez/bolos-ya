@@ -104,6 +104,29 @@ services:
       retries: 5
     restart: unless-stopped
 
+  auth-server:
+    build:
+      context: ./auth-server
+      dockerfile: Dockerfile
+    container_name: bolos-ya-auth-server
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      GO_BACKEND_URL: http://server:${PORT}/api/v1
+      CORS_ORIGINS: ${APP_ALLOWED_ORIGINS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bolos-ya-network
+    restart: unless-stopped
+
 volumes:
   bolos_ya_db_data:
   bolos_ya_redis_data:

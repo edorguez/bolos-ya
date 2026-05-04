@@ -13,8 +13,7 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "type-check": "tsc --noEmit",
-    "generate-api": "npx openapi-typescript-codegen --input ../docs/openapi.yaml --output ../gen/typescript --client axios && cp -r ../gen/typescript/* api/"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@better-auth/expo": "^1.6.9",
@@ -43,7 +42,6 @@
     "expo-system-ui": "~55.0.15",
     "expo-web-browser": "~55.0.14",
     "form-data": "^4.0.5",
-    "pg": "^8.20.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "^0.83.4",
@@ -57,7 +55,6 @@
   },
   "devDependencies": {
     "@expo/webpack-config": "^19.0.1",
-    "@types/pg": "^8.20.0",
     "@types/react": "~19.2.2",
     "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/parser": "^8.57.2",
@@ -68,7 +65,6 @@
     "eslint-plugin-react": "^7.34.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "expo-build-properties": "^55.0.13",
-    "openapi-typescript-codegen": "^0.30.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
     "webpack-cli": "^7.0.2"

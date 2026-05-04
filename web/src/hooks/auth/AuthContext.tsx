@@ -1,8 +1,11 @@
-import { createContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useState, useEffect, useCallback, type ReactNode } from 'react'
+import { authClient } from '../../lib/auth-client'
 
 interface AuthState {
   isAuthenticated: boolean
   email: string | null
+  role: string | null
+  loading: boolean
 }
 
 interface LoginResult {
@@ -18,33 +21,65 @@ interface AuthContextValue extends AuthState {
 export const AuthContext = createContext<AuthContextValue>({
   isAuthenticated: false,
   email: null,
+  role: null,
+  loading: true,
   login: async () => ({ success: false, error: 'Auth not initialized' }),
   logout: () => {},
 })
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [auth, setAuth] = useState<AuthState>({ isAuthenticated: false, email: null })
+  const { data: session, isPending } = authClient.useSession()
+  const [auth, setAuth] = useState<AuthState>({
+    isAuthenticated: false,
+    email: null,
+    role: null,
+    loading: true,
+  })
+
+  useEffect(() => {
+    if (isPending) {
+      setAuth((prev) => ({ ...prev, loading: true }))
+      return
+    }
+
+    const user = session?.user as Record<string, unknown> | undefined
+    const role = (user?.role as string) || ''
+    const allowedRoles = ['admin', 'staff']
+
+    if (user && allowedRoles.includes(role)) {
+      setAuth({
+        isAuthenticated: true,
+        email: (user.email as string) || null,
+        role,
+        loading: false,
+      })
+    } else {
+      setAuth({ isAuthenticated: false, email: null, role: null, loading: false })
+    }
+  }, [session, isPending])
 
   const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
-    await new Promise((r) => setTimeout(r, 800))
-
-    if (!email.includes('@')) {
-      return { success: false, error: 'Invalid email format' }
-    }
-    if (password.length < 4) {
-      return { success: false, error: 'Password must be at least 4 characters' }
+    const { data, error } = await authClient.signIn.email({ email, password })
+    if (error) {
+      return { success: false, error: error.message ?? 'Invalid credentials' }
     }
 
-    setAuth({ isAuthenticated: true, email })
+    const role = ((data?.user as Record<string, unknown>)?.role as string) || ''
+
+    if (!role || !['admin', 'staff'].includes(role)) {
+      await authClient.signOut()
+      return { success: false, error: 'Unauthorized: Staff access only' }
+    }
+
     return { success: true }
   }, [])
 
-  const logout = useCallback(() => {
-    setAuth({ isAuthenticated: false, email: null })
+  const logout = useCallback(async () => {
+    await authClient.signOut()
   }, [])
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated: auth.isAuthenticated, email: auth.email, login, logout }}>
+    <AuthContext.Provider value={{ ...auth, login, logout }}>
       {children}
     </AuthContext.Provider>
   )
