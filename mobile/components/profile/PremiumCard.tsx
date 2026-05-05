@@ -11,15 +11,10 @@ const stylesheet = StyleSheet.create(theme => ({
   card: {
     position: 'relative',
     overflow: 'hidden',
-    backgroundColor: theme.colors.tertiaryContainer,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.sunburstYellow,
+    borderRadius: theme.borderRadius.md,
     padding: theme.spacing.xl,
     marginVertical: theme.spacing.lg,
-    shadowColor: theme.colors.tertiary,
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.2,
-    shadowRadius: 30,
-    elevation: 12,
   },
   blob: {
     position: 'absolute',
@@ -27,7 +22,7 @@ const stylesheet = StyleSheet.create(theme => ({
     top: -40,
     width: 160,
     height: 160,
-    backgroundColor: theme.colors.surfaceContainerLowest + '33',
+    backgroundColor: '#ffffff33',
     borderRadius: 9999,
   },
   content: {
@@ -39,23 +34,24 @@ const stylesheet = StyleSheet.create(theme => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.xs,
-    backgroundColor: '#583d00',
+    backgroundColor: theme.colors.deepAmber,
     alignSelf: 'flex-start',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
-    borderRadius: 9999,
+    borderRadius: theme.borderRadius.sm,
   },
   badgeText: {
     fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: '#FFFFFF',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   title: {
     fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: '#583d00',
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.pepper,
+    letterSpacing: theme.typography.letterSpacing.xl,
   },
   feature: {
     flexDirection: 'row',
@@ -64,26 +60,22 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   featureText: {
     fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: '#583d00CC',
+    fontWeight: theme.typography.fontWeight.medium,
+    color: theme.colors.pepper,
+    opacity: 0.8,
   },
   upgradeButton: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.midnight,
     paddingHorizontal: theme.spacing.xl,
     paddingVertical: theme.spacing.lg,
-    borderRadius: 9999,
+    borderRadius: theme.borderRadius.button,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
     marginTop: theme.spacing.md,
   },
   upgradeButtonText: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontSize: theme.typography.fontSize.md,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: '#FFFFFF',
   },
 }))
@@ -105,7 +97,7 @@ export function PremiumCard({ onUpgradePress }: PremiumCardProps) {
         <Text style={styles.title as TextStyle}>Hazte Premium por $3.99/mes</Text>
         {premiumFeatures.map((feature, index) => (
           <View key={index} style={styles.feature as ViewStyle}>
-            <MaterialIcons name="check-circle" size={20} color={theme.colors.primary} />
+            <MaterialIcons name="check-circle" size={20} color={theme.colors.meadowGreen} />
             <Text style={styles.featureText as TextStyle}>{feature}</Text>
           </View>
         ))}

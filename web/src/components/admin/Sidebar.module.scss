@@ -8,17 +8,17 @@
   flex-direction: column;
   padding: 2rem 0;
   gap: 0.5rem;
-  background: var(--surface-container-lowest);
-  box-shadow: 0 10px 40px -5px rgba(88, 23, 174, 0.06);
+  background: #ffffff;
+  box-shadow: var(--shadow-subtle-2);
   z-index: 40;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   transform: translateX(-100%);
   transition: transform 0.3s ease;
 
   @media (min-width: 768px) {
     top: 1rem;
     bottom: 1rem;
-    border-radius: 0 3rem 3rem 0;
+    border-radius: 0 var(--radius-cardslarge) var(--radius-cardslarge) 0;
     transform: translateX(0);
     transition: none;
   }
@@ -40,14 +40,15 @@
 
 .brandTitle {
   font-size: 1.125rem;
-  font-weight: 900;
-  color: var(--primary);
+  font-weight: 600;
+  color: var(--color-midnight);
   margin: 0;
 }
 
 .brandSub {
-  font: var(--font-body-md);
-  color: var(--outline);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--color-fog);
   margin: 0.25rem 0 0;
 }
 
@@ -64,29 +65,26 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-buttonspill);
   text-decoration: none;
-  color: var(--on-surface-variant);
-  font: var(--font-title-md);
-  font-weight: 600;
+  color: var(--color-graphite);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
   transition: all 0.2s;
   margin: 0 0.5rem;
 
   &:hover {
-    transform: scale(1.05);
-    background: var(--surface-container-high);
+    background: var(--color-stone-surface);
   }
 }
 
 .navActive {
-  background: var(--primary);
-  color: var(--on-primary);
-  box-shadow: 0 10px 25px -5px rgba(88, 23, 174, 0.3);
-  transform: translateX(4px) scale(1.05);
+  background: var(--color-midnight);
+  color: #ffffff;
 
   &:hover {
-    background: var(--primary);
-    transform: translateX(4px) scale(1.05);
+    background: var(--color-midnight);
   }
 }
 
@@ -103,20 +101,19 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-buttonspill);
   border: none;
   background: transparent;
-  color: var(--outline);
-  font: var(--font-title-md);
-  font-weight: 600;
+  color: var(--color-fog);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   margin: 0 0.5rem;
-  font-family: inherit;
 
   &:hover {
-    background: rgba(186, 26, 26, 0.05);
-    color: var(--error);
-    transform: scale(1.05);
+    background: rgba(255, 43, 58, 0.05);
+    color: var(--color-coral-red);
   }
 }

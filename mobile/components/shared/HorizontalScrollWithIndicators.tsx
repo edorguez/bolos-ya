@@ -46,7 +46,7 @@ const stylesheet = StyleSheet.create(theme => ({
     paddingRight: theme.spacing.xs,
   },
   arrowBackground: {
-    backgroundColor: theme.colors.onSurfaceVariant,
+    backgroundColor: theme.colors.midnight,
     opacity: 0.1,
     borderRadius: theme.borderRadius.full,
     width: 32,

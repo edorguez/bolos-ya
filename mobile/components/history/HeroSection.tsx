@@ -11,8 +11,8 @@ interface HeroSectionProps {
 
 const stylesheet = StyleSheet.create(theme => ({
   container: {
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: theme.colors.primaryContainer + '20',
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.parchmentCard,
     padding: theme.spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
@@ -24,9 +24,10 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   title: {
     fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.primary,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.charcoalPrimary,
     marginBottom: theme.spacing.xs,
+    letterSpacing: theme.typography.letterSpacing.lg,
   },
   subtitle: {
     fontSize: theme.typography.fontSize.sm,
@@ -51,7 +52,7 @@ export function HeroSection({ title, subtitle, icon = 'receipt' }: HeroSectionPr
         <Text style={styles.subtitle as TextStyle}>{subtitle}</Text>
       </View>
       <View style={styles.iconContainer as ViewStyle}>
-        <MaterialIcons name={icon as any} size={64} color={theme.colors.primary} />
+        <MaterialIcons name={icon as any} size={64} color={theme.colors.emberOrange} />
       </View>
     </View>
   )

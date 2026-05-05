@@ -13,8 +13,9 @@ export default function NotFoundScreen() {
     },
     textHeading: {
       fontSize: theme.typography.fontSize.xl,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.text,
+      letterSpacing: theme.typography.letterSpacing.xl,
     },
     textBody: {
       fontSize: theme.typography.fontSize.md,
@@ -26,7 +27,6 @@ export default function NotFoundScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.textHeading}>404 - Not Found</Text>
-      {/* eslint-disable-next-line react/no-unescaped-entities */}
       <Text style={styles.textBody}>The screen you're looking for doesn't exist.</Text>
     </View>
   )

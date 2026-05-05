@@ -13,7 +13,7 @@ export function createHistoryStyles(theme: AppTheme) {
       gap: theme.spacing.lg,
     },
     header: {
-      backgroundColor: '#ffffffcc',
+      backgroundColor: theme.colors.surfaceContainerLowest + 'cc',
       paddingHorizontal: theme.spacing.lg,
       paddingVertical: theme.spacing.md,
       alignItems: 'center',
@@ -22,9 +22,9 @@ export function createHistoryStyles(theme: AppTheme) {
     },
     headerTitle: {
       fontSize: theme.typography.fontSize.xl,
-      fontWeight: theme.typography.fontWeight.bold,
-      color: theme.colors.primary,
-      letterSpacing: -0.5,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.charcoalPrimary,
+      letterSpacing: theme.typography.letterSpacing.xl,
     },
     searchContainer: {
       flexDirection: 'row',
@@ -34,7 +34,7 @@ export function createHistoryStyles(theme: AppTheme) {
     searchInput: {
       flex: 1,
       backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: theme.borderRadius.full,
+      borderRadius: theme.borderRadius.md,
       paddingHorizontal: theme.spacing.lg,
       paddingVertical: theme.spacing.md,
       fontSize: theme.typography.fontSize.sm,

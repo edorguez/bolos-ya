@@ -20,14 +20,15 @@ const stylesheet = StyleSheet.create(theme => ({
     marginBottom: theme.spacing.md,
   },
   title: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
+    letterSpacing: theme.typography.letterSpacing.lg,
   },
   link: {
     fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.primary,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.emberOrange,
   },
   icon: {
     marginRight: theme.spacing.sm,

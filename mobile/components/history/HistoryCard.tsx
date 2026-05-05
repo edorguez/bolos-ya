@@ -21,13 +21,10 @@ interface HistoryCardProps {
 const stylesheet = StyleSheet.create(theme => ({
   card: {
     backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
-    shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.04,
-    shadowRadius: 40,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: theme.colors.stoneSurface,
   },
   header: {
     flexDirection: 'row',
@@ -43,7 +40,7 @@ const stylesheet = StyleSheet.create(theme => ({
   storeIconContainer: {
     width: 48,
     height: 48,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: theme.borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -52,7 +49,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   storeName: {
     fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
   },
   storeDate: {
@@ -74,11 +71,11 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   progressLabel: {
     fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
   },
   progressValue: {
     fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
   },
 }))
 
@@ -139,7 +136,7 @@ export function HistoryCard({
         </View>
         <ProgressBar
           progress={Math.min(budgetUsage, 100)}
-          color={exceeded ? theme.colors.error : theme.colors.primary}
+          color={exceeded ? theme.colors.error : theme.colors.midnight}
         />
       </View>
     </View>

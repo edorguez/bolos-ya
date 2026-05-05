@@ -14,50 +14,46 @@ interface BudgetSummaryProps {
 const stylesheet = StyleSheet.create(theme => ({
   container: {
     backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: 24,
-    padding: 16,
-    shadowColor: theme.colors.onSurface,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
     borderWidth: 1,
-    borderColor: `${theme.colors.surfaceContainerLow}80`,
-    marginBottom: 16,
+    borderColor: theme.colors.stoneSurface,
+    marginBottom: theme.spacing.md,
   },
   limitRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: theme.spacing.xs,
   },
   limitLabel: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     textTransform: 'uppercase',
     letterSpacing: 1,
     color: theme.colors.onSurfaceVariant,
   },
   limitUsd: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurfaceVariant,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    marginBottom: 12,
+    marginBottom: theme.spacing.sm,
   },
   totalLeft: {
     flex: 1,
   },
   totalLabel: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     textTransform: 'uppercase',
     letterSpacing: 1,
     color: theme.colors.onSurfaceVariant,
-    marginBottom: 4,
+    marginBottom: theme.spacing.xs,
   },
   totalAmountRow: {
     flexDirection: 'row',
@@ -66,30 +62,30 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   totalBs: {
     fontSize: 28,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
   },
   totalUsd: {
     fontSize: 14,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurfaceVariant,
   },
   progressBarContainer: {
-    marginBottom: 12,
+    marginBottom: theme.spacing.sm,
   },
   warningContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    padding: 8,
-    backgroundColor: theme.colors.error + '08',
-    borderRadius: 12,
+    padding: theme.spacing.xs,
+    backgroundColor: theme.colors.coralRed + '08',
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    borderColor: theme.colors.error + '20',
+    borderColor: theme.colors.coralRed + '20',
   },
   warningText: {
     fontSize: 11,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.error,
   },
 }))
@@ -106,7 +102,6 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
 
   return (
     <View style={styles.container as ViewStyle}>
-      {/* Limit row */}
       <View style={styles.limitRow as ViewStyle}>
         <Text style={styles.limitLabel as TextStyle}>
           LÍMITE: Bs. {budgetBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
@@ -116,7 +111,6 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
         </Text>
       </View>
 
-      {/* Total spent row */}
       <View style={styles.totalRow as ViewStyle}>
         <View style={styles.totalLeft as ViewStyle}>
           <Text style={styles.totalLabel as TextStyle}>TOTAL GASTADO</Text>
@@ -131,17 +125,15 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
         </View>
       </View>
 
-      {/* Progress bar */}
       <View style={styles.progressBarContainer as ViewStyle}>
         <ProgressBar
           progress={progressPercentage}
-          color={isOverBudget ? theme.colors.error : theme.colors.primary}
+          color={isOverBudget ? theme.colors.error : theme.colors.midnight}
           backgroundColor={theme.colors.surfaceContainer}
           height={12}
         />
       </View>
 
-      {/* Warning message */}
       {isOverBudget && (
         <View style={styles.warningContainer as ViewStyle}>
           <MaterialIcons name="warning" size={16} color={theme.colors.error} />

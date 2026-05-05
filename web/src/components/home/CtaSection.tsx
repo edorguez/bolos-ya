@@ -9,24 +9,22 @@ export function CtaSection() {
 
   return (
     <section className={styles.cta} id="cta-section">
-      <div className={styles.blob1} />
-      <div className={styles.blob2} />
       <div id="cta-card" className={styles.card}>
         <h2 className={styles.title}>{ctaContent.title}</h2>
         <p className={styles.description}>{ctaContent.description}</p>
         <div className={styles.buttons}>
           <button
-            className={`${styles.btn} ${styles.btnIos}`}
+            className={`${styles.btn} ${styles.btnDark}`}
             onClick={() => handleClick(appStoreUrls.ios)}
           >
-            <span className="material-symbols-outlined">apple</span>
+            <span className="material-symbols-outlined">phone_iphone</span>
             {ctaContent.iosLabel}
           </button>
           <button
-            className={`${styles.btn} ${styles.btnAndroid}`}
+            className={`${styles.btn} ${styles.btnLight}`}
             onClick={() => handleClick(appStoreUrls.android)}
           >
-            <span className="material-symbols-outlined">android</span>
+            <span className="material-symbols-outlined">phone_android</span>
             {ctaContent.androidLabel}
           </button>
         </div>

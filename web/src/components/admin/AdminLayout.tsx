@@ -17,7 +17,7 @@ export function AdminLayout() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" state={{ from: window.location.pathname }} replace />
   }
 
   return (

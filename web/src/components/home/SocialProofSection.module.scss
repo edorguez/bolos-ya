@@ -7,7 +7,7 @@
   height: 100vh;
   position: relative;
   overflow: hidden;
-  background: var(--surface-container-low);
+  background: var(--color-warm-canvas);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,7 +15,7 @@
 }
 
 .inner {
-  max-width: 1280px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
   padding: 0 1.5rem;
   text-align: center;
@@ -23,8 +23,12 @@
 }
 
 .title {
-  font: var(--font-headline-lg);
-  color: var(--on-surface);
+  font-family: 'Inter', sans-serif;
+  font-size: 44px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.09;
+  letter-spacing: -1.14px;
+  color: var(--color-charcoal-primary);
   margin-bottom: 2rem;
 }
 
@@ -42,19 +46,23 @@
 }
 
 .statValue {
-  font: var(--font-display-md);
-  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-heading-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-heading-lg);
+  letter-spacing: var(--tracking-heading-lg);
+  color: var(--color-charcoal-primary);
 }
 
 .statPrimary {
-  color: var(--primary);
+  color: var(--color-ember-orange);
 }
 
 .statSecondary {
-  color: var(--secondary);
+  color: var(--color-meadow-green);
 }
 
 .statLabel {
   font: var(--font-label-md);
-  color: var(--on-surface-variant);
+  color: var(--color-ash);
 }

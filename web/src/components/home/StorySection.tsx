@@ -9,7 +9,7 @@ export function StorySection() {
           <h2 className={styles.problemTitle}>{storyContent.problem.title}</h2>
           <p className={styles.description}>{storyContent.problem.description}</p>
           <div className={styles.iconBox}>
-            <span className="material-symbols-outlined" style={{ fontSize: '3.75rem', color: 'var(--outline)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '3.75rem', color: 'var(--color-fog)' }}>
               calculate
             </span>
           </div>

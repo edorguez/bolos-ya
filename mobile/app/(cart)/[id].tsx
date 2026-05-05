@@ -58,7 +58,6 @@ export default function CartDetailScreen() {
       priceUsd: product.priceUsd,
       quantity: product.quantity,
       supermarket: product.supermarket,
-      // productImageUrl can be omitted for now
     })
 
     setShowAddProduct(false)
@@ -118,6 +117,8 @@ export default function CartDetailScreen() {
     headerContainer: {
       backgroundColor: theme.colors.surfaceContainerLowest,
       paddingHorizontal: theme.spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.stoneSurface,
     },
     supermarketHeaderContainer: {
       paddingTop: theme.spacing.md,
@@ -134,11 +135,12 @@ export default function CartDetailScreen() {
       gap: 16,
     },
     sectionHeader: {
-      fontSize: 18,
-      fontWeight: '800',
+      fontSize: theme.typography.fontSize.lg,
+      fontWeight: '600',
       color: theme.colors.onSurface,
       marginBottom: 16,
       marginTop: 8,
+      letterSpacing: theme.typography.letterSpacing.lg,
     },
     emptyState: {
       paddingVertical: theme.spacing.lg,
@@ -179,14 +181,12 @@ export default function CartDetailScreen() {
       gap: theme.spacing.xs,
       paddingVertical: theme.spacing.sm,
       paddingHorizontal: theme.spacing.md,
-      backgroundColor: theme.colors.primary,
-      borderRadius: theme.borderRadius.lg,
-      borderCurve: 'continuous',
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+      backgroundColor: theme.colors.midnight,
+      borderRadius: theme.borderRadius.button,
     },
     buttonText: {
       fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
       color: '#FFFFFF',
       flexShrink: 1,
     },
@@ -195,21 +195,18 @@ export default function CartDetailScreen() {
       alignItems: 'center',
       justifyContent: 'center',
       padding: theme.spacing.sm,
-      backgroundColor: theme.colors.secondary,
+      backgroundColor: theme.colors.secondaryContainer,
       borderRadius: theme.borderRadius.full,
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
     },
     buttonCircleComplete: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       padding: theme.spacing.md,
-      backgroundColor: theme.colors.secondary,
+      backgroundColor: theme.colors.meadowGreen,
       borderRadius: theme.borderRadius.full,
-      borderCurve: 'continuous',
       borderWidth: 2,
       borderColor: '#FFFFFF',
-      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
       position: 'absolute',
       top: -10,
       left: '50%',
@@ -220,7 +217,6 @@ export default function CartDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Fixed White Header */}
       <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} />
       <View style={styles.headerContainer}>
         <View style={styles.supermarketHeaderContainer}>
@@ -234,13 +230,11 @@ export default function CartDetailScreen() {
         />
       </View>
 
-      {/* Scrollable Content Area */}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Product List */}
         <Text style={styles.sectionHeader}>Productos en Carrito</Text>
         <View style={styles.productList}>
           {cart.items.length > 0 ? (
@@ -263,7 +257,7 @@ export default function CartDetailScreen() {
                     width: '100%',
                     height: '100%',
                     backgroundColor: theme.colors.outline + '20',
-                    borderRadius: theme.borderRadius.lg,
+                    borderRadius: theme.borderRadius.md,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
@@ -277,7 +271,6 @@ export default function CartDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Fixed Bottom Button Bar */}
       <View style={styles.buttonBarContainer}>
         <View style={styles.buttonBar}>
           <Pressable
@@ -293,7 +286,7 @@ export default function CartDetailScreen() {
           <Pressable
             style={({ pressed }) => [
               styles.buttonCircleComplete,
-              pressed && { backgroundColor: '#6670ff' },
+              pressed && { opacity: 0.8 },
             ]}
             onPress={() => setShowCompleteCartSheet(true)}
             accessibilityRole="button"
@@ -314,7 +307,6 @@ export default function CartDetailScreen() {
         </View>
       </View>
 
-      {/* Add Product Modal */}
       <BottomSheetModal
         isVisible={showAddProduct}
         onClose={() => setShowAddProduct(false)}
@@ -330,7 +322,6 @@ export default function CartDetailScreen() {
         )}
       </BottomSheetModal>
 
-      {/* Edit Product Modal */}
       <BottomSheetModal
         isVisible={showEditModal}
         onClose={() => {
@@ -353,7 +344,6 @@ export default function CartDetailScreen() {
         )}
       </BottomSheetModal>
 
-      {/* Action Sheet for Product Options */}
       <ActionSheetModal
         isVisible={showActionSheet}
         onClose={() => {
@@ -364,7 +354,7 @@ export default function CartDetailScreen() {
           {
             label: 'Editar',
             icon: 'edit',
-            color: theme.colors.primary,
+            color: theme.colors.midnight,
             onPress: () => {
               setEditingItem(selectedItem)
               setShowEditModal(true)
@@ -383,7 +373,6 @@ export default function CartDetailScreen() {
         ]}
       />
 
-      {/* Completion Confirmation Modal */}
       <ActionSheetModal
         isVisible={showCompleteCartSheet}
         onClose={() => setShowCompleteCartSheet(false)}

@@ -71,6 +71,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { success: false, error: 'Unauthorized: Staff access only' }
     }
 
+    setAuth({
+      isAuthenticated: true,
+      email: (data?.user?.email as string) || null,
+      role,
+      loading: false,
+    })
+
     return { success: true }
   }, [])
 

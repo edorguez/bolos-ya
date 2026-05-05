@@ -10,21 +10,22 @@ interface AmountCardProps {
 const stylesheet = StyleSheet.create(theme => ({
   card: {
     flex: 1,
-    backgroundColor: theme.colors.surfaceContainerLow,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.parchmentCard,
+    borderRadius: theme.borderRadius.sm,
     padding: theme.spacing.sm,
   },
   label: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.outline,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.ash,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: theme.spacing.xs,
   },
   value: {
     fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.graphite,
   },
 }))
 

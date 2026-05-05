@@ -1,4 +1,4 @@
-import { auth } from './auth-config'
+import { auth } from './auth-config.js'
 
 const GO_BACKEND_URL = process.env.GO_BACKEND_URL || 'http://localhost:8080/api/v1'
 const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY || ''

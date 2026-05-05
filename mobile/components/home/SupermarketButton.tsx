@@ -14,7 +14,7 @@ const stylesheet = StyleSheet.create(theme => ({
   button: {
     flex: 1,
     backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
     alignItems: 'center',
     gap: theme.spacing.xs,
@@ -23,11 +23,11 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   buttonSelected: {
     borderWidth: 2,
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.midnight,
   },
   label: {
     fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.outline,
   },
   labelSelected: {
@@ -46,7 +46,7 @@ export function SupermarketButton({ selected, icon, name, onPress }: Supermarket
       <MaterialIcons
         name={icon as any}
         size={24}
-        color={selected ? theme.colors.primary : theme.colors.outline}
+        color={selected ? theme.colors.midnight : theme.colors.outline}
       />
       <Text style={[styles.label as TextStyle, selected && (styles.labelSelected as TextStyle)]}>
         {name}

@@ -16,22 +16,24 @@
 
 .btn {
   width: 100%;
-  background: var(--primary);
+  background: var(--color-midnight);
   color: #ffffff;
   padding: 1rem 0;
-  border-radius: 9999px;
+  height: 48px;
+  border-radius: var(--radius-buttonspill);
   border: none;
   cursor: pointer;
-  font: var(--font-title-md);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(88, 23, 174, 0.3);
+  box-shadow: var(--shadow-lg);
   transition: background 0.2s;
-  font-family: inherit;
 
   &:hover {
-    background: var(--on-primary-fixed-variant);
+    background: var(--color-charcoal-primary);
   }
 }

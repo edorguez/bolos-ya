@@ -10,8 +10,8 @@ import { mockPayments, tableColumns, paymentsContent } from '../../constants/adm
 import styles from './PaymentsPage.module.scss'
 
 const cellSx = {
-  fontFamily: 'Plus Jakarta Sans, sans-serif',
-  color: 'var(--on-surface-variant)',
+  fontFamily: 'Inter, sans-serif',
+  color: 'var(--color-graphite)',
   fontSize: '0.875rem',
   padding: '1.25rem 1.5rem',
   borderBottom: 'none',
@@ -20,33 +20,33 @@ const cellSx = {
 
 const headCellSx = {
   ...cellSx,
-  fontFamily: 'Plus Jakarta Sans, sans-serif',
-  fontWeight: 700,
+  fontFamily: 'Inter, sans-serif',
+  fontWeight: 600,
   fontSize: '0.75rem',
   letterSpacing: '0.05em',
   textTransform: 'uppercase' as const,
-  color: 'var(--on-surface-variant)',
+  color: 'var(--color-ash)',
 }
 
 const idCellSx = {
   ...cellSx,
-  fontFamily: 'Plus Jakarta Sans, sans-serif',
+  fontFamily: 'Inter, sans-serif',
   fontWeight: 600,
   fontSize: '1rem',
-  color: 'var(--on-surface)',
+  color: 'var(--color-charcoal-primary)',
 }
 
 const amountCellSx = {
   ...cellSx,
-  fontFamily: 'Plus Jakarta Sans, sans-serif',
+  fontFamily: 'Inter, sans-serif',
   fontWeight: 600,
   fontSize: '1rem',
-  color: 'var(--on-surface)',
+  color: 'var(--color-charcoal-primary)',
 }
 
 const refCellSx = {
   ...cellSx,
-  fontFamily: '"Plus Jakarta Sans", monospace',
+  fontFamily: 'Inter, sans-serif',
   fontSize: '0.875rem',
 }
 
@@ -80,7 +80,7 @@ export function PaymentsPage() {
                 <TableRow
                   key={row.id}
                   sx={{
-                    '&:hover': { backgroundColor: 'var(--surface-container-low)' },
+                    '&:hover': { backgroundColor: 'var(--color-parchment-card)' },
                     cursor: 'pointer',
                     borderRadius: '1rem',
                     transition: 'background-color 0.2s',

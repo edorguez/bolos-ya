@@ -52,17 +52,18 @@ export function TopAppBar({
       justifyContent: 'center',
     },
     title: {
-      fontSize: 24,
-      fontWeight: theme.typography.fontWeight.bold,
-      color: theme.colors.primary,
+      fontSize: theme.typography.fontSize.lg,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.charcoalPrimary,
       textAlign: 'center',
+      letterSpacing: theme.typography.letterSpacing.lg,
     },
     rightContainer: {
       minWidth: 40,
       alignItems: 'flex-end',
     },
     rightLabel: {
-      fontSize: 14,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.onSurfaceVariant,
     },

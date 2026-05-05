@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serve } from '@hono/node-server'
-import { auth } from './auth-config'
-import { proxyRequest } from './proxy-handler'
+import { auth } from './auth-config.js'
+import { proxyRequest } from './proxy-handler.js'
 
 const app = new Hono()
 

@@ -21,22 +21,22 @@ export default function ProfileTab() {
       id: 'account',
       title: 'Mi Cuenta',
       icon: 'person',
-      iconColor: theme.colors.primary,
-      iconBgColor: theme.colors.primaryContainer + '20',
+      iconColor: theme.colors.midnight,
+      iconBgColor: theme.colors.stoneSurface,
     },
     {
       id: 'notifications',
       title: 'Notificaciones',
       icon: 'notifications',
-      iconColor: theme.colors.secondary,
-      iconBgColor: theme.colors.secondaryContainer + '20',
+      iconColor: theme.colors.midnight,
+      iconBgColor: theme.colors.stoneSurface,
     },
     {
       id: 'security',
       title: 'Seguridad',
       icon: 'shield',
-      iconColor: theme.colors.error,
-      iconBgColor: theme.colors.errorContainer + '10',
+      iconColor: theme.colors.midnight,
+      iconBgColor: theme.colors.stoneSurface,
     },
   ];
 

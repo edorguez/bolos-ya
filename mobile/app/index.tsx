@@ -19,7 +19,7 @@ export default function Index() {
   if (isPending) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <ActivityIndicator size="large" color={theme.colors.midnight} />
       </View>
     )
   }

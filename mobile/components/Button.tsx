@@ -24,7 +24,7 @@ export function Button({
 
   const getButtonStyle = () => {
     const baseStyle = {
-      borderRadius: theme.borderRadius.md,
+      borderRadius: theme.borderRadius.button,
       alignItems: 'center' as const,
       justifyContent: 'center' as const,
       flexDirection: 'row' as const,
@@ -48,15 +48,15 @@ export function Button({
 
     const variantStyles = {
       primary: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.midnight,
       },
       secondary: {
-        backgroundColor: theme.colors.secondary,
+        backgroundColor: theme.colors.secondaryContainer,
       },
       outline: {
         backgroundColor: 'transparent',
         borderWidth: 1,
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.graphite,
       },
     }
 
@@ -67,14 +67,14 @@ export function Button({
 
   const getTextStyle = () => {
     const baseStyle = {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.medium as '500',
     }
 
     const variantTextStyles = {
       primary: { color: '#FFFFFF' },
-      secondary: { color: '#FFFFFF' },
-      outline: { color: theme.colors.primary },
+      secondary: { color: theme.colors.midnight },
+      outline: { color: theme.colors.graphite },
     }
 
     return { ...baseStyle, ...variantTextStyles[variant] }
@@ -89,7 +89,7 @@ export function Button({
       {isLoading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'outline' ? theme.colors.primary : '#FFFFFF'}
+          color={variant === 'outline' ? theme.colors.graphite : '#FFFFFF'}
         />
       ) : (
         <Text style={getTextStyle()}>{title}</Text>

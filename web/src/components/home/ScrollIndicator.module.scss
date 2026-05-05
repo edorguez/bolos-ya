@@ -15,12 +15,12 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 0.75rem;
-  color: inherit;
+  color: var(--color-ash);
 }
 
 .arrow {
   animation: bounce 2s infinite;
-  color: inherit;
+  color: var(--color-ash);
 }
 
 @keyframes bounce {

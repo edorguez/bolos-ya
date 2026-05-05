@@ -9,18 +9,22 @@ interface CardProps extends ViewProps {
 const createStyles = StyleSheet.create(theme => ({
   container: {
     backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     padding: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.stoneSurface,
   },
   elevated: {
-    shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowColor: theme.colors.obsidian,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.04,
+    shadowRadius: 1,
+    borderColor: theme.colors.stoneSurface,
+    borderWidth: 1,
   },
   filled: {
-    backgroundColor: theme.colors.surfaceContainerLow,
+    backgroundColor: theme.colors.parchmentCard,
+    borderWidth: 0,
   },
   outlined: {
     backgroundColor: 'transparent',

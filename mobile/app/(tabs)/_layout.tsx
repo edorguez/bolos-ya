@@ -20,14 +20,10 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       flexDirection: 'row',
       width: '90%',
       maxWidth: 400,
-      borderRadius: 9999,
+      borderRadius: theme.borderRadius.button,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.sm,
-      shadowColor: theme.colors.primary,
-      shadowOffset: { width: 0, height: 20 },
-      shadowOpacity: 0.08,
-      shadowRadius: 40,
-      elevation: 8,
+      backgroundColor: theme.colors.surfaceContainerLowest,
     },
     tabItem: {
       flex: 1,
@@ -35,29 +31,23 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       justifyContent: 'center',
       paddingVertical: theme.spacing.sm,
       paddingHorizontal: theme.spacing.md,
-      borderRadius: 9999,
+      borderRadius: theme.borderRadius.md,
     },
     activeTabItem: {
-      shadowColor: theme.colors.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 8,
-      elevation: 4,
+      backgroundColor: theme.colors.midnight,
     },
     tabIcon: {
       marginBottom: theme.spacing.xxs,
     },
     tabLabel: {
       fontSize: theme.typography.fontSize.xxs,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
     },
   })
 
   return (
     <View style={styles.container}>
-      <View
-        style={[styles.tabBar, { backgroundColor: `${theme.colors.surfaceContainerLowest}80` }]}
-      >
+      <View style={styles.tabBar}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key]
           const label = options.title || route.name
@@ -97,7 +87,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               onLongPress={onLongPress}
               style={[
                 styles.tabItem,
-                isFocused && [styles.activeTabItem, { backgroundColor: theme.colors.primary }],
+                isFocused && styles.activeTabItem,
               ]}
             >
               <MaterialIcons

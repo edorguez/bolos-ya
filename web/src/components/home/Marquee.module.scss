@@ -5,7 +5,7 @@
   padding: 2rem 0;
   transform: rotate(-2deg);
   background: #ffffff;
-  box-shadow: 0 1px 0 var(--outline-variant), 0 -1px 0 var(--outline-variant);
+  box-shadow: var(--shadow-subtle-2), 0 -1px 0 var(--color-stone-surface);
 }
 
 .content {
@@ -22,30 +22,33 @@
 .card {
   display: inline-flex;
   flex-direction: column;
-  background: var(--surface-container-lowest);
+  background: #ffffff;
   padding: 1.5rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-cards);
   min-width: 300px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-subtle);
   white-space: normal;
 }
 
 .stars {
   display: flex;
-  color: var(--accent-sunny);
+  color: var(--color-sunburst-yellow);
   margin-bottom: 0.5rem;
 }
 
 .text {
-  font: var(--font-body-md);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: var(--font-weight-regular);
+  line-height: 1.47;
   font-style: italic;
-  color: var(--on-surface);
+  color: var(--color-graphite);
 }
 
 .author {
   font: var(--font-label-md);
   margin-top: 1rem;
-  color: var(--on-surface-variant);
+  color: var(--color-ash);
 }
 
 @keyframes marquee {

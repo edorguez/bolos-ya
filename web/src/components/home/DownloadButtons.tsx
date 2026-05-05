@@ -21,7 +21,7 @@ export function DownloadButtons({ variant = 'light', className = '' }: DownloadB
   return (
     <div className={`${styles.wrapper} ${className}`}>
       <button className={iosClass} onClick={() => handleClick('ios')}>
-        <span className="material-symbols-outlined" style={{ fontSize: 32 }}>ios</span>
+        <span className="material-symbols-outlined" style={{ fontSize: 32 }}>phone_iphone</span>
         <div className={styles.btnText}>
           <span className={styles.btnSub}>Consíguelo en el</span>
           <span className={styles.btnMain}>App Store</span>

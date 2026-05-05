@@ -29,8 +29,6 @@ export function LoginPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.blobTop} />
-      <div className={styles.blobBottom} />
       <main className={styles.main}>
         <div className={styles.card}>
           <header className={styles.header}>

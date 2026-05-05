@@ -9,12 +9,12 @@ interface GuestCardProps {
 
 const stylesheet = StyleSheet.create(theme => ({
   card: {
-    backgroundColor: theme.colors.surfaceContainerHigh,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.parchmentCard,
+    borderRadius: theme.borderRadius.md,
     padding: theme.spacing.xl,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: theme.colors.outlineVariant,
+    borderColor: theme.colors.stoneSurface,
     alignItems: 'center',
     gap: theme.spacing.md,
     marginVertical: theme.spacing.lg,
@@ -26,15 +26,10 @@ const stylesheet = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.surfaceContainerLowest,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   title: {
     fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
     textAlign: 'center',
   },
@@ -48,8 +43,8 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   buttonText: {
     fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.primary,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.emberOrange,
   },
 }))
 
@@ -60,7 +55,7 @@ export function GuestCard({ onCreateAccountPress }: GuestCardProps) {
   return (
     <View style={styles.card as ViewStyle}>
       <View style={styles.icon as ViewStyle}>
-        <MaterialIcons name="person-add" size={24} color={theme.colors.primary} />
+        <MaterialIcons name="person-add" size={24} color={theme.colors.emberOrange} />
       </View>
       <View>
         <Text style={styles.title as TextStyle}>¡Únete a MercadoLibreta!</Text>

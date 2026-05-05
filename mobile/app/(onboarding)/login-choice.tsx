@@ -59,7 +59,7 @@ export default function LoginChoiceScreen() {
   const headlineMarginBottom = isExtraLargeScreen ? theme.spacing.lg : theme.spacing.xl;
   const actionsGap = isExtraLargeScreen ? theme.spacing.md : theme.spacing.md;
   const titleFontSize = isExtraLargeScreen
-    ? theme.typography.fontSize.xxl
+    ? theme.typography.fontSize.xl
     : isLargeScreen
       ? theme.typography.fontSize.xl
       : theme.typography.fontSize.lg;
@@ -85,8 +85,8 @@ export default function LoginChoiceScreen() {
       right: -60 * blobScale,
       width: 280 * blobScale,
       height: 280 * blobScale,
-      backgroundColor: `${theme.colors.primary}10`,
-      borderRadius: '42% 58% 70% 30% / 45% 45% 55% 55%',
+      backgroundColor: theme.colors.emberOrange + '10',
+      borderRadius: 9999,
       opacity: 0.5,
     },
     blob2: {
@@ -95,8 +95,8 @@ export default function LoginChoiceScreen() {
       left: -60 * blobScale,
       width: 220 * blobScale,
       height: 220 * blobScale,
-      backgroundColor: `${theme.colors.secondary}10`,
-      borderRadius: '42% 58% 70% 30% / 45% 45% 55% 55%',
+      backgroundColor: theme.colors.skyBlue + '10',
+      borderRadius: 9999,
       opacity: 0.3,
     },
     blob3: {
@@ -105,34 +105,29 @@ export default function LoginChoiceScreen() {
       right: 30 * blobScale,
       width: 160 * blobScale,
       height: 160 * blobScale,
-      backgroundColor: `${theme.colors.tertiary}20`,
-      borderRadius: '42% 58% 70% 30% / 45% 45% 55% 55%',
+      backgroundColor: theme.colors.meadowGreen + '10',
+      borderRadius: 9999,
       opacity: 0.3,
     },
     phoneMockup: {
       width: scaledPhoneWidth,
       height: scaledPhoneHeight,
-      backgroundColor: theme.colors.onSurface,
-      borderRadius: 48,
+      backgroundColor: theme.colors.obsidian,
+      borderRadius: theme.borderRadius.xl,
       padding: 12,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 20 },
-      shadowOpacity: 0.3,
-      shadowRadius: 40,
-      elevation: 16,
       transform: [{ rotate: '6deg' }],
     },
     phoneScreen: {
       flex: 1,
       backgroundColor: theme.colors.surfaceContainerLowest,
-      borderRadius: 36,
+      borderRadius: theme.borderRadius.md,
       overflow: 'hidden',
       borderWidth: 1,
       borderColor: 'rgba(255, 255, 255, 0.2)',
     },
     phoneHeader: {
       height: 56 * phoneScale,
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme.colors.midnight,
       padding: 16 * phoneScale,
       flexDirection: 'row',
       alignItems: 'center',
@@ -152,10 +147,10 @@ export default function LoginChoiceScreen() {
       width: 8 * phoneScale,
       height: 8 * phoneScale,
       borderRadius: 4 * phoneScale,
-      backgroundColor: theme.colors.tertiary,
+      backgroundColor: theme.colors.emberOrange,
     },
     phoneDotSecondary: {
-      backgroundColor: theme.colors.secondary,
+      backgroundColor: theme.colors.skyBlue,
     },
     phoneContent: {
       padding: 16 * phoneScale,
@@ -164,7 +159,7 @@ export default function LoginChoiceScreen() {
     phoneLine: {
       height: 16,
       backgroundColor: theme.colors.surfaceContainer,
-      borderRadius: 8,
+      borderRadius: theme.borderRadius.sm,
       width: '75%',
     },
     phoneItem: {
@@ -173,27 +168,27 @@ export default function LoginChoiceScreen() {
       gap: 12 * phoneScale,
       padding: 12 * phoneScale,
       backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: 20 * phoneScale,
+      borderRadius: theme.borderRadius.sm,
     },
     phoneItemIcon: {
       width: 24 * phoneScale,
       height: 24 * phoneScale,
-      borderRadius: 6 * phoneScale,
-      backgroundColor: `${theme.colors.tertiary}20`,
+      borderRadius: theme.borderRadius.sm,
+      backgroundColor: theme.colors.emberOrange + '20',
       alignItems: 'center',
       justifyContent: 'center',
     },
     phoneItemLine: {
       height: 8 * phoneScale,
-      backgroundColor: `${theme.colors.onSurfaceVariant}20`,
-      borderRadius: 4 * phoneScale,
+      backgroundColor: theme.colors.ash + '30',
+      borderRadius: theme.borderRadius.sm,
     },
     phoneCart: {
       marginTop: 32 * phoneScale,
       width: '100%',
       height: 48 * phoneScale,
-      backgroundColor: `${theme.colors.primary}10`,
-      borderRadius: 24 * phoneScale,
+      backgroundColor: theme.colors.emberOrange + '10',
+      borderRadius: theme.borderRadius.md,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -203,7 +198,7 @@ export default function LoginChoiceScreen() {
       top: '25%',
       backgroundColor: 'rgba(255, 255, 255, 0.7)',
       padding: 12 * phoneScale,
-      borderRadius: 20 * phoneScale,
+      borderRadius: theme.borderRadius.sm,
       flexDirection: 'row',
       alignItems: 'center',
       gap: 8 * phoneScale,
@@ -216,7 +211,7 @@ export default function LoginChoiceScreen() {
       bottom: '25%',
       backgroundColor: 'rgba(255, 255, 255, 0.7)',
       padding: 12 * phoneScale,
-      borderRadius: 20 * phoneScale,
+      borderRadius: theme.borderRadius.sm,
       flexDirection: 'row',
       alignItems: 'center',
       gap: 8 * phoneScale,
@@ -224,16 +219,16 @@ export default function LoginChoiceScreen() {
       borderColor: 'rgba(255, 255, 255, 0.4)',
     },
     badgeIcon: {
-      backgroundColor: theme.colors.tertiary,
+      backgroundColor: theme.colors.midnight,
       padding: 4 * phoneScale,
-      borderRadius: 12 * phoneScale,
+      borderRadius: theme.borderRadius.sm,
     },
     badgeIconSecondary: {
-      backgroundColor: theme.colors.secondary,
+      backgroundColor: theme.colors.emberOrange,
     },
     badgeText: {
       fontSize: 10 * phoneScale,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.text,
     },
     main: {
@@ -242,13 +237,8 @@ export default function LoginChoiceScreen() {
       paddingTop: theme.spacing.xl,
       paddingBottom: mainPaddingBottom,
       backgroundColor: theme.colors.surfaceContainerLowest,
-      borderTopLeftRadius: 48,
-      borderTopRightRadius: 48,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: -10 },
-      shadowOpacity: 0.05,
-      shadowRadius: 40,
-      elevation: 8,
+      borderTopLeftRadius: theme.borderRadius.xl,
+      borderTopRightRadius: theme.borderRadius.xl,
     },
     headline: {
       alignItems: 'center',
@@ -256,14 +246,14 @@ export default function LoginChoiceScreen() {
     },
     title: {
       fontSize: titleFontSize,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.text,
       lineHeight: titleLineHeight,
       textAlign: 'center',
       marginBottom: theme.spacing.sm,
     },
     titlePrimary: {
-      color: theme.colors.primary,
+      color: theme.colors.emberOrange,
     },
     subtitle: {
       fontSize: theme.typography.fontSize.md,
@@ -286,11 +276,11 @@ export default function LoginChoiceScreen() {
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: theme.borderRadius.full,
+      borderRadius: theme.borderRadius.button,
     },
     googleButtonText: {
       fontSize: theme.typography.fontSize.md,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.text,
     },
     emailButton: {
@@ -301,17 +291,12 @@ export default function LoginChoiceScreen() {
       gap: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
-      backgroundColor: theme.colors.primary,
-      borderRadius: theme.borderRadius.full,
-      shadowColor: theme.colors.primary,
-      shadowOffset: { width: 0, height: 20 },
-      shadowOpacity: 0.2,
-      shadowRadius: 40,
-      elevation: 8,
+      backgroundColor: theme.colors.midnight,
+      borderRadius: theme.borderRadius.button,
     },
     emailButtonText: {
       fontSize: theme.typography.fontSize.md,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
       color: '#FFFFFF',
     },
     registerButton: {
@@ -323,14 +308,14 @@ export default function LoginChoiceScreen() {
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       backgroundColor: 'transparent',
-      borderRadius: theme.borderRadius.full,
-      borderWidth: 2,
-      borderColor: theme.colors.primary,
+      borderRadius: theme.borderRadius.button,
+      borderWidth: 1,
+      borderColor: theme.colors.graphite,
     },
     registerButtonText: {
       fontSize: theme.typography.fontSize.md,
-      fontWeight: theme.typography.fontWeight.bold,
-      color: theme.colors.primary,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.graphite,
     },
     divider: {
       flexDirection: 'row',
@@ -340,8 +325,8 @@ export default function LoginChoiceScreen() {
     },
     dividerLine: {
       flex: 1,
-      height: 2,
-      backgroundColor: theme.colors.surfaceContainer,
+      height: 1,
+      backgroundColor: theme.colors.stoneSurface,
     },
     dividerText: {
       fontSize: theme.typography.fontSize.xs,
@@ -359,14 +344,12 @@ export default function LoginChoiceScreen() {
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       backgroundColor: 'transparent',
-      borderRadius: theme.borderRadius.full,
-      borderWidth: 2,
-      borderColor: 'transparent',
+      borderRadius: theme.borderRadius.button,
     },
     guestButtonText: {
       fontSize: theme.typography.fontSize.md,
-      fontWeight: theme.typography.fontWeight.bold,
-      color: theme.colors.secondary,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.emberOrange,
     },
     footer: {
       marginTop: 'auto',
@@ -375,13 +358,13 @@ export default function LoginChoiceScreen() {
     },
     footerText: {
       fontSize: theme.typography.fontSize.xs,
-      color: `${theme.colors.textSecondary}60`,
+      color: theme.colors.ash,
       textAlign: 'center',
     },
     link: {
       textDecorationLine: 'underline',
       fontWeight: theme.typography.fontWeight.semibold,
-      color: `${theme.colors.primary}70`,
+      color: theme.colors.emberOrange,
     },
   });
 
@@ -426,24 +409,24 @@ export default function LoginChoiceScreen() {
               <View style={styles.phoneLine} />
               <View style={styles.phoneItem}>
                 <View style={styles.phoneItemIcon}>
-                  <MaterialIcons name="check" size={14} color={theme.colors.tertiary} />
+                  <MaterialIcons name="check" size={14} color={theme.colors.midnight} />
                 </View>
                 <View style={[styles.phoneItemLine, { width: 96 }]} />
               </View>
               <View style={styles.phoneItem}>
                 <View
-                  style={[styles.phoneItemIcon, { backgroundColor: `${theme.colors.secondary}20` }]}
+                  style={[styles.phoneItemIcon, { backgroundColor: `${theme.colors.skyBlue}20` }]}
                 />
                 <View style={[styles.phoneItemLine, { width: 128 }]} />
               </View>
               <View style={styles.phoneItem}>
                 <View
-                  style={[styles.phoneItemIcon, { backgroundColor: `${theme.colors.primary}20` }]}
+                  style={[styles.phoneItemIcon, { backgroundColor: `${theme.colors.meadowGreen}20` }]}
                 />
                 <View style={[styles.phoneItemLine, { width: 80 }]} />
               </View>
               <View style={styles.phoneCart}>
-                <MaterialIcons name="add-shopping-cart" size={24} color={theme.colors.primary} />
+                <MaterialIcons name="add-shopping-cart" size={24} color={theme.colors.emberOrange} />
               </View>
             </View>
           </View>
@@ -514,7 +497,7 @@ export default function LoginChoiceScreen() {
               isAnyLoading && { opacity: 0.6 },
             ]}
           >
-            <MaterialIcons name="person-add" size={20} color={theme.colors.primary} />
+            <MaterialIcons name="person-add" size={20} color={theme.colors.graphite} />
             <Text style={styles.registerButtonText}>Registrarse con correo</Text>
           </Pressable>
 
@@ -534,11 +517,11 @@ export default function LoginChoiceScreen() {
             ]}
           >
             {isGuestLoading ? (
-              <ActivityIndicator size="small" color={theme.colors.secondary} />
+              <ActivityIndicator size="small" color={theme.colors.emberOrange} />
             ) : (
               <>
                 <Text style={styles.guestButtonText}>Entrar como Invitado</Text>
-                <MaterialIcons name="arrow-forward" size={20} color={theme.colors.secondary} />
+                <MaterialIcons name="arrow-forward" size={20} color={theme.colors.emberOrange} />
               </>
             )}
           </Pressable>

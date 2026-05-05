@@ -22,21 +22,17 @@ const stylesheet = StyleSheet.create(theme => ({
   card: {
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: `${theme.colors.outlineVariant}10`,
+    borderColor: theme.colors.stoneSurface,
     padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.md,
-    shadowColor: theme.colors.onSurface,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
   },
   imageContainer: {
     width: 60,
     height: 60,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: theme.colors.surfaceContainer,
     overflow: 'hidden',
     flexShrink: 0,
@@ -57,7 +53,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   title: {
     fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
     flex: 1,
   },
@@ -78,7 +74,7 @@ const stylesheet = StyleSheet.create(theme => ({
   menuButton: {
     padding: theme.spacing.xxs,
     backgroundColor: theme.colors.surfaceContainerLow,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: theme.borderRadius.sm,
   },
   quantityRow: {
     marginTop: theme.spacing.sm,
@@ -98,7 +94,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   priceBs: {
     fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
   },
   priceUsd: {
@@ -109,7 +105,7 @@ const stylesheet = StyleSheet.create(theme => ({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.surfaceContainer,
-    borderRadius: 9999,
+    borderRadius: theme.borderRadius.sm,
     padding: theme.spacing.xs,
     gap: theme.spacing.md,
   },
@@ -123,7 +119,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   quantityText: {
     fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
     minWidth: 20,
     textAlign: 'center',
@@ -135,7 +131,6 @@ export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
   const styles = stylesheet(theme)
   const { updateItemQuantity, removeItemFromCart } = useCartStore()
 
-  // Placeholder image - in real app would use item.productImageUrl
   const imageUrl =
     item.productImageUrl ||
     'https://lh3.googleusercontent.com/aida-public/AB6AXuC6k9pYxNSoMVMuc_vD59UZLC-6VfJK8aEj5uGakolu4kW-WgHO5MYUzFdiz18MRHXcl5QwWKNYA3lcu3qjrcKIlEDziPD99ApevVCk68rNjpFzDoa07ZSNWGgycQ-FybsEAcp2m6XR0Xk5Eg-78cyYvv0sWlTsi2GZcEfF34On_I7yXLw0VoBA_j_lsxIrWvpr5bfk7A5EnddqyWWzX3g-uNNI-bcIAxI8UgtygDvh_GnHD_McmAhMAjay3GZCUx5DwN75OI4HM-T4'
@@ -168,7 +163,7 @@ export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
                     pressed && { opacity: 0.7 },
                   ]}
                 >
-                  <MaterialIcons name="remove" size={16} color={theme.colors.primary} />
+                  <MaterialIcons name="remove" size={16} color={theme.colors.emberOrange} />
                 </Pressable>
                 <Text style={styles.quantityText as TextStyle}>{item.quantity}</Text>
                 <Pressable
@@ -178,7 +173,7 @@ export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
                     pressed && { opacity: 0.7 },
                   ]}
                 >
-                  <MaterialIcons name="add" size={16} color={theme.colors.primary} />
+                  <MaterialIcons name="add" size={16} color={theme.colors.emberOrange} />
                 </Pressable>
               </View>
             </View>

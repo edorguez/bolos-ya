@@ -10,9 +10,10 @@
     "set-role": "tsx scripts/set-role.ts"
   },
   "dependencies": {
+    "@better-auth/expo": "^1.6.9",
+    "@hono/node-server": "^1.13.0",
     "better-auth": "^1.6.9",
     "hono": "^4.7.0",
-    "@hono/node-server": "^1.13.0",
     "pg": "^8.20.0"
   },
   "devDependencies": {

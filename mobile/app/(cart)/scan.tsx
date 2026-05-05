@@ -46,7 +46,6 @@ export default function ScanScreen() {
 
     setIsScanning(true)
 
-    // Start scanning animation
     const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(scanLineAnim, {
@@ -64,17 +63,14 @@ export default function ScanScreen() {
     animation.start()
 
     try {
-      // Capture image from camera
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.8,
         base64: false,
         exif: false,
       })
 
-      // Process image with OCR
       const result = await scanImage(photo.uri)
 
-      // Update scan result with parsed data
       setScanResult({
         name: result.productName,
         priceBs: result.priceBs,
@@ -90,7 +86,6 @@ export default function ScanScreen() {
         [{ text: 'OK', onPress: () => {} }]
       )
     } finally {
-      // Stop animation and reset scanning state
       animation.stop()
       setIsScanning(false)
     }
@@ -140,7 +135,7 @@ export default function ScanScreen() {
       height: SCANNER_FRAME_HEIGHT,
       borderWidth: 2,
       borderColor: 'rgba(255, 255, 255, 0.4)',
-      borderRadius: 24,
+      borderRadius: theme.borderRadius.md,
       overflow: 'hidden',
       backgroundColor: 'transparent',
     },
@@ -203,13 +198,13 @@ export default function ScanScreen() {
       backgroundColor: 'rgba(255, 255, 255, 0.9)',
       paddingHorizontal: 20,
       paddingVertical: 12,
-      borderRadius: 999,
+      borderRadius: theme.borderRadius.full,
     },
     statusDot: {
       width: 12,
       height: 12,
       borderRadius: 6,
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme.colors.emberOrange,
     },
     statusText: {
       color: theme.colors.onSurface,
@@ -224,14 +219,9 @@ export default function ScanScreen() {
       width: 80,
       height: 80,
       borderRadius: 40,
-      backgroundColor: '#0619fc',
+      backgroundColor: theme.colors.emberOrange,
       alignItems: 'center',
       justifyContent: 'center',
-      shadowColor: '#0619fc',
-      shadowOffset: { width: 0, height: 12 },
-      shadowOpacity: 0.3,
-      shadowRadius: 24,
-      elevation: 8,
     },
     flipCameraButton: {
       position: 'absolute',
@@ -259,7 +249,7 @@ export default function ScanScreen() {
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <Text style={{ color: '#FFFFFF' }}>No access to camera</Text>
         <Pressable onPress={() => router.back()}>
-          <Text style={{ color: theme.colors.primary, marginTop: 16 }}>Go back</Text>
+          <Text style={{ color: theme.colors.emberOrange, marginTop: 16 }}>Go back</Text>
         </Pressable>
       </View>
     )
@@ -278,26 +268,12 @@ export default function ScanScreen() {
         />
 
         <View style={styles.scannerOverlay}>
-          {/* Scanner frame overlay */}
-          <View
-            style={[
-              styles.scannerFrame,
-              {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 0 },
-                shadowOpacity: 0.4,
-                shadowRadius: 400,
-                elevation: 10,
-              },
-            ]}
-          >
-            {/* Corner indicators */}
+          <View style={styles.scannerFrame}>
             <View style={styles.cornerTL} />
             <View style={styles.cornerTR} />
             <View style={styles.cornerBL} />
             <View style={styles.cornerBR} />
 
-            {/* Scanning line */}
             {isScanning && (
               <Animated.View
                 style={[
@@ -317,8 +293,8 @@ export default function ScanScreen() {
                 <View
                   style={{
                     height: 2,
-                    backgroundColor: theme.colors.primaryContainer,
-                    shadowColor: theme.colors.primaryContainer,
+                    backgroundColor: theme.colors.emberOrange,
+                    shadowColor: theme.colors.emberOrange,
                     shadowOffset: { width: 0, height: 0 },
                     shadowOpacity: 0.8,
                     shadowRadius: 8,
@@ -328,16 +304,14 @@ export default function ScanScreen() {
             )}
           </View>
 
-          {/* Scanning status */}
           {isScanning && (
             <View style={styles.statusContainer}>
-              <View style={[styles.statusDot, { backgroundColor: theme.colors.primary }]} />
+              <View style={[styles.statusDot, { backgroundColor: theme.colors.emberOrange }]} />
               <Text style={styles.statusText}>Scanning...</Text>
             </View>
           )}
         </View>
 
-        {/* Floating camera action button */}
         <Pressable
           style={styles.floatingCameraButton}
           onPress={startScanning}
@@ -346,13 +320,11 @@ export default function ScanScreen() {
           <MaterialIcons name="photo-camera" size={40} color="#FFFFFF" />
         </Pressable>
 
-        {/* Flip camera button */}
         <Pressable style={styles.flipCameraButton} onPress={toggleCameraType}>
           <MaterialIcons name="flip-camera-ios" size={28} color="#FFFFFF" />
         </Pressable>
       </View>
 
-      {/* Product scan result modal */}
       <ProductScanResultModal
         isVisible={!!scanResult}
         onClose={() => setScanResult(null)}

@@ -24,7 +24,7 @@ interface BottomSheetModalProps {
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window')
-const MODAL_HEIGHT = SCREEN_HEIGHT * 0.9 // 90% of screen height
+const MODAL_HEIGHT = SCREEN_HEIGHT * 0.9
 
 const stylesheet = StyleSheet.create(theme => ({
   backdrop: {
@@ -45,12 +45,10 @@ const stylesheet = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.surfaceContainerLowest,
     borderTopLeftRadius: theme.borderRadius.xl,
     borderTopRightRadius: theme.borderRadius.xl,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
     zIndex: 70,
+    borderWidth: 1,
+    borderColor: theme.colors.stoneSurface,
+    borderBottomWidth: 0,
   },
   handleContainer: {
     paddingTop: theme.spacing.sm,
@@ -70,7 +68,7 @@ const stylesheet = StyleSheet.create(theme => ({
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: theme.spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.surfaceContainerLow,
+    borderBottomColor: theme.colors.stoneSurface,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -86,9 +84,10 @@ const stylesheet = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.surfaceContainerLow,
   },
   headerTitle: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
+    letterSpacing: theme.typography.letterSpacing.lg,
   },
   headerSubtitle: {
     fontSize: theme.typography.fontSize.sm,
@@ -121,20 +120,17 @@ export function BottomSheetModal({
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        return gestureState.dy > 5 // Only respond to downward gestures
+        return gestureState.dy > 5
       },
       onPanResponderMove: (_, gestureState) => {
-        // Prevent moving above initial position and limit to MODAL_HEIGHT
         if (gestureState.dy > 0) {
           translateY.setValue(Math.min(gestureState.dy, MODAL_HEIGHT))
         }
       },
       onPanResponderRelease: (_, gestureState) => {
-        // If dragged down more than 100px or velocity is high, close modal
         if (gestureState.dy > 100 || gestureState.vy > 0.5) {
           closeModal()
         } else {
-          // Snap back to top
           Animated.spring(translateY, {
             toValue: 0,
             useNativeDriver: true,

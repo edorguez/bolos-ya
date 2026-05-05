@@ -8,6 +8,7 @@ DROP INDEX IF EXISTS idx_session_user_id;
 DROP INDEX IF EXISTS idx_session_token;
 DROP INDEX IF EXISTS idx_account_user_id;
 DROP INDEX IF EXISTS idx_account_provider;
+DROP INDEX IF EXISTS idx_verification_identifier;
 
 -- Drop tables in reverse order of creation
 DROP TABLE IF EXISTS payments;

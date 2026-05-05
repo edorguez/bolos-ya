@@ -34,39 +34,33 @@ const stylesheet = StyleSheet.create(theme => ({
   option: {
     width: 80,
     height: 96,
-    backgroundColor: '#ffffff80',
-    borderRadius: theme.borderRadius.xl,
+    backgroundColor: theme.colors.surfaceContainerLow,
+    borderRadius: theme.borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
     gap: theme.spacing.xs,
     borderWidth: 2,
     borderColor: 'transparent',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
     marginVertical: 2,
   },
   optionSelected: {
-    borderColor: '#5918af',
-    backgroundColor: '#ffffff',
-    transform: [{ scale: 1.05 }],
+    borderColor: theme.colors.midnight,
+    backgroundColor: theme.colors.surfaceContainerLowest,
   },
   icon: {
-    color: '#94a3b8',
+    color: theme.colors.ash,
   },
   iconSelected: {
-    color: '#5918af',
+    color: theme.colors.midnight,
   },
   name: {
     fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: '#94a3b8',
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.ash,
     textAlign: 'center',
   },
   nameSelected: {
-    color: '#5918af',
+    color: theme.colors.midnight,
   },
 }))
 
@@ -92,7 +86,7 @@ export function SupermarketCarousel({ supermarkets, onSelect }: SupermarketCarou
             <MaterialIcons
               name={supermarket.icon as any}
               size={24}
-              color={supermarket.selected ? '#5918af' : '#94a3b8'}
+              color={supermarket.selected ? theme.colors.midnight : theme.colors.ash}
             />
             <Text
               style={[

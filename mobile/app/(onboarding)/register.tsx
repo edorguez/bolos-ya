@@ -6,10 +6,9 @@ import {
   Pressable,
   StyleSheet,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
 import { signUp } from '../../lib/auth-client';
@@ -52,6 +51,7 @@ export default function RegisterScreen() {
         password,
         name: email.trim().split('@')[0],
       });
+      router.replace('/(tabs)');
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Error al crear la cuenta';
@@ -62,13 +62,16 @@ export default function RegisterScreen() {
   };
 
   const styles = StyleSheet.create({
+    backButton: {
+      padding: theme.spacing.md,
+    },
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
     scroll: {
       flexGrow: 1,
-      justifyContent: 'center',
+      paddingTop: theme.spacing.xxl,
     },
     content: {
       paddingHorizontal: theme.spacing.lg,
@@ -84,8 +87,9 @@ export default function RegisterScreen() {
     },
     title: {
       fontSize: theme.typography.fontSize.xl,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.text,
+      letterSpacing: theme.typography.letterSpacing.xl,
     },
     subtitle: {
       fontSize: theme.typography.fontSize.md,
@@ -99,10 +103,10 @@ export default function RegisterScreen() {
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: theme.borderRadius.lg,
+      borderRadius: theme.borderRadius.md,
       paddingHorizontal: theme.spacing.md,
       borderWidth: 1,
-      borderColor: theme.colors.outlineVariant,
+      borderColor: theme.colors.stoneSurface,
     },
     input: {
       flex: 1,
@@ -117,26 +121,21 @@ export default function RegisterScreen() {
       padding: theme.spacing.xs,
     },
     registerButton: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: theme.borderRadius.full,
+      backgroundColor: theme.colors.midnight,
+      borderRadius: theme.borderRadius.button,
       paddingVertical: theme.spacing.md,
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'row',
       gap: theme.spacing.sm,
-      shadowColor: theme.colors.primary,
-      shadowOffset: { width: 0, height: 20 },
-      shadowOpacity: 0.2,
-      shadowRadius: 40,
-      elevation: 8,
     },
     registerButtonText: {
       color: '#FFFFFF',
       fontSize: theme.typography.fontSize.md,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
     },
     errorContainer: {
-      backgroundColor: theme.colors.errorContainer,
+      backgroundColor: theme.colors.coralRed + '15',
       borderRadius: theme.borderRadius.md,
       padding: theme.spacing.md,
       flexDirection: 'row',
@@ -157,23 +156,25 @@ export default function RegisterScreen() {
       color: theme.colors.textSecondary,
     },
     link: {
-      color: theme.colors.primary,
-      fontWeight: theme.typography.fontWeight.bold,
+      color: theme.colors.emberOrange,
+      fontWeight: theme.typography.fontWeight.semibold,
     },
   });
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <SafeAreaView edges={['top']}>
+        <Pressable onPress={() => router.back()} style={styles.backButton}>
+          <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
+        </Pressable>
+      </SafeAreaView>
       <ScrollView
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <MaterialIcons name="person-add" size={48} color={theme.colors.primary} />
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="always"
+        >
+          <View style={styles.content}>
+            <View style={styles.header}>
+              <MaterialIcons name="person-add" size={48} color={theme.colors.midnight} />
             <Text style={styles.title}>Crear Cuenta</Text>
             <Text style={styles.subtitle}>
               Regístrate para guardar tu historial y más
@@ -299,6 +300,6 @@ export default function RegisterScreen() {
           </View>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 }

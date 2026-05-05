@@ -45,7 +45,7 @@ export default function WelcomeScreen() {
       position: 'absolute',
       width: '95%',
       height: '95%',
-      backgroundColor: '#f8eae8',
+      backgroundColor: theme.colors.stoneSurface,
       borderRadius: theme.borderRadius.xl,
       transform: [{ rotate: '3deg' }],
       opacity: 0.5,
@@ -53,7 +53,7 @@ export default function WelcomeScreen() {
     illustration: {
       width: '100%',
       height: '100%',
-      backgroundColor: '#f8eae8',
+      backgroundColor: theme.colors.stoneSurface,
       borderRadius: theme.borderRadius.xl,
       alignItems: 'center',
       justifyContent: 'center',
@@ -68,36 +68,36 @@ export default function WelcomeScreen() {
       justifyContent: 'center',
     },
     cartIcon: {
-      color: theme.colors.primary,
+      color: theme.colors.emberOrange,
     },
     priceBubble1: {
       position: 'absolute',
       top: 100,
       right: width - 380,
-      backgroundColor: theme.colors.secondary,
+      backgroundColor: theme.colors.midnight,
       paddingHorizontal: theme.spacing.lg,
       paddingVertical: theme.spacing.sm,
-      borderRadius: theme.borderRadius.full,
+      borderRadius: theme.borderRadius.button,
       transform: [{ rotate: '12deg' }],
     },
     priceBubble2: {
       position: 'absolute',
       top: '50%',
       left: width * 0.001,
-      backgroundColor: theme.colors.tertiaryContainer,
+      backgroundColor: theme.colors.surfaceContainerLowest,
       paddingHorizontal: theme.spacing.lg,
       paddingVertical: theme.spacing.sm,
-      borderRadius: theme.borderRadius.full,
+      borderRadius: theme.borderRadius.button,
       transform: [{ rotate: '-12deg' }],
     },
     priceTextBuble1: {
       color: '#FFFFFF',
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
       fontSize: theme.typography.fontSize.sm,
     },
     priceTextBuble2: {
       color: theme.colors.onSurface,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
       fontSize: theme.typography.fontSize.sm,
     },
     content: {
@@ -105,10 +105,10 @@ export default function WelcomeScreen() {
     },
     title: {
       fontSize: theme.typography.fontSize.xl,
-      fontWeight: theme.typography.fontWeight.bold,
-      color: theme.colors.secondary,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.charcoalPrimary,
       lineHeight: 36,
-      letterSpacing: -0.5,
+      letterSpacing: theme.typography.letterSpacing.xl,
     },
     description: {
       fontSize: theme.typography.fontSize.md,
@@ -116,7 +116,7 @@ export default function WelcomeScreen() {
       color: theme.colors.textSecondary,
     },
     boldText: {
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.text,
     },
     footer: {
@@ -124,24 +124,19 @@ export default function WelcomeScreen() {
       gap: theme.spacing.xl,
     },
     nextButton: {
-      backgroundColor: theme.colors.primary,
-      borderRadius: theme.borderRadius.full,
+      backgroundColor: theme.colors.midnight,
+      borderRadius: theme.borderRadius.button,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       gap: theme.spacing.sm,
-      shadowColor: theme.colors.primary,
-      shadowOffset: { width: 0, height: 20 },
-      shadowOpacity: 0.2,
-      shadowRadius: 40,
-      elevation: 8,
     },
     nextButtonText: {
       color: '#FFFFFF',
       fontSize: theme.typography.fontSize.md,
-      fontWeight: theme.typography.fontWeight.bold,
+      fontWeight: theme.typography.fontWeight.semibold,
     },
   })
 
@@ -152,7 +147,7 @@ export default function WelcomeScreen() {
           <View style={styles.blobBackground} />
           <View style={styles.illustration}>
             <View style={styles.circle}>
-              <MaterialIcons name="shopping-cart" size={96} color={theme.colors.primary} />
+              <MaterialIcons name="shopping-cart" size={96} color={theme.colors.emberOrange} />
             </View>
             <View style={styles.priceBubble1}>
               <Text style={styles.priceTextBuble1}>$ 12.50</Text>

@@ -18,7 +18,7 @@ const stylesheet = StyleSheet.create(theme => ({
   logoContainer: {
     width: 48,
     height: 48,
-    borderRadius: 16,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: theme.colors.surfaceContainer,
     overflow: 'hidden',
     flexShrink: 0,
@@ -33,13 +33,13 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   title: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '600',
     color: theme.colors.onSurface,
-    letterSpacing: -0.5,
+    letterSpacing: -0.25,
   },
   subtitle: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '500',
     color: theme.colors.onSurfaceVariant,
     marginTop: 2,
   },
@@ -49,7 +49,6 @@ export function SupermarketHeader({ supermarket, itemCount, logoUrl }: Supermark
   const theme = useAppTheme()
   const styles = stylesheet(theme)
 
-  // Default logo from mockup
   const defaultLogoUrl =
     'https://lh3.googleusercontent.com/aida-public/AB6AXuAqxgdfttwxFbmt1ckbVGF1PkfkEYc4Kf6O3JxGJHloxrtwLzANfhp15Ob4x3-AWD6UHcWyxSV5Lz1KIjx8I_ueYx8UlnQIfOXxYpyAYSdgDsR51-_EN9Bk7ABbjtvRSCavXV6OPqVF3svzT0dtV1omMxdoWxXw-UwzYrmLSjDcXr0CPhQrfTMJGixzwNwElAv7iplTVtaOgVcELaBjvfkJZf6G8O2PKz3t2Bn0vcyZADhJVe1iGetqm_wQwd8J7mkZ2voL3k-k-VxG'
 

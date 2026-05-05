@@ -48,20 +48,7 @@ export default function HomeTab() {
         }),
       ]).start()
     } else {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: -20,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        setRenderCustomMarket(false)
-      })
+      setRenderCustomMarket(false)
     }
   }, [showCustomMarket])
 
@@ -108,14 +95,12 @@ export default function HomeTab() {
   }
 
   const handleBsBudgetChange = (text: string) => {
-    // Allow empty string, numbers, and single decimal point
     if (text === '' || /^\d*\.?\d*$/.test(text)) {
       setBudgetBs(text)
     }
   }
 
   const handleUsdBudgetChange = (text: string) => {
-    // Allow empty string, numbers, and single decimal point
     if (text === '' || /^\d*\.?\d*$/.test(text)) {
       setBudgetUsd(text)
     }
@@ -132,7 +117,7 @@ export default function HomeTab() {
       subtitle: '85% completado',
       date: '12 OCT',
       progress: 85,
-      color: theme.colors.primary,
+      color: theme.colors.emberOrange,
       icon: 'bakery-dining',
     },
     {
@@ -141,7 +126,7 @@ export default function HomeTab() {
       subtitle: '40% completado',
       date: '05 OCT',
       progress: 40,
-      color: '#ffc456',
+      color: theme.colors.skyBlue,
       icon: 'cleaning-services',
     },
   ]

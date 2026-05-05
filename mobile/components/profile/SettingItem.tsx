@@ -29,13 +29,13 @@ const stylesheet = StyleSheet.create(theme => ({
   iconContainer: {
     width: 40,
     height: 40,
-    borderRadius: theme.borderRadius.xl,
+    borderRadius: theme.borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   text: {
     fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
   },
 }))

@@ -1,20 +1,21 @@
 .footer {
-  background: var(--surface);
+  background: var(--color-warm-canvas);
   padding: 3rem 1.5rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
-  border-top: 1px solid var(--surface-variant);
+  border-top: 1px solid var(--color-stone-surface);
   position: relative;
   z-index: 20;
 }
 
 .brand {
-  font: var(--font-title-lg);
-  font-weight: 700;
-  color: var(--primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 23px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-midnight);
   margin-bottom: 0.5rem;
 }
 
@@ -26,17 +27,18 @@
 
 .link {
   font: var(--font-label-md);
-  color: var(--on-surface-variant);
+  color: var(--color-ash);
   text-decoration: none;
   transition: color 0.2s;
 
   &:hover {
-    color: var(--primary);
+    color: var(--color-ember-orange);
   }
 }
 
 .copy {
-  font: var(--font-body-md);
-  color: var(--on-surface-variant);
-  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-ash);
 }

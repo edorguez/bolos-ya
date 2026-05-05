@@ -36,16 +36,11 @@ const stylesheet = StyleSheet.create(theme => ({
   modalContent: {
     width: MODAL_WIDTH,
     backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
     padding: theme.spacing.lg,
     marginBottom: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 24,
-    elevation: 16,
+    borderColor: theme.colors.stoneSurface,
   },
   headerRow: {
     flexDirection: 'row',
@@ -58,32 +53,33 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   subtitle: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.primary,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.emberOrange,
     textTransform: 'uppercase',
-    letterSpacing: 2,
+    letterSpacing: 1,
     marginBottom: theme.spacing.xs,
   },
   productName: {
     fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
     lineHeight: 24,
+    letterSpacing: theme.typography.letterSpacing.lg,
   },
   verifiedBadge: {
-    backgroundColor: `${theme.colors.tertiaryContainer}30`,
+    backgroundColor: theme.colors.meadowGreen + '20',
     padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.md,
   },
   toggleButton: {
-    backgroundColor: `${theme.colors.outlineVariant}20`,
+    backgroundColor: theme.colors.stoneSurface,
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.xs,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: theme.borderRadius.sm,
     marginLeft: theme.spacing.sm,
   },
   toggleButtonText: {
-    color: theme.colors.primary,
+    color: theme.colors.emberOrange,
     fontSize: theme.typography.fontSize.xs,
     fontWeight: theme.typography.fontWeight.medium,
   },
@@ -91,10 +87,10 @@ const stylesheet = StyleSheet.create(theme => ({
     marginTop: theme.spacing.md,
     maxHeight: 150,
     borderWidth: 1,
-    borderColor: `${theme.colors.outlineVariant}30`,
+    borderColor: theme.colors.stoneSurface,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.sm,
-    backgroundColor: `${theme.colors.surfaceContainerLow}20`,
+    backgroundColor: theme.colors.surfaceContainerLow,
   },
   rawText: {
     fontSize: theme.typography.fontSize.xs,
@@ -113,46 +109,43 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   priceLabel: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.outline,
     textTransform: 'uppercase',
     marginBottom: theme.spacing.xs,
+    letterSpacing: 1,
   },
   priceBs: {
     fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
-    letterSpacing: -0.5,
+    letterSpacing: theme.typography.letterSpacing.lg,
   },
   priceUsd: {
     fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.bold,
-    color: theme.colors.secondary,
-    letterSpacing: -0.3,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.emberOrange,
+    letterSpacing: theme.typography.letterSpacing.lg,
   },
   divider: {
     width: 1,
     height: 40,
-    backgroundColor: `${theme.colors.outlineVariant}30`,
+    backgroundColor: theme.colors.stoneSurface,
     marginBottom: theme.spacing.xs,
   },
   addButton: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.midnight,
+    borderRadius: theme.borderRadius.button,
     paddingVertical: theme.spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
     gap: 8,
   },
   addButtonText: {
-    color: theme.colors.surfaceContainerLowest,
+    color: '#FFFFFF',
     fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
   },
 }))
 
@@ -198,7 +191,7 @@ export function ProductScanResultModal({
                 </Pressable>
               )}
               <View style={styles.verifiedBadge as ViewStyle}>
-                <MaterialIcons name="verified" size={24} color={theme.colors.tertiary} />
+                <MaterialIcons name="verified" size={24} color={theme.colors.meadowGreen} />
               </View>
             </View>
           </View>

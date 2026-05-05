@@ -10,11 +10,11 @@ const stylesheet = StyleSheet.create(theme => ({
   badge: {
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: theme.borderRadius.sm,
   },
   text: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.bold,
+    fontWeight: theme.typography.fontWeight.semibold,
     textTransform: 'uppercase',
   },
 }))
@@ -27,13 +27,13 @@ export function StatusBadge({ status }: StatusBadgeProps) {
     switch (status) {
       case 'Completado':
         return {
-          backgroundColor: theme.colors.secondaryContainer,
-          textColor: theme.colors.secondary,
+          backgroundColor: theme.colors.meadowGreen + '20',
+          textColor: theme.colors.meadowGreen,
         }
       case 'Excedido':
         return {
-          backgroundColor: theme.colors.errorContainer,
-          textColor: theme.colors.surfaceContainerLowest,
+          backgroundColor: theme.colors.coralRed + '20',
+          textColor: theme.colors.coralRed,
         }
       default:
         return {

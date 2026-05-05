@@ -3,7 +3,7 @@ import { StyleSheet } from '../../styles/createStyleSheet'
 import { useAppTheme } from '../../styles/theme'
 
 interface ProgressBarProps extends ViewProps {
-  progress: number // 0-100
+  progress: number
   color?: string
   backgroundColor?: string
   height?: number
@@ -11,7 +11,7 @@ interface ProgressBarProps extends ViewProps {
 
 const stylesheet = StyleSheet.create(theme => ({
   container: {
-    backgroundColor: theme.colors.surfaceContainerHighest,
+    backgroundColor: theme.colors.surfaceContainer,
     borderRadius: theme.borderRadius.full,
     overflow: 'hidden',
   },
@@ -31,7 +31,7 @@ export function ProgressBar({
 }: ProgressBarProps) {
   const theme = useAppTheme()
   const styles = stylesheet(theme)
-  const fillColor = color
+  const fillColor = color || theme.colors.midnight
 
   return (
     <View style={[styles.container as ViewStyle, { height, backgroundColor }, style]} {...props}>

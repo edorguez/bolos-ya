@@ -120,6 +120,7 @@ services:
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
       GO_BACKEND_URL: http://server:${PORT}/api/v1
       CORS_ORIGINS: ${APP_ALLOWED_ORIGINS}
+      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
     depends_on:
       postgres:
         condition: service_healthy
