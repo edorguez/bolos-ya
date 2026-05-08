@@ -1,8 +1,8 @@
-import { Stack } from 'expo-router'
-import { useAppTheme } from '../../styles/theme'
+import { Stack } from 'expo-router';
+import { useAppTheme } from '../../styles/theme';
 
 export default function CartLayout() {
-  const theme = useAppTheme()
+  const theme = useAppTheme();
 
   return (
     <Stack
@@ -15,5 +15,5 @@ export default function CartLayout() {
       <Stack.Screen name="[id]" />
       <Stack.Screen name="scan" />
     </Stack>
-  )
+  );
 }

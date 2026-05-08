@@ -1,11 +1,11 @@
-import { Tabs } from 'expo-router'
-import { useAppTheme } from '../../styles/theme'
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs'
-import { MaterialIcons } from '@expo/vector-icons'
+import { Tabs } from 'expo-router';
+import { useAppTheme } from '../../styles/theme';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { MaterialIcons } from '@expo/vector-icons';
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-  const theme = useAppTheme()
+  const theme = useAppTheme();
 
   const styles = StyleSheet.create({
     container: {
@@ -43,39 +43,39 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       fontSize: theme.typography.fontSize.xxs,
       fontWeight: theme.typography.fontWeight.semibold,
     },
-  })
+  });
 
   return (
     <View style={styles.container}>
       <View style={styles.tabBar}>
         {state.routes.map((route, index) => {
-          const { options } = descriptors[route.key]
-          const label = options.title || route.name
-          const isFocused = state.index === index
+          const { options } = descriptors[route.key];
+          const label = options.title || route.name;
+          const isFocused = state.index === index;
 
           const onPress = () => {
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,
               canPreventDefault: true,
-            })
+            });
 
             if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name)
+              navigation.navigate(route.name);
             }
-          }
+          };
 
           const onLongPress = () => {
             navigation.emit({
               type: 'tabLongPress',
               target: route.key,
-            })
-          }
+            });
+          };
 
-          let iconName = 'circle'
-          if (route.name === 'index') iconName = 'home'
-          if (route.name === 'history') iconName = 'receipt'
-          if (route.name === 'profile') iconName = 'person'
+          let iconName = 'circle';
+          if (route.name === 'index') iconName = 'home';
+          if (route.name === 'history') iconName = 'receipt';
+          if (route.name === 'profile') iconName = 'person';
 
           return (
             <TouchableOpacity
@@ -85,10 +85,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               accessibilityLabel={options.tabBarAccessibilityLabel || label}
               onPress={onPress}
               onLongPress={onLongPress}
-              style={[
-                styles.tabItem,
-                isFocused && styles.activeTabItem,
-              ]}
+              style={[styles.tabItem, isFocused && styles.activeTabItem]}
             >
               <MaterialIcons
                 name={iconName as any}
@@ -105,11 +102,11 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 {label}
               </Text>
             </TouchableOpacity>
-          )
+          );
         })}
       </View>
     </View>
-  )
+  );
 }
 
 export default function TabsLayout() {
@@ -139,5 +136,5 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
-  )
+  );
 }

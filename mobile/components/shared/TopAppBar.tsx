@@ -1,13 +1,13 @@
-import { View, Text, Pressable, type ViewStyle } from 'react-native'
-import { StyleSheet as RNStyleSheet } from 'react-native'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, Pressable, type ViewStyle } from 'react-native';
+import { StyleSheet as RNStyleSheet } from 'react-native';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface TopAppBarProps {
-  title: string
-  rightLabel?: string
-  onBackPress?: () => void
-  showBackButton?: boolean
+  title: string;
+  rightLabel?: string;
+  onBackPress?: () => void;
+  showBackButton?: boolean;
 }
 
 export function TopAppBar({
@@ -16,7 +16,7 @@ export function TopAppBar({
   onBackPress,
   showBackButton = true,
 }: TopAppBarProps) {
-  const theme = useAppTheme()
+  const theme = useAppTheme();
 
   const baseContainerStyle: ViewStyle = {
     height: 64,
@@ -25,7 +25,7 @@ export function TopAppBar({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     zIndex: 50,
-  }
+  };
 
   const styles = RNStyleSheet.create({
     container: {
@@ -67,7 +67,7 @@ export function TopAppBar({
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.onSurfaceVariant,
     },
-  })
+  });
 
   return (
     <View style={styles.container}>
@@ -90,5 +90,5 @@ export function TopAppBar({
         {rightLabel && <Text style={styles.rightLabel}>{rightLabel}</Text>}
       </View>
     </View>
-  )
+  );
 }

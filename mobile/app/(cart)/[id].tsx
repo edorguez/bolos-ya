@@ -1,23 +1,23 @@
-import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from 'react-native'
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useCartStore, type Cart, type CartItem } from '../../store/cartStore'
-import { useAppTheme } from '../../styles/theme'
-import { ProductCard } from '../../components/cart/ProductCard'
-import { BudgetSummary } from '../../components/cart/BudgetSummary'
-import { SupermarketHeader } from '../../components/cart/SupermarketHeader'
-import { TopAppBar } from '../../components/shared/TopAppBar'
-import { BottomSheetModal } from '../../components/shared/BottomSheetModal'
-import { ActionSheetModal } from '../../components/shared/ActionSheetModal'
-import { ProductForm } from '../../components/cart/ProductForm'
-import { useState, useEffect } from 'react'
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCartStore, type Cart, type CartItem } from '../../store/cartStore';
+import { useAppTheme } from '../../styles/theme';
+import { ProductCard } from '../../components/cart/ProductCard';
+import { BudgetSummary } from '../../components/cart/BudgetSummary';
+import { SupermarketHeader } from '../../components/cart/SupermarketHeader';
+import { TopAppBar } from '../../components/shared/TopAppBar';
+import { BottomSheetModal } from '../../components/shared/BottomSheetModal';
+import { ActionSheetModal } from '../../components/shared/ActionSheetModal';
+import { ProductForm } from '../../components/cart/ProductForm';
+import { useState, useEffect } from 'react';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function CartDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>()
-  const router = useRouter()
-  const theme = useAppTheme()
-  const insets = useSafeAreaInsets()
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const theme = useAppTheme();
+  const insets = useSafeAreaInsets();
   const {
     carts,
     activeCartId,
@@ -26,30 +26,30 @@ export default function CartDetailScreen() {
     updateItem,
     removeItemFromCart,
     completeCart,
-  } = useCartStore()
-  const [showAddProduct, setShowAddProduct] = useState(false)
-  const [showActionSheet, setShowActionSheet] = useState(false)
-  const [showCompleteCartSheet, setShowCompleteCartSheet] = useState(false)
-  const [selectedItem, setSelectedItem] = useState<CartItem | null>(null)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [editingItem, setEditingItem] = useState<CartItem | null>(null)
+  } = useCartStore();
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [showActionSheet, setShowActionSheet] = useState(false);
+  const [showCompleteCartSheet, setShowCompleteCartSheet] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<CartItem | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<CartItem | null>(null);
 
   useEffect(() => {
-    setActiveCart(id)
-  }, [id, setActiveCart])
+    setActiveCart(id);
+  }, [id, setActiveCart]);
 
   const handleScanPress = () => {
-    router.push('/(cart)/scan')
-  }
+    router.push('/(cart)/scan');
+  };
 
   const handleAddProduct = (product: {
-    name: string
-    priceBs: number
-    priceUsd: number
-    quantity: number
-    supermarket: string
+    name: string;
+    priceBs: number;
+    priceUsd: number;
+    quantity: number;
+    supermarket: string;
   }) => {
-    if (!cart) return
+    if (!cart) return;
 
     addItemToCart(cart.id, {
       productId: Date.now().toString() + Math.random().toString(36).substr(2, 9),
@@ -58,19 +58,19 @@ export default function CartDetailScreen() {
       priceUsd: product.priceUsd,
       quantity: product.quantity,
       supermarket: product.supermarket,
-    })
+    });
 
-    setShowAddProduct(false)
-  }
+    setShowAddProduct(false);
+  };
 
   const handleEditProduct = (product: {
-    name: string
-    priceBs: number
-    priceUsd: number
-    quantity: number
-    supermarket: string
+    name: string;
+    priceBs: number;
+    priceUsd: number;
+    quantity: number;
+    supermarket: string;
   }) => {
-    if (!cart || !editingItem) return
+    if (!cart || !editingItem) return;
 
     updateItem(cart.id, editingItem.id, {
       name: product.name,
@@ -78,13 +78,13 @@ export default function CartDetailScreen() {
       priceUsd: product.priceUsd,
       quantity: product.quantity,
       supermarket: product.supermarket,
-    })
+    });
 
-    setShowEditModal(false)
-    setEditingItem(null)
-  }
+    setShowEditModal(false);
+    setEditingItem(null);
+  };
 
-  const cart = carts.find((c: Cart) => c.id === id)
+  const cart = carts.find((c: Cart) => c.id === id);
 
   if (!cart) {
     return (
@@ -98,16 +98,16 @@ export default function CartDetailScreen() {
       >
         <Text>Cart not found</Text>
       </View>
-    )
+    );
   }
 
-  const totalBs = cart.totalBs || 0
-  const totalUsd = cart.totalUsd || 0
-  const budgetBs = cart.budgetBs || 4000
-  const budgetUsd = cart.budgetUsd || 109
+  const totalBs = cart.totalBs || 0;
+  const totalUsd = cart.totalUsd || 0;
+  const budgetBs = cart.budgetBs || 4000;
+  const budgetUsd = cart.budgetUsd || 109;
 
-  const buttonBarHeight = 56 + theme.spacing.lg * 2 + insets.bottom
-  const scrollContentPaddingBottom = buttonBarHeight + theme.spacing.md
+  const buttonBarHeight = 56 + theme.spacing.lg * 2 + insets.bottom;
+  const scrollContentPaddingBottom = buttonBarHeight + theme.spacing.md;
 
   const styles = StyleSheet.create({
     container: {
@@ -213,7 +213,7 @@ export default function CartDetailScreen() {
       transform: [{ translateX: '-50%' }],
       zIndex: 10,
     },
-  })
+  });
 
   return (
     <View style={styles.container}>
@@ -244,8 +244,8 @@ export default function CartDetailScreen() {
                 item={item}
                 cartId={cart.id}
                 onMenuPress={() => {
-                  setSelectedItem(item)
-                  setShowActionSheet(true)
+                  setSelectedItem(item);
+                  setShowActionSheet(true);
                 }}
               />
             ))
@@ -284,10 +284,7 @@ export default function CartDetailScreen() {
           </Pressable>
 
           <Pressable
-            style={({ pressed }) => [
-              styles.buttonCircleComplete,
-              pressed && { opacity: 0.8 },
-            ]}
+            style={({ pressed }) => [styles.buttonCircleComplete, pressed && { opacity: 0.8 }]}
             onPress={() => setShowCompleteCartSheet(true)}
             accessibilityRole="button"
             accessibilityLabel="Completar Carrito"
@@ -325,8 +322,8 @@ export default function CartDetailScreen() {
       <BottomSheetModal
         isVisible={showEditModal}
         onClose={() => {
-          setShowEditModal(false)
-          setEditingItem(null)
+          setShowEditModal(false);
+          setEditingItem(null);
         }}
         title="Editar Producto"
         showBackButton={true}
@@ -337,8 +334,8 @@ export default function CartDetailScreen() {
             supermarket={cart.supermarket}
             initialData={editingItem}
             onCancel={() => {
-              setShowEditModal(false)
-              setEditingItem(null)
+              setShowEditModal(false);
+              setEditingItem(null);
             }}
           />
         )}
@@ -347,8 +344,8 @@ export default function CartDetailScreen() {
       <ActionSheetModal
         isVisible={showActionSheet}
         onClose={() => {
-          setShowActionSheet(false)
-          setSelectedItem(null)
+          setShowActionSheet(false);
+          setSelectedItem(null);
         }}
         options={[
           {
@@ -356,8 +353,8 @@ export default function CartDetailScreen() {
             icon: 'edit',
             color: theme.colors.midnight,
             onPress: () => {
-              setEditingItem(selectedItem)
-              setShowEditModal(true)
+              setEditingItem(selectedItem);
+              setShowEditModal(true);
             },
           },
           {
@@ -366,7 +363,7 @@ export default function CartDetailScreen() {
             color: theme.colors.error,
             onPress: () => {
               if (selectedItem && cart) {
-                removeItemFromCart(cart.id, selectedItem.id)
+                removeItemFromCart(cart.id, selectedItem.id);
               }
             },
           },
@@ -383,9 +380,9 @@ export default function CartDetailScreen() {
             color: theme.colors.success,
             onPress: () => {
               if (cart) {
-                completeCart(cart.id)
-                setShowCompleteCartSheet(false)
-                Alert.alert('Carrito completado', 'El carrito ha sido movido al historial.')
+                completeCart(cart.id);
+                setShowCompleteCartSheet(false);
+                Alert.alert('Carrito completado', 'El carrito ha sido movido al historial.');
               }
             },
           },
@@ -398,5 +395,5 @@ export default function CartDetailScreen() {
         ]}
       />
     </View>
-  )
+  );
 }

@@ -6,153 +6,153 @@ import {
   type ViewStyle,
   type TextStyle,
   LayoutAnimation,
-} from 'react-native'
-import { useState, useEffect } from 'react'
-import { useAppTheme } from '../../styles/theme'
-import { Button } from '../Button'
-import { MaterialIcons } from '@expo/vector-icons'
-import { createProductFormStyles } from '../../styles/productFormStyles'
+} from 'react-native';
+import { useState, useEffect } from 'react';
+import { useAppTheme } from '../../styles/theme';
+import { Button } from '../Button';
+import { MaterialIcons } from '@expo/vector-icons';
+import { createProductFormStyles } from '../../styles/productFormStyles';
 
 interface ProductFormProps {
   onSubmit: (product: {
-    name: string
-    priceBs: number
-    priceUsd: number
-    quantity: number
-    supermarket: string
-  }) => void
-  supermarket: string
-  onCancel?: () => void
+    name: string;
+    priceBs: number;
+    priceUsd: number;
+    quantity: number;
+    supermarket: string;
+  }) => void;
+  supermarket: string;
+  onCancel?: () => void;
   initialData?: {
-    name: string
-    priceBs: number
-    priceUsd: number
-    quantity: number
-    supermarket: string
-  }
+    name: string;
+    priceBs: number;
+    priceUsd: number;
+    quantity: number;
+    supermarket: string;
+  };
 }
 
-const EXCHANGE_RATE = 475.7 // Mock exchange rate: 4000 Bs = 109 USD
+const EXCHANGE_RATE = 475.7; // Mock exchange rate: 4000 Bs = 109 USD
 
 export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: ProductFormProps) {
-  const theme = useAppTheme()
-  const styles = createProductFormStyles(theme)
+  const theme = useAppTheme();
+  const styles = createProductFormStyles(theme);
 
-  const [name, setName] = useState('')
-  const [quantity, setQuantity] = useState(1)
-  const [bsPrice, setBsPrice] = useState('')
-  const [usdPrice, setUsdPrice] = useState('')
-  const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS')
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [name, setName] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [bsPrice, setBsPrice] = useState('');
+  const [usdPrice, setUsdPrice] = useState('');
+  const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const bsEditable = topCurrency === 'BS'
+  const bsEditable = topCurrency === 'BS';
 
   // Update USD price when Bs price changes and Bs is editable
   useEffect(() => {
     if (bsEditable && bsPrice) {
-      const bsValue = parseFloat(bsPrice)
+      const bsValue = parseFloat(bsPrice);
       if (!isNaN(bsValue)) {
-        const usdValue = bsValue / EXCHANGE_RATE
-        setUsdPrice(usdValue.toFixed(2))
+        const usdValue = bsValue / EXCHANGE_RATE;
+        setUsdPrice(usdValue.toFixed(2));
       } else {
-        setUsdPrice('')
+        setUsdPrice('');
       }
     }
-  }, [bsPrice, bsEditable])
+  }, [bsPrice, bsEditable]);
 
   // Update Bs price when USD price changes and USD is editable
   useEffect(() => {
     if (!bsEditable && usdPrice) {
-      const usdValue = parseFloat(usdPrice)
+      const usdValue = parseFloat(usdPrice);
       if (!isNaN(usdValue)) {
-        const bsValue = usdValue * EXCHANGE_RATE
-        setBsPrice(bsValue.toFixed(2))
+        const bsValue = usdValue * EXCHANGE_RATE;
+        setBsPrice(bsValue.toFixed(2));
       } else {
-        setBsPrice('')
+        setBsPrice('');
       }
     }
-  }, [usdPrice, bsEditable])
+  }, [usdPrice, bsEditable]);
 
   // Initialize form with initialData
   useEffect(() => {
     if (initialData) {
-      setName(initialData.name)
-      setQuantity(initialData.quantity)
-      setBsPrice(initialData.priceBs.toFixed(2))
-      setUsdPrice(initialData.priceUsd.toFixed(2))
-      setTopCurrency('BS')
-      setErrors({})
+      setName(initialData.name);
+      setQuantity(initialData.quantity);
+      setBsPrice(initialData.priceBs.toFixed(2));
+      setUsdPrice(initialData.priceUsd.toFixed(2));
+      setTopCurrency('BS');
+      setErrors({});
     }
-  }, [initialData])
+  }, [initialData]);
 
   const handleBsPriceChange = (text: string) => {
     // Allow empty string, numbers, and single decimal point
     if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setBsPrice(text)
-      setErrors(prev => ({ ...prev, bsPrice: '' }))
+      setBsPrice(text);
+      setErrors(prev => ({ ...prev, bsPrice: '' }));
     }
-  }
+  };
 
   const handleUsdPriceChange = (text: string) => {
     if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setUsdPrice(text)
-      setErrors(prev => ({ ...prev, usdPrice: '' }))
+      setUsdPrice(text);
+      setErrors(prev => ({ ...prev, usdPrice: '' }));
     }
-  }
+  };
 
   const toggleEditableCurrency = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    setTopCurrency(prev => (prev === 'BS' ? 'USD' : 'BS'))
-  }
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setTopCurrency(prev => (prev === 'BS' ? 'USD' : 'BS'));
+  };
 
   const incrementQuantity = () => {
-    setQuantity(prev => prev + 1)
-  }
+    setQuantity(prev => prev + 1);
+  };
 
   const decrementQuantity = () => {
     if (quantity > 1) {
-      setQuantity(prev => prev - 1)
+      setQuantity(prev => prev - 1);
     }
-  }
+  };
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     if (!name.trim()) {
-      newErrors.name = 'El nombre del producto es requerido'
+      newErrors.name = 'El nombre del producto es requerido';
     }
 
-    const bsValue = parseFloat(bsPrice)
-    const usdValue = parseFloat(usdPrice)
+    const bsValue = parseFloat(bsPrice);
+    const usdValue = parseFloat(usdPrice);
 
     if (isNaN(bsValue) && isNaN(usdValue)) {
-      newErrors.price = 'Ingresa un precio en Bs. o USD'
+      newErrors.price = 'Ingresa un precio en Bs. o USD';
     } else if (bsEditable && (isNaN(bsValue) || bsValue <= 0)) {
-      newErrors.bsPrice = 'Ingresa un precio válido mayor a 0'
+      newErrors.bsPrice = 'Ingresa un precio válido mayor a 0';
     } else if (!bsEditable && (isNaN(usdValue) || usdValue <= 0)) {
-      newErrors.usdPrice = 'Ingresa un precio válido mayor a 0'
+      newErrors.usdPrice = 'Ingresa un precio válido mayor a 0';
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = () => {
     if (!validateForm()) {
-      return
+      return;
     }
 
-    const bsValue = parseFloat(bsPrice)
-    const usdValue = parseFloat(usdPrice)
+    const bsValue = parseFloat(bsPrice);
+    const usdValue = parseFloat(usdPrice);
 
     // Calculate the other currency if one is missing
-    let finalBs = bsValue
-    let finalUsd = usdValue
+    let finalBs = bsValue;
+    let finalUsd = usdValue;
 
     if (isNaN(finalBs) && !isNaN(finalUsd)) {
-      finalBs = finalUsd * EXCHANGE_RATE
+      finalBs = finalUsd * EXCHANGE_RATE;
     } else if (isNaN(finalUsd) && !isNaN(finalBs)) {
-      finalUsd = finalBs / EXCHANGE_RATE
+      finalUsd = finalBs / EXCHANGE_RATE;
     }
 
     onSubmit({
@@ -161,22 +161,22 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
       priceUsd: finalUsd,
       quantity,
       supermarket,
-    })
+    });
 
     // Reset form
-    setName('')
-    setQuantity(1)
-    setBsPrice('')
-    setUsdPrice('')
-    setTopCurrency('BS')
-    setErrors({})
-  }
+    setName('');
+    setQuantity(1);
+    setBsPrice('');
+    setUsdPrice('');
+    setTopCurrency('BS');
+    setErrors({});
+  };
 
   const getSyncIconColor = () => {
-    return bsEditable ? theme.colors.primary : theme.colors.primary
-  }
+    return bsEditable ? theme.colors.primary : theme.colors.primary;
+  };
 
-  const buttonTitle = initialData ? 'Editar Producto' : 'Agregar Producto'
+  const buttonTitle = initialData ? 'Editar Producto' : 'Agregar Producto';
 
   return (
     <View style={styles.container as ViewStyle}>
@@ -205,8 +205,8 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
           placeholderTextColor={theme.colors.onSurfaceVariant}
           value={name}
           onChangeText={text => {
-            setName(text)
-            setErrors(prev => ({ ...prev, name: '' }))
+            setName(text);
+            setErrors(prev => ({ ...prev, name: '' }));
           }}
         />
         {errors.name && <Text style={styles.errorText as TextStyle}>{errors.name}</Text>}
@@ -380,5 +380,5 @@ export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: Pr
         />
       </View>
     </View>
-  )
+  );
 }

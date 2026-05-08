@@ -6,16 +6,16 @@ import {
   type ViewStyle,
   type TextStyle,
   type ImageStyle,
-} from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { CartItem, useCartStore } from '../../store/cartStore'
-import { MaterialIcons } from '@expo/vector-icons'
+} from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { CartItem, useCartStore } from '../../store/cartStore';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface ProductCardProps {
-  item: CartItem
-  cartId: string
-  onMenuPress: () => void
+  item: CartItem;
+  cartId: string;
+  onMenuPress: () => void;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -124,26 +124,26 @@ const stylesheet = StyleSheet.create(theme => ({
     minWidth: 20,
     textAlign: 'center',
   },
-}))
+}));
 
 export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
-  const { updateItemQuantity, removeItemFromCart } = useCartStore()
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
+  const { updateItemQuantity, removeItemFromCart } = useCartStore();
 
   const imageUrl =
     item.productImageUrl ||
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuC6k9pYxNSoMVMuc_vD59UZLC-6VfJK8aEj5uGakolu4kW-WgHO5MYUzFdiz18MRHXcl5QwWKNYA3lcu3qjrcKIlEDziPD99ApevVCk68rNjpFzDoa07ZSNWGgycQ-FybsEAcp2m6XR0Xk5Eg-78cyYvv0sWlTsi2GZcEfF34On_I7yXLw0VoBA_j_lsxIrWvpr5bfk7A5EnddqyWWzX3g-uNNI-bcIAxI8UgtygDvh_GnHD_McmAhMAjay3GZCUx5DwN75OI4HM-T4'
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuC6k9pYxNSoMVMuc_vD59UZLC-6VfJK8aEj5uGakolu4kW-WgHO5MYUzFdiz18MRHXcl5QwWKNYA3lcu3qjrcKIlEDziPD99ApevVCk68rNjpFzDoa07ZSNWGgycQ-FybsEAcp2m6XR0Xk5Eg-78cyYvv0sWlTsi2GZcEfF34On_I7yXLw0VoBA_j_lsxIrWvpr5bfk7A5EnddqyWWzX3g-uNNI-bcIAxI8UgtygDvh_GnHD_McmAhMAjay3GZCUx5DwN75OI4HM-T4';
 
   const handleDecrease = () => {
     if (item.quantity > 1) {
-      updateItemQuantity(cartId, item.id, item.quantity - 1)
+      updateItemQuantity(cartId, item.id, item.quantity - 1);
     }
-  }
+  };
 
   const handleIncrease = () => {
-    updateItemQuantity(cartId, item.id, item.quantity + 1)
-  }
+    updateItemQuantity(cartId, item.id, item.quantity + 1);
+  };
 
   return (
     <View style={styles.card as ViewStyle}>
@@ -197,5 +197,5 @@ export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
         </View>
       </View>
     </View>
-  )
+  );
 }

@@ -1,18 +1,18 @@
-import { Stack } from 'expo-router'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { StyleSheet } from 'react-native'
-import { useAppTheme } from '../styles/theme'
-import '../styles/unistylesConfigured'
+import { Stack } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet } from 'react-native';
+import { useAppTheme } from '../styles/theme';
+import '../styles/unistylesConfigured';
 
 export default function RootLayout() {
-  const theme = useAppTheme()
+  const theme = useAppTheme();
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
-  })
+  });
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -29,5 +29,5 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" />
       </Stack>
     </SafeAreaView>
-  )
+  );
 }

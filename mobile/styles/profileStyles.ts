@@ -1,4 +1,4 @@
-import { StyleSheet } from './unistylesConfigured'
+import { StyleSheet } from './unistylesConfigured';
 
 export const profileStyles = StyleSheet.create(theme => ({
   container: {
@@ -89,4 +89,4 @@ export const profileStyles = StyleSheet.create(theme => ({
     letterSpacing: 1,
     marginTop: theme.spacing.xl,
   },
-}))
+}));

@@ -1,12 +1,12 @@
-import { View, ViewProps, type ViewStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
+import { View, ViewProps, type ViewStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
 
 interface ProgressBarProps extends ViewProps {
-  progress: number
-  color?: string
-  backgroundColor?: string
-  height?: number
+  progress: number;
+  color?: string;
+  backgroundColor?: string;
+  height?: number;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -19,7 +19,7 @@ const stylesheet = StyleSheet.create(theme => ({
     height: '100%',
     borderRadius: theme.borderRadius.full,
   },
-}))
+}));
 
 export function ProgressBar({
   progress,
@@ -29,9 +29,9 @@ export function ProgressBar({
   style,
   ...props
 }: ProgressBarProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
-  const fillColor = color || theme.colors.midnight
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
+  const fillColor = color || theme.colors.midnight;
 
   return (
     <View style={[styles.container as ViewStyle, { height, backgroundColor }, style]} {...props}>
@@ -45,5 +45,5 @@ export function ProgressBar({
         ]}
       />
     </View>
-  )
+  );
 }

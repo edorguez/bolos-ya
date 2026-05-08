@@ -1,18 +1,18 @@
-import { Stack } from 'expo-router'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { StyleSheet } from 'react-native'
-import { useAppTheme } from '../../styles/theme'
-import { StatusBar } from 'expo-status-bar'
+import { Stack } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet } from 'react-native';
+import { useAppTheme } from '../../styles/theme';
+import { StatusBar } from 'expo-status-bar';
 
 export default function OnboardingLayout() {
-  const theme = useAppTheme()
+  const theme = useAppTheme();
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
-  })
+  });
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
@@ -30,5 +30,5 @@ export default function OnboardingLayout() {
         <Stack.Screen name="register" />
       </Stack>
     </SafeAreaView>
-  )
+  );
 }

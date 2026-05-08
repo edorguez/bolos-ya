@@ -1,12 +1,12 @@
-import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface HeroSectionProps {
-  title: string
-  subtitle: string
-  icon?: string
+  title: string;
+  subtitle: string;
+  icon?: string;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -40,11 +40,11 @@ const stylesheet = StyleSheet.create(theme => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
-}))
+}));
 
 export function HeroSection({ title, subtitle, icon = 'receipt' }: HeroSectionProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
   return (
     <View style={styles.container as ViewStyle}>
       <View style={styles.textContainer as ViewStyle}>
@@ -55,5 +55,5 @@ export function HeroSection({ title, subtitle, icon = 'receipt' }: HeroSectionPr
         <MaterialIcons name={icon as any} size={64} color={theme.colors.emberOrange} />
       </View>
     </View>
-  )
+  );
 }

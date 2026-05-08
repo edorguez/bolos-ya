@@ -1,12 +1,12 @@
-import { View, Image, Pressable, ViewStyle, ImageStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Image, Pressable, ViewStyle, ImageStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface AvatarProps {
-  uri?: string
-  size?: number
-  onEditPress?: () => void
+  uri?: string;
+  size?: number;
+  onEditPress?: () => void;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -35,11 +35,11 @@ const stylesheet = StyleSheet.create(theme => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-}))
+}));
 
 export function Avatar({ uri, size = 128, onEditPress }: AvatarProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
   return (
     <View style={styles.container as ViewStyle}>
@@ -52,5 +52,5 @@ export function Avatar({ uri, size = 128, onEditPress }: AvatarProps) {
         <MaterialIcons name="edit" size={16} color="#FFFFFF" />
       </Pressable>
     </View>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-import { View, Pressable, type ViewStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { useRouter, useSegments } from 'expo-router'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Pressable, type ViewStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { useRouter, useSegments } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface BottomNavBarProps {
-  activeRoute?: string
+  activeRoute?: string;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -40,15 +40,15 @@ const stylesheet = StyleSheet.create(theme => ({
   navItemActive: {
     backgroundColor: theme.colors.midnight,
   },
-}))
+}));
 
 export function BottomNavBar({ activeRoute }: BottomNavBarProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
-  const router = useRouter()
-  const segments = useSegments()
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
+  const router = useRouter();
+  const segments = useSegments();
 
-  const currentRoute = activeRoute || segments[0] || 'index'
+  const currentRoute = activeRoute || segments[0] || 'index';
 
   const navItems = [
     { id: 'home', icon: 'home' as const, route: 'home' as const, target: '/(tabs)/index' as const },
@@ -65,19 +65,19 @@ export function BottomNavBar({ activeRoute }: BottomNavBarProps) {
       route: 'profile' as const,
       target: '/(tabs)/profile' as const,
     },
-  ] as const
+  ] as const;
 
   const handlePress = (target: string | null) => {
     if (target) {
-      router.push(target as any)
+      router.push(target as any);
     }
-  }
+  };
 
   return (
     <View style={styles.container as ViewStyle}>
       <View style={styles.nav as ViewStyle}>
         {navItems.map(item => {
-          const isActive = currentRoute === item.route
+          const isActive = currentRoute === item.route;
           return (
             <Pressable
               key={item.id}
@@ -90,9 +90,9 @@ export function BottomNavBar({ activeRoute }: BottomNavBarProps) {
                 color={isActive ? '#FFFFFF' : theme.colors.textSecondary}
               />
             </Pressable>
-          )
+          );
         })}
       </View>
     </View>
-  )
+  );
 }

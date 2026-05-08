@@ -1,15 +1,15 @@
-import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface SectionHeaderProps {
-  title: string
-  linkText?: string
-  onLinkPress?: () => void
-  icon?: string
-  iconColor?: string
-  iconPosition?: 'left' | 'right'
+  title: string;
+  linkText?: string;
+  onLinkPress?: () => void;
+  icon?: string;
+  iconColor?: string;
+  iconPosition?: 'left' | 'right';
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -44,7 +44,7 @@ const stylesheet = StyleSheet.create(theme => ({
     flexDirection: 'row',
     alignItems: 'center',
   },
-}))
+}));
 
 export function SectionHeader({
   title,
@@ -54,11 +54,11 @@ export function SectionHeader({
   iconColor,
   iconPosition = 'left',
 }: SectionHeaderProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
-  const leftIcon = icon && iconPosition === 'left'
-  const rightIcon = icon && iconPosition === 'right'
+  const leftIcon = icon && iconPosition === 'left';
+  const rightIcon = icon && iconPosition === 'right';
 
   return (
     <View style={styles.container as ViewStyle}>
@@ -90,5 +90,5 @@ export function SectionHeader({
         )}
       </View>
     </View>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native'
-import { AppTheme } from './theme'
+import { StyleSheet } from 'react-native';
+import { AppTheme } from './theme';
 
 export function createHistoryStyles(theme: AppTheme) {
   return StyleSheet.create({
@@ -62,5 +62,5 @@ export function createHistoryStyles(theme: AppTheme) {
       color: theme.colors.onSurface,
       marginTop: theme.spacing.md,
     },
-  })
+  });
 }

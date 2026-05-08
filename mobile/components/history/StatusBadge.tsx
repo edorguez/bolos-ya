@@ -1,9 +1,9 @@
-import { View, Text, ViewStyle, TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
+import { View, Text, ViewStyle, TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
 
 interface StatusBadgeProps {
-  status: 'Completado' | 'Excedido' | string
+  status: 'Completado' | 'Excedido' | string;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -17,11 +17,11 @@ const stylesheet = StyleSheet.create(theme => ({
     fontWeight: theme.typography.fontWeight.semibold,
     textTransform: 'uppercase',
   },
-}))
+}));
 
 export function StatusBadge({ status }: StatusBadgeProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
   const getStatusColors = () => {
     switch (status) {
@@ -29,25 +29,25 @@ export function StatusBadge({ status }: StatusBadgeProps) {
         return {
           backgroundColor: theme.colors.meadowGreen + '20',
           textColor: theme.colors.meadowGreen,
-        }
+        };
       case 'Excedido':
         return {
           backgroundColor: theme.colors.coralRed + '20',
           textColor: theme.colors.coralRed,
-        }
+        };
       default:
         return {
           backgroundColor: theme.colors.surfaceContainer,
           textColor: theme.colors.onSurface,
-        }
+        };
     }
-  }
+  };
 
-  const colors = getStatusColors()
+  const colors = getStatusColors();
 
   return (
     <View style={[styles.badge as ViewStyle, { backgroundColor: colors.backgroundColor }]}>
       <Text style={[styles.text as TextStyle, { color: colors.textColor }]}>{status}</Text>
     </View>
-  )
+  );
 }

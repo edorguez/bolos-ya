@@ -1,4 +1,12 @@
-import { View, Text, StyleSheet, Pressable, Dimensions, ScrollView, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Dimensions,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../styles/theme';
@@ -421,12 +429,19 @@ export default function LoginChoiceScreen() {
               </View>
               <View style={styles.phoneItem}>
                 <View
-                  style={[styles.phoneItemIcon, { backgroundColor: `${theme.colors.meadowGreen}20` }]}
+                  style={[
+                    styles.phoneItemIcon,
+                    { backgroundColor: `${theme.colors.meadowGreen}20` },
+                  ]}
                 />
                 <View style={[styles.phoneItemLine, { width: 80 }]} />
               </View>
               <View style={styles.phoneCart}>
-                <MaterialIcons name="add-shopping-cart" size={24} color={theme.colors.emberOrange} />
+                <MaterialIcons
+                  name="add-shopping-cart"
+                  size={24}
+                  color={theme.colors.emberOrange}
+                />
               </View>
             </View>
           </View>

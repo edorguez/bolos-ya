@@ -1,50 +1,50 @@
-import { useState, useEffect, useRef } from 'react'
-import { View, Text, Pressable, Animated, Dimensions, StyleSheet, Alert } from 'react-native'
-import { useRouter } from 'expo-router'
-import { CameraView, Camera } from 'expo-camera'
-import { useAppTheme } from '../../styles/theme'
-import { TopAppBar } from '../../components/shared/TopAppBar'
-import { ProductScanResultModal } from '../../components/shared/ProductScanResultModal'
-import { useCartStore } from '../../store/cartStore'
-import { scanImage } from '../../services/ocr'
-import { MaterialIcons } from '@expo/vector-icons'
+import { useState, useEffect, useRef } from 'react';
+import { View, Text, Pressable, Animated, Dimensions, StyleSheet, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
+import { CameraView, Camera } from 'expo-camera';
+import { useAppTheme } from '../../styles/theme';
+import { TopAppBar } from '../../components/shared/TopAppBar';
+import { ProductScanResultModal } from '../../components/shared/ProductScanResultModal';
+import { useCartStore } from '../../store/cartStore';
+import { scanImage } from '../../services/ocr';
+import { MaterialIcons } from '@expo/vector-icons';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
-const SCANNER_FRAME_WIDTH = SCREEN_WIDTH * 0.8
-const SCANNER_FRAME_HEIGHT = SCREEN_WIDTH * 0.6
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const SCANNER_FRAME_WIDTH = SCREEN_WIDTH * 0.8;
+const SCANNER_FRAME_HEIGHT = SCREEN_WIDTH * 0.6;
 
 export default function ScanScreen() {
-  const router = useRouter()
-  const theme = useAppTheme()
-  const { activeCartId, carts, addItemToCart } = useCartStore()
+  const router = useRouter();
+  const theme = useAppTheme();
+  const { activeCartId, carts, addItemToCart } = useCartStore();
 
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null)
-  const [cameraType, setCameraType] = useState<'back' | 'front'>('back')
-  const [isScanning, setIsScanning] = useState(false)
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [cameraType, setCameraType] = useState<'back' | 'front'>('back');
+  const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<{
-    name: string
-    priceBs: number
-    priceUsd: number
-    rawText?: string
-    confidence?: number
-  } | null>(null)
+    name: string;
+    priceBs: number;
+    priceUsd: number;
+    rawText?: string;
+    confidence?: number;
+  } | null>(null);
 
-  const scanLineAnim = useRef(new Animated.Value(0)).current
-  const cameraRef = useRef<CameraView>(null)
+  const scanLineAnim = useRef(new Animated.Value(0)).current;
+  const cameraRef = useRef<CameraView>(null);
 
-  const activeCart = activeCartId ? carts.find(c => c.id === activeCartId) : null
+  const activeCart = activeCartId ? carts.find(c => c.id === activeCartId) : null;
 
   useEffect(() => {
-    ;(async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync()
-      setHasPermission(status === 'granted')
-    })()
-  }, [])
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
 
   const startScanning = async () => {
-    if (isScanning || !cameraRef.current) return
+    if (isScanning || !cameraRef.current) return;
 
-    setIsScanning(true)
+    setIsScanning(true);
 
     const animation = Animated.loop(
       Animated.sequence([
@@ -59,17 +59,17 @@ export default function ScanScreen() {
           useNativeDriver: true,
         }),
       ])
-    )
-    animation.start()
+    );
+    animation.start();
 
     try {
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.8,
         base64: false,
         exif: false,
-      })
+      });
 
-      const result = await scanImage(photo.uri)
+      const result = await scanImage(photo.uri);
 
       setScanResult({
         name: result.productName,
@@ -77,22 +77,22 @@ export default function ScanScreen() {
         priceUsd: result.priceUsd,
         rawText: result.rawText,
         confidence: result.confidence,
-      })
+      });
     } catch (error) {
-      console.error('OCR scanning failed:', error)
+      console.error('OCR scanning failed:', error);
       Alert.alert(
         'Error de escaneo',
         error instanceof Error ? error.message : 'No se pudo leer la etiqueta. Intenta nuevamente.',
         [{ text: 'OK', onPress: () => {} }]
-      )
+      );
     } finally {
-      animation.stop()
-      setIsScanning(false)
+      animation.stop();
+      setIsScanning(false);
     }
-  }
+  };
 
   const handleAddToCart = () => {
-    if (!scanResult || !activeCart) return
+    if (!scanResult || !activeCart) return;
 
     addItemToCart(activeCart.id, {
       productId: `scanned_${Date.now()}`,
@@ -101,15 +101,15 @@ export default function ScanScreen() {
       priceUsd: scanResult.priceUsd,
       quantity: 1,
       supermarket: activeCart.supermarket,
-    })
+    });
 
-    setScanResult(null)
-    router.back()
-  }
+    setScanResult(null);
+    router.back();
+  };
 
   const toggleCameraType = () => {
-    setCameraType(current => (current === 'back' ? 'front' : 'back'))
-  }
+    setCameraType(current => (current === 'back' ? 'front' : 'back'));
+  };
 
   const styles = StyleSheet.create({
     container: {
@@ -234,14 +234,14 @@ export default function ScanScreen() {
       alignItems: 'center',
       justifyContent: 'center',
     },
-  })
+  });
 
   if (hasPermission === null) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <Text style={{ color: '#FFFFFF' }}>Requesting camera permission...</Text>
       </View>
-    )
+    );
   }
 
   if (hasPermission === false) {
@@ -252,7 +252,7 @@ export default function ScanScreen() {
           <Text style={{ color: theme.colors.emberOrange, marginTop: 16 }}>Go back</Text>
         </Pressable>
       </View>
-    )
+    );
   }
 
   return (
@@ -335,5 +335,5 @@ export default function ScanScreen() {
         onAddToCart={handleAddToCart}
       />
     </View>
-  )
+  );
 }

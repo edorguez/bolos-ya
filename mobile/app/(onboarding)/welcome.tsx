@@ -1,17 +1,17 @@
-import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native'
-import { useRouter } from 'expo-router'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
-const { width } = Dimensions.get('window')
+const { width } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
-  const router = useRouter()
-  const theme = useAppTheme()
+  const router = useRouter();
+  const theme = useAppTheme();
 
   const handleNext = () => {
-    router.push('/(onboarding)/login-choice')
-  }
+    router.push('/(onboarding)/login-choice');
+  };
 
   const styles = StyleSheet.create({
     container: {
@@ -138,7 +138,7 @@ export default function WelcomeScreen() {
       fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.semibold,
     },
-  })
+  });
 
   return (
     <View style={styles.container}>
@@ -178,5 +178,5 @@ export default function WelcomeScreen() {
         </Pressable>
       </View>
     </View>
-  )
+  );
 }

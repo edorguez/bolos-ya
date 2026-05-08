@@ -1,19 +1,19 @@
-import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
-import { HorizontalScrollWithIndicators } from '../shared/HorizontalScrollWithIndicators'
+import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
+import { HorizontalScrollWithIndicators } from '../shared/HorizontalScrollWithIndicators';
 
 export interface SupermarketOption {
-  id: string
-  name: string
-  icon: string
-  selected: boolean
+  id: string;
+  name: string;
+  icon: string;
+  selected: boolean;
 }
 
 interface SupermarketCarouselProps {
-  supermarkets: SupermarketOption[]
-  onSelect: (id: string) => void
+  supermarkets: SupermarketOption[];
+  onSelect: (id: string) => void;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -62,11 +62,11 @@ const stylesheet = StyleSheet.create(theme => ({
   nameSelected: {
     color: theme.colors.midnight,
   },
-}))
+}));
 
 export function SupermarketCarousel({ supermarkets, onSelect }: SupermarketCarouselProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
   return (
     <View style={[styles.container as ViewStyle, { position: 'relative' }]}>
@@ -100,5 +100,5 @@ export function SupermarketCarousel({ supermarkets, onSelect }: SupermarketCarou
         ))}
       </HorizontalScrollWithIndicators>
     </View>
-  )
+  );
 }

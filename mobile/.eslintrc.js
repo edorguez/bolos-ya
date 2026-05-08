@@ -29,4 +29,4 @@ module.exports = {
     'react/prop-types': 'off',
   },
   ignorePatterns: ['node_modules/', 'dist/', 'build/', '*.config.js'],
-}
+};

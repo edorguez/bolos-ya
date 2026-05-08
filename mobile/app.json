@@ -12,11 +12,7 @@
       "backgroundColor": "#ffffff"
     },
     "scheme": "bolosya",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
+    "platforms": ["ios", "android", "web"],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {

@@ -1,13 +1,13 @@
-import { Pressable, Text, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { Pressable, Text, type ViewStyle, type TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface SupermarketButtonProps {
-  selected: boolean
-  icon: string
-  name: string
-  onPress?: () => void
+  selected: boolean;
+  icon: string;
+  name: string;
+  onPress?: () => void;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -33,11 +33,11 @@ const stylesheet = StyleSheet.create(theme => ({
   labelSelected: {
     color: theme.colors.onSurface,
   },
-}))
+}));
 
 export function SupermarketButton({ selected, icon, name, onPress }: SupermarketButtonProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
   return (
     <Pressable
       style={[styles.button as ViewStyle, selected && (styles.buttonSelected as ViewStyle)]}
@@ -52,5 +52,5 @@ export function SupermarketButton({ selected, icon, name, onPress }: Supermarket
         {name}
       </Text>
     </Pressable>
-  )
+  );
 }

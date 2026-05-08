@@ -1,9 +1,9 @@
-import { View, ViewProps, type ViewStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
+import { View, ViewProps, type ViewStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
 
 interface CardProps extends ViewProps {
-  variant?: 'elevated' | 'filled' | 'outlined'
+  variant?: 'elevated' | 'filled' | 'outlined';
 }
 
 const createStyles = StyleSheet.create(theme => ({
@@ -31,11 +31,11 @@ const createStyles = StyleSheet.create(theme => ({
     borderWidth: 1,
     borderColor: theme.colors.outlineVariant,
   },
-}))
+}));
 
 export function Card({ variant = 'elevated', style, ...props }: CardProps) {
-  const theme = useAppTheme()
-  const styles = createStyles(theme)
+  const theme = useAppTheme();
+  const styles = createStyles(theme);
 
   return (
     <View
@@ -48,5 +48,5 @@ export function Card({ variant = 'elevated', style, ...props }: CardProps) {
       ]}
       {...props}
     />
-  )
+  );
 }

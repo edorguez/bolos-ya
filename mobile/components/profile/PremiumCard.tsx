@@ -1,10 +1,10 @@
-import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface PremiumCardProps {
-  onUpgradePress?: () => void
+  onUpgradePress?: () => void;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -78,13 +78,13 @@ const stylesheet = StyleSheet.create(theme => ({
     fontWeight: theme.typography.fontWeight.semibold,
     color: '#FFFFFF',
   },
-}))
+}));
 
 export function PremiumCard({ onUpgradePress }: PremiumCardProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
-  const premiumFeatures = ['OCR Scanner ilimitado', 'Unlimited Carts']
+  const premiumFeatures = ['OCR Scanner ilimitado', 'Unlimited Carts'];
 
   return (
     <View style={styles.card as ViewStyle}>
@@ -112,5 +112,5 @@ export function PremiumCard({ onUpgradePress }: PremiumCardProps) {
         </Pressable>
       </View>
     </View>
-  )
+  );
 }

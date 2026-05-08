@@ -42,8 +42,7 @@ export default function LoginScreen() {
       });
       router.replace('/(tabs)');
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Error al iniciar sesión';
+      const message = err instanceof Error ? err.message : 'Error al iniciar sesión';
       setError(message);
     } finally {
       setIsLoading(false);
@@ -157,17 +156,12 @@ export default function LoginScreen() {
           <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
         </Pressable>
       </SafeAreaView>
-      <ScrollView
-          contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="always"
-        >
-          <View style={styles.content}>
-            <View style={styles.header}>
-              <MaterialIcons name="lock" size={48} color={theme.colors.midnight} />
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <MaterialIcons name="lock" size={48} color={theme.colors.midnight} />
             <Text style={styles.title}>Iniciar Sesión</Text>
-            <Text style={styles.subtitle}>
-              Ingresa tus credenciales para continuar
-            </Text>
+            <Text style={styles.subtitle}>Ingresa tus credenciales para continuar</Text>
           </View>
 
           <View style={styles.form}>
@@ -250,10 +244,7 @@ export default function LoginScreen() {
           <View style={styles.footer}>
             <Text style={styles.footerText}>
               ¿No tienes cuenta?{' '}
-              <Text
-                style={styles.link}
-                onPress={() => router.push('/(onboarding)/register')}
-              >
+              <Text style={styles.link} onPress={() => router.push('/(onboarding)/register')}>
                 Regístrate
               </Text>
             </Text>

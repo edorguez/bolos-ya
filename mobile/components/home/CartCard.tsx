@@ -1,16 +1,16 @@
-import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { ProgressBar } from '../shared/ProgressBar'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { ProgressBar } from '../shared/ProgressBar';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface CartCardProps {
-  title: string
-  subtitle: string
-  date: string
-  progress: number
-  color: string
-  icon: string
+  title: string;
+  subtitle: string;
+  date: string;
+  progress: number;
+  color: string;
+  icon: string;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -54,11 +54,11 @@ const stylesheet = StyleSheet.create(theme => ({
     fontSize: theme.typography.fontSize.sm,
     color: theme.colors.onSurfaceVariant,
   },
-}))
+}));
 
 export function CartCard({ title, subtitle, date, progress, color, icon }: CartCardProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
   return (
     <View style={styles.card as ViewStyle}>
       <View style={styles.header as ViewStyle}>
@@ -73,5 +73,5 @@ export function CartCard({ title, subtitle, date, progress, color, icon }: CartC
       </View>
       <ProgressBar progress={progress} color={color} height={10} />
     </View>
-  )
+  );
 }

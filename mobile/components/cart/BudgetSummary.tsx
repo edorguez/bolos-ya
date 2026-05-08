@@ -1,14 +1,14 @@
-import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { ProgressBar } from '../shared/ProgressBar'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { ProgressBar } from '../shared/ProgressBar';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface BudgetSummaryProps {
-  totalBs: number
-  totalUsd: number
-  budgetBs: number
-  budgetUsd: number
+  totalBs: number;
+  totalUsd: number;
+  budgetBs: number;
+  budgetUsd: number;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -88,17 +88,17 @@ const stylesheet = StyleSheet.create(theme => ({
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.error,
   },
-}))
+}));
 
 export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: BudgetSummaryProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
-  const isOverBudget = totalBs > budgetBs
-  const overBudgetAmount = Math.max(0, totalBs - budgetBs)
-  const progressPercentage = Math.min(100, (totalBs / budgetBs) * 100)
-  const exchangeRate = budgetBs > 0 ? budgetUsd / budgetBs : 36.42
-  const overBudgetUsd = overBudgetAmount * exchangeRate
+  const isOverBudget = totalBs > budgetBs;
+  const overBudgetAmount = Math.max(0, totalBs - budgetBs);
+  const progressPercentage = Math.min(100, (totalBs / budgetBs) * 100);
+  const exchangeRate = budgetBs > 0 ? budgetUsd / budgetBs : 36.42;
+  const overBudgetUsd = overBudgetAmount * exchangeRate;
 
   return (
     <View style={styles.container as ViewStyle}>
@@ -145,5 +145,5 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
         </View>
       )}
     </View>
-  )
+  );
 }

@@ -1,1 +1,1 @@
-export { StyleSheet } from './createStyleSheet'
+export { StyleSheet } from './createStyleSheet';

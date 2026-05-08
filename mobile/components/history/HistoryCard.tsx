@@ -1,21 +1,21 @@
-import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { StatusBadge } from './StatusBadge'
-import { AmountCard } from './AmountCard'
-import { ProgressBar } from '../shared/ProgressBar'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { StatusBadge } from './StatusBadge';
+import { AmountCard } from './AmountCard';
+import { ProgressBar } from '../shared/ProgressBar';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface HistoryCardProps {
-  storeName: string
-  date: string
-  icon: string
-  iconColor: string
-  status: string
-  totalBs: string
-  totalUsd: string
-  budgetUsage: number
-  exceeded: boolean
+  storeName: string;
+  date: string;
+  icon: string;
+  iconColor: string;
+  status: string;
+  totalBs: string;
+  totalUsd: string;
+  budgetUsage: number;
+  exceeded: boolean;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -77,7 +77,7 @@ const stylesheet = StyleSheet.create(theme => ({
     fontSize: theme.typography.fontSize.xs,
     fontWeight: theme.typography.fontWeight.semibold,
   },
-}))
+}));
 
 export function HistoryCard({
   storeName,
@@ -90,8 +90,8 @@ export function HistoryCard({
   budgetUsage,
   exceeded,
 }: HistoryCardProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
   return (
     <View style={styles.card as ViewStyle}>
@@ -140,5 +140,5 @@ export function HistoryCard({
         />
       </View>
     </View>
-  )
+  );
 }

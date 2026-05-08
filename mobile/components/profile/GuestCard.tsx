@@ -1,10 +1,10 @@
-import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface GuestCardProps {
-  onCreateAccountPress?: () => void
+  onCreateAccountPress?: () => void;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -46,11 +46,11 @@ const stylesheet = StyleSheet.create(theme => ({
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.emberOrange,
   },
-}))
+}));
 
 export function GuestCard({ onCreateAccountPress }: GuestCardProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
   return (
     <View style={styles.card as ViewStyle}>
@@ -67,5 +67,5 @@ export function GuestCard({ onCreateAccountPress }: GuestCardProps) {
         <Text style={styles.buttonText as TextStyle}>Crear cuenta ahora</Text>
       </Pressable>
     </View>
-  )
+  );
 }

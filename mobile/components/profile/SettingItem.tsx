@@ -1,13 +1,13 @@
-import { View, Text, Pressable, PressableProps, ViewStyle, TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, Pressable, PressableProps, ViewStyle, TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface SettingItemProps extends Omit<PressableProps, 'style'> {
-  title: string
-  icon: string
-  iconColor: string
-  iconBgColor: string
+  title: string;
+  icon: string;
+  iconColor: string;
+  iconBgColor: string;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -38,11 +38,11 @@ const stylesheet = StyleSheet.create(theme => ({
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
   },
-}))
+}));
 
 export function SettingItem({ title, icon, iconColor, iconBgColor, ...props }: SettingItemProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
   return (
     <Pressable
@@ -60,5 +60,5 @@ export function SettingItem({ title, icon, iconColor, iconBgColor, ...props }: S
       </View>
       <MaterialIcons name="chevron-right" size={24} color={theme.colors.onSurface} />
     </Pressable>
-  )
+  );
 }

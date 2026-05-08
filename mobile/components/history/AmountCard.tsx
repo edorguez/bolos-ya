@@ -1,10 +1,10 @@
-import { View, Text, ViewStyle, TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
+import { View, Text, ViewStyle, TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
 
 interface AmountCardProps {
-  label: string
-  value: string
+  label: string;
+  value: string;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -27,16 +27,16 @@ const stylesheet = StyleSheet.create(theme => ({
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.graphite,
   },
-}))
+}));
 
 export function AmountCard({ label, value }: AmountCardProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
   return (
     <View style={styles.card as ViewStyle}>
       <Text style={styles.label as TextStyle}>{label}</Text>
       <Text style={styles.value as TextStyle}>{value}</Text>
     </View>
-  )
+  );
 }

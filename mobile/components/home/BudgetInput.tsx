@@ -1,11 +1,18 @@
-import { View, Text, TextInput, TextInputProps, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
+import {
+  View,
+  Text,
+  TextInput,
+  TextInputProps,
+  type ViewStyle,
+  type TextStyle,
+} from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
 
 interface BudgetInputProps extends Omit<TextInputProps, 'style'> {
-  label: string
-  currency?: string
-  inputStyle?: TextInputProps['style']
+  label: string;
+  currency?: string;
+  inputStyle?: TextInputProps['style'];
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -31,11 +38,11 @@ const stylesheet = StyleSheet.create(theme => ({
     borderWidth: 1,
     borderColor: theme.colors.stoneSurface,
   },
-}))
+}));
 
 export function BudgetInput({ label, currency, inputStyle, ...props }: BudgetInputProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
   return (
     <View style={styles.container as ViewStyle}>
       <Text style={styles.label as TextStyle}>{label}</Text>
@@ -47,5 +54,5 @@ export function BudgetInput({ label, currency, inputStyle, ...props }: BudgetInp
         {...props}
       />
     </View>
-  )
+  );
 }

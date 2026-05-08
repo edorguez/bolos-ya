@@ -1,4 +1,4 @@
-import { useColorScheme } from 'react-native'
+import { useColorScheme } from 'react-native';
 
 const lightColors = {
   warmCanvas: '#fbfaf9',
@@ -50,7 +50,7 @@ const lightColors = {
   errorContainer: '#ff2b3a',
   warning: '#ffbb26',
   success: '#00c454',
-}
+};
 
 const darkColors = {
   warmCanvas: '#1a1817',
@@ -102,7 +102,7 @@ const darkColors = {
   errorContainer: '#ff4757',
   warning: '#ffcc44',
   success: '#00d960',
-}
+};
 
 const sharedSpacing = {
   xxs: 4,
@@ -112,7 +112,7 @@ const sharedSpacing = {
   lg: 24,
   xl: 32,
   xxl: 48,
-} as const
+} as const;
 
 const sharedTypography = {
   fontSize: {
@@ -143,7 +143,7 @@ const sharedTypography = {
     xl: -0.44,
     xxl: -1.14,
   },
-} as const
+} as const;
 
 const sharedBorderRadius = {
   sm: 6,
@@ -152,25 +152,25 @@ const sharedBorderRadius = {
   xl: 16,
   full: 9999,
   button: 32,
-} as const
+} as const;
 
 export const lightTheme = {
   colors: lightColors,
   spacing: sharedSpacing,
   typography: sharedTypography,
   borderRadius: sharedBorderRadius,
-} as const
+} as const;
 
 export const darkTheme = {
   colors: darkColors,
   spacing: sharedSpacing,
   typography: sharedTypography,
   borderRadius: sharedBorderRadius,
-} as const
+} as const;
 
-export type AppTheme = typeof lightTheme | typeof darkTheme
+export type AppTheme = typeof lightTheme | typeof darkTheme;
 
 export function useAppTheme() {
-  const colorScheme = useColorScheme()
-  return colorScheme === 'dark' ? darkTheme : lightTheme
+  const colorScheme = useColorScheme();
+  return colorScheme === 'dark' ? darkTheme : lightTheme;
 }

@@ -7,19 +7,19 @@ import {
   type LayoutChangeEvent,
   type NativeSyntheticEvent,
   type NativeScrollEvent,
-} from 'react-native'
-import { useState, useRef } from 'react'
-import { MaterialIcons } from '@expo/vector-icons'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
+} from 'react-native';
+import { useState, useRef } from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
 
 interface HorizontalScrollWithIndicatorsProps extends Omit<ScrollViewProps, 'horizontal'> {
-  children: React.ReactNode
-  leftArrowStyle?: ViewStyle
-  rightArrowStyle?: ViewStyle
-  iconNameLeft?: string
-  iconNameRight?: string
-  iconSize?: number
+  children: React.ReactNode;
+  leftArrowStyle?: ViewStyle;
+  rightArrowStyle?: ViewStyle;
+  iconNameLeft?: string;
+  iconNameRight?: string;
+  iconSize?: number;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -58,7 +58,7 @@ const stylesheet = StyleSheet.create(theme => ({
     opacity: 1,
     color: 'white',
   },
-}))
+}));
 
 export function HorizontalScrollWithIndicators({
   children,
@@ -69,29 +69,29 @@ export function HorizontalScrollWithIndicators({
   iconSize = 24,
   ...scrollViewProps
 }: HorizontalScrollWithIndicatorsProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
-  const scrollViewRef = useRef<ScrollView>(null)
-  const [containerWidth, setContainerWidth] = useState(0)
-  const [contentWidth, setContentWidth] = useState(0)
-  const [scrollX, setScrollX] = useState(0)
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [contentWidth, setContentWidth] = useState(0);
+  const [scrollX, setScrollX] = useState(0);
 
   const handleContainerLayout = (event: LayoutChangeEvent) => {
-    setContainerWidth(event.nativeEvent.layout.width)
-  }
+    setContainerWidth(event.nativeEvent.layout.width);
+  };
 
   const handleContentSizeChange = (width: number) => {
-    setContentWidth(width)
-  }
+    setContentWidth(width);
+  };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    setScrollX(event.nativeEvent.contentOffset.x)
-  }
+    setScrollX(event.nativeEvent.contentOffset.x);
+  };
 
-  const showLeftArrow = scrollX > 0
+  const showLeftArrow = scrollX > 0;
   const showRightArrow =
-    contentWidth > containerWidth && scrollX < contentWidth - containerWidth - 1
+    contentWidth > containerWidth && scrollX < contentWidth - containerWidth - 1;
 
   return (
     <View style={styles.container as ViewStyle}>
@@ -147,5 +147,5 @@ export function HorizontalScrollWithIndicators({
         </View>
       )}
     </View>
-  )
+  );
 }

@@ -1,20 +1,20 @@
-import * as SQLite from 'expo-sqlite'
+import * as SQLite from 'expo-sqlite';
 
 export interface DatabaseMigration {
-  version: number
-  up: (db: SQLite.SQLiteDatabase) => Promise<void>
+  version: number;
+  up: (db: SQLite.SQLiteDatabase) => Promise<void>;
 }
 
 class DatabaseService {
-  private db: SQLite.SQLiteDatabase | null = null
+  private db: SQLite.SQLiteDatabase | null = null;
 
   async initialize(): Promise<void> {
     try {
-      this.db = await SQLite.openDatabaseAsync('bolosya.db')
-      await this.runMigrations()
+      this.db = await SQLite.openDatabaseAsync('bolosya.db');
+      await this.runMigrations();
     } catch (error) {
-      console.error('Failed to initialize database:', error)
-      throw error
+      console.error('Failed to initialize database:', error);
+      throw error;
     }
   }
 
@@ -64,29 +64,29 @@ class DatabaseService {
             CREATE INDEX IF NOT EXISTS idx_sync_queue_synced ON sync_queue(synced);
             CREATE INDEX IF NOT EXISTS idx_carts_user_active ON carts(user_id, status);
             CREATE INDEX IF NOT EXISTS idx_cart_items_cart ON cart_items(cart_id);
-          `)
+          `);
         },
       },
-    ]
+    ];
 
     for (const migration of migrations) {
-      await migration.up(this.db!)
+      await migration.up(this.db!);
     }
   }
 
   getDatabase(): SQLite.SQLiteDatabase {
     if (!this.db) {
-      throw new Error('Database not initialized. Call initialize() first.')
+      throw new Error('Database not initialized. Call initialize() first.');
     }
-    return this.db
+    return this.db;
   }
 
   async close(): Promise<void> {
     if (this.db) {
-      await this.db.closeAsync()
-      this.db = null
+      await this.db.closeAsync();
+      this.db = null;
     }
   }
 }
 
-export const databaseService = new DatabaseService()
+export const databaseService = new DatabaseService();

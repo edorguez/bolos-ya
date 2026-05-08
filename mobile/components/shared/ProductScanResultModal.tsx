@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -8,22 +8,22 @@ import {
   type ViewStyle,
   type TextStyle,
   ScrollView,
-} from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+} from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
-const MODAL_WIDTH = Math.min(SCREEN_WIDTH * 0.9, 400)
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const MODAL_WIDTH = Math.min(SCREEN_WIDTH * 0.9, 400);
 
 interface ProductScanResultModalProps {
-  isVisible: boolean
-  onClose: () => void
-  productName: string
-  priceBs: number
-  priceUsd: number
-  rawText?: string
-  onAddToCart: () => void
+  isVisible: boolean;
+  onClose: () => void;
+  productName: string;
+  priceBs: number;
+  priceUsd: number;
+  rawText?: string;
+  onAddToCart: () => void;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -147,7 +147,7 @@ const stylesheet = StyleSheet.create(theme => ({
     fontSize: theme.typography.fontSize.md,
     fontWeight: theme.typography.fontWeight.semibold,
   },
-}))
+}));
 
 export function ProductScanResultModal({
   isVisible,
@@ -158,17 +158,17 @@ export function ProductScanResultModal({
   rawText,
   onAddToCart,
 }: ProductScanResultModalProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
-  const [showRawText, setShowRawText] = useState(false)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
+  const [showRawText, setShowRawText] = useState(false);
 
   const formatPriceBs = (price: number) => {
-    return `Bs. ${price.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-  }
+    return `Bs. ${price.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   const formatPriceUsd = (price: number) => {
-    return `$${price.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-  }
+    return `$${price.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   return (
     <Modal visible={isVisible} transparent animationType="slide" onRequestClose={onClose}>
@@ -219,8 +219,8 @@ export function ProductScanResultModal({
           <Pressable
             style={({ pressed }) => [styles.addButton as ViewStyle, pressed && { opacity: 0.8 }]}
             onPress={() => {
-              onAddToCart()
-              onClose()
+              onAddToCart();
+              onClose();
             }}
           >
             <MaterialIcons name="add-circle" size={20} color="#FFFFFF" />
@@ -229,5 +229,5 @@ export function ProductScanResultModal({
         </Pressable>
       </Pressable>
     </Modal>
-  )
+  );
 }

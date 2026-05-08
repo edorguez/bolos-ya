@@ -1,12 +1,12 @@
-import { View, Text, type ViewStyle, type TextStyle } from 'react-native'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface TipCardProps {
-  title: string
-  text: string
-  icon?: string
+  title: string;
+  text: string;
+  icon?: string;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -50,11 +50,11 @@ const stylesheet = StyleSheet.create(theme => ({
     opacity: 0.8,
     fontWeight: theme.typography.fontWeight.regular,
   },
-}))
+}));
 
 export function TipCard({ title, text, icon = 'lightbulb' }: TipCardProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
   return (
     <View style={styles.card as ViewStyle}>
       <View style={styles.blurCircle as ViewStyle} />
@@ -66,5 +66,5 @@ export function TipCard({ title, text, icon = 'lightbulb' }: TipCardProps) {
         <Text style={styles.text as TextStyle}>{text}</Text>
       </View>
     </View>
-  )
+  );
 }

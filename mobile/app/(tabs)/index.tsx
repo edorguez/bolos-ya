@@ -1,20 +1,20 @@
-import { View, Text, ScrollView, Pressable, TextInput, Animated } from 'react-native'
-import { useState, useRef, useEffect } from 'react'
-import { MaterialIcons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
-import { createHomeStyles } from '../../styles/homeStyles'
-import { SupermarketCarousel } from '../../components/home/SupermarketCarousel'
-import { BudgetInput } from '../../components/home/BudgetInput'
-import { CartCard } from '../../components/home/CartCard'
-import { TipCard } from '../../components/home/TipCard'
-import { SectionHeader } from '../../components/shared/SectionHeader'
-import { HorizontalScrollWithIndicators } from '../../components/shared/HorizontalScrollWithIndicators'
-import { useCartStore } from '../../store/cartStore'
-import { useAppTheme } from '../../styles/theme'
+import { View, Text, ScrollView, Pressable, TextInput, Animated } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { createHomeStyles } from '../../styles/homeStyles';
+import { SupermarketCarousel } from '../../components/home/SupermarketCarousel';
+import { BudgetInput } from '../../components/home/BudgetInput';
+import { CartCard } from '../../components/home/CartCard';
+import { TipCard } from '../../components/home/TipCard';
+import { SectionHeader } from '../../components/shared/SectionHeader';
+import { HorizontalScrollWithIndicators } from '../../components/shared/HorizontalScrollWithIndicators';
+import { useCartStore } from '../../store/cartStore';
+import { useAppTheme } from '../../styles/theme';
 
 export default function HomeTab() {
-  const theme = useAppTheme()
-  const styles = createHomeStyles(theme)
+  const theme = useAppTheme();
+  const styles = createHomeStyles(theme);
 
   const [supermarkets, setSupermarkets] = useState([
     { id: '1', name: "Plaza's", icon: 'storefront', selected: true },
@@ -22,19 +22,19 @@ export default function HomeTab() {
     { id: '3', name: 'Central M.', icon: 'shopping-cart', selected: false },
     { id: '4', name: 'Plan Suarez', icon: 'local-mall', selected: false },
     { id: '5', name: 'Otro', icon: 'add-circle', selected: false },
-  ])
-  const [budgetBs, setBudgetBs] = useState('')
-  const [budgetUsd, setBudgetUsd] = useState('')
-  const [customMarketName, setCustomMarketName] = useState('')
-  const [showCustomMarket, setShowCustomMarket] = useState(false)
-  const [renderCustomMarket, setRenderCustomMarket] = useState(false)
+  ]);
+  const [budgetBs, setBudgetBs] = useState('');
+  const [budgetUsd, setBudgetUsd] = useState('');
+  const [customMarketName, setCustomMarketName] = useState('');
+  const [showCustomMarket, setShowCustomMarket] = useState(false);
+  const [renderCustomMarket, setRenderCustomMarket] = useState(false);
 
-  const fadeAnim = useRef(new Animated.Value(0)).current
-  const slideAnim = useRef(new Animated.Value(-20)).current
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(-20)).current;
 
   useEffect(() => {
     if (showCustomMarket) {
-      setRenderCustomMarket(true)
+      setRenderCustomMarket(true);
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -46,11 +46,11 @@ export default function HomeTab() {
           duration: 300,
           useNativeDriver: true,
         }),
-      ]).start()
+      ]).start();
     } else {
-      setRenderCustomMarket(false)
+      setRenderCustomMarket(false);
     }
-  }, [showCustomMarket])
+  }, [showCustomMarket]);
 
   const handleSupermarketSelect = (id: string) => {
     setSupermarkets(prev =>
@@ -58,25 +58,25 @@ export default function HomeTab() {
         ...s,
         selected: s.id === id,
       }))
-    )
-    const selected = supermarkets.find(s => s.id === id)
+    );
+    const selected = supermarkets.find(s => s.id === id);
     if (selected?.name === 'Otro') {
-      setShowCustomMarket(true)
+      setShowCustomMarket(true);
     } else {
-      setShowCustomMarket(false)
+      setShowCustomMarket(false);
     }
-  }
+  };
 
-  const router = useRouter()
-  const { addCart, setActiveCart } = useCartStore()
+  const router = useRouter();
+  const { addCart, setActiveCart } = useCartStore();
 
   const handleStartList = () => {
-    const selectedSupermarket = supermarkets.find(s => s.selected)
-    let supermarketName = selectedSupermarket?.name || "Plaza's"
+    const selectedSupermarket = supermarkets.find(s => s.selected);
+    let supermarketName = selectedSupermarket?.name || "Plaza's";
     if (selectedSupermarket?.name === 'Otro' && customMarketName.trim()) {
-      supermarketName = customMarketName.trim()
+      supermarketName = customMarketName.trim();
     }
-    const cartName = `${supermarketName} - ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`
+    const cartName = `${supermarketName} - ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`;
 
     const newCart = {
       name: cartName,
@@ -86,29 +86,29 @@ export default function HomeTab() {
       totalUsd: 0,
       budgetBs: parseFloat(budgetBs) || 0,
       budgetUsd: parseFloat(budgetUsd) || 0,
-    }
+    };
 
-    addCart(newCart)
-    const cartId = Date.now().toString()
-    setActiveCart(cartId)
-    router.push({ pathname: '/(cart)/[id]', params: { id: cartId } })
-  }
+    addCart(newCart);
+    const cartId = Date.now().toString();
+    setActiveCart(cartId);
+    router.push({ pathname: '/(cart)/[id]', params: { id: cartId } });
+  };
 
   const handleBsBudgetChange = (text: string) => {
     if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setBudgetBs(text)
+      setBudgetBs(text);
     }
-  }
+  };
 
   const handleUsdBudgetChange = (text: string) => {
     if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setBudgetUsd(text)
+      setBudgetUsd(text);
     }
-  }
+  };
 
   const handleViewAll = () => {
-    router.push({ pathname: '/history' })
-  }
+    router.push({ pathname: '/history' });
+  };
 
   const latestCarts = [
     {
@@ -129,7 +129,7 @@ export default function HomeTab() {
       color: theme.colors.skyBlue,
       icon: 'cleaning-services',
     },
-  ]
+  ];
 
   return (
     <View style={styles.container}>
@@ -224,5 +224,5 @@ export default function HomeTab() {
         </View>
       </ScrollView>
     </View>
-  )
+  );
 }

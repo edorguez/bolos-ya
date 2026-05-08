@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet } from 'react-native'
-import { useAppTheme } from '../styles/theme'
+import { View, Text, StyleSheet } from 'react-native';
+import { useAppTheme } from '../styles/theme';
 
 export default function NotFoundScreen() {
-  const theme = useAppTheme()
+  const theme = useAppTheme();
 
   const styles = StyleSheet.create({
     container: {
@@ -22,12 +22,12 @@ export default function NotFoundScreen() {
       fontWeight: theme.typography.fontWeight.regular,
       color: theme.colors.text,
     },
-  })
+  });
 
   return (
     <View style={styles.container}>
       <Text style={styles.textHeading}>404 - Not Found</Text>
       <Text style={styles.textBody}>The screen you're looking for doesn't exist.</Text>
     </View>
-  )
+  );
 }

@@ -7,27 +7,27 @@ import {
   PanResponder,
   type ViewStyle,
   type TextStyle,
-} from 'react-native'
-import { useEffect, useRef } from 'react'
-import { StyleSheet } from '../../styles/createStyleSheet'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+} from 'react-native';
+import { useEffect, useRef } from 'react';
+import { StyleSheet } from '../../styles/createStyleSheet';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface ActionSheetOption {
-  label: string
-  icon: string
-  color: string
-  onPress: () => void
+  label: string;
+  icon: string;
+  color: string;
+  onPress: () => void;
 }
 
 interface ActionSheetModalProps {
-  isVisible: boolean
-  onClose: () => void
-  options: ActionSheetOption[]
+  isVisible: boolean;
+  onClose: () => void;
+  options: ActionSheetOption[];
 }
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window')
-const MODAL_HEIGHT = SCREEN_HEIGHT * 0.2
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const MODAL_HEIGHT = SCREEN_HEIGHT * 0.2;
 
 const stylesheet = StyleSheet.create(theme => ({
   backdrop: {
@@ -92,40 +92,40 @@ const stylesheet = StyleSheet.create(theme => ({
     fontWeight: theme.typography.fontWeight.semibold,
     flex: 1,
   },
-}))
+}));
 
 export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetModalProps) {
-  const theme = useAppTheme()
-  const styles = stylesheet(theme)
+  const theme = useAppTheme();
+  const styles = stylesheet(theme);
 
-  const translateY = useRef(new Animated.Value(MODAL_HEIGHT)).current
-  const backdropOpacity = useRef(new Animated.Value(0)).current
+  const translateY = useRef(new Animated.Value(MODAL_HEIGHT)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        return gestureState.dy > 5
+        return gestureState.dy > 5;
       },
       onPanResponderMove: (_, gestureState) => {
         if (gestureState.dy > 0) {
-          translateY.setValue(Math.min(gestureState.dy, MODAL_HEIGHT))
+          translateY.setValue(Math.min(gestureState.dy, MODAL_HEIGHT));
         }
       },
       onPanResponderRelease: (_, gestureState) => {
         if (gestureState.dy > 100 || gestureState.vy > 0.5) {
-          closeModal()
+          closeModal();
         } else {
           Animated.spring(translateY, {
             toValue: 0,
             useNativeDriver: true,
             tension: 50,
             friction: 10,
-          }).start()
+          }).start();
         }
       },
     })
-  ).current
+  ).current;
 
   const openModal = () => {
     Animated.parallel([
@@ -139,8 +139,8 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
         duration: 300,
         useNativeDriver: true,
       }),
-    ]).start()
-  }
+    ]).start();
+  };
 
   const closeModal = () => {
     Animated.parallel([
@@ -155,18 +155,18 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
         useNativeDriver: true,
       }),
     ]).start(() => {
-      onClose()
-    })
-  }
+      onClose();
+    });
+  };
 
   useEffect(() => {
     if (isVisible) {
-      openModal()
+      openModal();
     }
-  }, [isVisible])
+  }, [isVisible]);
 
   if (!isVisible) {
-    return null
+    return null;
   }
 
   return (
@@ -204,8 +204,8 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
                   pressed && { opacity: 0.8 },
                 ]}
                 onPress={() => {
-                  option.onPress()
-                  closeModal()
+                  option.onPress();
+                  closeModal();
                 }}
               >
                 <View style={styles.optionIcon as ViewStyle}>
@@ -220,5 +220,5 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
         </View>
       </Animated.View>
     </>
-  )
+  );
 }

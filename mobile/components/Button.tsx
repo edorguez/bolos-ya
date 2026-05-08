@@ -1,14 +1,14 @@
-import { Pressable, Text, ActivityIndicator } from 'react-native'
-import { useAppTheme } from '../styles/theme'
+import { Pressable, Text, ActivityIndicator } from 'react-native';
+import { useAppTheme } from '../styles/theme';
 
 interface ButtonProps {
-  title: string
-  onPress: () => void
-  variant?: 'primary' | 'secondary' | 'outline'
-  size?: 'small' | 'medium' | 'large'
-  isLoading?: boolean
-  disabled?: boolean
-  fullWidth?: boolean
+  title: string;
+  onPress: () => void;
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'small' | 'medium' | 'large';
+  isLoading?: boolean;
+  disabled?: boolean;
+  fullWidth?: boolean;
 }
 
 export function Button({
@@ -20,7 +20,7 @@ export function Button({
   disabled = false,
   fullWidth = false,
 }: ButtonProps) {
-  const theme = useAppTheme()
+  const theme = useAppTheme();
 
   const getButtonStyle = () => {
     const baseStyle = {
@@ -29,7 +29,7 @@ export function Button({
       justifyContent: 'center' as const,
       flexDirection: 'row' as const,
       width: fullWidth ? ('100%' as const) : undefined,
-    }
+    };
 
     const sizeStyles = {
       small: {
@@ -44,7 +44,7 @@ export function Button({
         paddingHorizontal: theme.spacing.lg,
         paddingVertical: theme.spacing.md,
       },
-    }
+    };
 
     const variantStyles = {
       primary: {
@@ -58,27 +58,27 @@ export function Button({
         borderWidth: 1,
         borderColor: theme.colors.graphite,
       },
-    }
+    };
 
-    const disabledStyles = disabled || isLoading ? { opacity: 0.6 } : {}
+    const disabledStyles = disabled || isLoading ? { opacity: 0.6 } : {};
 
-    return { ...baseStyle, ...sizeStyles[size], ...variantStyles[variant], ...disabledStyles }
-  }
+    return { ...baseStyle, ...sizeStyles[size], ...variantStyles[variant], ...disabledStyles };
+  };
 
   const getTextStyle = () => {
     const baseStyle = {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.medium as '500',
-    }
+    };
 
     const variantTextStyles = {
       primary: { color: '#FFFFFF' },
       secondary: { color: theme.colors.midnight },
       outline: { color: theme.colors.graphite },
-    }
+    };
 
-    return { ...baseStyle, ...variantTextStyles[variant] }
-  }
+    return { ...baseStyle, ...variantTextStyles[variant] };
+  };
 
   return (
     <Pressable
@@ -95,5 +95,5 @@ export function Button({
         <Text style={getTextStyle()}>{title}</Text>
       )}
     </Pressable>
-  )
+  );
 }

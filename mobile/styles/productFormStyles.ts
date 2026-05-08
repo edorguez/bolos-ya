@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native'
-import { AppTheme } from './theme'
+import { StyleSheet } from 'react-native';
+import { AppTheme } from './theme';
 
 export function createProductFormStyles(theme: AppTheme) {
   return StyleSheet.create({
@@ -132,5 +132,5 @@ export function createProductFormStyles(theme: AppTheme) {
     buttonContainer: {
       marginTop: 'auto',
     },
-  })
+  });
 }

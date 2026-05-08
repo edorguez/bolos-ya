@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native'
-import { AppTheme } from './theme'
+import { StyleSheet } from 'react-native';
+import { AppTheme } from './theme';
 
 export function createHomeStyles(theme: AppTheme) {
   return StyleSheet.create({
@@ -104,5 +104,5 @@ export function createHomeStyles(theme: AppTheme) {
       flexDirection: 'row',
       gap: theme.spacing.md,
     },
-  })
+  });
 }

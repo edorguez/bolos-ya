@@ -72,9 +72,7 @@ export default function ProfileTab() {
               <Text style={styles.profileName as TextStyle}>
                 {user?.name || user?.email?.split('@')[0] || 'Usuario'}
               </Text>
-              <Text style={styles.profileEmail as TextStyle}>
-                {user?.email || ''}
-              </Text>
+              <Text style={styles.profileEmail as TextStyle}>{user?.email || ''}</Text>
             </View>
 
             {!isPremium && <PremiumCard onUpgradePress={handleUpgrade} />}

@@ -1,14 +1,14 @@
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, ScrollView } from 'react-native';
 
-import { createHistoryStyles } from '../../styles/historyStyles'
-import { HeroSection } from '../../components/history/HeroSection'
-import { HistoryCard } from '../../components/history/HistoryCard'
-import { useAppTheme } from '../../styles/theme'
-import { MaterialIcons } from '@expo/vector-icons'
+import { createHistoryStyles } from '../../styles/historyStyles';
+import { HeroSection } from '../../components/history/HeroSection';
+import { HistoryCard } from '../../components/history/HistoryCard';
+import { useAppTheme } from '../../styles/theme';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function HistoryTab() {
-  const theme = useAppTheme()
-  const styles = createHistoryStyles(theme)
+  const theme = useAppTheme();
+  const styles = createHistoryStyles(theme);
 
   const historyItems = [
     {
@@ -47,7 +47,7 @@ export default function HistoryTab() {
       budgetUsage: 45,
       exceeded: false,
     },
-  ]
+  ];
 
   return (
     <View style={styles.container}>
@@ -96,5 +96,5 @@ export default function HistoryTab() {
         </View>
       </ScrollView>
     </View>
-  )
+  );
 }

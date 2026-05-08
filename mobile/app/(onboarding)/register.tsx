@@ -53,8 +53,7 @@ export default function RegisterScreen() {
       });
       router.replace('/(tabs)');
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Error al crear la cuenta';
+      const message = err instanceof Error ? err.message : 'Error al crear la cuenta';
       setError(message);
     } finally {
       setIsLoading(false);
@@ -168,17 +167,12 @@ export default function RegisterScreen() {
           <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
         </Pressable>
       </SafeAreaView>
-      <ScrollView
-          contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="always"
-        >
-          <View style={styles.content}>
-            <View style={styles.header}>
-              <MaterialIcons name="person-add" size={48} color={theme.colors.midnight} />
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <MaterialIcons name="person-add" size={48} color={theme.colors.midnight} />
             <Text style={styles.title}>Crear Cuenta</Text>
-            <Text style={styles.subtitle}>
-              Regístrate para guardar tu historial y más
-            </Text>
+            <Text style={styles.subtitle}>Regístrate para guardar tu historial y más</Text>
           </View>
 
           <View style={styles.form}>
@@ -255,10 +249,7 @@ export default function RegisterScreen() {
                 autoCapitalize="none"
                 editable={!isLoading}
               />
-              <Pressable
-                style={styles.togglePassword}
-                onPress={() => setShowConfirm(!showConfirm)}
-              >
+              <Pressable style={styles.togglePassword} onPress={() => setShowConfirm(!showConfirm)}>
                 <MaterialIcons
                   name={showConfirm ? 'visibility-off' : 'visibility'}
                   size={20}
@@ -290,10 +281,7 @@ export default function RegisterScreen() {
           <View style={styles.footer}>
             <Text style={styles.footerText}>
               ¿Ya tienes cuenta?{' '}
-              <Text
-                style={styles.link}
-                onPress={() => router.push('/(onboarding)/login')}
-              >
+              <Text style={styles.link} onPress={() => router.push('/(onboarding)/login')}>
                 Inicia sesión
               </Text>
             </Text>
