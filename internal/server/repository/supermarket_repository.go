@@ -15,6 +15,7 @@ type SupermarketRepository interface {
 	Create(ctx context.Context, supermarket *models.Supermarket) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Supermarket, error)
 	FindByName(ctx context.Context, name string) ([]*models.Supermarket, error)
+	FindAll(ctx context.Context, userID uuid.UUID) ([]*models.Supermarket, error)
 	Update(ctx context.Context, supermarket *models.Supermarket) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -64,6 +65,26 @@ func (r *supermarketRepository) FindByName(ctx context.Context, name string) ([]
 	result := make([]*models.Supermarket, len(supermarketList))
 	for i, supermarket := range supermarketList {
 		result[i] = &supermarket
+	}
+	return result, nil
+}
+
+// FindAll retrieves all supermarkets belonging to a user or seeded (user_id IS NULL)
+func (r *supermarketRepository) FindAll(ctx context.Context, userID uuid.UUID) ([]*models.Supermarket, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var supermarkets []models.Supermarket
+	if err := r.db.WithContext(ctx).
+		Where("(user_id = ? OR user_id IS NULL) AND deleted_at IS NULL", userID).
+		Order("name ASC").
+		Find(&supermarkets).Error; err != nil {
+		return nil, err
+	}
+
+	result := make([]*models.Supermarket, len(supermarkets))
+	for i := range supermarkets {
+		result[i] = &supermarkets[i]
 	}
 	return result, nil
 }

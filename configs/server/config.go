@@ -55,8 +55,9 @@ type BCVConfig struct {
 
 // AuthConfig holds better-auth integration configuration
 type AuthConfig struct {
-	InternalAPIKey string `mapstructure:"internal_api_key"`
-	BetterAuthURL  string `mapstructure:"better_auth_url"`
+	InternalAPIKey    string `mapstructure:"internal_api_key"`
+	BetterAuthURL     string `mapstructure:"better_auth_url"`
+	BetterAuthSecret  string `mapstructure:"better_auth_secret"`
 }
 
 // AppConfig holds general application configuration
@@ -104,6 +105,9 @@ func bindEnvVars() error {
 	}
 	if err := viper.BindEnv("auth.better_auth_url", "BETTER_AUTH_URL"); err != nil {
 		return fmt.Errorf("failed to bind BETTER_AUTH_URL: %w", err)
+	}
+	if err := viper.BindEnv("auth.better_auth_secret", "BETTER_AUTH_SECRET"); err != nil {
+		return fmt.Errorf("failed to bind BETTER_AUTH_SECRET: %w", err)
 	}
 
 	// AWS

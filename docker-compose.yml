@@ -1,49 +1,41 @@
 services:
 
-  # server:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #     tags:
-  #       - edorguez/bolos-ya:latest
-  #   image: edorguez/bolos-ya:latest
-  #   container_name: bolos-ya-server
-  #   ports:
-  #     - "${PORT}:${PORT}"
-  #   environment:
-  #     PORT: ${PORT}
-  #     SERVER_HOST: ${SERVER_HOST}
-  #     SERVER_READ_TIMEOUT: ${SERVER_READ_TIMEOUT}
-  #     SERVER_WRITE_TIMEOUT: ${SERVER_WRITE_TIMEOUT}
-  #     DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable
-  #     REDIS_URL: redis://redis:6379/${REDIS_DB}
-  #     REDIS_DB: ${REDIS_DB}
-  #     REDIS_PASSWORD: ${REDIS_PASSWORD}
-  #     JWT_SECRET: ${JWT_SECRET}
-  #     JWT_ACCESS_TOKEN_EXPIRY: ${JWT_ACCESS_TOKEN_EXPIRY}
-  #     JWT_REFRESH_TOKEN_EXPIRY: ${JWT_REFRESH_TOKEN_EXPIRY}
-  #     JWT_ISSUER: ${JWT_ISSUER}
-  #     GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID}
-  #     GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET}
-  #     AWS_REGION: ${AWS_REGION}
-  #     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-  #     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-  #     AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
-  #     AWS_S3_ENDPOINT: http://minio:9000
-  #     BCV_API_URL: ${BCV_API_URL}
-  #     APP_ENV: ${APP_ENV}
-  #     APP_DEBUG: ${APP_DEBUG}
-  #     APP_ALLOWED_ORIGINS: ${APP_ALLOWED_ORIGINS}
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_started
-  #     minio:
-  #       condition: service_started
-  #   networks:
-  #     - bolos-ya-network
-  #   restart: unless-stopped
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bolos-ya-server
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      PORT: ${PORT}
+      SERVER_HOST: ${SERVER_HOST}
+      SERVER_READ_TIMEOUT: ${SERVER_READ_TIMEOUT}
+      SERVER_WRITE_TIMEOUT: ${SERVER_WRITE_TIMEOUT}
+      DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable
+      REDIS_URL: redis://redis:6379/${REDIS_DB}
+      REDIS_DB: ${REDIS_DB}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      BETTER_AUTH_URL: http://auth-server:3001
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BCV_API_URL: ${BCV_API_URL}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+      AWS_S3_ENDPOINT: http://minio:9000
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${APP_DEBUG}
+      APP_ALLOWED_ORIGINS: ${APP_ALLOWED_ORIGINS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - bolos-ya-network
+    restart: unless-stopped
 
   postgres:
     image: postgres:15-alpine
@@ -117,8 +109,6 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
-      GO_BACKEND_URL: http://server:${PORT}/api/v1
       CORS_ORIGINS: ${APP_ALLOWED_ORIGINS}
       TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
     depends_on:

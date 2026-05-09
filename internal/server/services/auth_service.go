@@ -71,7 +71,7 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 		}
 
 		if userEmail == "" {
-			return nil, apperrors.ErrUnauthorized
+			userEmail = userID + "@anonymous.local"
 		}
 
 		provider := authProvider

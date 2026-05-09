@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, TextInput, Animated } from 'react-native';
+import { View, Text, ScrollView, Pressable, TextInput, Animated, ActivityIndicator } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -11,26 +11,49 @@ import { SectionHeader } from '../../components/shared/SectionHeader';
 import { HorizontalScrollWithIndicators } from '../../components/shared/HorizontalScrollWithIndicators';
 import { useCartStore } from '../../store/cartStore';
 import { useAppTheme } from '../../styles/theme';
+import { useAuth } from '../../store/authStore';
+import { getAllSupermarkets } from '../../services/supermarketService';
+import type { SupermarketOption } from '../../services/supermarketService';
 
 export default function HomeTab() {
   const theme = useAppTheme();
   const styles = createHomeStyles(theme);
+  const { user } = useAuth();
 
-  const [supermarkets, setSupermarkets] = useState([
-    { id: '1', name: "Plaza's", icon: 'storefront', selected: true },
-    { id: '2', name: 'Gamma', icon: 'store', selected: false },
-    { id: '3', name: 'Central M.', icon: 'shopping-cart', selected: false },
-    { id: '4', name: 'Plan Suarez', icon: 'local-mall', selected: false },
-    { id: '5', name: 'Otro', icon: 'add-circle', selected: false },
-  ]);
+  const [supermarkets, setSupermarkets] = useState<SupermarketOption[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [budgetBs, setBudgetBs] = useState('');
   const [budgetUsd, setBudgetUsd] = useState('');
   const [customMarketName, setCustomMarketName] = useState('');
   const [showCustomMarket, setShowCustomMarket] = useState(false);
   const [renderCustomMarket, setRenderCustomMarket] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(-20)).current;
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        setIsLoading(true);
+        setFetchError(null);
+        const data = await getAllSupermarkets(user?.id);
+        if (!mounted) return;
+        if (data.length > 0) {
+          data[0].selected = true;
+        }
+        setSupermarkets(data);
+      } catch (err) {
+        if (!mounted) return;
+        setFetchError(err instanceof Error ? err.message : 'Error al cargar supermercados');
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+    load();
+    return () => { mounted = false; };
+  }, [user?.id]);
 
   useEffect(() => {
     if (showCustomMarket) {
@@ -59,8 +82,7 @@ export default function HomeTab() {
         selected: s.id === id,
       }))
     );
-    const selected = supermarkets.find(s => s.id === id);
-    if (selected?.name === 'Otro') {
+    if (id === 'other') {
       setShowCustomMarket(true);
     } else {
       setShowCustomMarket(false);
@@ -77,8 +99,10 @@ export default function HomeTab() {
       supermarketName = customMarketName.trim();
     }
     const cartName = `${supermarketName} - ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`;
+    const cartId = Date.now().toString();
 
     const newCart = {
+      id: cartId,
       name: cartName,
       supermarket: supermarketName,
       items: [],
@@ -89,7 +113,6 @@ export default function HomeTab() {
     };
 
     addCart(newCart);
-    const cartId = Date.now().toString();
     setActiveCart(cartId);
     router.push({ pathname: '/(cart)/[id]', params: { id: cartId } });
   };
@@ -131,6 +154,35 @@ export default function HomeTab() {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>MercadoLibreta</Text>
+        </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={theme.colors.midnight} />
+        </View>
+      </View>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>MercadoLibreta</Text>
+        </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: theme.spacing.lg }}>
+          <MaterialIcons name="error-outline" size={48} color={theme.colors.error} />
+          <Text style={{ marginTop: theme.spacing.md, color: theme.colors.error, textAlign: 'center' }}>
+            {fetchError}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -144,7 +196,7 @@ export default function HomeTab() {
               <Text style={styles.supermarketLabel}>Supermercado</Text>
               <SupermarketCarousel supermarkets={supermarkets} onSelect={handleSupermarketSelect} />
 
-              {renderCustomMarket && (
+              {renderCustomMarket ? (
                 <Animated.View
                   style={[
                     styles.customMarketContainer,
@@ -165,7 +217,7 @@ export default function HomeTab() {
                     />
                   </View>
                 </Animated.View>
-              )}
+              ) : null}
             </View>
 
             <View style={styles.budgetGrid}>
@@ -184,7 +236,7 @@ export default function HomeTab() {
             </View>
 
             <Pressable
-              style={({ pressed }) => [styles.primaryButton, pressed && { opacity: 0.8 }]}
+              style={({ pressed }) => [styles.primaryButton, pressed ? { opacity: 0.8 } : undefined]}
               onPress={handleStartList}
             >
               <View style={styles.primaryButtonOverlay} />

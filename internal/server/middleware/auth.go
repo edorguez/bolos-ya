@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	"github.com/edorguez/bolos-ya/pkg/constants"
@@ -11,14 +13,16 @@ import (
 )
 
 type AuthMiddleware struct {
-	authService  services.AuthService
-	internalAPIKey string
+	authService       services.AuthService
+	internalAPIKey    string
+	betterAuthSecret  string
 }
 
-func NewAuthMiddleware(authService services.AuthService, internalAPIKey string) *AuthMiddleware {
+func NewAuthMiddleware(authService services.AuthService, internalAPIKey, betterAuthSecret string) *AuthMiddleware {
 	return &AuthMiddleware{
-		authService:  authService,
-		internalAPIKey: internalAPIKey,
+		authService:      authService,
+		internalAPIKey:   internalAPIKey,
+		betterAuthSecret: betterAuthSecret,
 	}
 }
 
@@ -45,9 +49,28 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 		}
 
 		userID := c.GetHeader(constants.UserIDHeader)
+		sessionToken := c.GetHeader("X-Session-Token")
+
+		if sessionToken != "" {
+			validUserID, err := m.validateSessionJWT(sessionToken)
+			if err != nil {
+				utils.UnauthorizedResponse(c)
+				c.Abort()
+				return
+			}
+
+			if userID == "" {
+				userID = validUserID
+			} else if userID != validUserID {
+				utils.UnauthorizedResponse(c)
+				c.Abort()
+				return
+			}
+		}
+
 		if userID == "" {
-			utils.UnauthorizedResponse(c)
-			c.Abort()
+			c.Set(constants.CtxUserIDKey, "")
+			c.Next()
 			return
 		}
 
@@ -65,6 +88,30 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 		c.Set(constants.CtxUserKey, user)
 		c.Next()
 	}
+}
+
+func (m *AuthMiddleware) validateSessionJWT(tokenString string) (string, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(m.betterAuthSecret), nil
+	})
+	if err != nil || !token.Valid {
+		return "", fmt.Errorf("invalid session token: %w", err)
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("invalid JWT claims")
+	}
+
+	sub, ok := claims["sub"].(string)
+	if !ok || sub == "" {
+		return "", fmt.Errorf("missing sub claim in JWT")
+	}
+
+	return sub, nil
 }
 
 func GetUserIDFromContext(c *gin.Context) (string, bool) {

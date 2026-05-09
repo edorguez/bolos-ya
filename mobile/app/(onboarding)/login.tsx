@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
 import { signIn } from '../../lib/auth-client';
@@ -151,11 +151,11 @@ export default function LoginScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <SafeAreaView edges={['top']}>
+      <View style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
         </Pressable>
-      </SafeAreaView>
+      </View>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
         <View style={styles.content}>
           <View style={styles.header}>

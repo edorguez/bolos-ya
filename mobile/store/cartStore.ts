@@ -30,7 +30,7 @@ interface CartState {
   carts: Cart[];
   activeCartId: string | null;
   isLoading: boolean;
-  addCart: (cart: Omit<Cart, 'id' | 'createdAt'>) => void;
+  addCart: (cart: Omit<Cart, 'createdAt'>) => void;
   updateCart: (id: string, updates: Partial<Cart>) => void;
   deleteCart: (id: string) => void;
   setActiveCart: (id: string | null) => void;
@@ -51,7 +51,6 @@ export const useCartStore = create<CartState>(set => ({
         ...state.carts,
         {
           ...cart,
-          id: Date.now().toString(),
           createdAt: new Date(),
         },
       ],

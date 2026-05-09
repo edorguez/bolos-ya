@@ -14,6 +14,17 @@ export interface Supermarket {
   isCustom: boolean;
 }
 
+export interface ApiSupermarketResponse {
+  id: string;
+  name: string;
+  isCustom: boolean;
+  imageUrl: string | null;
+  userId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
 export interface Product {
   id: string;
   name: string;

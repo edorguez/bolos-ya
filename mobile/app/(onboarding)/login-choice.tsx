@@ -35,6 +35,7 @@ export default function LoginChoiceScreen() {
         callbackURL: 'bolosya://callback',
       });
     } catch {
+    } finally {
       setIsGoogleLoading(false);
     }
   };
@@ -77,6 +78,9 @@ export default function LoginChoiceScreen() {
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
+    },
+    backButton: {
+      padding: theme.spacing.md,
     },
     header: {
       width: '100%',
@@ -398,8 +402,9 @@ export default function LoginChoiceScreen() {
   );
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={styles.header}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.header}>
         <View style={styles.blob1} />
         <View style={styles.blob2} />
         <View style={styles.blob3} />
@@ -548,7 +553,15 @@ export default function LoginChoiceScreen() {
             <Text style={styles.link}>Política de Privacidad</Text>.
           </Text>
         </View>
+        </View>
+      </ScrollView>
+      <View
+        style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}
+      >
+        <Pressable onPress={() => router.back()} style={styles.backButton}>
+          <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
+        </Pressable>
       </View>
-    </ScrollView>
+    </View>
   );
 }

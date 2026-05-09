@@ -54,13 +54,16 @@ func main() {
 	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo)
 	syncService := services.NewSyncService(userRepo, cartRepo, cartProductRepo, productRepo, supermarketRepo)
 	paymentService := services.NewPaymentService(paymentRepo)
+	supermarketService := services.NewSupermarketService(supermarketRepo)
 
 	router := server.SetupRoutes(
 		authService,
 		cartService,
 		syncService,
 		paymentService,
+		supermarketService,
 		cfg.Auth.InternalAPIKey,
+		cfg.Auth.BetterAuthSecret,
 		log,
 	)
 

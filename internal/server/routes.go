@@ -18,7 +18,9 @@ func SetupRoutes(
 	cartService services.CartService,
 	syncService services.SyncService,
 	paymentService services.PaymentService,
+	supermarketService services.SupermarketService,
 	internalAPIKey string,
+	betterAuthSecret string,
 	log *logger.Logger,
 ) *gin.Engine {
 	router := gin.New()
@@ -31,8 +33,9 @@ func SetupRoutes(
 	cartHandler := handlers.NewCartHandler(cartService)
 	syncHandler := handlers.NewSyncHandler(syncService)
 	paymentHandler := handlers.NewPaymentHandler(paymentService)
+	supermarketHandler := handlers.NewSupermarketHandler(supermarketService)
 
-	authMiddleware := internalmiddleware.NewAuthMiddleware(authService, internalAPIKey)
+	authMiddleware := internalmiddleware.NewAuthMiddleware(authService, internalAPIKey, betterAuthSecret)
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -81,6 +84,13 @@ func SetupRoutes(
 				paymentsGroup.GET("/by-email/:email", paymentHandler.GetPaymentsByEmail)
 				paymentsGroup.PUT("/:paymentId", paymentHandler.UpdatePayment)
 				paymentsGroup.DELETE("/:paymentId", paymentHandler.DeletePayment)
+			}
+
+			supermarketsGroup := protected.Group("/supermarkets")
+			{
+				supermarketsGroup.POST("", supermarketHandler.CreateSupermarket)
+				supermarketsGroup.GET("", supermarketHandler.GetAllSupermarkets)
+				supermarketsGroup.GET("/:supermarketId", supermarketHandler.GetSupermarketByID)
 			}
 		}
 

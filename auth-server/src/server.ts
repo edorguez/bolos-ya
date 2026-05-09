@@ -2,7 +2,6 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serve } from '@hono/node-server'
 import { auth } from './auth-config.js'
-import { proxyRequest } from './proxy-handler.js'
 
 const app = new Hono()
 
@@ -16,11 +15,6 @@ app.use(
 
 app.all('/api/auth/*', async (c) => {
   return auth.handler(c.req.raw)
-})
-
-app.all('/api/proxy/*', async (c) => {
-  const path = c.req.path.replace('/api/proxy/', '')
-  return proxyRequest(c.req.raw, path)
 })
 
 app.get('/health', (c) => c.text('OK'))
