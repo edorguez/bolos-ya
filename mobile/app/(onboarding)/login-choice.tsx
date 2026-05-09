@@ -10,7 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../styles/theme';
-import { signIn, authClient } from '../../lib/auth-client';
+import { signIn } from '../../lib/auth-client';
 import Svg, { Path } from 'react-native-svg';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
@@ -43,7 +43,7 @@ export default function LoginChoiceScreen() {
   const handleGuestLogin = async () => {
     setIsGuestLoading(true);
     try {
-      await authClient.$fetch('/sign-in/anonymous', { method: 'POST' });
+      await signIn.anonymous();
       router.replace('/(tabs)');
     } catch {
       setIsGuestLoading(false);

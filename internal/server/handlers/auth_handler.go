@@ -23,6 +23,12 @@ func NewAuthHandler(authService services.AuthService) *AuthHandler {
 }
 
 func (h *AuthHandler) SyncUser(c *gin.Context) {
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
 	var req dto.SyncUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.ValidationError(c, dto.ValidateRequest(req))
@@ -31,7 +37,7 @@ func (h *AuthHandler) SyncUser(c *gin.Context) {
 
 	user, err := h.authService.GetOrCreateUser(
 		c.Request.Context(),
-		req.BetterAuthUserID,
+		userID,
 		req.Email,
 		req.AuthProvider,
 	)

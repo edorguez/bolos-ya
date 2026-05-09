@@ -20,14 +20,12 @@ type AuthService interface {
 }
 
 type authService struct {
-	userRepo       repository.UserRepository
-	internalAPIKey string
+	userRepo repository.UserRepository
 }
 
-func NewAuthService(userRepo repository.UserRepository, internalAPIKey string) AuthService {
+func NewAuthService(userRepo repository.UserRepository) AuthService {
 	return &authService{
-		userRepo:       userRepo,
-		internalAPIKey: internalAPIKey,
+		userRepo: userRepo,
 	}
 }
 
@@ -98,8 +96,4 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 	}
 
 	return user, nil
-}
-
-func (s *authService) ValidateAPIKey(apiKey string) bool {
-	return apiKey == s.internalAPIKey
 }

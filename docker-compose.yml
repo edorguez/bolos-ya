@@ -16,7 +16,6 @@ services:
       REDIS_URL: redis://redis:6379/${REDIS_DB}
       REDIS_DB: ${REDIS_DB}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
       BETTER_AUTH_URL: http://auth-server:3001
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       BCV_API_URL: ${BCV_API_URL}

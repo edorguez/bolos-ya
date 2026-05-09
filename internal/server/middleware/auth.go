@@ -1,11 +1,13 @@
 package middleware
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	"github.com/edorguez/bolos-ya/pkg/constants"
@@ -13,16 +15,14 @@ import (
 )
 
 type AuthMiddleware struct {
-	authService       services.AuthService
-	internalAPIKey    string
-	betterAuthSecret  string
+	authService    services.AuthService
+	betterAuthURL  string
 }
 
-func NewAuthMiddleware(authService services.AuthService, internalAPIKey, betterAuthSecret string) *AuthMiddleware {
+func NewAuthMiddleware(authService services.AuthService, betterAuthURL string) *AuthMiddleware {
 	return &AuthMiddleware{
-		authService:      authService,
-		internalAPIKey:   internalAPIKey,
-		betterAuthSecret: betterAuthSecret,
+		authService:   authService,
+		betterAuthURL: betterAuthURL,
 	}
 }
 
@@ -42,42 +42,17 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 
-		if parts[1] != m.internalAPIKey {
+		betterAuthUserID, err := m.validateSessionToken(c.Request.Context(), parts[1])
+		if err != nil {
 			utils.UnauthorizedResponse(c)
 			c.Abort()
-			return
-		}
-
-		userID := c.GetHeader(constants.UserIDHeader)
-		sessionToken := c.GetHeader("X-Session-Token")
-
-		if sessionToken != "" {
-			validUserID, err := m.validateSessionJWT(sessionToken)
-			if err != nil {
-				utils.UnauthorizedResponse(c)
-				c.Abort()
-				return
-			}
-
-			if userID == "" {
-				userID = validUserID
-			} else if userID != validUserID {
-				utils.UnauthorizedResponse(c)
-				c.Abort()
-				return
-			}
-		}
-
-		if userID == "" {
-			c.Set(constants.CtxUserIDKey, "")
-			c.Next()
 			return
 		}
 
 		userEmail := c.GetHeader(constants.UserEmailHeader)
 		authProvider := c.GetHeader(constants.UserProviderHeader)
 
-		user, err := m.authService.GetOrCreateUserFromHeaders(c.Request.Context(), userID, userEmail, authProvider)
+		user, err := m.authService.GetOrCreateUserFromHeaders(c.Request.Context(), betterAuthUserID, userEmail, authProvider)
 		if err != nil {
 			utils.InternalErrorResponse(c)
 			c.Abort()
@@ -90,28 +65,38 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 	}
 }
 
-func (m *AuthMiddleware) validateSessionJWT(tokenString string) (string, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(m.betterAuthSecret), nil
-	})
-	if err != nil || !token.Valid {
-		return "", fmt.Errorf("invalid session token: %w", err)
+func (m *AuthMiddleware) validateSessionToken(ctx context.Context, token string) (string, error) {
+	url := m.betterAuthURL + "/api/auth/get-session"
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Cookie", "better-auth.session_token="+token)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to call auth server: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("auth server returned status %d", resp.StatusCode)
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return "", fmt.Errorf("invalid JWT claims")
+	var result struct {
+		User struct {
+			ID string `json:"id"`
+		} `json:"user"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", fmt.Errorf("failed to decode auth server response: %w", err)
 	}
 
-	sub, ok := claims["sub"].(string)
-	if !ok || sub == "" {
-		return "", fmt.Errorf("missing sub claim in JWT")
+	if result.User.ID == "" {
+		return "", fmt.Errorf("empty user ID in auth server response")
 	}
 
-	return sub, nil
+	return result.User.ID, nil
 }
 
 func GetUserIDFromContext(c *gin.Context) (string, bool) {

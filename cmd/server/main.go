@@ -50,7 +50,7 @@ func main() {
 	cartProductRepo := repository.NewCartProductRepository(db)
 	paymentRepo := repository.NewPaymentRepository(db)
 
-	authService := services.NewAuthService(userRepo, cfg.Auth.InternalAPIKey)
+	authService := services.NewAuthService(userRepo)
 	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo)
 	syncService := services.NewSyncService(userRepo, cartRepo, cartProductRepo, productRepo, supermarketRepo)
 	paymentService := services.NewPaymentService(paymentRepo)
@@ -62,8 +62,7 @@ func main() {
 		syncService,
 		paymentService,
 		supermarketService,
-		cfg.Auth.InternalAPIKey,
-		cfg.Auth.BetterAuthSecret,
+		cfg.Auth.BetterAuthURL,
 		log,
 	)
 

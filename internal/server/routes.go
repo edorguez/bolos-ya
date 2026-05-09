@@ -19,8 +19,7 @@ func SetupRoutes(
 	syncService services.SyncService,
 	paymentService services.PaymentService,
 	supermarketService services.SupermarketService,
-	internalAPIKey string,
-	betterAuthSecret string,
+	betterAuthURL string,
 	log *logger.Logger,
 ) *gin.Engine {
 	router := gin.New()
@@ -35,7 +34,7 @@ func SetupRoutes(
 	paymentHandler := handlers.NewPaymentHandler(paymentService)
 	supermarketHandler := handlers.NewSupermarketHandler(supermarketService)
 
-	authMiddleware := internalmiddleware.NewAuthMiddleware(authService, internalAPIKey, betterAuthSecret)
+	authMiddleware := internalmiddleware.NewAuthMiddleware(authService, betterAuthURL)
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -46,14 +45,10 @@ func SetupRoutes(
 
 	apiV1 := router.Group("/api/v1")
 	{
-		authGroup := apiV1.Group("/auth")
-		{
-			authGroup.POST("/sync", authHandler.SyncUser)
-		}
-
 		protected := apiV1.Group("")
 		protected.Use(authMiddleware.Handler())
 		{
+			protected.POST("/auth/sync", authHandler.SyncUser)
 			protected.GET("/auth/me", authHandler.GetMe)
 
 			cartsGroup := protected.Group("/carts")

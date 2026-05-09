@@ -1,11 +1,10 @@
 package dto
 
 type SyncUserRequest struct {
-	BetterAuthUserID string `json:"betterAuthUserId" validate:"required,max=255"`
-	Email            string `json:"email" validate:"required,email,max=100"`
-	AuthProvider     string `json:"authProvider" validate:"required,oneof=email google guest"`
-	IsPremium        bool   `json:"isPremium"`
-	PremiumUntil     string `json:"premiumUntil"`
+	Email        string `json:"email" validate:"omitempty,email,max=100"`
+	AuthProvider string `json:"authProvider" validate:"omitempty,oneof=email google guest"`
+	IsPremium    bool   `json:"isPremium"`
+	PremiumUntil string `json:"premiumUntil"`
 }
 
 type SyncUserResponse struct {
