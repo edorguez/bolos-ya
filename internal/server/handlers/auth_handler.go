@@ -40,6 +40,7 @@ func (h *AuthHandler) SyncUser(c *gin.Context) {
 		userID,
 		req.Email,
 		req.AuthProvider,
+		req.IsAnonymous,
 	)
 	if err != nil {
 		h.handleError(c, err)
@@ -52,6 +53,7 @@ func (h *AuthHandler) SyncUser(c *gin.Context) {
 		Email:            user.Email,
 		AuthProvider:     user.AuthProvider,
 		IsPremium:        user.IsPremium,
+		IsAnonymous:      user.IsAnonymous,
 	}
 	utils.SuccessResponse(c, resp)
 }

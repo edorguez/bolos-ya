@@ -100,6 +100,9 @@ func (s *syncService) processUserOperation(ctx context.Context, userID uuid.UUID
 		if isPremium, ok := op.Payload["isPremium"].(bool); ok {
 			user.IsPremium = isPremium
 		}
+		if isAnonymous, ok := op.Payload["isAnonymous"].(bool); ok {
+			user.IsAnonymous = isAnonymous
+		}
 
 		if err := s.userRepo.Update(ctx, user); err != nil {
 			return false, err.Error()

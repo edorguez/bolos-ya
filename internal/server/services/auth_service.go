@@ -14,8 +14,8 @@ import (
 // Authentication (password hashing, token generation, session management)
 // is delegated to better-auth via the Expo API Routes.
 type AuthService interface {
-	GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string) (*models.User, error)
-	GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string) (*models.User, error)
+	GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string, isAnonymous bool) (*models.User, error)
+	GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string, isAnonymous bool) (*models.User, error)
 	GetUserByID(ctx context.Context, betterAuthUserID string) (*models.User, error)
 }
 
@@ -29,14 +29,14 @@ func NewAuthService(userRepo repository.UserRepository) AuthService {
 	}
 }
 
-func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string) (*models.User, error) {
+func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string, isAnonymous bool) (*models.User, error) {
 	user, err := s.userRepo.FindByBetterAuthUserID(ctx, betterAuthUserID)
 	if err != nil {
 		if err != apperrors.ErrNotFound {
 			return nil, err
 		}
 
-		user = models.NewUserFromBetterAuth(betterAuthUserID, email, authProvider)
+		user = models.NewUserFromBetterAuth(betterAuthUserID, email, authProvider, isAnonymous)
 		if err := s.userRepo.Create(ctx, user); err != nil {
 			return nil, err
 		}
@@ -61,7 +61,7 @@ func (s *authService) GetUserByID(ctx context.Context, betterAuthUserID string) 
 	return s.userRepo.FindByBetterAuthUserID(ctx, betterAuthUserID)
 }
 
-func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string) (*models.User, error) {
+func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string, isAnonymous bool) (*models.User, error) {
 	user, err := s.userRepo.FindByBetterAuthUserID(ctx, userID)
 	if err != nil {
 		if err != apperrors.ErrNotFound {
@@ -77,7 +77,7 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 			provider = constants.AuthProviderEmail
 		}
 
-		user = models.NewUserFromBetterAuth(userID, userEmail, provider)
+		user = models.NewUserFromBetterAuth(userID, userEmail, provider, isAnonymous)
 		if err := s.userRepo.Create(ctx, user); err != nil {
 			return nil, err
 		}
@@ -90,6 +90,9 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 	}
 	if authProvider != "" {
 		user.AuthProvider = authProvider
+	}
+	if user.IsAnonymous != isAnonymous {
+		user.IsAnonymous = isAnonymous
 	}
 	if err := s.userRepo.Update(ctx, user); err != nil {
 		return nil, err

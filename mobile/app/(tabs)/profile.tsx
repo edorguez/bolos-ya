@@ -65,10 +65,7 @@ export default function ProfileTab() {
         {isAuthenticated ? (
           <>
             <View style={styles.profileHeader as ViewStyle}>
-              <Avatar
-                uri={user?.image || undefined}
-                onEditPress={() => console.log('Edit avatar')}
-              />
+              <Avatar uri={user?.image || undefined} />
               <Text style={styles.profileName as TextStyle}>
                 {user?.name || user?.email?.split('@')[0] || 'Usuario'}
               </Text>

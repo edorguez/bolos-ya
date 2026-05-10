@@ -3,6 +3,7 @@ export interface User {
   email: string;
   authProvider: 'email' | 'google' | 'guest';
   isPremium: boolean;
+  isAnonymous: boolean;
   premiumUntil?: Date;
   lastSyncAt?: Date;
 }

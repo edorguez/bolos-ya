@@ -16,16 +16,18 @@ type User struct {
 	Email            string     `gorm:"type:varchar(100);uniqueIndex"`
 	AuthProvider     string     `gorm:"type:varchar(50);check:auth_provider IN ('email', 'google', 'guest')"`
 	IsPremium        bool       `gorm:"default:false"`
+	IsAnonymous      bool       `gorm:"default:false"`
 	PremiumUntil     *time.Time `gorm:"type:timestamp"`
 }
 
 // NewUserFromBetterAuth creates a new application user record from better-auth data
-func NewUserFromBetterAuth(betterAuthUserID, email, authProvider string) *User {
+func NewUserFromBetterAuth(betterAuthUserID, email, authProvider string, isAnonymous bool) *User {
 	return &User{
 		BetterAuthUserID: betterAuthUserID,
 		Email:            email,
 		AuthProvider:     authProvider,
 		IsPremium:        false,
+		IsAnonymous:      isAnonymous,
 		PremiumUntil:     nil,
 	}
 }

@@ -150,6 +150,9 @@ components:
         isPremium:
           type: boolean
           default: false
+        isAnonymous:
+          type: boolean
+          default: false
         createdAt:
           type: string
           format: date-time

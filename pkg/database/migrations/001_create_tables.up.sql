@@ -62,6 +62,7 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE,
     auth_provider VARCHAR(20) CHECK (auth_provider IN ('email', 'google', 'guest')),
     is_premium BOOLEAN DEFAULT FALSE,
+    is_anonymous BOOLEAN DEFAULT FALSE,
     premium_until TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

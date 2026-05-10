@@ -42,7 +42,7 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 
-		betterAuthUserID, err := m.validateSessionToken(c.Request.Context(), parts[1])
+		betterAuthUserID, isAnonymous, err := m.validateSessionAndGetIsAnonymous(c.Request.Context(), parts[1])
 		if err != nil {
 			utils.UnauthorizedResponse(c)
 			c.Abort()
@@ -52,7 +52,7 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 		userEmail := c.GetHeader(constants.UserEmailHeader)
 		authProvider := c.GetHeader(constants.UserProviderHeader)
 
-		user, err := m.authService.GetOrCreateUserFromHeaders(c.Request.Context(), betterAuthUserID, userEmail, authProvider)
+		user, err := m.authService.GetOrCreateUserFromHeaders(c.Request.Context(), betterAuthUserID, userEmail, authProvider, isAnonymous)
 		if err != nil {
 			utils.InternalErrorResponse(c)
 			c.Abort()
@@ -65,38 +65,39 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 	}
 }
 
-func (m *AuthMiddleware) validateSessionToken(ctx context.Context, token string) (string, error) {
+func (m *AuthMiddleware) validateSessionAndGetIsAnonymous(ctx context.Context, token string) (string, bool, error) {
 	url := m.betterAuthURL + "/api/auth/get-session"
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
+		return "", false, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Cookie", "better-auth.session_token="+token)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("failed to call auth server: %w", err)
+		return "", false, fmt.Errorf("failed to call auth server: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("auth server returned status %d", resp.StatusCode)
+		return "", false, fmt.Errorf("auth server returned status %d", resp.StatusCode)
 	}
 
 	var result struct {
 		User struct {
-			ID string `json:"id"`
+			ID          string `json:"id"`
+			IsAnonymous bool   `json:"isAnonymous"`
 		} `json:"user"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", fmt.Errorf("failed to decode auth server response: %w", err)
+		return "", false, fmt.Errorf("failed to decode auth server response: %w", err)
 	}
 
 	if result.User.ID == "" {
-		return "", fmt.Errorf("empty user ID in auth server response")
+		return "", false, fmt.Errorf("empty user ID in auth server response")
 	}
 
-	return result.User.ID, nil
+	return result.User.ID, result.User.IsAnonymous, nil
 }
 
 func GetUserIDFromContext(c *gin.Context) (string, bool) {

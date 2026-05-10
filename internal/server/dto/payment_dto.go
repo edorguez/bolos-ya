@@ -20,6 +20,7 @@ type PaymentUserResponse struct {
 	Email         string  `json:"email"`
 	AuthProvider  string  `json:"authProvider"`
 	IsPremium     bool    `json:"isPremium"`
+	IsAnonymous   bool    `json:"isAnonymous"`
 	PremiumUntil  *string `json:"premiumUntil"`
 }
 

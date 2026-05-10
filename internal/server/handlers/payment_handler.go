@@ -221,6 +221,7 @@ func toPaymentResponse(p *models.Payment) dto.PaymentResponse {
 			Email:         p.User.Email,
 			AuthProvider:  p.User.AuthProvider,
 			IsPremium:     p.User.IsPremium,
+			IsAnonymous:   p.User.IsAnonymous,
 			PremiumUntil:  premiumUntil,
 		},
 	}
