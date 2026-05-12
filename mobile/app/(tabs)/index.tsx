@@ -1,4 +1,12 @@
-import { View, Text, ScrollView, Pressable, TextInput, Animated, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  TextInput,
+  Animated,
+  ActivityIndicator,
+} from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -52,7 +60,9 @@ export default function HomeTab() {
       }
     };
     load();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [user?.id]);
 
   useEffect(() => {
@@ -173,9 +183,18 @@ export default function HomeTab() {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>MercadoLibreta</Text>
         </View>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: theme.spacing.lg }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: theme.spacing.lg,
+          }}
+        >
           <MaterialIcons name="error-outline" size={48} color={theme.colors.error} />
-          <Text style={{ marginTop: theme.spacing.md, color: theme.colors.error, textAlign: 'center' }}>
+          <Text
+            style={{ marginTop: theme.spacing.md, color: theme.colors.error, textAlign: 'center' }}
+          >
             {fetchError}
           </Text>
         </View>
@@ -236,7 +255,10 @@ export default function HomeTab() {
             </View>
 
             <Pressable
-              style={({ pressed }) => [styles.primaryButton, pressed ? { opacity: 0.8 } : undefined]}
+              style={({ pressed }) => [
+                styles.primaryButton,
+                pressed ? { opacity: 0.8 } : undefined,
+              ]}
               onPress={handleStartList}
             >
               <View style={styles.primaryButtonOverlay} />

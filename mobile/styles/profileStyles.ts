@@ -20,7 +20,7 @@ export const profileStyles = StyleSheet.create(theme => ({
     letterSpacing: theme.typography.letterSpacing.xl,
   },
   content: {
-    paddingTop: 80,
+    paddingTop: theme.spacing.lg,
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: 120,
     maxWidth: 500,
@@ -30,7 +30,6 @@ export const profileStyles = StyleSheet.create(theme => ({
   profileHeader: {
     alignItems: 'center',
     gap: theme.spacing.md,
-    paddingVertical: theme.spacing.lg,
   },
   profileName: {
     fontSize: theme.typography.fontSize.xl,
@@ -44,23 +43,6 @@ export const profileStyles = StyleSheet.create(theme => ({
     fontWeight: theme.typography.fontWeight.medium,
     color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
-  },
-  sectionTitle: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurfaceVariant,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: theme.spacing.md,
-    paddingHorizontal: theme.spacing.md,
-  },
-  settingsContainer: {
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: theme.borderRadius.md,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-    marginBottom: theme.spacing.lg,
   },
   logoutButton: {
     width: '100%',

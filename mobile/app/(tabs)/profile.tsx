@@ -48,10 +48,6 @@ export default function ProfileTab() {
     router.push('/(onboarding)/login-choice');
   };
 
-  const handleSettingPress = (id: string) => {
-    console.log(`Setting pressed: ${id}`);
-  };
-
   return (
     <View style={styles.container as ViewStyle}>
       <View style={styles.header as ViewStyle}>
@@ -69,34 +65,25 @@ export default function ProfileTab() {
               <Text style={styles.profileName as TextStyle}>
                 {user?.name || user?.email?.split('@')[0] || 'Usuario'}
               </Text>
-              <Text style={styles.profileEmail as TextStyle}>{user?.email || ''}</Text>
+
+              {!user?.isAnonymous && (
+                <Text style={styles.profileEmail as TextStyle}>{user?.email || ''}</Text>
+              )}
             </View>
 
             {!isPremium && <PremiumCard onUpgradePress={handleUpgrade} />}
 
-            <Text style={styles.sectionTitle as TextStyle}>Ajustes</Text>
-            <View style={styles.settingsContainer as ViewStyle}>
-              {settingsItems.map(item => (
-                <SettingItem
-                  key={item.id}
-                  title={item.title}
-                  icon={item.icon}
-                  iconColor={item.iconColor}
-                  iconBgColor={item.iconBgColor}
-                  onPress={() => handleSettingPress(item.id)}
-                />
-              ))}
-            </View>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.logoutButton as ViewStyle,
-                pressed && (styles.logoutButtonPressed as ViewStyle),
-              ]}
-              onPress={logout}
-            >
-              <Text style={styles.logoutText as TextStyle}>Cerrar Sesión</Text>
-            </Pressable>
+            {!user?.isAnonymous && (
+              <Pressable
+                style={({ pressed }) => [
+                  styles.logoutButton as ViewStyle,
+                  pressed && (styles.logoutButtonPressed as ViewStyle),
+                ]}
+                onPress={logout}
+              >
+                <Text style={styles.logoutText as TextStyle}>Cerrar Sesión</Text>
+              </Pressable>
+            )}
           </>
         ) : (
           <GuestCard onCreateAccountPress={handleCreateAccount} />

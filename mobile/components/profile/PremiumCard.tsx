@@ -66,16 +66,14 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   upgradeButton: {
     backgroundColor: theme.colors.midnight,
-    paddingHorizontal: theme.spacing.xl,
-    paddingVertical: theme.spacing.lg,
     borderRadius: theme.borderRadius.button,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: theme.spacing.md,
   },
   upgradeButtonText: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.semibold,
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: theme.typography.fontWeight.medium,
     color: '#FFFFFF',
   },
 }));
@@ -104,7 +102,7 @@ export function PremiumCard({ onUpgradePress }: PremiumCardProps) {
         <Pressable
           style={({ pressed }) => [
             styles.upgradeButton as ViewStyle,
-            pressed && { transform: [{ scale: 0.95 }] },
+            pressed ? { opacity: 0.8 } : undefined,
           ]}
           onPress={onUpgradePress}
         >
