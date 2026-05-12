@@ -31,6 +31,11 @@ func (h *CartHandler) CreateCart(c *gin.Context) {
 		return
 	}
 
+	if req.SupermarketID == nil && req.NewSupermarket == nil {
+		utils.ValidationError(c, map[string]string{"supermarketId": "supermarketId o newSupermarket es requerido"})
+		return
+	}
+
 	userID, ok := middleware.GetUserIDFromContext(c)
 	if !ok {
 		utils.UnauthorizedResponse(c)
@@ -43,15 +48,22 @@ func (h *CartHandler) CreateCart(c *gin.Context) {
 		return
 	}
 
-	supermarketID, err := uuid.Parse(req.SupermarketID)
-	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de supermercado inválido")
-		return
+	var supermarketID uuid.UUID
+	var customSupermarketName *string
+	if req.SupermarketID != nil {
+		supermarketID, err = uuid.Parse(*req.SupermarketID)
+		if err != nil {
+			utils.ErrorResponse(c, http.StatusBadRequest, "ID de supermercado inválido")
+			return
+		}
+	} else {
+		supermarketID = uuid.Nil
+		customSupermarketName = &req.NewSupermarket.Name
 	}
 
 	cart := models.NewCart(userUUID, supermarketID, true, req.BudgetBs, req.BudgetUsd)
 
-	result, err := h.cartService.CreateCart(c.Request.Context(), cart)
+	result, err := h.cartService.CreateCart(c.Request.Context(), cart, customSupermarketName)
 	if err != nil {
 		h.handleError(c, err)
 		return

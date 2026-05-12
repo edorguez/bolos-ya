@@ -7,11 +7,12 @@ import (
 
 	"github.com/edorguez/bolos-ya/internal/server/models"
 	"github.com/edorguez/bolos-ya/internal/server/repository"
+	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
 )
 
 // CartService defines shopping cart operations
 type CartService interface {
-	CreateCart(ctx context.Context, cart *models.Cart) (*models.Cart, error)
+	CreateCart(ctx context.Context, cart *models.Cart, customSupermarketName *string) (*models.Cart, error)
 	AddProduct(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error)
 	UpdateProductQuantity(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error)
 	RemoveProduct(ctx context.Context, cartProductID uuid.UUID) error
@@ -23,22 +24,41 @@ type cartService struct {
 	cartRepo        repository.CartRepository
 	cartProductRepo repository.CartProductRepository
 	productRepo     repository.ProductRepository
+	supermarketRepo repository.SupermarketRepository
 }
 
 func NewCartService(
 	cartRepo repository.CartRepository,
 	cartProductRepo repository.CartProductRepository,
 	productRepo repository.ProductRepository,
+	supermarketRepo repository.SupermarketRepository,
 ) CartService {
 	return &cartService{
 		cartRepo:        cartRepo,
 		cartProductRepo: cartProductRepo,
 		productRepo:     productRepo,
+		supermarketRepo: supermarketRepo,
 	}
 }
 
 // CreateCart creates a new shopping cart for a user
-func (s *cartService) CreateCart(ctx context.Context, cart *models.Cart) (*models.Cart, error) {
+func (s *cartService) CreateCart(ctx context.Context, cart *models.Cart, customSupermarketName *string) (*models.Cart, error) {
+	if cart.SupermarketID == uuid.Nil && customSupermarketName != nil {
+		existing, err := s.supermarketRepo.FindByNameAndUserID(ctx, *customSupermarketName, cart.UserID)
+		if err != nil && err != apperrors.ErrNotFound {
+			return nil, err
+		}
+		if existing != nil {
+			cart.SupermarketID = existing.ID
+		} else {
+			newSM := models.NewSupermarket(*customSupermarketName, true, nil, cart.UserID)
+			if err := s.supermarketRepo.Create(ctx, newSM); err != nil {
+				return nil, err
+			}
+			cart.SupermarketID = newSM.ID
+		}
+	}
+
 	if err := s.cartRepo.Create(ctx, cart); err != nil {
 		return nil, err
 	}

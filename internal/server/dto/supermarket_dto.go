@@ -1,7 +1,7 @@
 package dto
 
 type CreateSupermarketRequest struct {
-	Name     string  `json:"name" validate:"required,max=255"`
+	Name     string  `json:"name" validate:"required,max=100"`
 	ImageUrl *string `json:"imageUrl" validate:"omitempty,max=500"`
 }
 

@@ -15,6 +15,7 @@ type SupermarketRepository interface {
 	Create(ctx context.Context, supermarket *models.Supermarket) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Supermarket, error)
 	FindByName(ctx context.Context, name string) ([]*models.Supermarket, error)
+	FindByNameAndUserID(ctx context.Context, name string, userID uuid.UUID) (*models.Supermarket, error)
 	FindAll(ctx context.Context, userID uuid.UUID) ([]*models.Supermarket, error)
 	Update(ctx context.Context, supermarket *models.Supermarket) error
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -67,6 +68,24 @@ func (r *supermarketRepository) FindByName(ctx context.Context, name string) ([]
 		result[i] = &supermarket
 	}
 	return result, nil
+}
+
+// FindByNameAndUserID retrieves a supermarket by exact name and userID
+func (r *supermarketRepository) FindByNameAndUserID(ctx context.Context, name string, userID uuid.UUID) (*models.Supermarket, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var supermarket models.Supermarket
+	if err := r.db.WithContext(ctx).
+		Where("name = ? AND user_id = ? AND deleted_at IS NULL", name, userID).
+		First(&supermarket).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return &supermarket, nil
 }
 
 // FindAll retrieves all supermarkets belonging to a user or seeded (user_id IS NULL)

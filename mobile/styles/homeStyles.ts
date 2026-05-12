@@ -70,6 +70,14 @@ export function createHomeStyles(theme: AppTheme) {
       borderWidth: 1,
       borderColor: theme.colors.stoneSurface,
     },
+    errorText: {
+      color: theme.colors.error,
+      fontSize: theme.typography.fontSize.xs,
+      marginTop: theme.spacing.xs,
+    },
+    errorBorder: {
+      borderColor: theme.colors.error,
+    },
     budgetGrid: {
       flexDirection: 'row',
       gap: theme.spacing.md,

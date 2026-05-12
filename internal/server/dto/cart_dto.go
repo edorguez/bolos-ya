@@ -1,9 +1,10 @@
 package dto
 
 type CreateCartRequest struct {
-	SupermarketID string `json:"supermarketId" validate:"required,uuid"`
-	BudgetBs      int64  `json:"budgetBs" validate:"min=0"`
-	BudgetUsd     int64  `json:"budgetUsd" validate:"min=0"`
+	SupermarketID  *string                    `json:"supermarketId" validate:"omitempty,uuid"`
+	NewSupermarket *CreateSupermarketRequest  `json:"newSupermarket" validate:"omitempty"`
+	BudgetBs       int64                      `json:"budgetBs" validate:"min=0"`
+	BudgetUsd      int64                      `json:"budgetUsd" validate:"min=0"`
 }
 
 type AddProductRequest struct {

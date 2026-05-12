@@ -6,8 +6,9 @@ import {
   TextInput,
   Animated,
   ActivityIndicator,
+  type TextStyle,
 } from 'react-native';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { createHomeStyles } from '../../styles/homeStyles';
@@ -17,10 +18,13 @@ import { CartCard } from '../../components/home/CartCard';
 import { TipCard } from '../../components/home/TipCard';
 import { SectionHeader } from '../../components/shared/SectionHeader';
 import { HorizontalScrollWithIndicators } from '../../components/shared/HorizontalScrollWithIndicators';
+import { Toast } from '../../components/shared/Toast';
 import { useCartStore } from '../../store/cartStore';
 import { useAppTheme } from '../../styles/theme';
 import { useAuth } from '../../store/authStore';
 import { getAllSupermarkets } from '../../services/supermarketService';
+import { createCart } from '../../services/cartService';
+import { validateAmount, validateName, sanitizeName } from '../../utils/validation';
 import type { SupermarketOption } from '../../services/supermarketService';
 
 export default function HomeTab() {
@@ -36,6 +40,11 @@ export default function HomeTab() {
   const [showCustomMarket, setShowCustomMarket] = useState(false);
   const [renderCustomMarket, setRenderCustomMarket] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const dismissToast = useCallback(() => setToast(null), []);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(-20)).current;
@@ -102,40 +111,93 @@ export default function HomeTab() {
   const router = useRouter();
   const { addCart, setActiveCart } = useCartStore();
 
-  const handleStartList = () => {
+  const handleStartList = async () => {
+    const errors: Record<string, string> = {};
+
     const selectedSupermarket = supermarkets.find(s => s.selected);
-    let supermarketName = selectedSupermarket?.name || "Plaza's";
-    if (selectedSupermarket?.name === 'Otro' && customMarketName.trim()) {
-      supermarketName = customMarketName.trim();
+    if (!selectedSupermarket) {
+      errors.supermarket = 'Selecciona un supermercado';
     }
-    const cartName = `${supermarketName} - ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`;
-    const cartId = Date.now().toString();
 
-    const newCart = {
-      id: cartId,
-      name: cartName,
-      supermarket: supermarketName,
-      items: [],
-      totalBs: 0,
-      totalUsd: 0,
-      budgetBs: parseFloat(budgetBs) || 0,
-      budgetUsd: parseFloat(budgetUsd) || 0,
-    };
+    let finalName: string | undefined;
+    let finalSupermarketId: string | undefined;
+    if (selectedSupermarket?.id === 'other') {
+      const nameErr = validateName(customMarketName);
+      if (nameErr) {
+        errors.customMarketName = nameErr;
+      } else {
+        finalName = sanitizeName(customMarketName);
+      }
+    } else if (selectedSupermarket) {
+      finalSupermarketId = selectedSupermarket.id;
+      finalName = selectedSupermarket.name;
+    }
 
-    addCart(newCart);
-    setActiveCart(cartId);
-    router.push({ pathname: '/(cart)/[id]', params: { id: cartId } });
+    const { amount: bsAmount, error: bsError } = validateAmount(budgetBs);
+    const { amount: usdAmount, error: usdError } = validateAmount(budgetUsd);
+    if (bsError) errors.budgetBs = bsError;
+    if (usdError) errors.budgetUsd = usdError;
+    if (bsAmount === 0 && usdAmount === 0) {
+      errors.budgetBs = errors.budgetBs || 'Debes ingresar Presupuesto BS o USD';
+    }
+
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    setIsSubmitting(true);
+    try {
+      const result = await createCart(
+        {
+          supermarketId: finalSupermarketId,
+          newSupermarket: finalSupermarketId ? undefined : { name: finalName || '' },
+          budgetBs: bsAmount,
+          budgetUsd: usdAmount,
+        },
+        user?.id,
+      );
+
+      const cartName = `${finalName || "Plaza's"} - ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`;
+
+      addCart({
+        id: result.id,
+        name: cartName,
+        supermarket: finalName || "Plaza's",
+        items: [],
+        totalBs: 0,
+        totalUsd: 0,
+        budgetBs: result.budgetBs,
+        budgetUsd: result.budgetUsd,
+      });
+      setActiveCart(result.id);
+      router.push({ pathname: '/(cart)/[id]', params: { id: result.id } });
+    } catch (err) {
+      setToast(err instanceof Error ? err.message : 'Error al crear el carrito');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBsBudgetChange = (text: string) => {
     if (text === '' || /^\d*\.?\d*$/.test(text)) {
       setBudgetBs(text);
+      setFieldErrors(prev => {
+        if (!prev.budgetBs) return prev;
+        const next = { ...prev };
+        delete next.budgetBs;
+        return next;
+      });
     }
   };
 
   const handleUsdBudgetChange = (text: string) => {
     if (text === '' || /^\d*\.?\d*$/.test(text)) {
       setBudgetUsd(text);
+      setFieldErrors(prev => {
+        if (!prev.budgetUsd) return prev;
+        const next = { ...prev };
+        delete next.budgetUsd;
+        return next;
+      });
     }
   };
 
@@ -204,6 +266,7 @@ export default function HomeTab() {
 
   return (
     <View style={styles.container}>
+      <Toast message={toast} onDismiss={dismissToast} />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>MercadoLibreta</Text>
       </View>
@@ -228,12 +291,26 @@ export default function HomeTab() {
                   <View style={{ gap: theme.spacing.xs }}>
                     <Text style={styles.supermarketLabel}>Nombre del Supermercado</Text>
                     <TextInput
-                      style={styles.customMarketInput}
+                      style={[
+                        styles.customMarketInput,
+                        fieldErrors.customMarketName && styles.errorBorder,
+                      ]}
                       placeholder="Ej. Plan Suarez"
                       placeholderTextColor={theme.colors.onSurfaceVariant}
                       value={customMarketName}
-                      onChangeText={setCustomMarketName}
+                      onChangeText={(text) => {
+                        setCustomMarketName(text);
+                        setFieldErrors(prev => {
+                          if (!prev.customMarketName) return prev;
+                          const next = { ...prev };
+                          delete next.customMarketName;
+                          return next;
+                        });
+                      }}
                     />
+                    {fieldErrors.customMarketName ? (
+                      <Text style={styles.errorText as TextStyle}>{fieldErrors.customMarketName}</Text>
+                    ) : null}
                   </View>
                 </Animated.View>
               ) : null}
@@ -245,25 +322,43 @@ export default function HomeTab() {
                 value={budgetBs}
                 onChangeText={handleBsBudgetChange}
                 keyboardType="numeric"
+                hasError={!!fieldErrors.budgetBs || !!fieldErrors.budgetUsd}
               />
               <BudgetInput
                 label="Presupuesto USD"
                 value={budgetUsd}
                 onChangeText={handleUsdBudgetChange}
                 keyboardType="numeric"
+                hasError={!!fieldErrors.budgetBs || !!fieldErrors.budgetUsd}
               />
             </View>
+            {fieldErrors.budgetBs || fieldErrors.budgetUsd ? (
+              <Text style={styles.errorText as TextStyle}>
+                {fieldErrors.budgetBs || fieldErrors.budgetUsd}
+              </Text>
+            ) : null}
+
+            {fieldErrors.supermarket ? (
+              <Text style={styles.errorText as TextStyle}>{fieldErrors.supermarket}</Text>
+            ) : null}
 
             <Pressable
               style={({ pressed }) => [
                 styles.primaryButton,
-                pressed ? { opacity: 0.8 } : undefined,
+                (pressed || isSubmitting) ? { opacity: 0.8 } : undefined,
               ]}
               onPress={handleStartList}
+              disabled={isSubmitting}
             >
               <View style={styles.primaryButtonOverlay} />
-              <Text style={styles.primaryButtonText}>Comenzar Lista</Text>
-              <MaterialIcons name="play-circle-outline" size={24} color="#FFFFFF" />
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <>
+                  <Text style={styles.primaryButtonText}>Comenzar Lista</Text>
+                  <MaterialIcons name="play-circle-outline" size={24} color="#FFFFFF" />
+                </>
+              )}
             </Pressable>
           </View>
         </View>

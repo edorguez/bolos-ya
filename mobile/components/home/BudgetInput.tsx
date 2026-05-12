@@ -13,6 +13,7 @@ interface BudgetInputProps extends Omit<TextInputProps, 'style'> {
   label: string;
   currency?: string;
   inputStyle?: TextInputProps['style'];
+  hasError?: boolean;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -39,14 +40,18 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }));
 
-export function BudgetInput({ label, currency, inputStyle, ...props }: BudgetInputProps) {
+export function BudgetInput({ label, currency, inputStyle, hasError, ...props }: BudgetInputProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
   return (
     <View style={styles.container as ViewStyle}>
       <Text style={styles.label as TextStyle}>{label}</Text>
       <TextInput
-        style={[styles.input as TextStyle, inputStyle]}
+        style={[
+          styles.input as TextStyle,
+          hasError && { borderColor: theme.colors.error },
+          inputStyle,
+        ]}
         placeholder="0.00"
         placeholderTextColor={theme.colors.onSurfaceVariant}
         keyboardType="numeric"

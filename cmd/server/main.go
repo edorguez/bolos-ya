@@ -51,7 +51,7 @@ func main() {
 	paymentRepo := repository.NewPaymentRepository(db)
 
 	authService := services.NewAuthService(userRepo)
-	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo)
+	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo, supermarketRepo)
 	syncService := services.NewSyncService(userRepo, cartRepo, cartProductRepo, productRepo, supermarketRepo)
 	paymentService := services.NewPaymentService(paymentRepo)
 	supermarketService := services.NewSupermarketService(supermarketRepo)
