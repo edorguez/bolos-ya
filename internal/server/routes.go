@@ -54,7 +54,8 @@ func SetupRoutes(
 			cartsGroup := protected.Group("/carts")
 			{
 				cartsGroup.POST("", cartHandler.CreateCart)
-				cartsGroup.GET("/:cartId/items", cartHandler.GetCartItems)
+				cartsGroup.GET("", cartHandler.GetCarts)
+				cartsGroup.GET("/:cartId", cartHandler.GetCartDetail)
 				cartsGroup.POST("/:cartId/checkout", cartHandler.CheckoutCart)
 			}
 

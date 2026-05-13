@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -175,29 +177,107 @@ func (h *CartHandler) RemoveItem(c *gin.Context) {
 	utils.SuccessResponse(c, nil)
 }
 
-func (h *CartHandler) GetCartItems(c *gin.Context) {
+func (h *CartHandler) GetCarts(c *gin.Context) {
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		return
+	}
+
+	limit := 0
+	if l := c.Query("limit"); l != "" {
+		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 {
+			limit = parsed
+		}
+	}
+
+	carts, err := h.cartService.GetCartsByUser(c.Request.Context(), userUUID, limit)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	resp := make([]dto.CartResponse, len(carts))
+	for i, cart := range carts {
+		supermarketName := ""
+		if cart.Supermarket != nil {
+			supermarketName = cart.Supermarket.Name
+		}
+
+		resp[i] = dto.CartResponse{
+			ID:               cart.ID.String(),
+			SupermarketID:    cart.SupermarketID.String(),
+			SupermarketName:  supermarketName,
+			UserID:           cart.UserID.String(),
+			IsActive:         cart.IsActive,
+			BudgetBs:         cart.BudgetBs,
+			BudgetUsd:        cart.BudgetUsd,
+			TotalEstimatedBs: cart.TotalEstimatedBs,
+			TotalEstimatedUsd: cart.TotalEstimatedUsd,
+			CreatedAt:        cart.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:        cart.UpdatedAt.Format(time.RFC3339),
+		}
+	}
+
+	utils.SuccessResponse(c, resp)
+}
+
+func (h *CartHandler) GetCartDetail(c *gin.Context) {
 	cartID, err := utils.ParseUUID(c.Param("cartId"))
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "ID de carrito inválido")
 		return
 	}
 
-	items, err := h.cartService.GetCartProducts(c.Request.Context(), cartID)
+	cart, items, err := h.cartService.GetCartDetail(c.Request.Context(), cartID)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
 
-	resp := make([]dto.CartProductResponse, len(items))
+	supermarketName := ""
+	if cart.Supermarket != nil {
+		supermarketName = cart.Supermarket.Name
+	}
+
+	itemResp := make([]dto.CartProductDetailResponse, len(items))
 	for i, item := range items {
-		resp[i] = dto.CartProductResponse{
+		itemResp[i] = dto.CartProductDetailResponse{
 			ID:            item.ID.String(),
 			CartID:        item.CartID.String(),
 			ProductID:     item.ProductID.String(),
+			Name:          item.Name,
+			PriceBs:       item.PriceBolivares,
+			PriceUsd:      item.PriceUsd,
+			ImageUrl:      item.ImageUrl,
 			Quantity:      item.Quantity,
 			IsManualEntry: item.IsManualEntry,
+			CreatedAt:     item.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:     item.UpdatedAt.Format(time.RFC3339),
 		}
 	}
+
+	resp := dto.CartDetailResponse{
+		ID:               cart.ID.String(),
+		SupermarketID:    cart.SupermarketID.String(),
+		SupermarketName:  supermarketName,
+		UserID:           cart.UserID.String(),
+		IsActive:         cart.IsActive,
+		BudgetBs:         cart.BudgetBs,
+		BudgetUsd:        cart.BudgetUsd,
+		TotalEstimatedBs: cart.TotalEstimatedBs,
+		TotalEstimatedUsd: cart.TotalEstimatedUsd,
+		CreatedAt:        cart.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:        cart.UpdatedAt.Format(time.RFC3339),
+		Items:            itemResp,
+	}
+
 	utils.SuccessResponse(c, resp)
 }
 

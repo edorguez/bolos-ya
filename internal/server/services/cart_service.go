@@ -17,6 +17,8 @@ type CartService interface {
 	UpdateProductQuantity(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error)
 	RemoveProduct(ctx context.Context, cartProductID uuid.UUID) error
 	GetCartProducts(ctx context.Context, cartID uuid.UUID) ([]*models.CartProduct, error)
+	GetCartsByUser(ctx context.Context, userID uuid.UUID, limit int) ([]*models.Cart, error)
+	GetCartDetail(ctx context.Context, cartID uuid.UUID) (*models.Cart, []*repository.CartProductDetail, error)
 	CheckoutCart(ctx context.Context, cartID uuid.UUID) (*models.Cart, error)
 }
 
@@ -124,6 +126,26 @@ func (s *cartService) RemoveProduct(ctx context.Context, cartProductID uuid.UUID
 
 	// Update cart totals
 	return s.updateCartTotals(ctx, cart)
+}
+
+// GetCartsByUser retrieves non-deleted carts for a user. If limit > 0, only the first N are returned.
+func (s *cartService) GetCartsByUser(ctx context.Context, userID uuid.UUID, limit int) ([]*models.Cart, error) {
+	return s.cartRepo.FindByUserID(ctx, userID, limit)
+}
+
+// GetCartDetail retrieves a cart with its products and product details
+func (s *cartService) GetCartDetail(ctx context.Context, cartID uuid.UUID) (*models.Cart, []*repository.CartProductDetail, error) {
+	cart, err := s.cartRepo.FindByID(ctx, cartID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	items, err := s.cartProductRepo.FindByCartIDWithDetails(ctx, cartID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return cart, items, nil
 }
 
 // GetCartProducts retrieves all products in a cart

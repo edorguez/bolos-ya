@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCartStore, type Cart, type CartItem } from '../../store/cartStore';
 import { useAppTheme } from '../../styles/theme';
@@ -12,6 +12,9 @@ import { ProductForm } from '../../components/cart/ProductForm';
 import { useState, useEffect } from 'react';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getCartDetail } from '../../services/cartService';
+import { useAuth } from '../../store/authStore';
+import type { ApiCartDetailResponse } from '../../types';
 
 export default function CartDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -20,14 +23,16 @@ export default function CartDetailScreen() {
   const insets = useSafeAreaInsets();
   const {
     carts,
-    activeCartId,
+    addCart,
     addItemToCart,
     setActiveCart,
     updateItem,
     removeItemFromCart,
     completeCart,
   } = useCartStore();
+  const { user } = useAuth();
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [isLoadingFromApi, setIsLoadingFromApi] = useState(false);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showCompleteCartSheet, setShowCompleteCartSheet] = useState(false);
   const [selectedItem, setSelectedItem] = useState<CartItem | null>(null);
@@ -37,6 +42,39 @@ export default function CartDetailScreen() {
   useEffect(() => {
     setActiveCart(id);
   }, [id, setActiveCart]);
+
+  useEffect(() => {
+    if (!id || !user?.id) return;
+
+    const exists = carts.some(c => c.id === id);
+    if (!exists) {
+      setIsLoadingFromApi(true);
+      getCartDetail(id, user.id)
+        .then((apiCart: ApiCartDetailResponse) => {
+          addCart({
+            id: apiCart.id,
+            name: apiCart.supermarketName,
+            supermarket: apiCart.supermarketName,
+            items: apiCart.items.map(item => ({
+              id: item.id,
+              productId: item.productId,
+              name: item.name,
+              priceBs: item.priceBs,
+              priceUsd: item.priceUsd,
+              quantity: item.quantity,
+              supermarket: apiCart.supermarketName,
+              productImageUrl: item.imageUrl || undefined,
+            })),
+            totalBs: apiCart.totalEstimatedBs ?? 0,
+            totalUsd: apiCart.totalEstimatedUsd ?? 0,
+            budgetBs: apiCart.budgetBs,
+            budgetUsd: apiCart.budgetUsd,
+          });
+        })
+        .catch(() => {})
+        .finally(() => setIsLoadingFromApi(false));
+    }
+  }, [id, user?.id, addCart]);
 
   const handleScanPress = () => {
     router.push('/(cart)/scan');
@@ -87,6 +125,20 @@ export default function CartDetailScreen() {
   const cart = carts.find((c: Cart) => c.id === id);
 
   if (!cart) {
+    if (isLoadingFromApi) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: theme.colors.background,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <ActivityIndicator size="large" color={theme.colors.midnight} />
+        </View>
+      );
+    }
     return (
       <View
         style={{

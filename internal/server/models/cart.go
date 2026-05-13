@@ -9,13 +9,14 @@ import (
 // Cart represents a shopping cart
 type Cart struct {
 	models.BaseModel
-	SupermarketID     uuid.UUID `gorm:"type:uuid;not null"`
-	UserID            uuid.UUID `gorm:"type:uuid;not null"`
-	IsActive          bool      `gorm:"not null;default:true"`
-	BudgetBs          int64     `gorm:"type:bigint;not null;default:0"`
-	BudgetUsd         int64     `gorm:"type:bigint;not null;default:0"`
-	TotalEstimatedBs  *int64    `gorm:"type:bigint"`
-	TotalEstimatedUsd *int64    `gorm:"type:bigint"`
+	SupermarketID     uuid.UUID       `gorm:"type:uuid;not null"`
+	UserID            uuid.UUID       `gorm:"type:uuid;not null"`
+	IsActive          bool            `gorm:"not null;default:true"`
+	BudgetBs          int64           `gorm:"type:bigint;not null;default:0"`
+	BudgetUsd         int64           `gorm:"type:bigint;not null;default:0"`
+	TotalEstimatedBs  *int64          `gorm:"type:bigint"`
+	TotalEstimatedUsd *int64          `gorm:"type:bigint"`
+	Supermarket       *Supermarket    `gorm:"foreignKey:SupermarketID"`
 }
 
 // NewCart creates a new Cart with default values

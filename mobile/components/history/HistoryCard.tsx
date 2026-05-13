@@ -1,4 +1,4 @@
-import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
+import { View, Text, Pressable, type ViewStyle, type TextStyle, type ViewProps } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { StatusBadge } from './StatusBadge';
 import { AmountCard } from './AmountCard';
@@ -16,6 +16,9 @@ interface HistoryCardProps {
   totalUsd: string;
   budgetUsage: number;
   exceeded: boolean;
+  hideAmounts?: boolean;
+  onPress?: () => void;
+  style?: ViewProps['style'];
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -89,12 +92,15 @@ export function HistoryCard({
   totalUsd,
   budgetUsage,
   exceeded,
+  hideAmounts = false,
+  onPress,
+  style,
 }: HistoryCardProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
 
-  return (
-    <View style={styles.card as ViewStyle}>
+  const content = (
+    <>
       <View style={styles.header as ViewStyle}>
         <View style={styles.storeInfo as ViewStyle}>
           <View
@@ -110,10 +116,12 @@ export function HistoryCard({
         <StatusBadge status={status} />
       </View>
 
-      <View style={styles.amountGrid as ViewStyle}>
-        <AmountCard label="Total Bs" value={totalBs} />
-        <AmountCard label="Total USD" value={totalUsd} />
-      </View>
+      {!hideAmounts && (
+        <View style={styles.amountGrid as ViewStyle}>
+          <AmountCard label="Total Bs" value={totalBs} />
+          <AmountCard label="Total USD" value={totalUsd} />
+        </View>
+      )}
 
       <View style={styles.progressSection as ViewStyle}>
         <View style={styles.progressHeader as ViewStyle}>
@@ -137,8 +145,26 @@ export function HistoryCard({
         <ProgressBar
           progress={Math.min(budgetUsage, 100)}
           color={exceeded ? theme.colors.error : theme.colors.midnight}
+          backgroundColor={theme.colors.stoneSurface}
         />
       </View>
-    </View>
+    </>
   );
+
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.card as ViewStyle,
+          style,
+          { transform: [{ scale: pressed ? 0.97 : 1 }] },
+        ]}
+      >
+        {content}
+      </Pressable>
+    );
+  }
+
+  return <View style={[styles.card as ViewStyle, style]}>{content}</View>;
 }

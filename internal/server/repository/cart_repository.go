@@ -14,7 +14,7 @@ import (
 type CartRepository interface {
 	Create(ctx context.Context, cart *models.Cart) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Cart, error)
-	FindByUserID(ctx context.Context, userID uuid.UUID) ([]*models.Cart, error)
+	FindByUserID(ctx context.Context, userID uuid.UUID, limit int) ([]*models.Cart, error)
 	Update(ctx context.Context, cart *models.Cart) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -41,7 +41,7 @@ func (r *cartRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Ca
 	defer cancel()
 
 	var cart models.Cart
-	if err := r.db.WithContext(ctx).First(&cart, "id = ?", id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("Supermarket").First(&cart, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.ErrNotFound
 		}
@@ -51,19 +51,29 @@ func (r *cartRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Ca
 	return &cart, nil
 }
 
-// FindByUserID retrieves carts for a specific user, optionally filtered by status
-func (r *cartRepository) FindByUserID(ctx context.Context, userID uuid.UUID) ([]*models.Cart, error) {
+// FindByUserID retrieves non-deleted carts for a specific user, ordered by created_at DESC.
+// If limit > 0, only the first N carts are returned.
+func (r *cartRepository) FindByUserID(ctx context.Context, userID uuid.UUID, limit int) ([]*models.Cart, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
+	query := r.db.WithContext(ctx).
+		Where("user_id = ? AND deleted_at IS NULL", userID).
+		Preload("Supermarket").
+		Order("created_at DESC")
+
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+
 	var cartList []models.Cart
-	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).Order("created_at DESC").Find(&cartList).Error; err != nil {
+	if err := query.Find(&cartList).Error; err != nil {
 		return nil, err
 	}
 
 	result := make([]*models.Cart, len(cartList))
-	for i, cart := range cartList {
-		result[i] = &cart
+	for i := range cartList {
+		result[i] = &cartList[i]
 	}
 	return result, nil
 }

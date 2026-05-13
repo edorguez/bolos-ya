@@ -72,6 +72,49 @@ export interface CartItem {
   updatedAt: Date;
 }
 
+export interface ApiCartResponse {
+  id: string;
+  supermarketId: string;
+  supermarketName: string;
+  userId: string;
+  isActive: boolean;
+  budgetBs: number;
+  budgetUsd: number;
+  totalEstimatedBs: number | null;
+  totalEstimatedUsd: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ApiCartProductResponse {
+  id: string;
+  cartId: string;
+  productId: string;
+  name: string;
+  priceBs: number;
+  priceUsd: number;
+  imageUrl: string | null;
+  quantity: number;
+  isManualEntry: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ApiCartDetailResponse {
+  id: string;
+  supermarketId: string;
+  supermarketName: string;
+  userId: string;
+  isActive: boolean;
+  budgetBs: number;
+  budgetUsd: number;
+  totalEstimatedBs: number | null;
+  totalEstimatedUsd: number | null;
+  createdAt: string;
+  updatedAt: string;
+  items: ApiCartProductResponse[];
+}
+
 export interface SyncOperation {
   table: string;
   action: 'INSERT' | 'UPDATE' | 'DELETE';

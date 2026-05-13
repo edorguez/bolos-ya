@@ -3,7 +3,7 @@ import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
 
 interface StatusBadgeProps {
-  status: 'Completado' | 'Excedido' | string;
+  status: 'Completado' | 'Activo' | string;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -30,10 +30,10 @@ export function StatusBadge({ status }: StatusBadgeProps) {
           backgroundColor: theme.colors.meadowGreen + '20',
           textColor: theme.colors.meadowGreen,
         };
-      case 'Excedido':
+      case 'Activo':
         return {
-          backgroundColor: theme.colors.coralRed + '20',
-          textColor: theme.colors.coralRed,
+          backgroundColor: theme.colors.warning + '20',
+          textColor: theme.colors.warning,
         };
       default:
         return {

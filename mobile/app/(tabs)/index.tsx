@@ -14,8 +14,8 @@ import { useRouter } from 'expo-router';
 import { createHomeStyles } from '../../styles/homeStyles';
 import { SupermarketCarousel } from '../../components/home/SupermarketCarousel';
 import { BudgetInput } from '../../components/home/BudgetInput';
-import { CartCard } from '../../components/home/CartCard';
 import { TipCard } from '../../components/home/TipCard';
+import { HistoryCard } from '../../components/history/HistoryCard';
 import { SectionHeader } from '../../components/shared/SectionHeader';
 import { HorizontalScrollWithIndicators } from '../../components/shared/HorizontalScrollWithIndicators';
 import { Toast } from '../../components/shared/Toast';
@@ -24,8 +24,11 @@ import { useAppTheme } from '../../styles/theme';
 import { useAuth } from '../../store/authStore';
 import { getAllSupermarkets } from '../../services/supermarketService';
 import { createCart } from '../../services/cartService';
+import { getCarts } from '../../services/historyService';
+import { getIconByIndex, CARD_COLORS } from '../../utils/iconUtils';
 import { validateAmount, validateName, sanitizeName } from '../../utils/validation';
 import type { SupermarketOption } from '../../services/supermarketService';
+import type { ApiCartResponse } from '../../types';
 
 export default function HomeTab() {
   const theme = useAppTheme();
@@ -39,6 +42,7 @@ export default function HomeTab() {
   const [customMarketName, setCustomMarketName] = useState('');
   const [showCustomMarket, setShowCustomMarket] = useState(false);
   const [renderCustomMarket, setRenderCustomMarket] = useState(false);
+  const [recentCarts, setRecentCarts] = useState<ApiCartResponse[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -201,30 +205,38 @@ export default function HomeTab() {
     }
   };
 
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      if (!user?.id) return;
+      try {
+        const data = await getCarts(user.id, 5);
+        if (mounted) setRecentCarts(data);
+      } catch {
+        // silently fail — section won't render
+      }
+    };
+    load();
+    return () => { mounted = false; };
+  }, [user?.id]);
+
   const handleViewAll = () => {
     router.push({ pathname: '/history' });
   };
 
-  const latestCarts = [
-    {
-      id: '1',
-      title: 'Semana de Víveres',
-      subtitle: '85% completado',
-      date: '12 OCT',
-      progress: 85,
-      color: theme.colors.emberOrange,
-      icon: 'bakery-dining',
-    },
-    {
-      id: '2',
-      title: 'Limpieza Mensual',
-      subtitle: '40% completado',
-      date: '05 OCT',
-      progress: 40,
-      color: theme.colors.skyBlue,
-      icon: 'cleaning-services',
-    },
-  ];
+  function calcBudgetUsage(cart: ApiCartResponse): { usage: number; exceeded: boolean } {
+    if (cart.budgetBs > 0 && cart.totalEstimatedBs !== null) {
+      const usage = Math.round((cart.totalEstimatedBs / cart.budgetBs) * 100);
+      return { usage, exceeded: usage > 100 };
+    }
+    if (cart.budgetUsd > 0 && cart.totalEstimatedUsd !== null) {
+      const usage = Math.round((cart.totalEstimatedUsd / cart.budgetUsd) * 100);
+      return { usage, exceeded: usage > 100 };
+    }
+    return { usage: 0, exceeded: false };
+  }
+
+  const latestCarts = recentCarts;
 
   if (isLoading) {
     return (
@@ -371,17 +383,38 @@ export default function HomeTab() {
           />
 
           <HorizontalScrollWithIndicators contentContainerStyle={styles.cartCardsContainer}>
-            {latestCarts.map(cart => (
-              <CartCard
-                key={cart.id}
-                title={cart.title}
-                subtitle={cart.subtitle}
-                date={cart.date}
-                progress={cart.progress}
-                color={cart.color}
-                icon={cart.icon}
-              />
-            ))}
+            {latestCarts.map((cart, index) => {
+              const { usage, exceeded } = calcBudgetUsage(cart);
+              const colorKey = CARD_COLORS[index % CARD_COLORS.length] as keyof typeof theme.colors;
+
+              return (
+                <HistoryCard
+                  key={cart.id}
+                  storeName={cart.supermarketName}
+                  date={new Date(cart.createdAt).toLocaleDateString('es-VE', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                  icon={getIconByIndex(index)}
+                  iconColor={theme.colors[colorKey]}
+                  status={cart.isActive ? 'Activo' : 'Completado'}
+                  totalBs={cart.budgetBs.toLocaleString('es-VE', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                  totalUsd={`$ ${cart.budgetUsd.toLocaleString('es-VE', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}`}
+                  budgetUsage={usage}
+                  exceeded={exceeded}
+                  hideAmounts
+                  style={{ width: 280 }}
+                  onPress={() => router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })}
+                />
+              );
+            })}
           </HorizontalScrollWithIndicators>
         </View>
 

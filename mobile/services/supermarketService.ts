@@ -1,5 +1,6 @@
 import { apiGet } from './api';
 import type { ApiSupermarketResponse } from '../types';
+import { getIconByIndex } from '../utils/iconUtils';
 
 export interface SupermarketOption {
   id: string;
@@ -7,8 +8,6 @@ export interface SupermarketOption {
   icon: string;
   selected: boolean;
 }
-
-const ICON_POOL: readonly string[] = ['storefront', 'store', 'shopping-cart', 'local-mall'];
 
 interface ApiResponse<T> {
   success: boolean;
@@ -25,7 +24,7 @@ export async function getAllSupermarkets(userId?: string): Promise<SupermarketOp
   const supermarkets = response.data.map((item, index) => ({
     id: item.id,
     name: item.name,
-    icon: ICON_POOL[index % ICON_POOL.length],
+    icon: getIconByIndex(index),
     selected: false,
   }));
 

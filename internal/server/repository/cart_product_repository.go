@@ -15,6 +15,7 @@ type CartProductRepository interface {
 	Create(ctx context.Context, cartProduct *models.CartProduct) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.CartProduct, error)
 	FindByCartID(ctx context.Context, cartID uuid.UUID) ([]*models.CartProduct, error)
+	FindByCartIDWithDetails(ctx context.Context, cartID uuid.UUID) ([]*CartProductDetail, error)
 	Update(ctx context.Context, cartProduct *models.CartProduct) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	DeleteByCartID(ctx context.Context, cartID uuid.UUID) error

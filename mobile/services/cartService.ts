@@ -1,4 +1,5 @@
-import { apiPost } from './api';
+import { apiGet, apiPost } from './api';
+import type { ApiCartDetailResponse } from '../types';
 
 export interface CreateCartParams {
   supermarketId?: string;
@@ -23,6 +24,19 @@ export interface CreateCartResponse {
 interface ApiResponse<T> {
   success: boolean;
   data: T;
+}
+
+export async function getCartDetail(
+  cartId: string,
+  userId?: string
+): Promise<ApiCartDetailResponse> {
+  const response = await apiGet<ApiResponse<ApiCartDetailResponse>>(`/carts/${cartId}`, userId);
+
+  if (!response.success) {
+    throw new Error('Error al obtener el carrito');
+  }
+
+  return response.data;
 }
 
 export async function createCart(
