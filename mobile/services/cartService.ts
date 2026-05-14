@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut, apiDelete } from './api';
-import type { ApiCartDetailResponse } from '../types';
+import type { ApiCartDetailResponse, ApiCartResponse } from '../types';
 
 export interface CreateCartParams {
   supermarketId?: string;
@@ -203,6 +203,22 @@ export async function updateCartProductQuantity(
 
   if (!response.success) {
     throw new Error('Error al actualizar cantidad');
+  }
+
+  return response.data;
+}
+
+export async function checkoutCart(
+  cartId: string,
+  userId?: string
+): Promise<ApiCartResponse> {
+  const response = await apiPost<ApiResponse<ApiCartResponse>>(
+    `/carts/${cartId}/checkout`,
+    userId
+  );
+
+  if (!response.success) {
+    throw new Error('Error al completar carrito');
   }
 
   return response.data;

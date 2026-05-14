@@ -139,20 +139,30 @@ func (s *cartService) UpdateCartProduct(ctx context.Context, cartProductID uuid.
 
 // UpdateProductQuantity updates the quantity of a cart product
 func (s *cartService) UpdateProductQuantity(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error) {
-	cart, err := s.cartRepo.FindByID(ctx, cartProduct.CartID)
+	if cartProduct.Quantity < 1 || cartProduct.Quantity > 9999 {
+		return nil, apperrors.ErrInvalidInput
+	}
+
+	existing, err := s.cartProductRepo.FindByID(ctx, cartProduct.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := s.cartProductRepo.Update(ctx, cartProduct); err != nil {
+	cart, err := s.cartRepo.FindByID(ctx, existing.CartID)
+	if err != nil {
+		return nil, err
+	}
+
+	existing.Quantity = cartProduct.Quantity
+	if err := s.cartProductRepo.Update(ctx, existing); err != nil {
 		return nil, err
 	}
 
 	if err := s.updateCartTotals(ctx, cart); err != nil {
-		return cartProduct, err
+		return existing, err
 	}
 
-	return cartProduct, nil
+	return existing, nil
 }
 
 // RemoveProduct removes a product from a cart
@@ -168,6 +178,10 @@ func (s *cartService) RemoveProduct(ctx context.Context, cartProductID uuid.UUID
 	}
 
 	if err := s.cartProductRepo.Delete(ctx, cartProductID); err != nil {
+		return err
+	}
+
+	if err := s.productRepo.Delete(ctx, cartProduct.ProductID); err != nil {
 		return err
 	}
 

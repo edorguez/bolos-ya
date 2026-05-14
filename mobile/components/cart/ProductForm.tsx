@@ -22,7 +22,6 @@ interface ProductFormProps {
     supermarket: string;
   }) => void;
   supermarket: string;
-  onCancel?: () => void;
   initialData?: {
     name: string;
     priceBs: number;
@@ -34,7 +33,7 @@ interface ProductFormProps {
 
 const EXCHANGE_RATE = 475.7; // Mock exchange rate: 4000 Bs = 109 USD
 
-export function ProductForm({ onSubmit, supermarket, onCancel, initialData }: ProductFormProps) {
+export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormProps) {
   const theme = useAppTheme();
   const styles = createProductFormStyles(theme);
 

@@ -36,7 +36,7 @@ type UpdateCartProductRequest struct {
 type UpdateProductQuantityRequest struct {
 	CartProductID string `json:"cartProductId" validate:"required,uuid"`
 	CartID        string `json:"cartId"        validate:"required,uuid"`
-	Quantity      int    `json:"quantity"      validate:"required,min=1"`
+	Quantity      int    `json:"quantity"      validate:"required,min=1,max=9999"`
 }
 
 type CartResponse struct {

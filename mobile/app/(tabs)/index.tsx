@@ -6,11 +6,13 @@ import {
   TextInput,
   Animated,
   ActivityIndicator,
+  RefreshControl,
   type TextStyle,
 } from 'react-native';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { createHomeStyles } from '../../styles/homeStyles';
 import { SupermarketCarousel } from '../../components/home/SupermarketCarousel';
 import { BudgetInput } from '../../components/home/BudgetInput';
@@ -30,6 +32,21 @@ import { validateAmount, validateName, sanitizeName } from '../../utils/validati
 import type { SupermarketOption } from '../../services/supermarketService';
 import type { ApiCartResponse } from '../../types';
 
+const savingsTips = [
+  'Llevar una lista de compras evita compras impulsivas y ayuda a mantener el presupuesto.',
+  'Compara precios entre supermercados, especialmente en productos de la cesta básica.',
+  'Aprovecha ofertas y descuentos, pero solo compra lo que realmente necesitas.',
+  'Compra frutas y verduras de temporada, son más económicas y frescas.',
+  'Revisa el precio por unidad o kilogramo para comparar presentaciones.',
+  'Prefiere productos locales y nacionales, suelen tener mejor precio que los importados.',
+  'Usa calculadora de presupuesto para no exceder el límite que te fijaste.',
+  'Planifica tus comidas de la semana y compra solo los ingredientes necesarios.',
+  'Revisa tu carrito antes de pagar y elimina productos que no necesitas.',
+  'Compra productos a granel cuando sea posible, suelen ser más económicos.',
+];
+
+
+
 export default function HomeTab() {
   const theme = useAppTheme();
   const styles = createHomeStyles(theme);
@@ -46,6 +63,8 @@ export default function HomeTab() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
 
   const dismissToast = useCallback(() => setToast(null), []);
@@ -142,7 +161,7 @@ export default function HomeTab() {
     if (bsError) errors.budgetBs = bsError;
     if (usdError) errors.budgetUsd = usdError;
     if (bsAmount === 0 && usdAmount === 0) {
-      errors.budgetBs = errors.budgetBs || 'Debes ingresar Presupuesto BS o USD';
+      errors.budgetBs = errors.budgetBs || 'Debes ingresar presupuesto BS o USD';
     }
 
     setFieldErrors(errors);
@@ -174,6 +193,11 @@ export default function HomeTab() {
         budgetUsd: result.budgetUsd,
       });
       setActiveCart(result.id);
+      setBudgetBs('');
+      setBudgetUsd('');
+      setCustomMarketName('');
+      setShowCustomMarket(false);
+      setFieldErrors({});
       router.push({ pathname: '/(cart)/[id]', params: { id: result.id } });
     } catch (err) {
       setToast(err instanceof Error ? err.message : 'Error al crear el carrito');
@@ -206,22 +230,40 @@ export default function HomeTab() {
     }
   };
 
-  useEffect(() => {
-    let mounted = true;
-    const load = async () => {
-      if (!user?.id) return;
-      try {
-        const data = await getCarts(user.id, 5);
-        if (mounted) setRecentCarts(data);
-      } catch {
-        // silently fail — section won't render
-      }
-    };
-    load();
-    return () => {
-      mounted = false;
-    };
+  const handleRefresh = useCallback(async () => {
+    if (!user?.id) return;
+    setRefreshing(true);
+    try {
+      const data = await getCarts(user.id, 5);
+      setRecentCarts(data);
+    } catch {
+      // silently fail
+    } finally {
+      setRefreshing(false);
+    }
   }, [user?.id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+
+      setCurrentTipIndex(Math.floor(Math.random() * savingsTips.length));
+
+      const load = async () => {
+        if (!user?.id) return;
+        try {
+          const data = await getCarts(user.id, 5);
+          if (mounted) setRecentCarts(data);
+        } catch {
+          // silently fail — section won't render
+        }
+      };
+      load();
+      return () => {
+        mounted = false;
+      };
+    }, [user?.id])
+  );
 
   const handleViewAll = () => {
     router.push({ pathname: '/history' });
@@ -286,7 +328,11 @@ export default function HomeTab() {
         <Text style={styles.headerTitle}>MercadoLibreta</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 140 }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+      >
         <View style={styles.section}>
           <View style={styles.card}>
             <View>
@@ -404,6 +450,7 @@ export default function HomeTab() {
                   icon={getIconByIndex(index)}
                   iconColor={theme.colors[colorKey]}
                   status={cart.isActive ? 'Activo' : 'Completado'}
+                  statusIconOnly
                   totalBs={cart.budgetBs.toLocaleString('es-VE', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -426,7 +473,7 @@ export default function HomeTab() {
         <View style={styles.section}>
           <TipCard
             title="Tip de Ahorro"
-            text="Comprar marcas blancas en Plaza's puede ahorrarte hasta un 15% en tu carrito final."
+            text={savingsTips[currentTipIndex]}
           />
         </View>
       </ScrollView>

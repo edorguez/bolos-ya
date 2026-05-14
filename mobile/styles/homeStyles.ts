@@ -63,9 +63,9 @@ export function createHomeStyles(theme: AppTheme) {
     customMarketInput: {
       backgroundColor: theme.colors.surfaceContainerLow,
       borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.md,
-      fontSize: theme.typography.fontSize.md,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.sm,
+      fontSize: theme.typography.fontSize.sm,
       color: theme.colors.text,
       borderWidth: 1,
       borderColor: theme.colors.stoneSurface,
@@ -73,7 +73,6 @@ export function createHomeStyles(theme: AppTheme) {
     errorText: {
       color: theme.colors.error,
       fontSize: theme.typography.fontSize.xs,
-      marginTop: theme.spacing.xs,
     },
     errorBorder: {
       borderColor: theme.colors.error,
@@ -91,7 +90,6 @@ export function createHomeStyles(theme: AppTheme) {
       justifyContent: 'center',
       flexDirection: 'row',
       gap: theme.spacing.md,
-      marginTop: theme.spacing.md,
     },
     primaryButtonText: {
       fontSize: theme.typography.fontSize.sm,

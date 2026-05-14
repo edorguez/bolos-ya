@@ -205,6 +205,8 @@ func (h *CartHandler) UpdateProductQuantity(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("%+v", req)
+
 	cartProductID, err := uuid.Parse(req.CartProductID)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "ID de producto en carrito inválido")
@@ -391,6 +393,8 @@ func (h *CartHandler) handleError(c *gin.Context, err error) {
 		utils.ErrorResponse(c, http.StatusConflict, "conflicto en el carrito")
 	case apperrors.ErrNotFound:
 		utils.NotFoundResponse(c, "recurso")
+	case apperrors.ErrInvalidInput:
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	default:
 		utils.InternalErrorResponse(c)
 	}

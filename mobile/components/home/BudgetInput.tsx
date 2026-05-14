@@ -31,9 +31,9 @@ const stylesheet = StyleSheet.create(theme => ({
   input: {
     backgroundColor: theme.colors.surfaceContainerLow,
     borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
-    fontSize: theme.typography.fontSize.md,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.sm,
+    fontSize: theme.typography.fontSize.sm,
     color: theme.colors.text,
     borderWidth: 1,
     borderColor: theme.colors.stoneSurface,

@@ -9,13 +9,14 @@ import {
 } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
-import { CartProduct, useCartStore } from '../../store/cartStore';
+import { CartProduct } from '../../store/cartStore';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface ProductCardProps {
   product: CartProduct;
   cartId: string;
   onMenuPress: () => void;
+  onQuantityChange?: (productId: string, newQuantity: number) => Promise<void>;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -126,23 +127,22 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }));
 
-export function ProductCard({ product, cartId, onMenuPress }: ProductCardProps) {
+export function ProductCard({ product, cartId, onMenuPress, onQuantityChange }: ProductCardProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
-  const { updateProductQuantity, removeProductFromCart } = useCartStore();
 
   const imageUrl =
     product.productImageUrl ||
     'https://lh3.googleusercontent.com/aida-public/AB6AXuC6k9pYxNSoMVMuc_vD59UZLC-6VfJK8aEj5uGakolu4kW-WgHO5MYUzFdiz18MRHXcl5QwWKNYA3lcu3qjrcKIlEDziPD99ApevVCk68rNjpFzDoa07ZSNWGgycQ-FybsEAcp2m6XR0Xk5Eg-78cyYvv0sWlTsi2GZcEfF34On_I7yXLw0VoBA_j_lsxIrWvpr5bfk7A5EnddqyWWzX3g-uNNI-bcIAxI8UgtygDvh_GnHD_McmAhMAjay3GZCUx5DwN75OI4HM-T4';
 
   const handleDecrease = () => {
-    if (product.quantity > 1) {
-      updateProductQuantity(cartId, product.id, product.quantity - 1);
-    }
+    if (product.quantity <= 1 || !onQuantityChange) return;
+    onQuantityChange(product.id, product.quantity - 1);
   };
 
   const handleIncrease = () => {
-    updateProductQuantity(cartId, product.id, product.quantity + 1);
+    if (product.quantity >= 9999 || !onQuantityChange) return;
+    onQuantityChange(product.id, product.quantity + 1);
   };
 
   return (

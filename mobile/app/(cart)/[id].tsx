@@ -17,7 +17,9 @@ import {
   getCartDetail,
   addCartProduct,
   updateCartProduct,
+  updateCartProductQuantity,
   deleteCartProduct,
+  checkoutCart,
 } from '../../services/cartService';
 import { useAuth } from '../../store/authStore';
 import type { ApiCartDetailResponse } from '../../types';
@@ -33,6 +35,7 @@ export default function CartDetailScreen() {
     addProductToCart,
     setActiveCart,
     updateProduct,
+    updateProductQuantity,
     removeProductFromCart,
     completeCart,
   } = useCartStore();
@@ -167,6 +170,29 @@ export default function CartDetailScreen() {
       setEditingProduct(null);
     } catch (err) {
       setToast(err instanceof Error ? err.message : 'Error al editar producto');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleQuantityChange = async (productId: string, newQuantity: number) => {
+    if (!cart || !user?.id) return;
+
+    setIsSubmitting(true);
+    try {
+      const result = await updateCartProductQuantity(
+        productId,
+        {
+          cartProductId: productId,
+          cartId: cart.id,
+          quantity: newQuantity,
+        },
+        user.id
+      );
+
+      updateProductQuantity(cart.id, productId, result.quantity);
+    } catch (err) {
+      setToast(err instanceof Error ? err.message : 'Error al actualizar cantidad');
     } finally {
       setIsSubmitting(false);
     }
@@ -349,6 +375,7 @@ export default function CartDetailScreen() {
                   setSelectedProduct(product);
                   setShowActionSheet(true);
                 }}
+                onQuantityChange={handleQuantityChange}
               />
             ))
           ) : (
@@ -386,7 +413,10 @@ export default function CartDetailScreen() {
           </Pressable>
 
           <Pressable
-            style={({ pressed }) => [styles.buttonCircleComplete, pressed && { opacity: 0.8 }]}
+            style={({ pressed }) => [
+              styles.buttonCircleComplete,
+              pressed && { transform: [{ translateX: '-50%' }, { scale: 0.9 }] },
+            ]}
             onPress={() => setShowCompleteCartSheet(true)}
             accessibilityRole="button"
             accessibilityLabel="Completar Carrito"
@@ -489,11 +519,18 @@ export default function CartDetailScreen() {
             label: 'Sí, completar carrito',
             icon: 'check-circle',
             color: theme.colors.success,
-            onPress: () => {
-              if (cart) {
+            onPress: async () => {
+              if (!cart || !user?.id) return;
+              setIsSubmitting(true);
+              try {
+                await checkoutCart(cart.id, user.id);
                 completeCart(cart.id);
                 setShowCompleteCartSheet(false);
-                setToast('Carrito completado');
+                router.push('/(cart)/checkout-success');
+              } catch (err) {
+                setToast(err instanceof Error ? err.message : 'Error al completar carrito');
+              } finally {
+                setIsSubmitting(false);
               }
             },
           },

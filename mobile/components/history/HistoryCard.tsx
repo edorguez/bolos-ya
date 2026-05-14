@@ -24,6 +24,7 @@ interface HistoryCardProps {
   budgetUsage: number;
   exceeded: boolean;
   hideAmounts?: boolean;
+  statusIconOnly?: boolean;
   onPress?: () => void;
   style?: ViewProps['style'];
 }
@@ -100,6 +101,7 @@ export function HistoryCard({
   budgetUsage,
   exceeded,
   hideAmounts = false,
+  statusIconOnly,
   onPress,
   style,
 }: HistoryCardProps) {
@@ -120,7 +122,7 @@ export function HistoryCard({
             <Text style={styles.storeDate as TextStyle}>{date}</Text>
           </View>
         </View>
-        <StatusBadge status={status} />
+        <StatusBadge status={status} iconOnly={statusIconOnly} />
       </View>
 
       {!hideAmounts && (

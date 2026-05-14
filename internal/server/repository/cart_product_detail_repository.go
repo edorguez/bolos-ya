@@ -36,7 +36,7 @@ func (r *cartProductRepository) FindByCartIDWithDetails(ctx context.Context, car
 			cart_products.quantity, cart_products.is_manual_entry,
 			cart_products.created_at, cart_products.updated_at`).
 		Joins("LEFT JOIN products ON products.id = cart_products.product_id").
-		Where("cart_products.cart_id = ?", cartID).
+		Where("cart_products.cart_id = ? AND cart_products.deleted_at IS NULL", cartID).
 		Order("cart_products.created_at DESC").
 		Scan(&results).Error; err != nil {
 		return nil, err

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { createHistoryStyles } from '../../styles/historyStyles';
 import { HeroSection } from '../../components/history/HeroSection';
@@ -58,6 +59,13 @@ export default function HistoryTab() {
     if (isAuthLoading) return;
     fetchCarts();
   }, [isAuthLoading, fetchCarts]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isAuthLoading) return;
+      fetchCarts();
+    }, [isAuthLoading, fetchCarts])
+  );
 
   const handleRefresh = useCallback(async () => {
     setIsLoading(true);
