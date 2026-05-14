@@ -4,7 +4,7 @@ import { useAppTheme } from '../../styles/theme';
 
 interface SupermarketHeaderProps {
   supermarket: string;
-  itemCount: number;
+  productCount: number;
   logoUrl?: string;
 }
 
@@ -45,7 +45,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }));
 
-export function SupermarketHeader({ supermarket, itemCount, logoUrl }: SupermarketHeaderProps) {
+export function SupermarketHeader({ supermarket, productCount, logoUrl }: SupermarketHeaderProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
 
@@ -59,7 +59,7 @@ export function SupermarketHeader({ supermarket, itemCount, logoUrl }: Supermark
       </View>
       <View style={styles.textContainer as ViewStyle}>
         <Text style={styles.title as TextStyle}>{supermarket}</Text>
-        <Text style={styles.subtitle as TextStyle}>Carrito Activo • {itemCount} productos</Text>
+        <Text style={styles.subtitle as TextStyle}>Carrito Activo • {productCount} productos</Text>
       </View>
     </View>
   );

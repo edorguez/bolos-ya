@@ -157,7 +157,7 @@ export default function HomeTab() {
           budgetBs: bsAmount,
           budgetUsd: usdAmount,
         },
-        user?.id,
+        user?.id
       );
 
       const cartName = `${finalName || "Plaza's"} - ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`;
@@ -166,7 +166,8 @@ export default function HomeTab() {
         id: result.id,
         name: cartName,
         supermarket: finalName || "Plaza's",
-        items: [],
+        supermarketId: result.supermarketId,
+        products: [],
         totalBs: 0,
         totalUsd: 0,
         budgetBs: result.budgetBs,
@@ -217,7 +218,9 @@ export default function HomeTab() {
       }
     };
     load();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [user?.id]);
 
   const handleViewAll = () => {
@@ -310,7 +313,7 @@ export default function HomeTab() {
                       placeholder="Ej. Plan Suarez"
                       placeholderTextColor={theme.colors.onSurfaceVariant}
                       value={customMarketName}
-                      onChangeText={(text) => {
+                      onChangeText={text => {
                         setCustomMarketName(text);
                         setFieldErrors(prev => {
                           if (!prev.customMarketName) return prev;
@@ -321,7 +324,9 @@ export default function HomeTab() {
                       }}
                     />
                     {fieldErrors.customMarketName ? (
-                      <Text style={styles.errorText as TextStyle}>{fieldErrors.customMarketName}</Text>
+                      <Text style={styles.errorText as TextStyle}>
+                        {fieldErrors.customMarketName}
+                      </Text>
                     ) : null}
                   </View>
                 </Animated.View>
@@ -357,7 +362,7 @@ export default function HomeTab() {
             <Pressable
               style={({ pressed }) => [
                 styles.primaryButton,
-                (pressed || isSubmitting) ? { opacity: 0.8 } : undefined,
+                pressed || isSubmitting ? { opacity: 0.8 } : undefined,
               ]}
               onPress={handleStartList}
               disabled={isSubmitting}

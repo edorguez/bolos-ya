@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, Animated, Dimensions, StyleSheet, Alert } from 'react-native';
+import { View, Text, Pressable, Animated, Dimensions, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CameraView, Camera } from 'expo-camera';
 import { useAppTheme } from '../../styles/theme';
 import { TopAppBar } from '../../components/shared/TopAppBar';
+import { Toast } from '../../components/shared/Toast';
 import { ProductScanResultModal } from '../../components/shared/ProductScanResultModal';
 import { useCartStore } from '../../store/cartStore';
 import { scanImage } from '../../services/ocr';
@@ -16,7 +17,7 @@ const SCANNER_FRAME_HEIGHT = SCREEN_WIDTH * 0.6;
 export default function ScanScreen() {
   const router = useRouter();
   const theme = useAppTheme();
-  const { activeCartId, carts, addItemToCart } = useCartStore();
+  const { activeCartId, carts, addProductToCart } = useCartStore();
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [cameraType, setCameraType] = useState<'back' | 'front'>('back');
@@ -31,6 +32,7 @@ export default function ScanScreen() {
 
   const scanLineAnim = useRef(new Animated.Value(0)).current;
   const cameraRef = useRef<CameraView>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const activeCart = activeCartId ? carts.find(c => c.id === activeCartId) : null;
 
@@ -80,10 +82,8 @@ export default function ScanScreen() {
       });
     } catch (error) {
       console.error('OCR scanning failed:', error);
-      Alert.alert(
-        'Error de escaneo',
-        error instanceof Error ? error.message : 'No se pudo leer la etiqueta. Intenta nuevamente.',
-        [{ text: 'OK', onPress: () => {} }]
+      setToast(
+        error instanceof Error ? error.message : 'No se pudo leer la etiqueta. Intenta nuevamente.'
       );
     } finally {
       animation.stop();
@@ -94,7 +94,7 @@ export default function ScanScreen() {
   const handleAddToCart = () => {
     if (!scanResult || !activeCart) return;
 
-    addItemToCart(activeCart.id, {
+    addProductToCart(activeCart.id, {
       productId: `scanned_${Date.now()}`,
       name: scanResult.name,
       priceBs: scanResult.priceBs,
@@ -324,6 +324,8 @@ export default function ScanScreen() {
           <MaterialIcons name="flip-camera-ios" size={28} color="#FFFFFF" />
         </Pressable>
       </View>
+
+      <Toast message={toast} onDismiss={() => setToast(null)} />
 
       <ProductScanResultModal
         isVisible={!!scanResult}

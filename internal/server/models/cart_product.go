@@ -17,11 +17,11 @@ type CartProduct struct {
 
 // NewCartProduct creates a new CartProduct with default values
 func NewCartProduct(cartID, productID uuid.UUID, quantity int, isManualEntry bool) *CartProduct {
-	cartItem := &CartProduct{
+	cartProduct := &CartProduct{
 		CartID:        cartID,
 		ProductID:     productID,
 		Quantity:      quantity,
 		IsManualEntry: isManualEntry,
 	}
-	return cartItem
+	return cartProduct
 }

@@ -82,7 +82,12 @@ export default function HistoryTab() {
         {error ? (
           <View style={styles.emptyState}>
             <MaterialIcons name="error-outline" size={48} color={theme.colors.coralRed} />
-            <Text style={[styles.emptyStateText, { color: theme.colors.coralRed, marginTop: theme.spacing.md }]}>
+            <Text
+              style={[
+                styles.emptyStateText,
+                { color: theme.colors.coralRed, marginTop: theme.spacing.md },
+              ]}
+            >
               {error}
             </Text>
           </View>
@@ -95,7 +100,9 @@ export default function HistoryTab() {
             <View style={styles.historyList}>
               {carts.map((cart, index) => {
                 const { usage, exceeded } = calcBudgetUsage(cart);
-                const colorKey = CARD_COLORS[index % CARD_COLORS.length] as keyof typeof theme.colors;
+                const colorKey = CARD_COLORS[
+                  index % CARD_COLORS.length
+                ] as keyof typeof theme.colors;
                 const totalBs = cart.budgetBs.toLocaleString('es-VE', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -121,7 +128,9 @@ export default function HistoryTab() {
                     totalUsd={totalUsd}
                     budgetUsage={usage}
                     exceeded={exceeded}
-                    onPress={() => router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })}
+                    onPress={() =>
+                      router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })
+                    }
                   />
                 );
               })}

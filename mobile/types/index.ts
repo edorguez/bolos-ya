@@ -59,7 +59,7 @@ export interface Cart {
   updatedAt: Date;
 }
 
-export interface CartItem {
+export interface CartProduct {
   id: string;
   cartId: string;
   productId: string;
@@ -112,7 +112,7 @@ export interface ApiCartDetailResponse {
   totalEstimatedUsd: number | null;
   createdAt: string;
   updatedAt: string;
-  items: ApiCartProductResponse[];
+  products: ApiCartProductResponse[];
 }
 
 export interface SyncOperation {

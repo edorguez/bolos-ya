@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Product represents a product item
+// Product represents a product
 type Product struct {
 	models.BaseModel
 	SupermarketID  uuid.UUID `gorm:"type:uuid;not null"`

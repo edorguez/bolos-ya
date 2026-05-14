@@ -1,7 +1,6 @@
 import { create } from 'zustand';
-import { calculateTotal } from '../utils/formatters';
 
-export interface CartItem {
+export interface CartProduct {
   id: string;
   productId: string;
   name: string;
@@ -16,7 +15,8 @@ export interface Cart {
   id: string;
   name: string;
   supermarket: string;
-  items: CartItem[];
+  supermarketId: string;
+  products: CartProduct[];
   totalBs: number;
   totalUsd: number;
   budgetBs: number;
@@ -34,10 +34,10 @@ interface CartState {
   updateCart: (id: string, updates: Partial<Cart>) => void;
   deleteCart: (id: string) => void;
   setActiveCart: (id: string | null) => void;
-  addItemToCart: (cartId: string, item: Omit<CartItem, 'id'>) => void;
-  removeItemFromCart: (cartId: string, itemId: string) => void;
-  updateItemQuantity: (cartId: string, itemId: string, newQuantity: number) => void;
-  updateItem: (cartId: string, itemId: string, updates: Partial<CartItem>) => void;
+  addProductToCart: (cartId: string, product: CartProduct | Omit<CartProduct, 'id'>) => void;
+  removeProductFromCart: (cartId: string, productId: string) => void;
+  updateProductQuantity: (cartId: string, productId: string, newQuantity: number) => void;
+  updateProduct: (cartId: string, productId: string, updates: Partial<CartProduct>) => void;
   completeCart: (id: string) => void;
 }
 
@@ -65,85 +65,87 @@ export const useCartStore = create<CartState>(set => ({
       activeCartId: state.activeCartId === id ? null : state.activeCartId,
     })),
   setActiveCart: id => set({ activeCartId: id }),
-  addItemToCart: (cartId, item) =>
+  addProductToCart: (cartId, product) =>
     set(state => ({
       carts: state.carts.map(cart =>
         cart.id === cartId
           ? {
               ...cart,
-              items: [...cart.items, { ...item, id: Date.now().toString() }],
-              totalBs: cart.totalBs + item.priceBs * item.quantity,
-              totalUsd: cart.totalUsd + item.priceUsd * item.quantity,
+              products: [
+                ...cart.products,
+                { ...product, id: (product as CartProduct).id || Date.now().toString() },
+              ],
+              totalBs: cart.totalBs + product.priceBs * product.quantity,
+              totalUsd: cart.totalUsd + product.priceUsd * product.quantity,
             }
           : cart
       ),
     })),
-  removeItemFromCart: (cartId, itemId) =>
+  removeProductFromCart: (cartId, productId) =>
     set(state => ({
       carts: state.carts.map(cart => {
         if (cart.id !== cartId) return cart;
 
-        const itemToRemove = cart.items.find(item => item.id === itemId);
-        if (!itemToRemove) return cart;
+        const productToRemove = cart.products.find(p => p.id === productId);
+        if (!productToRemove) return cart;
 
         return {
           ...cart,
-          items: cart.items.filter(item => item.id !== itemId),
-          totalBs: cart.totalBs - itemToRemove.priceBs * itemToRemove.quantity,
-          totalUsd: cart.totalUsd - itemToRemove.priceUsd * itemToRemove.quantity,
+          products: cart.products.filter(p => p.id !== productId),
+          totalBs: cart.totalBs - productToRemove.priceBs * productToRemove.quantity,
+          totalUsd: cart.totalUsd - productToRemove.priceUsd * productToRemove.quantity,
         };
       }),
     })),
-  updateItemQuantity: (cartId, itemId, newQuantity) =>
+  updateProductQuantity: (cartId, productId, newQuantity) =>
     set(state => ({
       carts: state.carts.map(cart => {
         if (cart.id !== cartId) return cart;
 
-        const itemIndex = cart.items.findIndex(item => item.id === itemId);
-        if (itemIndex === -1) return cart;
+        const idx = cart.products.findIndex(p => p.id === productId);
+        if (idx === -1) return cart;
 
-        const oldItem = cart.items[itemIndex];
-        const quantityDiff = newQuantity - oldItem.quantity;
-        const newTotalBs = cart.totalBs + oldItem.priceBs * quantityDiff;
-        const newTotalUsd = cart.totalUsd + oldItem.priceUsd * quantityDiff;
+        const oldProduct = cart.products[idx];
+        const quantityDiff = newQuantity - oldProduct.quantity;
+        const newTotalBs = cart.totalBs + oldProduct.priceBs * quantityDiff;
+        const newTotalUsd = cart.totalUsd + oldProduct.priceUsd * quantityDiff;
 
-        const updatedItems = [...cart.items];
-        updatedItems[itemIndex] = { ...oldItem, quantity: newQuantity };
+        const updatedProducts = [...cart.products];
+        updatedProducts[idx] = { ...oldProduct, quantity: newQuantity };
 
         return {
           ...cart,
-          items: updatedItems,
+          products: updatedProducts,
           totalBs: newTotalBs,
           totalUsd: newTotalUsd,
         };
       }),
     })),
-  updateItem: (cartId, itemId, updates) =>
+  updateProduct: (cartId, productId, updates) =>
     set(state => ({
       carts: state.carts.map(cart => {
         if (cart.id !== cartId) return cart;
 
-        const itemIndex = cart.items.findIndex(item => item.id === itemId);
-        if (itemIndex === -1) return cart;
+        const idx = cart.products.findIndex(p => p.id === productId);
+        if (idx === -1) return cart;
 
-        const oldItem = cart.items[itemIndex];
-        const newItem = { ...oldItem, ...updates };
+        const oldProduct = cart.products[idx];
+        const newProduct = { ...oldProduct, ...updates };
 
-        // Recalculate totals based on changes
-        const oldContributionBs = oldItem.priceBs * oldItem.quantity;
-        const oldContributionUsd = oldItem.priceUsd * oldItem.quantity;
-        const newContributionBs = newItem.priceBs * newItem.quantity;
-        const newContributionUsd = newItem.priceUsd * newItem.quantity;
+        const oldContributionBs = oldProduct.priceBs * oldProduct.quantity;
+        const oldContributionUsd = oldProduct.priceUsd * oldProduct.quantity;
+        const newContributionBs = newProduct.priceBs * newProduct.quantity;
+        const newContributionUsd = newProduct.priceUsd * newProduct.quantity;
 
         const totalBsDiff = newContributionBs - oldContributionBs;
         const totalUsdDiff = newContributionUsd - oldContributionUsd;
 
-        const updatedItems = [...cart.items];
-        updatedItems[itemIndex] = newItem;
+        const updatedProducts = [...cart.products];
+        updatedProducts[idx] = newProduct;
 
         return {
           ...cart,
-          items: updatedItems,
+          products: updatedProducts,
           totalBs: cart.totalBs + totalBsDiff,
           totalUsd: cart.totalUsd + totalUsdDiff,
         };

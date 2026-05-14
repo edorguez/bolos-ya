@@ -108,8 +108,8 @@ func (h *SupermarketHandler) handleError(c *gin.Context, err error) {
 
 func toSupermarketResponse(s *models.Supermarket) dto.SupermarketResponse {
 	var deletedAt *string
-	if s.DeletedAt != nil {
-		formatted := s.DeletedAt.Format("2006-01-02T15:04:05Z07:00")
+	if s.DeletedAt.Valid {
+		formatted := s.DeletedAt.Time.Format("2006-01-02T15:04:05Z07:00")
 		deletedAt = &formatted
 	}
 

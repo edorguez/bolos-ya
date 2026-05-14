@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -72,13 +73,13 @@ func (h *CartHandler) CreateCart(c *gin.Context) {
 	}
 
 	resp := dto.CartResponse{
-		ID:               result.ID.String(),
-		SupermarketID:    result.SupermarketID.String(),
-		UserID:           result.UserID.String(),
-		IsActive:         result.IsActive,
-		BudgetBs:         result.BudgetBs,
-		BudgetUsd:        result.BudgetUsd,
-		TotalEstimatedBs: result.TotalEstimatedBs,
+		ID:                result.ID.String(),
+		SupermarketID:     result.SupermarketID.String(),
+		UserID:            result.UserID.String(),
+		IsActive:          result.IsActive,
+		BudgetBs:          result.BudgetBs,
+		BudgetUsd:         result.BudgetUsd,
+		TotalEstimatedBs:  result.TotalEstimatedBs,
 		TotalEstimatedUsd: result.TotalEstimatedUsd,
 	}
 	utils.SuccessResponse(c, resp)
@@ -91,32 +92,108 @@ func (h *CartHandler) AddProduct(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("%+v\n", req)
+
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		return
+	}
+
 	cartID, err := uuid.Parse(req.CartID)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "ID de carrito inválido")
 		return
 	}
 
-	productID, err := uuid.Parse(req.ProductID)
+	supermarketID, err := uuid.Parse(req.SupermarketID)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de producto inválido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de supermercado inválido")
 		return
 	}
 
-	cartProduct := models.NewCartProduct(cartID, productID, req.Quantity, req.IsManualEntry)
+	product := models.NewProduct(
+		supermarketID, userUUID,
+		req.Name, req.Barcode, req.IsWeightBased,
+		req.PriceUsd, req.PriceBs, req.PriceBcv,
+		req.ImageUrl,
+	)
 
-	result, err := h.cartService.AddProduct(c.Request.Context(), cartProduct)
+	cartProduct, err := h.cartService.AddProduct(c.Request.Context(), product, cartID, req.Quantity, req.IsManualEntry)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
 
 	resp := dto.CartProductResponse{
-		ID:            result.ID.String(),
-		CartID:        result.CartID.String(),
-		ProductID:     result.ProductID.String(),
-		Quantity:      result.Quantity,
-		IsManualEntry: result.IsManualEntry,
+		ID:            cartProduct.ID.String(),
+		CartID:        cartProduct.CartID.String(),
+		ProductID:     cartProduct.ProductID.String(),
+		Name:          product.Name,
+		PriceBs:       product.PriceBolivares,
+		PriceUsd:      product.PriceUsd,
+		ImageUrl:      product.ImageUrl,
+		Quantity:      cartProduct.Quantity,
+		IsManualEntry: cartProduct.IsManualEntry,
+		CreatedAt:     cartProduct.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:     cartProduct.UpdatedAt.Format(time.RFC3339),
+	}
+	utils.SuccessResponse(c, resp)
+}
+
+func (h *CartHandler) UpdateCartProduct(c *gin.Context) {
+	cartProductID, err := utils.ParseUUID(c.Param("cartProductId"))
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de producto en carrito inválido")
+		return
+	}
+
+	var req dto.UpdateCartProductRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, dto.ValidateRequest(req))
+		return
+	}
+
+	cartID, err := uuid.Parse(req.CartID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de carrito inválido")
+		return
+	}
+
+	product := &models.Product{
+		Name:           req.Name,
+		Barcode:        req.Barcode,
+		IsWeightBased:  req.IsWeightBased,
+		PriceUsd:       req.PriceUsd,
+		PriceBolivares: req.PriceBs,
+		PriceBcv:       req.PriceBcv,
+		ImageUrl:       req.ImageUrl,
+	}
+
+	cartProduct, err := h.cartService.UpdateCartProduct(c.Request.Context(), cartProductID, product, cartID, req.Quantity)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	resp := dto.CartProductResponse{
+		ID:            cartProduct.ID.String(),
+		CartID:        cartProduct.CartID.String(),
+		ProductID:     cartProduct.ProductID.String(),
+		Name:          req.Name,
+		PriceBs:       req.PriceBs,
+		PriceUsd:      req.PriceUsd,
+		ImageUrl:      req.ImageUrl,
+		Quantity:      cartProduct.Quantity,
+		IsManualEntry: cartProduct.IsManualEntry,
+		CreatedAt:     cartProduct.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:     cartProduct.UpdatedAt.Format(time.RFC3339),
 	}
 	utils.SuccessResponse(c, resp)
 }
@@ -162,14 +239,14 @@ func (h *CartHandler) UpdateProductQuantity(c *gin.Context) {
 	utils.SuccessResponse(c, resp)
 }
 
-func (h *CartHandler) RemoveItem(c *gin.Context) {
-	cartItemID, err := utils.ParseUUID(c.Param("cartItemId"))
+func (h *CartHandler) RemoveProduct(c *gin.Context) {
+	cartProductID, err := utils.ParseUUID(c.Param("cartProductId"))
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "ID de producto en carrito inválido")
 		return
 	}
 
-	if err := h.cartService.RemoveProduct(c.Request.Context(), cartItemID); err != nil {
+	if err := h.cartService.RemoveProduct(c.Request.Context(), cartProductID); err != nil {
 		h.handleError(c, err)
 		return
 	}
@@ -211,17 +288,17 @@ func (h *CartHandler) GetCarts(c *gin.Context) {
 		}
 
 		resp[i] = dto.CartResponse{
-			ID:               cart.ID.String(),
-			SupermarketID:    cart.SupermarketID.String(),
-			SupermarketName:  supermarketName,
-			UserID:           cart.UserID.String(),
-			IsActive:         cart.IsActive,
-			BudgetBs:         cart.BudgetBs,
-			BudgetUsd:        cart.BudgetUsd,
-			TotalEstimatedBs: cart.TotalEstimatedBs,
+			ID:                cart.ID.String(),
+			SupermarketID:     cart.SupermarketID.String(),
+			SupermarketName:   supermarketName,
+			UserID:            cart.UserID.String(),
+			IsActive:          cart.IsActive,
+			BudgetBs:          cart.BudgetBs,
+			BudgetUsd:         cart.BudgetUsd,
+			TotalEstimatedBs:  cart.TotalEstimatedBs,
 			TotalEstimatedUsd: cart.TotalEstimatedUsd,
-			CreatedAt:        cart.CreatedAt.Format(time.RFC3339),
-			UpdatedAt:        cart.UpdatedAt.Format(time.RFC3339),
+			CreatedAt:         cart.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:         cart.UpdatedAt.Format(time.RFC3339),
 		}
 	}
 
@@ -235,7 +312,7 @@ func (h *CartHandler) GetCartDetail(c *gin.Context) {
 		return
 	}
 
-	cart, items, err := h.cartService.GetCartDetail(c.Request.Context(), cartID)
+	cart, products, err := h.cartService.GetCartDetail(c.Request.Context(), cartID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -246,36 +323,36 @@ func (h *CartHandler) GetCartDetail(c *gin.Context) {
 		supermarketName = cart.Supermarket.Name
 	}
 
-	itemResp := make([]dto.CartProductDetailResponse, len(items))
-	for i, item := range items {
-		itemResp[i] = dto.CartProductDetailResponse{
-			ID:            item.ID.String(),
-			CartID:        item.CartID.String(),
-			ProductID:     item.ProductID.String(),
-			Name:          item.Name,
-			PriceBs:       item.PriceBolivares,
-			PriceUsd:      item.PriceUsd,
-			ImageUrl:      item.ImageUrl,
-			Quantity:      item.Quantity,
-			IsManualEntry: item.IsManualEntry,
-			CreatedAt:     item.CreatedAt.Format(time.RFC3339),
-			UpdatedAt:     item.UpdatedAt.Format(time.RFC3339),
+	productsResp := make([]dto.CartProductDetailResponse, len(products))
+	for i, p := range products {
+		productsResp[i] = dto.CartProductDetailResponse{
+			ID:            p.ID.String(),
+			CartID:        p.CartID.String(),
+			ProductID:     p.ProductID.String(),
+			Name:          p.Name,
+			PriceBs:       p.PriceBolivares,
+			PriceUsd:      p.PriceUsd,
+			ImageUrl:      p.ImageUrl,
+			Quantity:      p.Quantity,
+			IsManualEntry: p.IsManualEntry,
+			CreatedAt:     p.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:     p.UpdatedAt.Format(time.RFC3339),
 		}
 	}
 
 	resp := dto.CartDetailResponse{
-		ID:               cart.ID.String(),
-		SupermarketID:    cart.SupermarketID.String(),
-		SupermarketName:  supermarketName,
-		UserID:           cart.UserID.String(),
-		IsActive:         cart.IsActive,
-		BudgetBs:         cart.BudgetBs,
-		BudgetUsd:        cart.BudgetUsd,
-		TotalEstimatedBs: cart.TotalEstimatedBs,
+		ID:                cart.ID.String(),
+		SupermarketID:     cart.SupermarketID.String(),
+		SupermarketName:   supermarketName,
+		UserID:            cart.UserID.String(),
+		IsActive:          cart.IsActive,
+		BudgetBs:          cart.BudgetBs,
+		BudgetUsd:         cart.BudgetUsd,
+		TotalEstimatedBs:  cart.TotalEstimatedBs,
 		TotalEstimatedUsd: cart.TotalEstimatedUsd,
-		CreatedAt:        cart.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:        cart.UpdatedAt.Format(time.RFC3339),
-		Items:            itemResp,
+		CreatedAt:         cart.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:         cart.UpdatedAt.Format(time.RFC3339),
+		Products:          productsResp,
 	}
 
 	utils.SuccessResponse(c, resp)
@@ -295,19 +372,20 @@ func (h *CartHandler) CheckoutCart(c *gin.Context) {
 	}
 
 	resp := dto.CartResponse{
-		ID:               cart.ID.String(),
-		SupermarketID:    cart.SupermarketID.String(),
-		UserID:           cart.UserID.String(),
-		IsActive:         cart.IsActive,
-		BudgetBs:         cart.BudgetBs,
-		BudgetUsd:        cart.BudgetUsd,
-		TotalEstimatedBs: cart.TotalEstimatedBs,
+		ID:                cart.ID.String(),
+		SupermarketID:     cart.SupermarketID.String(),
+		UserID:            cart.UserID.String(),
+		IsActive:          cart.IsActive,
+		BudgetBs:          cart.BudgetBs,
+		BudgetUsd:         cart.BudgetUsd,
+		TotalEstimatedBs:  cart.TotalEstimatedBs,
 		TotalEstimatedUsd: cart.TotalEstimatedUsd,
 	}
 	utils.SuccessResponse(c, resp)
 }
 
 func (h *CartHandler) handleError(c *gin.Context, err error) {
+	fmt.Printf("Cart handler error: %v\n", err)
 	switch err {
 	case apperrors.ErrConflict:
 		utils.ErrorResponse(c, http.StatusConflict, "conflicto en el carrito")

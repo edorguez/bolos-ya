@@ -62,24 +62,24 @@ func (r *cartProductRepository) FindByCartID(ctx context.Context, cartID uuid.UU
 	var cartProductList []models.CartProduct
 	if err := r.db.WithContext(ctx).
 		Where("cart_id = ?", cartID).
-		Order("added_at DESC").
+		Order("created_at DESC").
 		Find(&cartProductList).Error; err != nil {
 		return nil, err
 	}
 
 	result := make([]*models.CartProduct, len(cartProductList))
-	for i, cartItem := range cartProductList {
-		result[i] = &cartItem
+	for i, cp := range cartProductList {
+		result[i] = &cp
 	}
 	return result, nil
 }
 
 // Update updates an existing cart product
-func (r *cartProductRepository) Update(ctx context.Context, cartItem *models.CartProduct) error {
+func (r *cartProductRepository) Update(ctx context.Context, cartProduct *models.CartProduct) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	return r.db.WithContext(ctx).Save(cartItem).Error
+	return r.db.WithContext(ctx).Save(cartProduct).Error
 }
 
 // Delete deletes a cart product by ID (hard delete)

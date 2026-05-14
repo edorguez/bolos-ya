@@ -67,3 +67,36 @@ export async function apiPost<T>(path: string, userId?: string, body?: unknown):
 
   return response.json();
 }
+
+export async function apiPut<T>(path: string, userId?: string, body?: unknown): Promise<T> {
+  const headers = await buildHeaders(userId);
+
+  const response = await fetch(`${GO_BACKEND_URL}${path}`, {
+    method: 'PUT',
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({ error: response.statusText }));
+    throw new Error(err.error || 'Error del servidor');
+  }
+
+  return response.json();
+}
+
+export async function apiDelete<T>(path: string, userId?: string): Promise<T> {
+  const headers = await buildHeaders(userId);
+
+  const response = await fetch(`${GO_BACKEND_URL}${path}`, {
+    method: 'DELETE',
+    headers,
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({ error: response.statusText }));
+    throw new Error(err.error || 'Error del servidor');
+  }
+
+  return response.json();
+}

@@ -191,8 +191,8 @@ func (h *PaymentHandler) handleError(c *gin.Context, err error) {
 
 func toPaymentResponse(p *models.Payment) dto.PaymentResponse {
 	var deletedAt *string
-	if p.DeletedAt != nil {
-		formatted := p.DeletedAt.Format(time.RFC3339)
+	if p.DeletedAt.Valid {
+		formatted := p.DeletedAt.Time.Format(time.RFC3339)
 		deletedAt = &formatted
 	}
 

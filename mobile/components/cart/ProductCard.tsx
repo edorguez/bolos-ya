@@ -9,11 +9,11 @@ import {
 } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
-import { CartItem, useCartStore } from '../../store/cartStore';
+import { CartProduct, useCartStore } from '../../store/cartStore';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface ProductCardProps {
-  item: CartItem;
+  product: CartProduct;
   cartId: string;
   onMenuPress: () => void;
 }
@@ -126,23 +126,23 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }));
 
-export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
+export function ProductCard({ product, cartId, onMenuPress }: ProductCardProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
-  const { updateItemQuantity, removeItemFromCart } = useCartStore();
+  const { updateProductQuantity, removeProductFromCart } = useCartStore();
 
   const imageUrl =
-    item.productImageUrl ||
+    product.productImageUrl ||
     'https://lh3.googleusercontent.com/aida-public/AB6AXuC6k9pYxNSoMVMuc_vD59UZLC-6VfJK8aEj5uGakolu4kW-WgHO5MYUzFdiz18MRHXcl5QwWKNYA3lcu3qjrcKIlEDziPD99ApevVCk68rNjpFzDoa07ZSNWGgycQ-FybsEAcp2m6XR0Xk5Eg-78cyYvv0sWlTsi2GZcEfF34On_I7yXLw0VoBA_j_lsxIrWvpr5bfk7A5EnddqyWWzX3g-uNNI-bcIAxI8UgtygDvh_GnHD_McmAhMAjay3GZCUx5DwN75OI4HM-T4';
 
   const handleDecrease = () => {
-    if (item.quantity > 1) {
-      updateItemQuantity(cartId, item.id, item.quantity - 1);
+    if (product.quantity > 1) {
+      updateProductQuantity(cartId, product.id, product.quantity - 1);
     }
   };
 
   const handleIncrease = () => {
-    updateItemQuantity(cartId, item.id, item.quantity + 1);
+    updateProductQuantity(cartId, product.id, product.quantity + 1);
   };
 
   return (
@@ -153,7 +153,7 @@ export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
       <View style={styles.content as ViewStyle}>
         <View style={styles.header as ViewStyle}>
           <View style={styles.leftColumn as ViewStyle}>
-            <Text style={styles.title as TextStyle}>{item.name}</Text>
+            <Text style={styles.title as TextStyle}>{product.name}</Text>
             <View style={styles.quantityRow as ViewStyle}>
               <View style={styles.quantityControls as ViewStyle}>
                 <Pressable
@@ -165,7 +165,7 @@ export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
                 >
                   <MaterialIcons name="remove" size={16} color={theme.colors.emberOrange} />
                 </Pressable>
-                <Text style={styles.quantityText as TextStyle}>{item.quantity}</Text>
+                <Text style={styles.quantityText as TextStyle}>{product.quantity}</Text>
                 <Pressable
                   onPress={handleIncrease}
                   style={({ pressed }) => [
@@ -187,10 +187,10 @@ export function ProductCard({ item, cartId, onMenuPress }: ProductCardProps) {
             </Pressable>
             <View style={styles.priceColumn as ViewStyle}>
               <Text style={styles.priceBs as TextStyle}>
-                Bs. {item.priceBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+                Bs. {product.priceBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
               </Text>
               <Text style={styles.priceUsd as TextStyle}>
-                $ {item.priceUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+                $ {product.priceUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
               </Text>
             </View>
           </View>

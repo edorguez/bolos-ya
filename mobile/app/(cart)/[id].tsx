@@ -1,6 +1,6 @@
-import { View, Text, ScrollView, StyleSheet, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCartStore, type Cart, type CartItem } from '../../store/cartStore';
+import { useCartStore, type Cart, type CartProduct } from '../../store/cartStore';
 import { useAppTheme } from '../../styles/theme';
 import { ProductCard } from '../../components/cart/ProductCard';
 import { BudgetSummary } from '../../components/cart/BudgetSummary';
@@ -8,11 +8,17 @@ import { SupermarketHeader } from '../../components/cart/SupermarketHeader';
 import { TopAppBar } from '../../components/shared/TopAppBar';
 import { BottomSheetModal } from '../../components/shared/BottomSheetModal';
 import { ActionSheetModal } from '../../components/shared/ActionSheetModal';
+import { Toast } from '../../components/shared/Toast';
 import { ProductForm } from '../../components/cart/ProductForm';
 import { useState, useEffect } from 'react';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getCartDetail } from '../../services/cartService';
+import {
+  getCartDetail,
+  addCartProduct,
+  updateCartProduct,
+  deleteCartProduct,
+} from '../../services/cartService';
 import { useAuth } from '../../store/authStore';
 import type { ApiCartDetailResponse } from '../../types';
 
@@ -24,20 +30,22 @@ export default function CartDetailScreen() {
   const {
     carts,
     addCart,
-    addItemToCart,
+    addProductToCart,
     setActiveCart,
-    updateItem,
-    removeItemFromCart,
+    updateProduct,
+    removeProductFromCart,
     completeCart,
   } = useCartStore();
   const { user } = useAuth();
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [isLoadingFromApi, setIsLoadingFromApi] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showCompleteCartSheet, setShowCompleteCartSheet] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<CartItem | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<CartProduct | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingItem, setEditingItem] = useState<CartItem | null>(null);
+  const [editingProduct, setEditingProduct] = useState<CartProduct | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     setActiveCart(id);
@@ -55,15 +63,16 @@ export default function CartDetailScreen() {
             id: apiCart.id,
             name: apiCart.supermarketName,
             supermarket: apiCart.supermarketName,
-            items: apiCart.items.map(item => ({
-              id: item.id,
-              productId: item.productId,
-              name: item.name,
-              priceBs: item.priceBs,
-              priceUsd: item.priceUsd,
-              quantity: item.quantity,
+            supermarketId: apiCart.supermarketId,
+            products: apiCart.products.map(product => ({
+              id: product.id,
+              productId: product.productId,
+              name: product.name,
+              priceBs: product.priceBs,
+              priceUsd: product.priceUsd,
+              quantity: product.quantity,
               supermarket: apiCart.supermarketName,
-              productImageUrl: item.imageUrl || undefined,
+              productImageUrl: product.imageUrl || undefined,
             })),
             totalBs: apiCart.totalEstimatedBs ?? 0,
             totalUsd: apiCart.totalEstimatedUsd ?? 0,
@@ -80,46 +89,87 @@ export default function CartDetailScreen() {
     router.push('/(cart)/scan');
   };
 
-  const handleAddProduct = (product: {
+  const handleAddProduct = async (product: {
     name: string;
     priceBs: number;
     priceUsd: number;
     quantity: number;
     supermarket: string;
   }) => {
-    if (!cart) return;
+    if (!cart || !user?.id) return;
 
-    addItemToCart(cart.id, {
-      productId: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-      name: product.name,
-      priceBs: product.priceBs,
-      priceUsd: product.priceUsd,
-      quantity: product.quantity,
-      supermarket: product.supermarket,
-    });
+    setIsSubmitting(true);
+    try {
+      const result = await addCartProduct(
+        {
+          cartId: cart.id,
+          supermarketId: cart.supermarketId,
+          name: product.name,
+          priceUsd: product.priceUsd,
+          priceBs: product.priceBs,
+          quantity: product.quantity,
+          isManualEntry: true,
+        },
+        user.id
+      );
 
-    setShowAddProduct(false);
+      addProductToCart(cart.id, {
+        id: result.id,
+        productId: result.productId,
+        name: result.name,
+        priceBs: result.priceBs,
+        priceUsd: result.priceUsd,
+        quantity: result.quantity,
+        supermarket: product.supermarket,
+        productImageUrl: result.imageUrl || undefined,
+      });
+
+      setShowAddProduct(false);
+    } catch (err) {
+      setToast(err instanceof Error ? err.message : 'Error al agregar producto');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleEditProduct = (product: {
+  const handleEditProduct = async (product: {
     name: string;
     priceBs: number;
     priceUsd: number;
     quantity: number;
     supermarket: string;
   }) => {
-    if (!cart || !editingItem) return;
+    if (!cart || !editingProduct || !user?.id) return;
 
-    updateItem(cart.id, editingItem.id, {
-      name: product.name,
-      priceBs: product.priceBs,
-      priceUsd: product.priceUsd,
-      quantity: product.quantity,
-      supermarket: product.supermarket,
-    });
+    setIsSubmitting(true);
+    try {
+      const result = await updateCartProduct(
+        editingProduct.id,
+        {
+          cartId: cart.id,
+          name: product.name,
+          priceUsd: product.priceUsd,
+          priceBs: product.priceBs,
+          quantity: product.quantity,
+        },
+        user.id
+      );
 
-    setShowEditModal(false);
-    setEditingItem(null);
+      updateProduct(cart.id, editingProduct.id, {
+        name: result.name,
+        priceBs: result.priceBs,
+        priceUsd: result.priceUsd,
+        quantity: result.quantity,
+        supermarket: product.supermarket,
+      });
+
+      setShowEditModal(false);
+      setEditingProduct(null);
+    } catch (err) {
+      setToast(err instanceof Error ? err.message : 'Error al editar producto');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const cart = carts.find((c: Cart) => c.id === id);
@@ -272,7 +322,7 @@ export default function CartDetailScreen() {
       <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} />
       <View style={styles.headerContainer}>
         <View style={styles.supermarketHeaderContainer}>
-          <SupermarketHeader supermarket={cart.supermarket} itemCount={cart.items.length} />
+          <SupermarketHeader supermarket={cart.supermarket} productCount={cart.products.length} />
         </View>
         <BudgetSummary
           totalBs={totalBs}
@@ -289,14 +339,14 @@ export default function CartDetailScreen() {
       >
         <Text style={styles.sectionHeader}>Productos en Carrito</Text>
         <View style={styles.productList}>
-          {cart.items.length > 0 ? (
-            cart.items.map((item: CartItem) => (
+          {cart.products.length > 0 ? (
+            cart.products.map((product: CartProduct) => (
               <ProductCard
-                key={item.id}
-                item={item}
+                key={product.id}
+                product={product}
                 cartId={cart.id}
                 onMenuPress={() => {
-                  setSelectedItem(item);
+                  setSelectedProduct(product);
                   setShowActionSheet(true);
                 }}
               />
@@ -375,19 +425,19 @@ export default function CartDetailScreen() {
         isVisible={showEditModal}
         onClose={() => {
           setShowEditModal(false);
-          setEditingItem(null);
+          setEditingProduct(null);
         }}
         title="Editar Producto"
         showBackButton={true}
       >
-        {cart && editingItem && (
+        {cart && editingProduct && (
           <ProductForm
             onSubmit={handleEditProduct}
             supermarket={cart.supermarket}
-            initialData={editingItem}
+            initialData={editingProduct}
             onCancel={() => {
               setShowEditModal(false);
-              setEditingItem(null);
+              setEditingProduct(null);
             }}
           />
         )}
@@ -397,7 +447,7 @@ export default function CartDetailScreen() {
         isVisible={showActionSheet}
         onClose={() => {
           setShowActionSheet(false);
-          setSelectedItem(null);
+          setSelectedProduct(null);
         }}
         options={[
           {
@@ -405,7 +455,7 @@ export default function CartDetailScreen() {
             icon: 'edit',
             color: theme.colors.midnight,
             onPress: () => {
-              setEditingItem(selectedItem);
+              setEditingProduct(selectedProduct);
               setShowEditModal(true);
             },
           },
@@ -413,9 +463,18 @@ export default function CartDetailScreen() {
             label: 'Eliminar',
             icon: 'delete',
             color: theme.colors.error,
-            onPress: () => {
-              if (selectedItem && cart) {
-                removeItemFromCart(cart.id, selectedItem.id);
+            onPress: async () => {
+              if (!selectedProduct || !cart || !user?.id) return;
+              setIsSubmitting(true);
+              try {
+                await deleteCartProduct(selectedProduct.id, user.id);
+                removeProductFromCart(cart.id, selectedProduct.id);
+                setShowActionSheet(false);
+                setSelectedProduct(null);
+              } catch (err) {
+                setToast(err instanceof Error ? err.message : 'Error al eliminar producto');
+              } finally {
+                setIsSubmitting(false);
               }
             },
           },
@@ -434,7 +493,7 @@ export default function CartDetailScreen() {
               if (cart) {
                 completeCart(cart.id);
                 setShowCompleteCartSheet(false);
-                Alert.alert('Carrito completado', 'El carrito ha sido movido al historial.');
+                setToast('Carrito completado');
               }
             },
           },
@@ -446,6 +505,8 @@ export default function CartDetailScreen() {
           },
         ]}
       />
+
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </View>
   );
 }

@@ -22,12 +22,12 @@ export function formatDate(date: Date | string | number): string {
 }
 
 export function calculateTotal(
-  items: Array<{ priceBs: number; priceUsd: number; quantity: number }>
+  products: Array<{ priceBs: number; priceUsd: number; quantity: number }>
 ): { totalBs: number; totalUsd: number } {
-  return items.reduce(
-    (acc, item) => ({
-      totalBs: acc.totalBs + item.priceBs * item.quantity,
-      totalUsd: acc.totalUsd + item.priceUsd * item.quantity,
+  return products.reduce(
+    (acc, product) => ({
+      totalBs: acc.totalBs + product.priceBs * product.quantity,
+      totalUsd: acc.totalUsd + product.priceUsd * product.quantity,
     }),
     { totalBs: 0, totalUsd: 0 }
   );

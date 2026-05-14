@@ -9,10 +9,10 @@ import (
 
 // BaseModel contains common fields for all database models
 type BaseModel struct {
-	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ID        uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt *time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 // BeforeCreate sets UUID and timestamps before creating a new record
@@ -31,12 +31,6 @@ func (m *BaseModel) BeforeUpdate(tx *gorm.DB) error {
 	return nil
 }
 
-// BeforeDelete updates the DeletedAt timestamp
-func (m *BaseModel) BeforeDelete(tx *gorm.DB) error {
-	now := time.Now()
-	m.DeletedAt = &now
-	return nil
-}
 
 // IsZero checks if the model has zero ID (not persisted)
 func (m *BaseModel) IsZero() bool {
@@ -45,5 +39,5 @@ func (m *BaseModel) IsZero() bool {
 
 // IsDeleted checks if record is deleted
 func (m *BaseModel) IsDeleted() bool {
-	return m.DeletedAt != nil
+	return m.DeletedAt.Valid
 }

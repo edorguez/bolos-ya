@@ -174,7 +174,7 @@ components:
       properties:
         table:
           type: string
-          enum: [cart_items, carts, prices]
+          enum: [cart_products, carts, prices]
         action:
           type: string
           enum: [INSERT, UPDATE, DELETE]

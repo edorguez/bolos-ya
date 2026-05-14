@@ -13,7 +13,8 @@ import (
 // CartService defines shopping cart operations
 type CartService interface {
 	CreateCart(ctx context.Context, cart *models.Cart, customSupermarketName *string) (*models.Cart, error)
-	AddProduct(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error)
+	AddProduct(ctx context.Context, product *models.Product, cartID uuid.UUID, quantity int, isManualEntry bool) (*models.CartProduct, error)
+	UpdateCartProduct(ctx context.Context, cartProductID uuid.UUID, product *models.Product, cartID uuid.UUID, quantity int) (*models.CartProduct, error)
 	UpdateProductQuantity(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error)
 	RemoveProduct(ctx context.Context, cartProductID uuid.UUID) error
 	GetCartProducts(ctx context.Context, cartID uuid.UUID) ([]*models.CartProduct, error)
@@ -67,20 +68,66 @@ func (s *cartService) CreateCart(ctx context.Context, cart *models.Cart, customS
 	return cart, nil
 }
 
-// AddProduct adds a product to a shopping cart
-func (s *cartService) AddProduct(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error) {
-	cart, err := s.cartRepo.FindByID(ctx, cartProduct.CartID)
+// AddProduct creates a product and adds it to a shopping cart
+func (s *cartService) AddProduct(ctx context.Context, product *models.Product, cartID uuid.UUID, quantity int, isManualEntry bool) (*models.CartProduct, error) {
+	_, err := s.cartRepo.FindByID(ctx, cartID)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = s.productRepo.FindByID(ctx, cartProduct.ProductID)
-	if err != nil {
+	if err := s.productRepo.Create(ctx, product); err != nil {
 		return nil, err
 	}
 
+	cartProduct := models.NewCartProduct(cartID, product.ID, quantity, isManualEntry)
 	if err := s.cartProductRepo.Create(ctx, cartProduct); err != nil {
 		return nil, err
+	}
+
+	cart, err := s.cartRepo.FindByID(ctx, cartID)
+	if err != nil {
+		return cartProduct, err
+	}
+
+	if err := s.updateCartTotals(ctx, cart); err != nil {
+		return cartProduct, err
+	}
+
+	return cartProduct, nil
+}
+
+// UpdateCartProduct updates a cart product and its associated product
+func (s *cartService) UpdateCartProduct(ctx context.Context, cartProductID uuid.UUID, product *models.Product, cartID uuid.UUID, quantity int) (*models.CartProduct, error) {
+	cartProduct, err := s.cartProductRepo.FindByID(ctx, cartProductID)
+	if err != nil {
+		return nil, err
+	}
+
+	existing, err := s.productRepo.FindByID(ctx, cartProduct.ProductID)
+	if err != nil {
+		return nil, err
+	}
+
+	existing.Name = product.Name
+	existing.Barcode = product.Barcode
+	existing.IsWeightBased = product.IsWeightBased
+	existing.PriceUsd = product.PriceUsd
+	existing.PriceBolivares = product.PriceBolivares
+	existing.PriceBcv = product.PriceBcv
+	existing.ImageUrl = product.ImageUrl
+
+	if err := s.productRepo.Update(ctx, existing); err != nil {
+		return nil, err
+	}
+
+	cartProduct.Quantity = quantity
+	if err := s.cartProductRepo.Update(ctx, cartProduct); err != nil {
+		return nil, err
+	}
+
+	cart, err := s.cartRepo.FindByID(ctx, cartID)
+	if err != nil {
+		return cartProduct, err
 	}
 
 	if err := s.updateCartTotals(ctx, cart); err != nil {
@@ -108,7 +155,7 @@ func (s *cartService) UpdateProductQuantity(ctx context.Context, cartProduct *mo
 	return cartProduct, nil
 }
 
-// RemoveProduct removes an product from a cart
+// RemoveProduct removes a product from a cart
 func (s *cartService) RemoveProduct(ctx context.Context, cartProductID uuid.UUID) error {
 	cartProduct, err := s.cartProductRepo.FindByID(ctx, cartProductID)
 	if err != nil {
@@ -124,7 +171,6 @@ func (s *cartService) RemoveProduct(ctx context.Context, cartProductID uuid.UUID
 		return err
 	}
 
-	// Update cart totals
 	return s.updateCartTotals(ctx, cart)
 }
 
@@ -140,12 +186,12 @@ func (s *cartService) GetCartDetail(ctx context.Context, cartID uuid.UUID) (*mod
 		return nil, nil, err
 	}
 
-	items, err := s.cartProductRepo.FindByCartIDWithDetails(ctx, cartID)
+	products, err := s.cartProductRepo.FindByCartIDWithDetails(ctx, cartID)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return cart, items, nil
+	return cart, products, nil
 }
 
 // GetCartProducts retrieves all products in a cart
@@ -166,8 +212,8 @@ func (s *cartService) updateCartTotals(ctx context.Context, cart *models.Cart) e
 	}
 
 	productIDs := make([]uuid.UUID, len(cartProducts))
-	for i, item := range cartProducts {
-		productIDs[i] = item.ProductID
+	for i, p := range cartProducts {
+		productIDs[i] = p.ProductID
 	}
 
 	products, err := s.productRepo.FindAllByIDs(ctx, productIDs)
@@ -181,10 +227,10 @@ func (s *cartService) updateCartTotals(ctx context.Context, cart *models.Cart) e
 	}
 
 	var totalBs, totalUsd int64
-	for _, item := range cartProducts {
-		prices := priceMap[item.ProductID]
-		totalBs += prices.bs * int64(item.Quantity)
-		totalUsd += prices.usd * int64(item.Quantity)
+	for _, p := range cartProducts {
+		prices := priceMap[p.ProductID]
+		totalBs += prices.bs * int64(p.Quantity)
+		totalUsd += prices.usd * int64(p.Quantity)
 	}
 
 	bs := totalBs

@@ -1,4 +1,11 @@
-import { View, Text, Pressable, type ViewStyle, type TextStyle, type ViewProps } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  type ViewStyle,
+  type TextStyle,
+  type ViewProps,
+} from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { StatusBadge } from './StatusBadge';
 import { AmountCard } from './AmountCard';

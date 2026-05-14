@@ -59,11 +59,12 @@ func SetupRoutes(
 				cartsGroup.POST("/:cartId/checkout", cartHandler.CheckoutCart)
 			}
 
-			cartItemsGroup := protected.Group("/cart-items")
+			cartProductsGroup := protected.Group("/cart-products")
 			{
-				cartItemsGroup.POST("", cartHandler.AddProduct)
-				cartItemsGroup.PUT("/:cartItemId", cartHandler.UpdateProductQuantity)
-				cartItemsGroup.DELETE("/:cartItemId", cartHandler.RemoveItem)
+				cartProductsGroup.POST("", cartHandler.AddProduct)
+				cartProductsGroup.PUT("/:cartProductId", cartHandler.UpdateCartProduct)
+				cartProductsGroup.PUT("/:cartProductId/quantity", cartHandler.UpdateProductQuantity)
+				cartProductsGroup.DELETE("/:cartProductId", cartHandler.RemoveProduct)
 			}
 
 			syncGroup := protected.Group("/sync")
