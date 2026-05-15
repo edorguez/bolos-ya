@@ -9,7 +9,8 @@ import { HistoryCard } from '../../components/history/HistoryCard';
 import { useAppTheme } from '../../styles/theme';
 import { useAuth } from '../../store/authStore';
 import { getCarts } from '../../services/historyService';
-import { getIconByIndex, CARD_COLORS } from '../../utils/iconUtils';
+import { getCartIcon, getCartColorKey } from '../../utils/iconUtils';
+import { formatDate } from '../../utils/dateUtils';
 import type { ApiCartResponse } from '../../types';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -106,11 +107,9 @@ export default function HistoryTab() {
         ) : (
           <>
             <View style={styles.historyList}>
-              {carts.map((cart, index) => {
+              {carts.map(cart => {
                 const { usage, exceeded } = calcBudgetUsage(cart);
-                const colorKey = CARD_COLORS[
-                  index % CARD_COLORS.length
-                ] as keyof typeof theme.colors;
+                const colorKey = getCartColorKey(cart.id) as keyof typeof theme.colors;
                 const totalBs = cart.budgetBs.toLocaleString('es-VE', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -124,12 +123,8 @@ export default function HistoryTab() {
                   <HistoryCard
                     key={cart.id}
                     storeName={cart.supermarketName}
-                    date={new Date(cart.createdAt).toLocaleDateString('es-VE', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                    icon={getIconByIndex(index)}
+                    date={formatDate(cart.createdAt)}
+                    icon={getCartIcon(cart.id)}
                     iconColor={theme.colors[colorKey]}
                     status={getStatus(cart.isActive)}
                     totalBs={totalBs}

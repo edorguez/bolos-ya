@@ -348,7 +348,7 @@ export default function CartDetailScreen() {
       <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} />
       <View style={styles.headerContainer}>
         <View style={styles.supermarketHeaderContainer}>
-          <SupermarketHeader supermarket={cart.supermarket} productCount={cart.products.length} />
+          <SupermarketHeader cartId={cart.id} supermarket={cart.supermarket} productCount={cart.products.length} />
         </View>
         <BudgetSummary
           totalBs={totalBs}

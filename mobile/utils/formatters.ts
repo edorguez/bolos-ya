@@ -12,15 +12,6 @@ export function formatCurrencyUsd(amount: number): string {
   })}`;
 }
 
-export function formatDate(date: Date | string | number): string {
-  const d = new Date(date);
-  return d.toLocaleDateString('es-VE', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
 export function calculateTotal(
   products: Array<{ priceBs: number; priceUsd: number; quantity: number }>
 ): { totalBs: number; totalUsd: number } {

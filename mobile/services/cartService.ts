@@ -1,5 +1,6 @@
 import { apiGet, apiPost, apiPut, apiDelete } from './api';
-import type { ApiCartDetailResponse, ApiCartResponse } from '../types';
+import type { ApiCartDetailResponse, ApiCartResponse, ApiCartProductResponse } from '../types';
+import { toCents, fromCents, transformPrices } from '../utils/priceUtils';
 
 export interface CreateCartParams {
   supermarketId?: string;
@@ -72,6 +73,21 @@ interface ApiResponse<T> {
   data: T;
 }
 
+function transformCartDetail(response: ApiCartDetailResponse): ApiCartDetailResponse {
+  return {
+    ...response,
+    budgetBs: fromCents(response.budgetBs),
+    budgetUsd: fromCents(response.budgetUsd),
+    totalEstimatedBs:
+      response.totalEstimatedBs !== null ? fromCents(response.totalEstimatedBs) : null,
+    totalEstimatedUsd:
+      response.totalEstimatedUsd !== null ? fromCents(response.totalEstimatedUsd) : null,
+    products: response.products.map(
+      (p: ApiCartProductResponse) => transformPrices(p) as ApiCartProductResponse
+    ),
+  };
+}
+
 export async function getCartDetail(
   cartId: string,
   userId?: string
@@ -82,7 +98,7 @@ export async function getCartDetail(
     throw new Error('Error al obtener el carrito');
   }
 
-  return response.data;
+  return transformCartDetail(response.data);
 }
 
 export async function createCart(
@@ -90,8 +106,8 @@ export async function createCart(
   userId?: string
 ): Promise<CreateCartResponse> {
   const body: Record<string, unknown> = {
-    budgetBs: params.budgetBs,
-    budgetUsd: params.budgetUsd,
+    budgetBs: toCents(params.budgetBs),
+    budgetUsd: toCents(params.budgetUsd),
   };
 
   if (params.supermarketId) {
@@ -106,7 +122,17 @@ export async function createCart(
     throw new Error('Error al crear el carrito');
   }
 
-  return response.data;
+  return {
+    ...response.data,
+    budgetBs: fromCents(response.data.budgetBs),
+    budgetUsd: fromCents(response.data.budgetUsd),
+    totalEstimatedBs: response.data.totalEstimatedBs !== null
+      ? fromCents(response.data.totalEstimatedBs)
+      : null,
+    totalEstimatedUsd: response.data.totalEstimatedUsd !== null
+      ? fromCents(response.data.totalEstimatedUsd)
+      : null,
+  };
 }
 
 export async function addCartProduct(
@@ -117,9 +143,9 @@ export async function addCartProduct(
     cartId: params.cartId,
     supermarketId: params.supermarketId,
     name: params.name,
-    priceUsd: Math.round(params.priceUsd),
-    priceBs: Math.round(params.priceBs),
-    priceBcv: params.priceBcv !== undefined ? Math.round(params.priceBcv) : 0,
+    priceUsd: toCents(params.priceUsd),
+    priceBs: toCents(params.priceBs),
+    priceBcv: params.priceBcv !== undefined ? toCents(params.priceBcv) : 0,
     quantity: params.quantity,
     isManualEntry: params.isManualEntry ?? true,
   };
@@ -142,7 +168,7 @@ export async function addCartProduct(
     throw new Error('Error al agregar producto');
   }
 
-  return response.data;
+  return transformPrices(response.data);
 }
 
 export async function updateCartProduct(
@@ -153,9 +179,9 @@ export async function updateCartProduct(
   const body: Record<string, unknown> = {
     cartId: params.cartId,
     name: params.name,
-    priceUsd: Math.round(params.priceUsd),
-    priceBs: Math.round(params.priceBs),
-    priceBcv: params.priceBcv !== undefined ? Math.round(params.priceBcv) : 0,
+    priceUsd: toCents(params.priceUsd),
+    priceBs: toCents(params.priceBs),
+    priceBcv: params.priceBcv !== undefined ? toCents(params.priceBcv) : 0,
     quantity: params.quantity,
   };
 
@@ -181,7 +207,7 @@ export async function updateCartProduct(
     throw new Error('Error al actualizar producto');
   }
 
-  return response.data;
+  return transformPrices(response.data);
 }
 
 export async function updateCartProductQuantity(
@@ -205,7 +231,19 @@ export async function updateCartProductQuantity(
     throw new Error('Error al actualizar cantidad');
   }
 
-  return response.data;
+  return transformPrices(response.data);
+}
+
+function transformCartResponse(response: ApiCartResponse): ApiCartResponse {
+  return {
+    ...response,
+    budgetBs: fromCents(response.budgetBs),
+    budgetUsd: fromCents(response.budgetUsd),
+    totalEstimatedBs:
+      response.totalEstimatedBs !== null ? fromCents(response.totalEstimatedBs) : null,
+    totalEstimatedUsd:
+      response.totalEstimatedUsd !== null ? fromCents(response.totalEstimatedUsd) : null,
+  };
 }
 
 export async function checkoutCart(
@@ -221,7 +259,7 @@ export async function checkoutCart(
     throw new Error('Error al completar carrito');
   }
 
-  return response.data;
+  return transformCartResponse(response.data);
 }
 
 export async function deleteCartProduct(cartProductId: string, userId?: string): Promise<void> {

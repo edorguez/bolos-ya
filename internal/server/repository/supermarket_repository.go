@@ -96,7 +96,7 @@ func (r *supermarketRepository) FindAll(ctx context.Context, userID uuid.UUID) (
 	var supermarkets []models.Supermarket
 	if err := r.db.WithContext(ctx).
 		Where("(user_id = ? OR user_id IS NULL) AND deleted_at IS NULL", userID).
-		Order("name ASC").
+		Order("user_id IS NOT NULL ASC, name ASC").
 		Find(&supermarkets).Error; err != nil {
 		return nil, err
 	}

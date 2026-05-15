@@ -113,7 +113,7 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
 
       <View style={styles.totalRow as ViewStyle}>
         <View style={styles.totalLeft as ViewStyle}>
-          <Text style={styles.totalLabel as TextStyle}>TOTAL GASTADO</Text>
+          <Text style={styles.totalLabel as TextStyle}>TOTAL ACUMULADO</Text>
           <View style={styles.totalAmountRow as ViewStyle}>
             <Text style={styles.totalBs as TextStyle}>
               Bs. {totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}

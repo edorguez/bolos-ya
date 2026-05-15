@@ -62,9 +62,12 @@ export default function ProfileTab() {
           <>
             <View style={styles.profileHeader as ViewStyle}>
               <Avatar uri={user?.image || undefined} />
-              <Text style={styles.profileName as TextStyle}>
-                {user?.name || user?.email?.split('@')[0] || 'Usuario'}
-              </Text>
+
+              {!user?.isAnonymous ? (
+                <Text style={styles.profileName as TextStyle}>{user?.name}</Text>
+              ) : (
+                <Text style={styles.profileName as TextStyle}>Usuario</Text>
+              )}
 
               {!user?.isAnonymous && (
                 <Text style={styles.profileEmail as TextStyle}>{user?.email || ''}</Text>

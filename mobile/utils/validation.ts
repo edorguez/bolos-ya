@@ -1,10 +1,8 @@
-const INT64_MAX = 9223372036854775807;
-
 export function parseAmount(value: string): number {
   if (!value || value.trim() === '') return 0;
   const floatVal = parseFloat(value);
   if (isNaN(floatVal) || floatVal < 0) return 0;
-  return Math.round(floatVal * 100);
+  return floatVal;
 }
 
 export function formatInt64Amount(value: number): string {
@@ -30,9 +28,5 @@ export function validateAmount(value: string): { amount: number; error: string |
   if (isNaN(floatVal) || floatVal < 0) {
     return { amount: 0, error: 'Ingresa un valor válido' };
   }
-  const scaled = Math.round(floatVal * 100);
-  if (scaled > INT64_MAX) {
-    return { amount: 0, error: 'Valor demasiado grande' };
-  }
-  return { amount: scaled, error: null };
+  return { amount: floatVal, error: null };
 }

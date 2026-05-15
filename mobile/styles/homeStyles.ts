@@ -77,9 +77,57 @@ export function createHomeStyles(theme: AppTheme) {
     errorBorder: {
       borderColor: theme.colors.error,
     },
-    budgetGrid: {
+    budgetRow: {
       flexDirection: 'row',
       gap: theme.spacing.md,
+    },
+    budgetFields: {
+      flex: 1,
+      gap: theme.spacing.xs,
+    },
+    budgetSwapSide: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    budgetLabel: {
+      fontSize: theme.typography.fontSize.xs,
+      fontWeight: theme.typography.fontWeight.semibold,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      color: theme.colors.onSurfaceVariant,
+      marginLeft: theme.spacing.sm,
+    },
+    budgetInputWrapper: {
+      position: 'relative',
+    },
+    budgetInput: {
+      backgroundColor: theme.colors.surfaceContainerLow,
+      borderWidth: 1,
+      borderColor: theme.colors.stoneSurface,
+      borderRadius: theme.borderRadius.md,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.sm,
+      fontSize: theme.typography.fontSize.sm,
+      color: theme.colors.text,
+      textAlign: 'right',
+    },
+    budgetSymbol: {
+      position: 'absolute',
+      left: theme.spacing.md,
+      top: '50%',
+      transform: [{ translateY: -8 }],
+      fontSize: theme.typography.fontSize.xs,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.onSurfaceVariant,
+    },
+
+    budgetSwapButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: theme.colors.surfaceContainer,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     primaryButton: {
       backgroundColor: theme.colors.midnight,

@@ -3,7 +3,6 @@ import {
   Text,
   ScrollView,
   Pressable,
-  TextInput,
   Animated,
   ActivityIndicator,
   RefreshControl,
@@ -14,8 +13,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { createHomeStyles } from '../../styles/homeStyles';
-import { SupermarketCarousel } from '../../components/home/SupermarketCarousel';
-import { BudgetInput } from '../../components/home/BudgetInput';
+import { BudgetFields } from '../../components/home/BudgetFields';
+import { SupermarketSelector } from '../../components/home/SupermarketSelector';
 import { TipCard } from '../../components/home/TipCard';
 import { HistoryCard } from '../../components/history/HistoryCard';
 import { SectionHeader } from '../../components/shared/SectionHeader';
@@ -27,25 +26,13 @@ import { useAuth } from '../../store/authStore';
 import { getAllSupermarkets } from '../../services/supermarketService';
 import { createCart } from '../../services/cartService';
 import { getCarts } from '../../services/historyService';
-import { getIconByIndex, CARD_COLORS } from '../../utils/iconUtils';
+import { getCartIcon, getCartColorKey } from '../../utils/iconUtils';
+import { formatDate } from '../../utils/dateUtils';
 import { validateAmount, validateName, sanitizeName } from '../../utils/validation';
+import { getExchangeRate } from '../../utils/currency';
+import { savingsTips } from '../../utils/tips';
 import type { SupermarketOption } from '../../services/supermarketService';
 import type { ApiCartResponse } from '../../types';
-
-const savingsTips = [
-  'Llevar una lista de compras evita compras impulsivas y ayuda a mantener el presupuesto.',
-  'Compara precios entre supermercados, especialmente en productos de la cesta básica.',
-  'Aprovecha ofertas y descuentos, pero solo compra lo que realmente necesitas.',
-  'Compra frutas y verduras de temporada, son más económicas y frescas.',
-  'Revisa el precio por unidad o kilogramo para comparar presentaciones.',
-  'Prefiere productos locales y nacionales, suelen tener mejor precio que los importados.',
-  'Usa calculadora de presupuesto para no exceder el límite que te fijaste.',
-  'Planifica tus comidas de la semana y compra solo los ingredientes necesarios.',
-  'Revisa tu carrito antes de pagar y elimina productos que no necesitas.',
-  'Compra productos a granel cuando sea posible, suelen ser más económicos.',
-];
-
-
 
 export default function HomeTab() {
   const theme = useAppTheme();
@@ -56,6 +43,8 @@ export default function HomeTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [budgetBs, setBudgetBs] = useState('');
   const [budgetUsd, setBudgetUsd] = useState('');
+  const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS');
+  const [exchangeRate, setExchangeRate] = useState(0);
   const [customMarketName, setCustomMarketName] = useState('');
   const [showCustomMarket, setShowCustomMarket] = useState(false);
   const [renderCustomMarket, setRenderCustomMarket] = useState(false);
@@ -131,8 +120,40 @@ export default function HomeTab() {
     }
   };
 
+  useEffect(() => {
+    getExchangeRate().then(setExchangeRate);
+  }, []);
+
+  const bsEditable = topCurrency === 'BS';
+
+  useEffect(() => {
+    if (bsEditable && budgetBs && exchangeRate > 0) {
+      const bsValue = parseFloat(budgetBs);
+      if (!isNaN(bsValue)) {
+        setBudgetUsd((bsValue / exchangeRate).toFixed(2));
+      } else {
+        setBudgetUsd('');
+      }
+    }
+  }, [budgetBs, bsEditable, exchangeRate]);
+
+  useEffect(() => {
+    if (!bsEditable && budgetUsd && exchangeRate > 0) {
+      const usdValue = parseFloat(budgetUsd);
+      if (!isNaN(usdValue)) {
+        setBudgetBs((usdValue * exchangeRate).toFixed(2));
+      } else {
+        setBudgetBs('');
+      }
+    }
+  }, [budgetUsd, bsEditable, exchangeRate]);
+
   const router = useRouter();
   const { addCart, setActiveCart } = useCartStore();
+
+  const handleToggleCurrency = () => {
+    setTopCurrency(prev => (prev === 'BS' ? 'USD' : 'BS'));
+  };
 
   const handleStartList = async () => {
     const errors: Record<string, string> = {};
@@ -158,14 +179,28 @@ export default function HomeTab() {
 
     const { amount: bsAmount, error: bsError } = validateAmount(budgetBs);
     const { amount: usdAmount, error: usdError } = validateAmount(budgetUsd);
-    if (bsError) errors.budgetBs = bsError;
-    if (usdError) errors.budgetUsd = usdError;
-    if (bsAmount === 0 && usdAmount === 0) {
-      errors.budgetBs = errors.budgetBs || 'Debes ingresar presupuesto BS o USD';
+
+    if (bsEditable) {
+      if (bsError || bsAmount <= 0) {
+        errors.budgetBs = 'Ingresa un presupuesto en Bolívares';
+      }
+    } else {
+      if (usdError || usdAmount <= 0) {
+        errors.budgetUsd = 'Ingresa un presupuesto en USD';
+      }
     }
 
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) return;
+
+    let finalBs = bsAmount;
+    let finalUsd = usdAmount;
+
+    if (bsEditable && finalBs > 0 && finalUsd <= 0) {
+      finalUsd = finalBs / exchangeRate;
+    } else if (!bsEditable && finalUsd > 0 && finalBs <= 0) {
+      finalBs = finalUsd * exchangeRate;
+    }
 
     setIsSubmitting(true);
     try {
@@ -173,8 +208,8 @@ export default function HomeTab() {
         {
           supermarketId: finalSupermarketId,
           newSupermarket: finalSupermarketId ? undefined : { name: finalName || '' },
-          budgetBs: bsAmount,
-          budgetUsd: usdAmount,
+          budgetBs: finalBs,
+          budgetUsd: finalUsd,
         },
         user?.id
       );
@@ -199,6 +234,9 @@ export default function HomeTab() {
       setShowCustomMarket(false);
       setFieldErrors({});
       router.push({ pathname: '/(cart)/[id]', params: { id: result.id } });
+
+      const updatedMarkets = await getAllSupermarkets(user?.id);
+      setSupermarkets(updatedMarkets);
     } catch (err) {
       setToast(err instanceof Error ? err.message : 'Error al crear el carrito');
     } finally {
@@ -207,27 +245,23 @@ export default function HomeTab() {
   };
 
   const handleBsBudgetChange = (text: string) => {
-    if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setBudgetBs(text);
-      setFieldErrors(prev => {
-        if (!prev.budgetBs) return prev;
-        const next = { ...prev };
-        delete next.budgetBs;
-        return next;
-      });
-    }
+    setBudgetBs(text);
+    setFieldErrors(prev => {
+      if (!prev.budgetBs) return prev;
+      const next = { ...prev };
+      delete next.budgetBs;
+      return next;
+    });
   };
 
   const handleUsdBudgetChange = (text: string) => {
-    if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setBudgetUsd(text);
-      setFieldErrors(prev => {
-        if (!prev.budgetUsd) return prev;
-        const next = { ...prev };
-        delete next.budgetUsd;
-        return next;
-      });
-    }
+    setBudgetUsd(text);
+    setFieldErrors(prev => {
+      if (!prev.budgetUsd) return prev;
+      const next = { ...prev };
+      delete next.budgetUsd;
+      return next;
+    });
   };
 
   const handleRefresh = useCallback(async () => {
@@ -335,66 +369,35 @@ export default function HomeTab() {
       >
         <View style={styles.section}>
           <View style={styles.card}>
-            <View>
-              <Text style={styles.supermarketLabel}>Supermercado</Text>
-              <SupermarketCarousel supermarkets={supermarkets} onSelect={handleSupermarketSelect} />
+            <SupermarketSelector
+              supermarkets={supermarkets}
+              customMarketName={customMarketName}
+              fieldErrors={fieldErrors}
+              renderCustomMarket={renderCustomMarket}
+              fadeAnim={fadeAnim}
+              slideAnim={slideAnim}
+              onSupermarketSelect={handleSupermarketSelect}
+              onCustomMarketChange={text => {
+                setCustomMarketName(text);
+                setFieldErrors(prev => {
+                  if (!prev.customMarketName) return prev;
+                  const next = { ...prev };
+                  delete next.customMarketName;
+                  return next;
+                });
+              }}
+            />
 
-              {renderCustomMarket ? (
-                <Animated.View
-                  style={[
-                    styles.customMarketContainer,
-                    {
-                      opacity: fadeAnim,
-                      transform: [{ translateY: slideAnim }],
-                    },
-                  ]}
-                >
-                  <View style={{ gap: theme.spacing.xs }}>
-                    <Text style={styles.supermarketLabel}>Nombre del Supermercado</Text>
-                    <TextInput
-                      style={[
-                        styles.customMarketInput,
-                        fieldErrors.customMarketName && styles.errorBorder,
-                      ]}
-                      placeholder="Ej. Plan Suarez"
-                      placeholderTextColor={theme.colors.onSurfaceVariant}
-                      value={customMarketName}
-                      onChangeText={text => {
-                        setCustomMarketName(text);
-                        setFieldErrors(prev => {
-                          if (!prev.customMarketName) return prev;
-                          const next = { ...prev };
-                          delete next.customMarketName;
-                          return next;
-                        });
-                      }}
-                    />
-                    {fieldErrors.customMarketName ? (
-                      <Text style={styles.errorText as TextStyle}>
-                        {fieldErrors.customMarketName}
-                      </Text>
-                    ) : null}
-                  </View>
-                </Animated.View>
-              ) : null}
-            </View>
+            <BudgetFields
+              topCurrency={topCurrency}
+              budgetBs={budgetBs}
+              budgetUsd={budgetUsd}
+              fieldErrors={fieldErrors}
+              onBsChange={handleBsBudgetChange}
+              onUsdChange={handleUsdBudgetChange}
+              onToggleCurrency={handleToggleCurrency}
+            />
 
-            <View style={styles.budgetGrid}>
-              <BudgetInput
-                label="Presupuesto Bs"
-                value={budgetBs}
-                onChangeText={handleBsBudgetChange}
-                keyboardType="numeric"
-                hasError={!!fieldErrors.budgetBs || !!fieldErrors.budgetUsd}
-              />
-              <BudgetInput
-                label="Presupuesto USD"
-                value={budgetUsd}
-                onChangeText={handleUsdBudgetChange}
-                keyboardType="numeric"
-                hasError={!!fieldErrors.budgetBs || !!fieldErrors.budgetUsd}
-              />
-            </View>
             {fieldErrors.budgetBs || fieldErrors.budgetUsd ? (
               <Text style={styles.errorText as TextStyle}>
                 {fieldErrors.budgetBs || fieldErrors.budgetUsd}
@@ -434,20 +437,16 @@ export default function HomeTab() {
           />
 
           <HorizontalScrollWithIndicators contentContainerStyle={styles.cartCardsContainer}>
-            {latestCarts.map((cart, index) => {
+            {latestCarts.map(cart => {
               const { usage, exceeded } = calcBudgetUsage(cart);
-              const colorKey = CARD_COLORS[index % CARD_COLORS.length] as keyof typeof theme.colors;
+              const colorKey = getCartColorKey(cart.id) as keyof typeof theme.colors;
 
               return (
                 <HistoryCard
                   key={cart.id}
                   storeName={cart.supermarketName}
-                  date={new Date(cart.createdAt).toLocaleDateString('es-VE', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                  icon={getIconByIndex(index)}
+                  date={formatDate(cart.createdAt)}
+                  icon={getCartIcon(cart.id)}
                   iconColor={theme.colors[colorKey]}
                   status={cart.isActive ? 'Activo' : 'Completado'}
                   statusIconOnly
@@ -471,10 +470,7 @@ export default function HomeTab() {
         </View>
 
         <View style={styles.section}>
-          <TipCard
-            title="Tip de Ahorro"
-            text={savingsTips[currentTipIndex]}
-          />
+          <TipCard title="Tip de Ahorro" text={savingsTips[currentTipIndex]} />
         </View>
       </ScrollView>
     </View>

@@ -89,21 +89,16 @@ CREATE INDEX IF NOT EXISTS idx_cart_products_product ON cart_products(product_id
 INSERT INTO supermarkets (id, name, is_custom, image_url, user_id, created_at, updated_at)
 SELECT id, name, is_custom, image_url, user_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 FROM (VALUES
-    ('11111111-1111-1111-1111-111111111111'::uuid, 'Automercado', FALSE, NULL, NULL::uuid),
-    ('22222222-2222-2222-2222-222222222222'::uuid, 'Casa & Mercado', FALSE, NULL, NULL::uuid),
-    ('33333333-3333-3333-3333-333333333333'::uuid, 'Casa Blanca', FALSE, NULL, NULL::uuid),
-    ('44444444-4444-4444-4444-444444444444'::uuid, 'Central Madeirense', FALSE, NULL, NULL::uuid),
-    ('55555555-5555-5555-5555-555555555555'::uuid, 'De Todo', FALSE, NULL, NULL::uuid),
-    ('66666666-6666-6666-6666-666666666666'::uuid, 'El Super', FALSE, NULL, NULL::uuid),
-    ('77777777-7777-7777-7777-777777777777'::uuid, 'Excelsior Gama', FALSE, NULL, NULL::uuid),
-    ('88888888-8888-8888-8888-888888888888'::uuid, 'Forum', FALSE, NULL, NULL::uuid),
-    ('99999999-9999-9999-9999-999999999999'::uuid, 'La Fuente', FALSE, NULL, NULL::uuid),
-    ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid, 'Makro', FALSE, NULL, NULL::uuid),
-    ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'::uuid, 'Plan Suárez', FALSE, NULL, NULL::uuid),
-    ('cccccccc-cccc-cccc-cccc-cccccccccccc'::uuid, 'Páramo', FALSE, NULL, NULL::uuid),
-    ('dddddddd-dddd-dddd-dddd-dddddddddddd'::uuid, 'Río Vida', FALSE, NULL, NULL::uuid),
-    ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'::uuid, 'Supermercado Plaza''s', FALSE, NULL, NULL::uuid),
-    ('ffffffff-ffff-ffff-ffff-ffffffffffff'::uuid, 'Unicasa', FALSE, NULL, NULL::uuid)
+    ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid, 'Central Madeirense', FALSE, NULL, NULL::uuid),
+    ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'::uuid, 'Excelsior Gama', FALSE, NULL, NULL::uuid),
+    ('cccccccc-cccc-cccc-cccc-cccccccccccc'::uuid, 'Unicasa', FALSE, NULL, NULL::uuid),
+    ('dddddddd-dddd-dddd-dddd-dddddddddddd'::uuid, 'Farmatodo', FALSE, NULL, NULL::uuid),
+    ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'::uuid, 'Páramo', FALSE, NULL, NULL::uuid),
+    ('ffffffff-ffff-ffff-ffff-ffffffffffff'::uuid, 'Forum', FALSE, NULL, NULL::uuid),
+    ('gggggggg-gggg-gggg-gggg-gggggggggggg'::uuid, 'Río Vida', FALSE, NULL, NULL::uuid),
+    ('hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh'::uuid, 'Plan Suárez', FALSE, NULL, NULL::uuid),
+    ('iiiiiiii-iiii-iiii-iiii-iiiiiiiiiiii'::uuid, 'Plaza''s', FALSE, NULL, NULL::uuid),
+    ('jjjjjjjj-jjjj-jjjj-jjjj-jjjjjjjjjjjj'::uuid, 'Makro', FALSE, NULL, NULL::uuid)
 ) AS data(id, name, is_custom, image_url, user_id)
 WHERE NOT EXISTS (
     SELECT 1 FROM supermarkets s WHERE s.id = data.id
