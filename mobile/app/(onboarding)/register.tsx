@@ -197,7 +197,7 @@ export default function RegisterScreen() {
               />
               <TextInput
                 style={styles.input}
-                placeholder="Contraseña (mín. 6 caracteres)"
+                placeholder="Contraseña (mín. 8 caracteres)"
                 placeholderTextColor={theme.colors.textSecondary}
                 value={password}
                 onChangeText={setPassword}

@@ -89,9 +89,10 @@ func SetupRoutes(
 				supermarketsGroup.GET("", supermarketHandler.GetAllSupermarkets)
 				supermarketsGroup.GET("/:supermarketId", supermarketHandler.GetSupermarketByID)
 			}
+
 		}
 
-		apiV1.GET("/", func(c *gin.Context) {
+	apiV1.GET("/", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Bolos Ya API v1",
 				"version": "1.0.0",

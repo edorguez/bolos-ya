@@ -17,6 +17,7 @@ type Config struct {
 	BCV      BCVConfig
 	App      AppConfig
 	Auth     AuthConfig
+	Email    EmailConfig
 }
 
 // ServerConfig holds HTTP server configuration
@@ -57,6 +58,13 @@ type BCVConfig struct {
 type AuthConfig struct {
 	BetterAuthURL    string `mapstructure:"better_auth_url"`
 	BetterAuthSecret string `mapstructure:"better_auth_secret"`
+}
+
+// EmailConfig holds Resend email service configuration
+type EmailConfig struct {
+	ResendAPIKey string `mapstructure:"resend_api_key"`
+	FromEmail    string `mapstructure:"from_email"`
+	FromName     string `mapstructure:"from_name"`
 }
 
 // AppConfig holds general application configuration
@@ -126,6 +134,17 @@ func bindEnvVars() error {
 	// BCV
 	if err := viper.BindEnv("bcv.url", "BCV_API_URL"); err != nil {
 		return fmt.Errorf("failed to bind BCV_API_URL: %w", err)
+	}
+
+	// Email (Resend)
+	if err := viper.BindEnv("email.resend_api_key", "RESEND_API_KEY"); err != nil {
+		return fmt.Errorf("failed to bind RESEND_API_KEY: %w", err)
+	}
+	if err := viper.BindEnv("email.from_email", "RESEND_FROM_EMAIL"); err != nil {
+		return fmt.Errorf("failed to bind RESEND_FROM_EMAIL: %w", err)
+	}
+	if err := viper.BindEnv("email.from_name", "RESEND_FROM_NAME"); err != nil {
+		return fmt.Errorf("failed to bind RESEND_FROM_NAME: %w", err)
 	}
 
 	// App

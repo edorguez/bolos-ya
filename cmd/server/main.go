@@ -8,6 +8,7 @@ import (
 
 	serverconfig "github.com/edorguez/bolos-ya/configs/server"
 	"github.com/edorguez/bolos-ya/internal/server"
+	"github.com/edorguez/bolos-ya/internal/server/email"
 	"github.com/edorguez/bolos-ya/internal/server/repository"
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	"github.com/edorguez/bolos-ya/pkg/database/postgresql"
@@ -50,7 +51,13 @@ func main() {
 	cartProductRepo := repository.NewCartProductRepository(db)
 	paymentRepo := repository.NewPaymentRepository(db)
 
-	authService := services.NewAuthService(userRepo)
+	emailSvc := email.NewService(email.Config{
+		ResendAPIKey: cfg.Email.ResendAPIKey,
+		FromEmail:    cfg.Email.FromEmail,
+		FromName:     cfg.Email.FromName,
+	}, log.Logger)
+
+	authService := services.NewAuthService(userRepo, emailSvc, log.Logger)
 	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo, supermarketRepo)
 	syncService := services.NewSyncService(userRepo, cartRepo, cartProductRepo, productRepo, supermarketRepo)
 	paymentService := services.NewPaymentService(paymentRepo)
