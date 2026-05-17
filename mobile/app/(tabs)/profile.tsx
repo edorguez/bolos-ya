@@ -40,6 +40,11 @@ export default function ProfileTab() {
     },
   ];
 
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/(onboarding)/welcome');
+  };
+
   const handleUpgrade = () => {
     console.log('Upgrade to premium');
   };
@@ -82,7 +87,7 @@ export default function ProfileTab() {
                   styles.logoutButton as ViewStyle,
                   pressed && (styles.logoutButtonPressed as ViewStyle),
                 ]}
-                onPress={logout}
+                onPress={handleLogout}
               >
                 <Text style={styles.logoutText as TextStyle}>Cerrar Sesión</Text>
               </Pressable>

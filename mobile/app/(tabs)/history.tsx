@@ -12,6 +12,7 @@ import { getCarts } from '../../services/historyService';
 import { getCartIcon, getCartColorKey } from '../../utils/iconUtils';
 import { formatDate } from '../../utils/dateUtils';
 import type { ApiCartResponse } from '../../types';
+import { EmptyCartsState } from '../../components/shared/EmptyCartsState';
 import { MaterialIcons } from '@expo/vector-icons';
 
 function calcBudgetUsage(cart: ApiCartResponse): { usage: number; exceeded: boolean } {
@@ -139,25 +140,9 @@ export default function HistoryTab() {
               })}
             </View>
 
-            {carts.length > 0 && (
-              <View style={styles.emptyState}>
-                <View style={{ width: 96, height: 96, marginBottom: theme.spacing.md }}>
-                  <View
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      backgroundColor: theme.colors.outline + '20',
-                      borderRadius: theme.borderRadius.md,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <MaterialIcons name="folder" size={48} color={theme.colors.outline} />
-                  </View>
-                </View>
-                <Text style={styles.emptyStateText}>Fin del historial actual</Text>
-              </View>
-            )}
+            <EmptyCartsState
+              text={carts.length > 0 ? 'Fin del historial actual' : 'Aún no tienes carritos'}
+            />
           </>
         )}
       </ScrollView>

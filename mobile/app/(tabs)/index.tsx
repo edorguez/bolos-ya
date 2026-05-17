@@ -19,6 +19,7 @@ import { TipCard } from '../../components/home/TipCard';
 import { HistoryCard } from '../../components/history/HistoryCard';
 import { SectionHeader } from '../../components/shared/SectionHeader';
 import { HorizontalScrollWithIndicators } from '../../components/shared/HorizontalScrollWithIndicators';
+import { EmptyCartsState } from '../../components/shared/EmptyCartsState';
 import { Toast } from '../../components/shared/Toast';
 import { useCartStore } from '../../store/cartStore';
 import { useAppTheme } from '../../styles/theme';
@@ -436,37 +437,41 @@ export default function HomeTab() {
             onLinkPress={handleViewAll}
           />
 
-          <HorizontalScrollWithIndicators contentContainerStyle={styles.cartCardsContainer}>
-            {latestCarts.map(cart => {
-              const { usage, exceeded } = calcBudgetUsage(cart);
-              const colorKey = getCartColorKey(cart.id) as keyof typeof theme.colors;
+          {latestCarts.length > 0 ? (
+            <HorizontalScrollWithIndicators contentContainerStyle={styles.cartCardsContainer}>
+              {latestCarts.map(cart => {
+                const { usage, exceeded } = calcBudgetUsage(cart);
+                const colorKey = getCartColorKey(cart.id) as keyof typeof theme.colors;
 
-              return (
-                <HistoryCard
-                  key={cart.id}
-                  storeName={cart.supermarketName}
-                  date={formatDate(cart.createdAt)}
-                  icon={getCartIcon(cart.id)}
-                  iconColor={theme.colors[colorKey]}
-                  status={cart.isActive ? 'Activo' : 'Completado'}
-                  statusIconOnly
-                  totalBs={cart.budgetBs.toLocaleString('es-VE', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                  totalUsd={`$ ${cart.budgetUsd.toLocaleString('es-VE', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}`}
-                  budgetUsage={usage}
-                  exceeded={exceeded}
-                  hideAmounts
-                  style={{ width: 280 }}
-                  onPress={() => router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })}
-                />
-              );
-            })}
-          </HorizontalScrollWithIndicators>
+                return (
+                  <HistoryCard
+                    key={cart.id}
+                    storeName={cart.supermarketName}
+                    date={formatDate(cart.createdAt)}
+                    icon={getCartIcon(cart.id)}
+                    iconColor={theme.colors[colorKey]}
+                    status={cart.isActive ? 'Activo' : 'Completado'}
+                    statusIconOnly
+                    totalBs={cart.budgetBs.toLocaleString('es-VE', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                    totalUsd={`$ ${cart.budgetUsd.toLocaleString('es-VE', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}`}
+                    budgetUsage={usage}
+                    exceeded={exceeded}
+                    hideAmounts
+                    style={{ width: 280 }}
+                    onPress={() => router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })}
+                  />
+                );
+              })}
+            </HorizontalScrollWithIndicators>
+          ) : (
+            <EmptyCartsState text="Aún no tienes carritos" compact />
+          )}
         </View>
 
         <View style={styles.section}>

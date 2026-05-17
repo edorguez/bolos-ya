@@ -55,7 +55,6 @@ export function createHomeStyles(theme: AppTheme) {
       letterSpacing: 1,
       color: theme.colors.textSecondary,
       marginLeft: theme.spacing.xs,
-      marginBottom: theme.spacing.sm,
     },
     customMarketContainer: {
       marginTop: theme.spacing.sm,
@@ -95,7 +94,7 @@ export function createHomeStyles(theme: AppTheme) {
       textTransform: 'uppercase',
       letterSpacing: 1,
       color: theme.colors.onSurfaceVariant,
-      marginLeft: theme.spacing.sm,
+      marginLeft: theme.spacing.xs,
     },
     budgetInputWrapper: {
       position: 'relative',

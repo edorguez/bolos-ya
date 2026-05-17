@@ -54,7 +54,7 @@ const stylesheet = StyleSheet.create(theme => ({
     color: theme.colors.midnight,
   },
   name: {
-    fontSize: theme.typography.fontSize.xs,
+    fontSize: theme.typography.fontSize.xxs,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.ash,
     textAlign: 'center',

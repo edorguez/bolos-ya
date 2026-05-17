@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
 import { signUp } from '../../lib/auth-client';
+import { Toast } from '../../components/shared/Toast';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function RegisterScreen() {
@@ -23,38 +24,42 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleRegister = async () => {
-    setError(null);
+    setToast(null);
     if (!email.trim()) {
-      setError('Ingresa tu correo electrónico');
+      setToast('Ingresa tu correo electrónico');
       return;
     }
     if (!password) {
-      setError('Ingresa una contraseña');
+      setToast('Ingresa una contraseña');
       return;
     }
     if (password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres');
+      setToast('La contraseña debe tener al menos 8 caracteres');
       return;
     }
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setToast('Las contraseñas no coinciden');
       return;
     }
 
     setIsLoading(true);
     try {
-      await signUp.email({
+      const result = await signUp.email({
         email: email.trim(),
         password,
         name: email.trim().split('@')[0],
       });
+      if (result.error) {
+        setToast('Error al crear la cuenta');
+        return;
+      }
       router.replace('/(tabs)');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al crear la cuenta';
-      setError(message);
+      setToast(message);
     } finally {
       setIsLoading(false);
     }
@@ -133,19 +138,6 @@ export default function RegisterScreen() {
       fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.semibold,
     },
-    errorContainer: {
-      backgroundColor: theme.colors.coralRed + '15',
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.md,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-    },
-    errorText: {
-      color: theme.colors.error,
-      fontSize: theme.typography.fontSize.sm,
-      flex: 1,
-    },
     footer: {
       alignItems: 'center',
       paddingVertical: theme.spacing.lg,
@@ -176,13 +168,6 @@ export default function RegisterScreen() {
           </View>
 
           <View style={styles.form}>
-            {error && (
-              <View style={styles.errorContainer}>
-                <MaterialIcons name="error-outline" size={20} color={theme.colors.error} />
-                <Text style={styles.errorText}>{error}</Text>
-              </View>
-            )}
-
             <View style={styles.inputContainer}>
               <MaterialIcons
                 name="mail-outline"
@@ -212,13 +197,14 @@ export default function RegisterScreen() {
               />
               <TextInput
                 style={styles.input}
-                placeholder="Contraseña (mín. 8 caracteres)"
+                placeholder="Contraseña (mín. 6 caracteres)"
                 placeholderTextColor={theme.colors.textSecondary}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 editable={!isLoading}
+                maxLength={20}
               />
               <Pressable
                 style={styles.togglePassword}
@@ -288,6 +274,7 @@ export default function RegisterScreen() {
           </View>
         </View>
       </ScrollView>
+      <Toast message={toast} onDismiss={() => setToast(null)} position="bottom" />
     </View>
   );
 }

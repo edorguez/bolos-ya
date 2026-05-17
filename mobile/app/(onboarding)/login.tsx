@@ -8,10 +8,10 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
 import { signIn } from '../../lib/auth-client';
+import { Toast } from '../../components/shared/Toast';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function LoginScreen() {
@@ -21,29 +21,33 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleLogin = async () => {
-    setError(null);
+    setToast(null);
     if (!email.trim()) {
-      setError('Ingresa tu correo electrónico');
+      setToast('Ingresa tu correo electrónico');
       return;
     }
     if (!password) {
-      setError('Ingresa tu contraseña');
+      setToast('Ingresa tu contraseña');
       return;
     }
 
     setIsLoading(true);
     try {
-      await signIn.email({
+      const result = await signIn.email({
         email: email.trim(),
         password,
       });
+      if (result.error) {
+        setToast('Correo o contraseña incorrectos');
+        return;
+      }
       router.replace('/(tabs)');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al iniciar sesión';
-      setError(message);
+      setToast(message);
     } finally {
       setIsLoading(false);
     }
@@ -122,19 +126,6 @@ export default function LoginScreen() {
       fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.semibold,
     },
-    errorContainer: {
-      backgroundColor: theme.colors.coralRed + '15',
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.md,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-    },
-    errorText: {
-      color: theme.colors.error,
-      fontSize: theme.typography.fontSize.sm,
-      flex: 1,
-    },
     footer: {
       alignItems: 'center',
       paddingVertical: theme.spacing.lg,
@@ -165,13 +156,6 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.form}>
-            {error && (
-              <View style={styles.errorContainer}>
-                <MaterialIcons name="error-outline" size={20} color={theme.colors.error} />
-                <Text style={styles.errorText}>{error}</Text>
-              </View>
-            )}
-
             <View style={styles.inputContainer}>
               <MaterialIcons
                 name="mail-outline"
@@ -208,6 +192,7 @@ export default function LoginScreen() {
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 editable={!isLoading}
+                maxLength={20}
               />
               <Pressable
                 style={styles.togglePassword}
@@ -251,6 +236,7 @@ export default function LoginScreen() {
           </View>
         </View>
       </ScrollView>
+      <Toast message={toast} onDismiss={() => setToast(null)} position="bottom" />
     </View>
   );
 }
