@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-//go:embed templates/*
+//go:embed templates/*.gohtml
 var templatesFS embed.FS
 
 var templates = template.Must(template.ParseFS(templatesFS, "templates/*.gohtml"))
