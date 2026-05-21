@@ -46,7 +46,7 @@ export default function ProfileTab() {
   };
 
   const handleUpgrade = () => {
-    console.log('Upgrade to premium');
+    router.push('/(premium)/plans');
   };
 
   const handleCreateAccount = () => {
