@@ -5,7 +5,9 @@ type CreatePaymentRequest struct {
 	ReferenceNumber string `json:"referenceNumber" validate:"required,max=50"`
 	BankName        string `json:"bankName" validate:"required,max=80"`
 	AmountBs        int64  `json:"amountBs" validate:"required,min=1"`
+	AmountUsd       int64  `json:"amountUsd" validate:"required,min=1"`
 	PriceBcv        int64  `json:"priceBcv" validate:"required,min=1"`
+	Identification  string `json:"identification" validate:"required,max=20"`
 	IsDiscount      bool   `json:"isDiscount" validate:"required"`
 	PaidAt          string `json:"paidAt" validate:"required"`
 }
@@ -31,7 +33,9 @@ type PaymentResponse struct {
 	ReferenceNumber string               `json:"referenceNumber"`
 	BankName        string               `json:"bankName"`
 	AmountBs        int64                `json:"amountBs"`
+	AmountUsd       int64                `json:"amountUsd"`
 	PriceBcv        int64                `json:"priceBcv"`
+	Identification  string               `json:"identification"`
 	IsDiscount      bool                 `json:"isDiscount"`
 	PaidAt          string               `json:"paidAt"`
 	IsConfirmed     bool                 `json:"isConfirmed"`

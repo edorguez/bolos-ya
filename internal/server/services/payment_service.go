@@ -15,6 +15,7 @@ type PaymentService interface {
 	FindAll(ctx context.Context) ([]*models.Payment, error)
 	FindByUserID(ctx context.Context, userID uuid.UUID) ([]*models.Payment, error)
 	FindByEmail(ctx context.Context, email string) ([]*models.Payment, error)
+	FindPendingByUserID(ctx context.Context, userID uuid.UUID) (*models.Payment, error)
 	UpdatePayment(ctx context.Context, paymentID uuid.UUID, isConfirmed bool) (*models.Payment, error)
 	DeletePayment(ctx context.Context, id uuid.UUID) error
 }
@@ -49,6 +50,10 @@ func (s *paymentService) FindByUserID(ctx context.Context, userID uuid.UUID) ([]
 
 func (s *paymentService) FindByEmail(ctx context.Context, email string) ([]*models.Payment, error) {
 	return s.paymentRepo.FindByEmail(ctx, email)
+}
+
+func (s *paymentService) FindPendingByUserID(ctx context.Context, userID uuid.UUID) (*models.Payment, error) {
+	return s.paymentRepo.FindPendingByUserID(ctx, userID)
 }
 
 func (s *paymentService) UpdatePayment(ctx context.Context, paymentID uuid.UUID, isConfirmed bool) (*models.Payment, error) {

@@ -17,6 +17,7 @@ type PaymentRepository interface {
 	FindAll(ctx context.Context) ([]*models.Payment, error)
 	FindByUserID(ctx context.Context, userID uuid.UUID) ([]*models.Payment, error)
 	FindByEmail(ctx context.Context, email string) ([]*models.Payment, error)
+	FindPendingByUserID(ctx context.Context, userID uuid.UUID) (*models.Payment, error)
 	Update(ctx context.Context, payment *models.Payment) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -113,6 +114,24 @@ func (r *paymentRepository) FindByEmail(ctx context.Context, email string) ([]*m
 		result[i] = &payments[i]
 	}
 	return result, nil
+}
+
+func (r *paymentRepository) FindPendingByUserID(ctx context.Context, userID uuid.UUID) (*models.Payment, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var payment models.Payment
+	if err := r.db.WithContext(ctx).
+		Preload("User").
+		Where("user_id = ? AND is_confirmed = ? AND deleted_at IS NULL", userID, false).
+		First(&payment).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &payment, nil
 }
 
 func (r *paymentRepository) Update(ctx context.Context, payment *models.Payment) error {

@@ -1,13 +1,13 @@
 import {
   View,
   Text,
-  TextInput,
   Pressable,
   LayoutAnimation,
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { AmountInput } from '../shared/AmountInput';
 import { useAppTheme } from '../../styles/theme';
 import { createHomeStyles } from '../../styles/homeStyles';
 
@@ -33,16 +33,12 @@ export function BudgetFields({
   const theme = useAppTheme();
   const styles = createHomeStyles(theme);
 
-  const handleBsChange = (text: string) => {
-    if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      onBsChange(text);
-    }
+  const handleBsChange = (digits: string) => {
+    onBsChange(digits);
   };
 
-  const handleUsdChange = (text: string) => {
-    if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      onUsdChange(text);
-    }
+  const handleUsdChange = (digits: string) => {
+    onUsdChange(digits);
   };
 
   const handleToggle = () => {
@@ -57,33 +53,23 @@ export function BudgetFields({
           <>
             <Text style={styles.budgetLabel as TextStyle}>Presupuesto Bolívares</Text>
             <View style={styles.budgetInputWrapper as ViewStyle}>
-              <TextInput
-                style={[
-                  styles.budgetInput as TextStyle,
-                  (fieldErrors.budgetBs || fieldErrors.budgetUsd) && {
-                    borderColor: theme.colors.error,
-                  },
-                ]}
-                placeholder="0.00"
-                placeholderTextColor={theme.colors.onSurfaceVariant}
-                value={budgetBs}
-                onChangeText={handleBsChange}
-                keyboardType="numeric"
-                editable={true}
+              <AmountInput
+                rawDigits={budgetBs}
+                onRawDigitsChange={handleBsChange}
+                placeholder="0,00"
+                error={!!fieldErrors.budgetBs || !!fieldErrors.budgetUsd}
+                style={styles.budgetInput as any}
               />
               <Text style={styles.budgetSymbol as TextStyle}>Bs.</Text>
             </View>
             <Text style={styles.budgetLabel as TextStyle}>Presupuesto USD</Text>
             <View style={styles.budgetInputWrapper as ViewStyle}>
-              <TextInput
-                style={[
-                  styles.budgetInput as TextStyle,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-                placeholder="0.00"
-                placeholderTextColor={theme.colors.onSurfaceVariant}
-                value={budgetUsd}
+              <AmountInput
+                rawDigits={budgetUsd}
+                onRawDigitsChange={() => {}}
+                placeholder="0,00"
                 editable={false}
+                style={[styles.budgetInput as any, { color: theme.colors.onSurfaceVariant }]}
               />
               <Text style={styles.budgetSymbol as TextStyle}>$</Text>
             </View>
@@ -92,33 +78,23 @@ export function BudgetFields({
           <>
             <Text style={styles.budgetLabel as TextStyle}>Presupuesto USD</Text>
             <View style={styles.budgetInputWrapper as ViewStyle}>
-              <TextInput
-                style={[
-                  styles.budgetInput as TextStyle,
-                  (fieldErrors.budgetBs || fieldErrors.budgetUsd) && {
-                    borderColor: theme.colors.error,
-                  },
-                ]}
-                placeholder="0.00"
-                placeholderTextColor={theme.colors.onSurfaceVariant}
-                value={budgetUsd}
-                onChangeText={handleUsdChange}
-                keyboardType="numeric"
-                editable={true}
+              <AmountInput
+                rawDigits={budgetUsd}
+                onRawDigitsChange={handleUsdChange}
+                placeholder="0,00"
+                error={!!fieldErrors.budgetBs || !!fieldErrors.budgetUsd}
+                style={styles.budgetInput as any}
               />
               <Text style={styles.budgetSymbol as TextStyle}>$</Text>
             </View>
             <Text style={styles.budgetLabel as TextStyle}>Presupuesto Bolívares</Text>
             <View style={styles.budgetInputWrapper as ViewStyle}>
-              <TextInput
-                style={[
-                  styles.budgetInput as TextStyle,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-                placeholder="0.00"
-                placeholderTextColor={theme.colors.onSurfaceVariant}
-                value={budgetBs}
+              <AmountInput
+                rawDigits={budgetBs}
+                onRawDigitsChange={() => {}}
+                placeholder="0,00"
                 editable={false}
+                style={[styles.budgetInput as any, { color: theme.colors.onSurfaceVariant }]}
               />
               <Text style={styles.budgetSymbol as TextStyle}>Bs.</Text>
             </View>

@@ -14,6 +14,7 @@ export default function PremiumLayout() {
     >
       <Stack.Screen name="plans" />
       <Stack.Screen name="pago-movil" />
+      <Stack.Screen name="payment-pending" />
     </Stack>
   );
 }

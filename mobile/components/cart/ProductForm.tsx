@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useAppTheme } from '../../styles/theme';
+import { AmountInput } from '../shared/AmountInput';
+import { parseAmountInput } from '../../utils/amountUtils';
 import { Button } from '../Button';
 import { MaterialIcons } from '@expo/vector-icons';
 import { createProductFormStyles } from '../../styles/productFormStyles';
@@ -46,26 +48,22 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
 
   const bsEditable = topCurrency === 'BS';
 
-  // Update USD price when Bs price changes and Bs is editable
   useEffect(() => {
     if (bsEditable && bsPrice) {
-      const bsValue = parseFloat(bsPrice);
-      if (!isNaN(bsValue)) {
-        const usdValue = bsValue / EXCHANGE_RATE;
-        setUsdPrice(usdValue.toFixed(2));
+      const bsValue = parseAmountInput(bsPrice);
+      if (bsValue > 0) {
+        setUsdPrice(String(Math.round((bsValue / EXCHANGE_RATE) * 100)));
       } else {
         setUsdPrice('');
       }
     }
   }, [bsPrice, bsEditable]);
 
-  // Update Bs price when USD price changes and USD is editable
   useEffect(() => {
     if (!bsEditable && usdPrice) {
-      const usdValue = parseFloat(usdPrice);
-      if (!isNaN(usdValue)) {
-        const bsValue = usdValue * EXCHANGE_RATE;
-        setBsPrice(bsValue.toFixed(2));
+      const usdValue = parseAmountInput(usdPrice);
+      if (usdValue > 0) {
+        setBsPrice(String(Math.round(usdValue * EXCHANGE_RATE * 100)));
       } else {
         setBsPrice('');
       }
@@ -77,26 +75,21 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
     if (initialData) {
       setName(initialData.name);
       setQuantity(initialData.quantity);
-      setBsPrice(initialData.priceBs.toFixed(2));
-      setUsdPrice(initialData.priceUsd.toFixed(2));
+      setBsPrice(String(Math.round(initialData.priceBs * 100)));
+      setUsdPrice(String(Math.round(initialData.priceUsd * 100)));
       setTopCurrency('BS');
       setErrors({});
     }
   }, [initialData]);
 
-  const handleBsPriceChange = (text: string) => {
-    // Allow empty string, numbers, and single decimal point
-    if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setBsPrice(text);
-      setErrors(prev => ({ ...prev, bsPrice: '' }));
-    }
+  const handleBsPriceChange = (digits: string) => {
+    setBsPrice(digits);
+    setErrors(prev => ({ ...prev, bsPrice: '' }));
   };
 
-  const handleUsdPriceChange = (text: string) => {
-    if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setUsdPrice(text);
-      setErrors(prev => ({ ...prev, usdPrice: '' }));
-    }
+  const handleUsdPriceChange = (digits: string) => {
+    setUsdPrice(digits);
+    setErrors(prev => ({ ...prev, usdPrice: '' }));
   };
 
   const toggleEditableCurrency = () => {
@@ -121,14 +114,14 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
       newErrors.name = 'El nombre del producto es requerido';
     }
 
-    const bsValue = parseFloat(bsPrice);
-    const usdValue = parseFloat(usdPrice);
+    const bsValue = parseAmountInput(bsPrice);
+    const usdValue = parseAmountInput(usdPrice);
 
-    if (isNaN(bsValue) && isNaN(usdValue)) {
+    if (bsValue <= 0 && usdValue <= 0) {
       newErrors.price = 'Ingresa un precio en Bs. o USD';
-    } else if (bsEditable && (isNaN(bsValue) || bsValue <= 0)) {
+    } else if (bsEditable && bsValue <= 0) {
       newErrors.bsPrice = 'Ingresa un precio válido mayor a 0';
-    } else if (!bsEditable && (isNaN(usdValue) || usdValue <= 0)) {
+    } else if (!bsEditable && usdValue <= 0) {
       newErrors.usdPrice = 'Ingresa un precio válido mayor a 0';
     }
 
@@ -141,16 +134,15 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
       return;
     }
 
-    const bsValue = parseFloat(bsPrice);
-    const usdValue = parseFloat(usdPrice);
+    const bsValue = parseAmountInput(bsPrice);
+    const usdValue = parseAmountInput(usdPrice);
 
-    // Calculate the other currency if one is missing
     let finalBs = bsValue;
     let finalUsd = usdValue;
 
-    if (isNaN(finalBs) && !isNaN(finalUsd)) {
+    if (finalBs <= 0 && finalUsd > 0) {
       finalBs = finalUsd * EXCHANGE_RATE;
-    } else if (isNaN(finalUsd) && !isNaN(finalBs)) {
+    } else if (finalUsd <= 0 && finalBs > 0) {
       finalUsd = finalBs / EXCHANGE_RATE;
     }
 
@@ -249,14 +241,11 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
             <View style={styles.priceInputContainer as ViewStyle}>
               <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs)</Text>
               <View style={styles.priceInputWrapper as ViewStyle}>
-                <TextInput
-                  style={styles.priceInput as TextStyle}
-                  placeholder="0.00"
-                  placeholderTextColor={theme.colors.onSurfaceVariant}
-                  value={bsPrice}
-                  onChangeText={handleBsPriceChange}
-                  keyboardType="numeric"
-                  editable={true}
+                <AmountInput
+                  rawDigits={bsPrice}
+                  onRawDigitsChange={handleBsPriceChange}
+                  placeholder="0,00"
+                  style={styles.priceInput as any}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>
               </View>
@@ -287,14 +276,12 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
             <View style={styles.priceInputContainer as ViewStyle}>
               <Text style={styles.label as TextStyle}>Precio en Dólares ($)</Text>
               <View style={styles.priceInputWrapper as ViewStyle}>
-                <TextInput
-                  style={[styles.priceInput as TextStyle, { color: theme.colors.onSurfaceVariant }]}
-                  placeholder="0.00"
-                  placeholderTextColor={theme.colors.onSurfaceVariant}
-                  value={usdPrice}
-                  onChangeText={handleUsdPriceChange}
-                  keyboardType="numeric"
+                <AmountInput
+                  rawDigits={usdPrice}
+                  onRawDigitsChange={() => {}}
+                  placeholder="0,00"
                   editable={false}
+                  style={[styles.priceInput as any, { color: theme.colors.onSurfaceVariant }]}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>$</Text>
               </View>
@@ -309,14 +296,11 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
             <View style={styles.priceInputContainer as ViewStyle}>
               <Text style={styles.label as TextStyle}>Precio en Dólares ($)</Text>
               <View style={styles.priceInputWrapper as ViewStyle}>
-                <TextInput
-                  style={styles.priceInput as TextStyle}
-                  placeholder="0.00"
-                  placeholderTextColor={theme.colors.onSurfaceVariant}
-                  value={usdPrice}
-                  onChangeText={handleUsdPriceChange}
-                  keyboardType="numeric"
-                  editable={true}
+                <AmountInput
+                  rawDigits={usdPrice}
+                  onRawDigitsChange={handleUsdPriceChange}
+                  placeholder="0,00"
+                  style={styles.priceInput as any}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>$</Text>
               </View>
@@ -347,14 +331,12 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
             <View style={styles.priceInputContainer as ViewStyle}>
               <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs)</Text>
               <View style={styles.priceInputWrapper as ViewStyle}>
-                <TextInput
-                  style={[styles.priceInput as TextStyle, { color: theme.colors.onSurfaceVariant }]}
-                  placeholder="0.00"
-                  placeholderTextColor={theme.colors.onSurfaceVariant}
-                  value={bsPrice}
-                  onChangeText={handleBsPriceChange}
-                  keyboardType="numeric"
+                <AmountInput
+                  rawDigits={bsPrice}
+                  onRawDigitsChange={() => {}}
+                  placeholder="0,00"
                   editable={false}
+                  style={[styles.priceInput as any, { color: theme.colors.onSurfaceVariant }]}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>
               </View>

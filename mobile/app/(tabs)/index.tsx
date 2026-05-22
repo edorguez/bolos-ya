@@ -29,7 +29,8 @@ import { createCart } from '../../services/cartService';
 import { getCarts } from '../../services/historyService';
 import { getCartIcon, getCartColorKey } from '../../utils/iconUtils';
 import { formatDate } from '../../utils/dateUtils';
-import { validateAmount, validateName, sanitizeName } from '../../utils/validation';
+import { parseAmountInput } from '../../utils/amountUtils';
+import { validateName, sanitizeName } from '../../utils/validation';
 import { getExchangeRate } from '../../utils/currency';
 import { savingsTips } from '../../utils/tips';
 import type { SupermarketOption } from '../../services/supermarketService';
@@ -129,9 +130,9 @@ export default function HomeTab() {
 
   useEffect(() => {
     if (bsEditable && budgetBs && exchangeRate > 0) {
-      const bsValue = parseFloat(budgetBs);
-      if (!isNaN(bsValue)) {
-        setBudgetUsd((bsValue / exchangeRate).toFixed(2));
+      const bsValue = parseAmountInput(budgetBs);
+      if (bsValue > 0) {
+        setBudgetUsd(String(Math.round((bsValue / exchangeRate) * 100)));
       } else {
         setBudgetUsd('');
       }
@@ -140,9 +141,9 @@ export default function HomeTab() {
 
   useEffect(() => {
     if (!bsEditable && budgetUsd && exchangeRate > 0) {
-      const usdValue = parseFloat(budgetUsd);
-      if (!isNaN(usdValue)) {
-        setBudgetBs((usdValue * exchangeRate).toFixed(2));
+      const usdValue = parseAmountInput(budgetUsd);
+      if (usdValue > 0) {
+        setBudgetBs(String(Math.round(usdValue * exchangeRate * 100)));
       } else {
         setBudgetBs('');
       }
@@ -178,15 +179,15 @@ export default function HomeTab() {
       finalName = selectedSupermarket.name;
     }
 
-    const { amount: bsAmount, error: bsError } = validateAmount(budgetBs);
-    const { amount: usdAmount, error: usdError } = validateAmount(budgetUsd);
+    const bsAmount = parseAmountInput(budgetBs);
+    const usdAmount = parseAmountInput(budgetUsd);
 
     if (bsEditable) {
-      if (bsError || bsAmount <= 0) {
+      if (bsAmount <= 0) {
         errors.budgetBs = 'Ingresa un presupuesto en Bolívares';
       }
     } else {
-      if (usdError || usdAmount <= 0) {
+      if (usdAmount <= 0) {
         errors.budgetUsd = 'Ingresa un presupuesto en USD';
       }
     }
@@ -464,7 +465,9 @@ export default function HomeTab() {
                     exceeded={exceeded}
                     hideAmounts
                     style={{ width: 280 }}
-                    onPress={() => router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })}
+                    onPress={() =>
+                      router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })
+                    }
                   />
                 );
               })}

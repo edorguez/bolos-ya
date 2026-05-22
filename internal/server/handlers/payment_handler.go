@@ -56,7 +56,9 @@ func (h *PaymentHandler) CreatePayment(c *gin.Context) {
 		req.ReferenceNumber,
 		req.BankName,
 		req.AmountBs,
+		req.AmountUsd,
 		req.PriceBcv,
+		req.Identification,
 		req.IsDiscount,
 		paidAt,
 	)
@@ -143,6 +145,42 @@ func (h *PaymentHandler) GetPaymentsByEmail(c *gin.Context) {
 	utils.SuccessResponse(c, resp)
 }
 
+func (h *PaymentHandler) GetPendingPayment(c *gin.Context) {
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		return
+	}
+
+	payment, err := h.paymentService.FindPendingByUserID(c.Request.Context(), userUUID)
+	if err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	type PendingPaymentResponse struct {
+		HasPending bool                    `json:"hasPending"`
+		Payment    *dto.PaymentResponse    `json:"payment,omitempty"`
+	}
+
+	resp := PendingPaymentResponse{
+		HasPending: payment != nil,
+	}
+
+	if payment != nil {
+		paymentResp := toPaymentResponse(payment)
+		resp.Payment = &paymentResp
+	}
+
+	utils.SuccessResponse(c, resp)
+}
+
 func (h *PaymentHandler) UpdatePayment(c *gin.Context) {
 	paymentID, err := utils.ParseUUID(c.Param("paymentId"))
 	if err != nil {
@@ -209,7 +247,9 @@ func toPaymentResponse(p *models.Payment) dto.PaymentResponse {
 		ReferenceNumber: p.ReferenceNumber,
 		BankName:        p.BankName,
 		AmountBs:        p.AmountBs,
+		AmountUsd:       p.AmountUsd,
 		PriceBcv:        p.PriceBcv,
+		Identification:  p.Identification,
 		IsDiscount:      p.IsDiscount,
 		PaidAt:          p.PaidAt.Format(time.RFC3339),
 		IsConfirmed:     p.IsConfirmed,

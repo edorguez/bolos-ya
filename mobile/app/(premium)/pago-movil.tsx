@@ -6,12 +6,21 @@ import {
   TextInput,
   Pressable,
   StyleSheet,
+  Modal,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useAppTheme } from '../../styles/theme';
 import { TopAppBar } from '../../components/shared/TopAppBar';
+import { Toast } from '../../components/shared/Toast';
+import { PickerField } from '../../components/shared/PickerField';
+import type { PickerOption } from '../../components/shared/PickerField';
+import { AmountInput } from '../../components/shared/AmountInput';
+import { useAuth } from '../../store/authStore';
+import { createPayment } from '../../services/paymentService';
 
 const BCV_RATE = 475.7;
 
@@ -20,6 +29,43 @@ const MY_PAYMENT_INFO = {
   identification: 'V-12345678',
   bankName: 'Banco de Venezuela',
 } as const;
+
+const CI_PREFIXES = ['V', 'E', 'P', 'J', 'G', 'R'] as const;
+
+const BANKS = [
+  { code: '0102', name: 'BANCO DE VENEZUELA' },
+  { code: '0104', name: 'BANCO VENEZOLANO DE CREDITO' },
+  { code: '0105', name: 'BANCO MERCANTIL' },
+  { code: '0108', name: 'BBVA PROVINCIAL' },
+  { code: '0114', name: 'BANCARIBE' },
+  { code: '0115', name: 'BANCO EXTERIOR' },
+  { code: '0128', name: 'BANCO CARONI' },
+  { code: '0134', name: 'BANESCO' },
+  { code: '0137', name: 'BANCO SOFITASA' },
+  { code: '0138', name: 'BANCO PLAZA' },
+  { code: '0146', name: 'BANGENTE' },
+  { code: '0151', name: 'BANCO FONDO COMUN' },
+  { code: '0156', name: '100% BANCO' },
+  { code: '0157', name: 'DELSUR BANCO UNIVERSAL' },
+  { code: '0163', name: 'BANCO DEL TESORO' },
+  { code: '0168', name: 'BANCRECER' },
+  { code: '0169', name: 'R4 BANCO MICROFINANCIERO C.A.' },
+  { code: '0171', name: 'BANCO ACTIVO' },
+  { code: '0172', name: 'BANCAMIGA BANCO UNIVERSAL, C.A.' },
+  { code: '0173', name: 'BANCO INTERNACIONAL DE DESARROLLO' },
+  { code: '0174', name: 'BANPLUS' },
+  { code: '0175', name: 'BANCO DIGITAL DE LOS TRABAJADORES, BANCO UNIVERSAL' },
+  { code: '0177', name: 'BANFANB' },
+  { code: '0178', name: 'N58 BANCO DIGITAL BANCO MICROFINANCIERO S A' },
+  { code: '0191', name: 'BANCO NACIONAL DE CREDITO' },
+] as const;
+
+const CI_OPTIONS: PickerOption[] = CI_PREFIXES.map(p => ({ label: p, value: p }));
+
+const BANK_OPTIONS: PickerOption[] = BANKS.map(b => ({
+  label: `${b.code} - ${b.name}`,
+  value: `${b.code} - ${b.name}`,
+}));
 
 const formatBs = (amount: number): string => {
   const [intPart, decPart] = amount.toFixed(2).split('.');
@@ -31,6 +77,7 @@ export default function PagoMovilScreen() {
   const theme = useAppTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   const { billing, usdPrice, periodLabel } = useLocalSearchParams<{
     billing: string;
@@ -42,13 +89,83 @@ export default function PagoMovilScreen() {
   const bsValue = usdValue * BCV_RATE;
 
   const [userCI, setUserCI] = useState('');
+  const [ciPrefix, setCiPrefix] = useState('V');
   const [userBank, setUserBank] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
-  const [paymentAmountBs, setPaymentAmountBs] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [rawAmountDigits, setRawAmountDigits] = useState('');
   const [referenceNumber, setReferenceNumber] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [toast, setToast] = useState<string | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const handleSubmit = () => {
-    router.back();
+  const clearFieldError = (field: string) => {
+    setFieldErrors(prev => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+    if (date) {
+      setSelectedDate(date);
+      setPaymentDate(
+        date.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        })
+      );
+      clearFieldError('date');
+    }
+  };
+
+  const handleSubmit = async () => {
+    const errors: Record<string, string> = {};
+    if (!ciPrefix || !userCI.trim()) errors.ci = 'required';
+    if (!userBank) errors.bank = 'required';
+    if (!paymentDate) errors.date = 'required';
+    if (!rawAmountDigits) errors.amount = 'required';
+    if (!referenceNumber.trim()) errors.reference = 'required';
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      setToast('Completa todos los campos obligatorios');
+      return;
+    }
+
+    const monthsMap: Record<string, number> = {
+      monthly: 1,
+      quarterly: 3,
+      annual: 12,
+    };
+
+    const [day, month, year] = paymentDate.split('/');
+    const paidAt = new Date(+year, +month - 1, +day).toISOString();
+
+    try {
+      await createPayment(
+        {
+          numberOfMonths: monthsMap[billing] || 1,
+          referenceNumber: referenceNumber.trim(),
+          bankName: userBank,
+          amountBs: parseInt(rawAmountDigits, 10),
+          amountUsd: Math.round(usdValue * 100),
+          priceBcv: Math.round(BCV_RATE * 100),
+          identification: `${ciPrefix}${userCI.trim()}`,
+          isDiscount: false,
+          paidAt,
+        },
+        user?.id
+      );
+      router.replace('/(premium)/payment-pending');
+    } catch (err) {
+      setToast(err instanceof Error ? err.message : 'Error al procesar el pago');
+    }
   };
 
   const styles = StyleSheet.create({
@@ -180,6 +297,20 @@ export default function PagoMovilScreen() {
       fontSize: theme.typography.fontSize.sm,
       color: theme.colors.text,
     },
+    inputError: {
+      borderColor: theme.colors.error,
+    },
+    dateInput: {
+      backgroundColor: theme.colors.surfaceContainerLow,
+      borderWidth: 1,
+      borderColor: theme.colors.stoneSurface,
+      borderRadius: theme.borderRadius.md,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
     noteContainer: {
       flexDirection: 'row',
       alignItems: 'flex-start',
@@ -236,11 +367,10 @@ export default function PagoMovilScreen() {
         <View style={styles.summaryCard}>
           <View style={styles.summaryLeft}>
             <Text style={styles.summaryPlan}>
-              ${usdPrice}{periodLabel}
+              ${usdPrice}
+              {periodLabel}
             </Text>
-            <Text style={styles.summaryRate}>
-              Tasa BCV: {formatBs(BCV_RATE)} Bs/USD
-            </Text>
+            <Text style={styles.summaryRate}>Tasa BCV: {formatBs(BCV_RATE)} Bs/USD</Text>
           </View>
           <View style={styles.summaryRight}>
             <Text style={styles.summaryUsd}>${usdPrice}</Text>
@@ -282,9 +412,7 @@ export default function PagoMovilScreen() {
 
           <View style={styles.infoAmountRow}>
             <Text style={styles.infoAmountLabel}>Monto</Text>
-            <Text style={styles.infoAmountValue}>
-              {formatBs(bsValue)} Bs
-            </Text>
+            <Text style={styles.infoAmountValue}>{formatBs(bsValue)} Bs</Text>
           </View>
         </View>
 
@@ -293,61 +421,95 @@ export default function PagoMovilScreen() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Cédula / RIF *</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="V-12345678"
-              placeholderTextColor={theme.colors.ash}
-              value={userCI}
-              onChangeText={setUserCI}
-              autoCapitalize="characters"
-            />
+            <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+              <View style={{ width: 90 }}>
+                <PickerField
+                  selectedValue={ciPrefix}
+                  onValueChange={value => {
+                    setCiPrefix(value);
+                    clearFieldError('ci');
+                  }}
+                  options={CI_OPTIONS}
+                  error={!!fieldErrors.ci}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    { paddingVertical: theme.spacing.md },
+                    fieldErrors.ci && styles.inputError,
+                  ]}
+                  placeholder="12345678"
+                  placeholderTextColor={theme.colors.ash}
+                  value={userCI}
+                  onChangeText={text => {
+                    setUserCI(text.replace(/\D/g, ''));
+                    clearFieldError('ci');
+                  }}
+                  keyboardType="number-pad"
+                  maxLength={19}
+                />
+              </View>
+            </View>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Banco de origen *</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Ej: Mercantil, Provincial..."
-              placeholderTextColor={theme.colors.ash}
-              value={userBank}
-              onChangeText={setUserBank}
-            />
-          </View>
+          <PickerField
+            label="Banco de origen *"
+            selectedValue={userBank}
+            onValueChange={value => {
+              setUserBank(value);
+              clearFieldError('bank');
+            }}
+            options={BANK_OPTIONS}
+            error={!!fieldErrors.bank}
+            placeholder="Selecciona un banco..."
+            search
+            searchPlaceholder="Buscar banco..."
+          />
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Fecha del pago *</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="DD/MM/AAAA"
-              placeholderTextColor={theme.colors.ash}
-              value={paymentDate}
-              onChangeText={setPaymentDate}
-              keyboardType="numbers-and-punctuation"
-              maxLength={10}
-            />
+            <Pressable
+              style={[styles.dateInput, fieldErrors.date && styles.inputError]}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Text
+                style={!paymentDate ? { color: theme.colors.ash } : { color: theme.colors.text }}
+              >
+                {paymentDate || 'Selecciona la fecha...'}
+              </Text>
+              <MaterialIcons name="calendar-today" size={20} color={theme.colors.ash} />
+            </Pressable>
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Monto en Bs *</Text>
-            <TextInput
-              style={styles.textInput}
+            <AmountInput
+              rawDigits={rawAmountDigits}
+              onRawDigitsChange={digits => {
+                setRawAmountDigits(digits);
+                clearFieldError('amount');
+              }}
               placeholder="0,00"
-              placeholderTextColor={theme.colors.ash}
-              value={paymentAmountBs}
-              onChangeText={setPaymentAmountBs}
-              keyboardType="decimal-pad"
+              error={!!fieldErrors.amount}
+              style={styles.textInput}
             />
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Nro. de referencia *</Text>
             <TextInput
-              style={styles.textInput}
+              style={[styles.textInput, fieldErrors.reference && styles.inputError]}
               placeholder="000000"
               placeholderTextColor={theme.colors.ash}
               value={referenceNumber}
-              onChangeText={setReferenceNumber}
+              onChangeText={text => {
+                setReferenceNumber(text.replace(/\D/g, ''));
+                clearFieldError('reference');
+              }}
               keyboardType="number-pad"
+              maxLength={50}
             />
           </View>
         </View>
@@ -355,8 +517,8 @@ export default function PagoMovilScreen() {
         <View style={styles.noteContainer}>
           <MaterialIcons name="info-outline" size={18} color={theme.colors.ash} />
           <Text style={styles.noteText}>
-            Recuerda realizar el pago a través de Pago Móvil antes de enviar el
-            comprobante. El monto debe coincidir con el indicado arriba.
+            Recuerda realizar el pago a través de Pago Móvil antes de enviar el comprobante. El
+            monto debe coincidir con el indicado arriba.
           </Text>
         </View>
       </ScrollView>
@@ -369,6 +531,73 @@ export default function PagoMovilScreen() {
           <Text style={styles.submitText}>Enviar comprobante</Text>
         </Pressable>
       </View>
+
+      {showDatePicker && Platform.OS === 'ios' && (
+        <Modal
+          visible={showDatePicker}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setShowDatePicker(false)}
+        >
+          <Pressable
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              justifyContent: 'flex-end',
+            }}
+            onPress={() => setShowDatePicker(false)}
+          >
+            <View
+              style={{
+                backgroundColor: theme.colors.surfaceContainerLowest,
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+                borderCurve: 'continuous',
+                paddingTop: theme.spacing.lg,
+                paddingBottom: insets.bottom + theme.spacing.lg,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'flex-end',
+                  paddingHorizontal: theme.spacing.lg,
+                  marginBottom: theme.spacing.md,
+                }}
+              >
+                <Pressable onPress={() => setShowDatePicker(false)}>
+                  <Text
+                    style={{
+                      fontSize: theme.typography.fontSize.sm,
+                      fontWeight: theme.typography.fontWeight.semibold,
+                      color: theme.colors.meadowGreen,
+                    }}
+                  >
+                    OK
+                  </Text>
+                </Pressable>
+              </View>
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="spinner"
+                onChange={handleDateChange}
+                locale="es-ES"
+              />
+            </View>
+          </Pressable>
+        </Modal>
+      )}
+      {showDatePicker && Platform.OS === 'android' && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
+
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </View>
   );
 }

@@ -15,7 +15,9 @@ type Payment struct {
 	ReferenceNumber string    `gorm:"type:varchar(50);not null"`
 	BankName        string    `gorm:"type:varchar(80);not null"`
 	AmountBs        int64     `gorm:"type:bigint;not null"`
+	AmountUsd       int64     `gorm:"type:bigint;not null"`
 	PriceBcv        int64     `gorm:"type:bigint;not null"`
+	Identification  string    `gorm:"type:varchar(20);not null"`
 	IsDiscount      bool      `gorm:"not null;default:false"`
 	PaidAt          time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	IsConfirmed     bool      `gorm:"not null;default:false"`
@@ -26,7 +28,8 @@ func NewPayment(
 	userID uuid.UUID,
 	numberOfMonths int,
 	referenceNumber, bankName string,
-	amountBs, priceBcv int64,
+	amountBs, amountUsd, priceBcv int64,
+	identification string,
 	isDiscount bool,
 	paidAt time.Time,
 ) *Payment {
@@ -36,7 +39,9 @@ func NewPayment(
 		ReferenceNumber: referenceNumber,
 		BankName:        bankName,
 		AmountBs:        amountBs,
+		AmountUsd:       amountUsd,
 		PriceBcv:        priceBcv,
+		Identification:  identification,
 		IsDiscount:      isDiscount,
 		PaidAt:          paidAt,
 		IsConfirmed:     false,
