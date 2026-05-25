@@ -70,12 +70,18 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 }
 
 func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (string, string, bool, error) {
-	url := m.betterAuthURL + "/api/auth/get-session"
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	body := map[string]string{"token": token}
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return "", "", false, fmt.Errorf("failed to marshal request body: %w", err)
+	}
+
+	url := m.betterAuthURL + "/api/auth/validate-session"
+	req, err := http.NewRequestWithContext(ctx, "POST", url, strings.NewReader(string(jsonBody)))
 	if err != nil {
 		return "", "", false, fmt.Errorf("failed to create request: %w", err)
 	}
-	req.Header.Set("Cookie", "better-auth.session_token="+token)
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

@@ -448,7 +448,7 @@ export default function PagoMovilScreen() {
                     clearFieldError('ci');
                   }}
                   keyboardType="number-pad"
-                  maxLength={19}
+                  maxLength={9}
                 />
               </View>
             </View>

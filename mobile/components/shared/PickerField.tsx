@@ -122,6 +122,7 @@ export function PickerField({
         placeholder={placeholder || 'Selecciona...'}
         search={search}
         searchPlaceholder={searchPlaceholder || 'Buscar...'}
+        onChangeText={() => {}}
         onChange={(item: any) => {
           onValueChange(item.value);
         }}

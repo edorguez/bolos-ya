@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { HomePage } from './components/home/HomePage'
 import { LoginPage } from './components/auth/LoginPage'
 import { AdminLayout } from './components/admin/AdminLayout'
-import { PaymentsPage } from './components/admin/PaymentsPage'
+import { PaymentsPage } from './components/admin/payments/PaymentsPage'
 
 function App() {
   return (

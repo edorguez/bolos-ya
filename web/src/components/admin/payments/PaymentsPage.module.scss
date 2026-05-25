@@ -1,0 +1,157 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.title {
+  font-family: 'Inter', sans-serif;
+  font-size: 23px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-charcoal-primary);
+  margin: 0;
+}
+
+.description {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--color-ash);
+  margin: 0.5rem 0 0;
+}
+
+.exportBtn {
+  background: var(--color-midnight);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-buttonspill);
+  padding: 0 14px;
+  height: 40px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-start;
+
+  &:hover {
+    background: var(--color-charcoal-primary);
+  }
+}
+
+.tableWrap {
+  background: #ffffff;
+  border-radius: var(--radius-cards);
+  padding: 1rem;
+  box-shadow: var(--shadow-subtle);
+  overflow: hidden;
+
+  @media (min-width: 768px) {
+    border-radius: var(--radius-cardslarge);
+    padding: 1.5rem;
+  }
+}
+
+.confirmed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 600;
+}
+
+.confirmedYes {
+  color: #16a34a;
+}
+
+.confirmedNo {
+  color: #dc2626;
+}
+
+.skeleton {
+  height: 1rem;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonId {
+  width: 4rem;
+}
+
+.skeletonDate {
+  width: 7rem;
+}
+
+.skeletonMonths {
+  width: 5rem;
+}
+
+.skeletonEmail {
+  width: 10rem;
+}
+
+.skeletonAmount {
+  width: 6rem;
+}
+
+.skeletonRef {
+  width: 8rem;
+}
+
+.skeletonConfirmed {
+  width: 4rem;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--color-ash);
+  font-family: 'Inter', sans-serif;
+}
+
+.retryBtn {
+  background: var(--color-midnight);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-buttonspill);
+  padding: 0.5rem 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: var(--color-charcoal-primary);
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-ash);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+}

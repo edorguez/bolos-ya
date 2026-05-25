@@ -61,14 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     const { data, error } = await authClient.signIn.email({ email, password })
     if (error) {
-      return { success: false, error: error.message ?? 'Invalid credentials' }
+      return { success: false, error: error.message ?? 'Correo o contraseña incorrectos' }
     }
 
     const role = ((data?.user as Record<string, unknown>)?.role as string) || ''
 
     if (!role || !['admin', 'staff'].includes(role)) {
       await authClient.signOut()
-      return { success: false, error: 'Unauthorized: Staff access only' }
+      return { success: false, error: 'No tienes permisos para ingresar' }
     }
 
     setAuth({

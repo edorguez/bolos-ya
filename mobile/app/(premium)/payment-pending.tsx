@@ -65,8 +65,8 @@ export default function PaymentPendingScreen() {
       </View>
       <Text style={styles.title}>Pago en revisión</Text>
       <Text style={styles.subtitle}>
-        Ya has realizado un pago que está pendiente de confirmación. Nuestro equipo revisará tu
-        comprobante y activará tu membresía. Mientras tanto, no puedes realizar otro pago.
+        Tienes un pago pendiente de confirmación. Nuestro equipo revisará tu pago y activará tu
+        membresía. Mientras tanto, puedes seguir disfrutando de la app.
       </Text>
       <Pressable
         style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
