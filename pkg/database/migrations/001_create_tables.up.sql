@@ -189,7 +189,7 @@ WHERE NOT EXISTS (
 -- Seed payment statuses
 INSERT INTO payment_statuses (id, name, description)
 VALUES
-    ('a1111111-1111-4a11-9a11-111111111111'::uuid, 'Pendiente', 'Pago recibido, esperando verificaci\u00f3n'),
+    ('a1111111-1111-4a11-9a11-111111111111'::uuid, 'Pendiente', 'Pago recibido, esperando verificación'),
     ('a2222222-2222-4a22-9a22-222222222222'::uuid, 'Aprobado', 'Pago verificado y aprobado'),
     ('a3333333-3333-4a33-9a33-333333333333'::uuid, 'Rechazado', 'Pago rechazado por el administrador')
 ON CONFLICT (id) DO NOTHING;
@@ -198,8 +198,8 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO rejection_reasons (id, reason)
 VALUES
     ('b1111111-1111-4b11-9b11-111111111111'::uuid, 'Monto insuficiente'),
-    ('b2222222-2222-4b22-9b22-222222222222'::uuid, 'N\u00famero de referencia inv\u00e1lido'),
-    ('b3333333-3333-4b33-9b33-333333333333'::uuid, 'Pago fuera del per\u00edodo permitido'),
+    ('b2222222-2222-4b22-9b22-222222222222'::uuid, 'Número de referencia inválido'),
+    ('b3333333-3333-4b33-9b33-333333333333'::uuid, 'Pago fuera del período permitido'),
     ('b4444444-4444-4b44-9b44-444444444444'::uuid, 'Pago duplicado'),
     ('b5555555-5555-4b55-9b55-555555555555'::uuid, 'Otro')
 ON CONFLICT (id) DO NOTHING;

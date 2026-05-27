@@ -95,20 +95,20 @@ export function PaymentDetailModal({ open, payment, onClose, onApprove, onReject
           <dt>Meses Pagados</dt>
           <dd>{monthsLabel(payment.numberOfMonths)}</dd>
 
-          <dt>N\u00famero de Referencia</dt>
+          <dt>Número de Referencia</dt>
           <dd>{payment.referenceNumber}</dd>
 
           <dt>Banco</dt>
           <dd>{payment.bankName}</dd>
 
-          <dt>Identificaci\u00f3n</dt>
+          <dt>Cédula</dt>
           <dd>{payment.identification}</dd>
 
           <dt>Fecha de Pago</dt>
           <dd>{formatDate(payment.paidAt)}</dd>
 
           <dt>Descuento</dt>
-          <dd>{payment.isDiscount ? 'S\u00ed' : 'No'}</dd>
+          <dd>{payment.isDiscount ? 'Sí' : 'No'}</dd>
 
           {payment.approvedAt && (
             <>

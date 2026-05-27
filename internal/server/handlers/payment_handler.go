@@ -36,7 +36,7 @@ func (h *PaymentHandler) CreatePayment(c *gin.Context) {
 	}
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inv\u00e1lido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
 		return
 	}
 	paidAt, err := time.Parse(time.RFC3339, req.PaidAt)
@@ -60,7 +60,7 @@ func (h *PaymentHandler) CreatePayment(c *gin.Context) {
 func (h *PaymentHandler) GetPaymentByID(c *gin.Context) {
 	paymentID, err := utils.ParseUUID(c.Param("paymentId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inv\u00e1lido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inválido")
 		return
 	}
 	payment, err := h.paymentService.FindByID(c.Request.Context(), paymentID)
@@ -87,7 +87,7 @@ func (h *PaymentHandler) GetAllPayments(c *gin.Context) {
 func (h *PaymentHandler) GetPaymentsByUserID(c *gin.Context) {
 	userID, err := utils.ParseUUID(c.Param("userId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inv\u00e1lido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
 		return
 	}
 
@@ -95,7 +95,7 @@ func (h *PaymentHandler) GetPaymentsByUserID(c *gin.Context) {
 	if statusIDStr != "" {
 		statusUUID, err := uuid.Parse(statusIDStr)
 		if err != nil {
-			utils.ErrorResponse(c, http.StatusBadRequest, "statusId inv\u00e1lido")
+			utils.ErrorResponse(c, http.StatusBadRequest, "statusId inválido")
 			return
 		}
 		payments, err := h.paymentService.FindByUserIDAndStatus(c.Request.Context(), userID, statusUUID)
@@ -144,7 +144,7 @@ func (h *PaymentHandler) GetPaymentsByEmail(c *gin.Context) {
 func (h *PaymentHandler) UpdatePayment(c *gin.Context) {
 	paymentID, err := utils.ParseUUID(c.Param("paymentId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inv\u00e1lido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inválido")
 		return
 	}
 	var req dto.UpdatePaymentRequest
@@ -163,7 +163,7 @@ func (h *PaymentHandler) UpdatePayment(c *gin.Context) {
 func (h *PaymentHandler) DeletePayment(c *gin.Context) {
 	paymentID, err := utils.ParseUUID(c.Param("paymentId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inv\u00e1lido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inválido")
 		return
 	}
 	if err := h.paymentService.DeletePayment(c.Request.Context(), paymentID); err != nil {
@@ -224,32 +224,32 @@ func toPaymentResponse(p *models.Payment) dto.PaymentResponse {
 	}
 
 	return dto.PaymentResponse{
-		ID:              p.ID.String(),
-		UserID:          p.UserID.String(),
-		NumberOfMonths:  p.NumberOfMonths,
-		ReferenceNumber: p.ReferenceNumber,
-		BankName:        p.BankName,
-		AmountBs:        p.AmountBs,
-		AmountUsd:       p.AmountUsd,
-		PriceBcv:        p.PriceBcv,
-		Identification:  p.Identification,
-		IsDiscount:      p.IsDiscount,
-		PaidAt:          p.PaidAt.Format(time.RFC3339),
-		StatusID:        p.StatusID.String(),
+		ID:                p.ID.String(),
+		UserID:            p.UserID.String(),
+		NumberOfMonths:    p.NumberOfMonths,
+		ReferenceNumber:   p.ReferenceNumber,
+		BankName:          p.BankName,
+		AmountBs:          p.AmountBs,
+		AmountUsd:         p.AmountUsd,
+		PriceBcv:          p.PriceBcv,
+		Identification:    p.Identification,
+		IsDiscount:        p.IsDiscount,
+		PaidAt:            p.PaidAt.Format(time.RFC3339),
+		StatusID:          p.StatusID.String(),
 		RejectionReasonID: rejectionReasonID,
 		RejectionMessage:  p.RejectionMessage,
 		ApprovedAt:        approvedAt,
 		RejectedAt:        rejectedAt,
-		CreatedAt:       p.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:       p.UpdatedAt.Format(time.RFC3339),
-		DeletedAt:       deletedAt,
+		CreatedAt:         p.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:         p.UpdatedAt.Format(time.RFC3339),
+		DeletedAt:         deletedAt,
 		User: dto.PaymentUserResponse{
-			ID:            p.User.ID.String(),
-			Email:         p.User.Email,
-			AuthProvider:  p.User.AuthProvider,
-			IsPremium:     p.User.IsPremium,
-			IsAnonymous:   p.User.IsAnonymous,
-			PremiumUntil:  premiumUntil,
+			ID:           p.User.ID.String(),
+			Email:        p.User.Email,
+			AuthProvider: p.User.AuthProvider,
+			IsPremium:    p.User.IsPremium,
+			IsAnonymous:  p.User.IsAnonymous,
+			PremiumUntil: premiumUntil,
 		},
 		PaymentStatus:   paymentStatus,
 		RejectionReason: rejectionReason,
