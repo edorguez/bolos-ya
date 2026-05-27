@@ -19,7 +19,7 @@ app.post('/api/auth/validate-session', async (c) => {
     return c.json({ error: 'token is required' }, 400)
   }
 
-  // 1. Fast path: direct DB lookup (works for web's raw token)
+  // 1. Fast path: direct DB lookup
   const sessionResult = await pool.query(
     `SELECT "userId" FROM "session" WHERE token = $1 AND "expiresAt" > NOW()`,
     [token],
@@ -30,7 +30,6 @@ app.post('/api/auth/validate-session', async (c) => {
     userId = sessionResult.rows[0].userId
   } else {
     // 2. Fallback: pass through better-auth's get-session to unsign cookie
-    //    (works for mobile's signed cookie value)
     const baseUrl = process.env.BETTER_AUTH_URL || 'http://localhost:3001'
     const syntheticReq = new Request(`${baseUrl}/api/auth/get-session`, {
       headers: { Cookie: `better-auth.session_token=${token}` },

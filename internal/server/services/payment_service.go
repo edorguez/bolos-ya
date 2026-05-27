@@ -2,9 +2,11 @@ package services
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
+	"github.com/edorguez/bolos-ya/internal/server/dto"
 	"github.com/edorguez/bolos-ya/internal/server/models"
 	"github.com/edorguez/bolos-ya/internal/server/repository"
 )
@@ -14,9 +16,9 @@ type PaymentService interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Payment, error)
 	FindAll(ctx context.Context) ([]*models.Payment, error)
 	FindByUserID(ctx context.Context, userID uuid.UUID) ([]*models.Payment, error)
+	FindByUserIDAndStatus(ctx context.Context, userID uuid.UUID, statusID uuid.UUID) ([]*models.Payment, error)
 	FindByEmail(ctx context.Context, email string) ([]*models.Payment, error)
-	FindPendingByUserID(ctx context.Context, userID uuid.UUID) (*models.Payment, error)
-	UpdatePayment(ctx context.Context, paymentID uuid.UUID, isConfirmed bool) (*models.Payment, error)
+	UpdatePayment(ctx context.Context, paymentID uuid.UUID, req dto.UpdatePaymentRequest) (*models.Payment, error)
 	DeletePayment(ctx context.Context, id uuid.UUID) error
 }
 
@@ -32,7 +34,6 @@ func (s *paymentService) CreatePayment(ctx context.Context, payment *models.Paym
 	if err := s.paymentRepo.Create(ctx, payment); err != nil {
 		return nil, err
 	}
-
 	return payment, nil
 }
 
@@ -52,22 +53,54 @@ func (s *paymentService) FindByEmail(ctx context.Context, email string) ([]*mode
 	return s.paymentRepo.FindByEmail(ctx, email)
 }
 
-func (s *paymentService) FindPendingByUserID(ctx context.Context, userID uuid.UUID) (*models.Payment, error) {
-	return s.paymentRepo.FindPendingByUserID(ctx, userID)
+func (s *paymentService) FindByUserIDAndStatus(ctx context.Context, userID uuid.UUID, statusID uuid.UUID) ([]*models.Payment, error) {
+	return s.paymentRepo.FindByUserIDAndStatus(ctx, userID, statusID)
 }
 
-func (s *paymentService) UpdatePayment(ctx context.Context, paymentID uuid.UUID, isConfirmed bool) (*models.Payment, error) {
+func (s *paymentService) UpdatePayment(ctx context.Context, paymentID uuid.UUID, req dto.UpdatePaymentRequest) (*models.Payment, error) {
 	payment, err := s.paymentRepo.FindByID(ctx, paymentID)
 	if err != nil {
 		return nil, err
 	}
 
-	payment.IsConfirmed = isConfirmed
+	statusID, err := uuid.Parse(req.StatusID)
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+
+	switch statusID.String() {
+	case models.ApprovedStatusID:
+		payment.ApprovedAt = &now
+		payment.RejectedAt = nil
+		payment.RejectionReasonID = nil
+		payment.RejectionMessage = nil
+
+	case models.RejectedStatusID:
+		payment.RejectedAt = &now
+		payment.ApprovedAt = nil
+		if req.RejectionReasonID != nil {
+			reasonID, err := uuid.Parse(*req.RejectionReasonID)
+			if err != nil {
+				return nil, err
+			}
+			payment.RejectionReasonID = &reasonID
+		}
+		payment.RejectionMessage = req.RejectionMessage
+
+	default:
+		payment.ApprovedAt = nil
+		payment.RejectedAt = nil
+		payment.RejectionReasonID = nil
+		payment.RejectionMessage = nil
+	}
+
+	payment.StatusID = statusID
 
 	if err := s.paymentRepo.Update(ctx, payment); err != nil {
 		return nil, err
 	}
-
 	return payment, nil
 }
 

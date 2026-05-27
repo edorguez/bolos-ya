@@ -64,19 +64,23 @@
   }
 }
 
-.confirmed {
+.actionBtn {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  font-weight: 600;
-}
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-ash);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 
-.confirmedYes {
-  color: #16a34a;
-}
-
-.confirmedNo {
-  color: #dc2626;
+  &:hover {
+    background: var(--color-stone-surface);
+    color: var(--color-charcoal-primary);
+  }
 }
 
 .skeleton {
@@ -87,33 +91,14 @@
   animation: shimmer 1.5s infinite;
 }
 
-.skeletonId {
-  width: 4rem;
-}
-
-.skeletonDate {
-  width: 7rem;
-}
-
-.skeletonMonths {
-  width: 5rem;
-}
-
-.skeletonEmail {
-  width: 10rem;
-}
-
-.skeletonAmount {
-  width: 6rem;
-}
-
-.skeletonRef {
-  width: 8rem;
-}
-
-.skeletonConfirmed {
-  width: 4rem;
-}
+.skeletonId { width: 4rem; }
+.skeletonDate { width: 7rem; }
+.skeletonMonths { width: 5rem; }
+.skeletonEmail { width: 10rem; }
+.skeletonAmount { width: 6rem; }
+.skeletonRef { width: 8rem; }
+.skeletonStatus { width: 5rem; }
+.skeletonAction { width: 2rem; }
 
 @keyframes shimmer {
   0% { background-position: 200% 0; }

@@ -20,9 +20,7 @@ type PaymentHandler struct {
 }
 
 func NewPaymentHandler(paymentService services.PaymentService) *PaymentHandler {
-	return &PaymentHandler{
-		paymentService: paymentService,
-	}
+	return &PaymentHandler{paymentService: paymentService}
 }
 
 func (h *PaymentHandler) CreatePayment(c *gin.Context) {
@@ -31,60 +29,45 @@ func (h *PaymentHandler) CreatePayment(c *gin.Context) {
 		utils.ValidationError(c, dto.ValidateRequest(req))
 		return
 	}
-
 	userID, ok := middleware.GetUserIDFromContext(c)
 	if !ok {
 		utils.UnauthorizedResponse(c)
 		return
 	}
-
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inv\u00e1lido")
 		return
 	}
-
 	paidAt, err := time.Parse(time.RFC3339, req.PaidAt)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "paidAt debe tener formato ISO 8601 (RFC3339)")
 		return
 	}
-
 	payment := models.NewPayment(
-		userUUID,
-		req.NumberOfMonths,
-		req.ReferenceNumber,
-		req.BankName,
-		req.AmountBs,
-		req.AmountUsd,
-		req.PriceBcv,
-		req.Identification,
-		req.IsDiscount,
-		paidAt,
+		userUUID, req.NumberOfMonths, req.ReferenceNumber, req.BankName,
+		req.AmountBs, req.AmountUsd, req.PriceBcv, req.Identification,
+		req.IsDiscount, paidAt,
 	)
-
 	result, err := h.paymentService.CreatePayment(c.Request.Context(), payment)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
-
 	utils.SuccessResponse(c, toPaymentResponse(result))
 }
 
 func (h *PaymentHandler) GetPaymentByID(c *gin.Context) {
 	paymentID, err := utils.ParseUUID(c.Param("paymentId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inválido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inv\u00e1lido")
 		return
 	}
-
 	payment, err := h.paymentService.FindByID(c.Request.Context(), paymentID)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
-
 	utils.SuccessResponse(c, toPaymentResponse(payment))
 }
 
@@ -94,19 +77,37 @@ func (h *PaymentHandler) GetAllPayments(c *gin.Context) {
 		h.handleError(c, err)
 		return
 	}
-
 	resp := make([]dto.PaymentResponse, len(payments))
 	for i, p := range payments {
 		resp[i] = toPaymentResponse(p)
 	}
-
 	utils.SuccessResponse(c, resp)
 }
 
 func (h *PaymentHandler) GetPaymentsByUserID(c *gin.Context) {
 	userID, err := utils.ParseUUID(c.Param("userId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inv\u00e1lido")
+		return
+	}
+
+	statusIDStr := c.Query("statusId")
+	if statusIDStr != "" {
+		statusUUID, err := uuid.Parse(statusIDStr)
+		if err != nil {
+			utils.ErrorResponse(c, http.StatusBadRequest, "statusId inv\u00e1lido")
+			return
+		}
+		payments, err := h.paymentService.FindByUserIDAndStatus(c.Request.Context(), userID, statusUUID)
+		if err != nil {
+			h.handleError(c, err)
+			return
+		}
+		resp := make([]dto.PaymentResponse, len(payments))
+		for i, p := range payments {
+			resp[i] = toPaymentResponse(p)
+		}
+		utils.SuccessResponse(c, resp)
 		return
 	}
 
@@ -115,12 +116,10 @@ func (h *PaymentHandler) GetPaymentsByUserID(c *gin.Context) {
 		h.handleError(c, err)
 		return
 	}
-
 	resp := make([]dto.PaymentResponse, len(payments))
 	for i, p := range payments {
 		resp[i] = toPaymentResponse(p)
 	}
-
 	utils.SuccessResponse(c, resp)
 }
 
@@ -130,91 +129,47 @@ func (h *PaymentHandler) GetPaymentsByEmail(c *gin.Context) {
 		utils.ErrorResponse(c, http.StatusBadRequest, "email es requerido")
 		return
 	}
-
 	payments, err := h.paymentService.FindByEmail(c.Request.Context(), email)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
-
 	resp := make([]dto.PaymentResponse, len(payments))
 	for i, p := range payments {
 		resp[i] = toPaymentResponse(p)
 	}
-
-	utils.SuccessResponse(c, resp)
-}
-
-func (h *PaymentHandler) GetPendingPayment(c *gin.Context) {
-	userID, ok := middleware.GetUserIDFromContext(c)
-	if !ok {
-		utils.UnauthorizedResponse(c)
-		return
-	}
-
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
-		return
-	}
-
-	payment, err := h.paymentService.FindPendingByUserID(c.Request.Context(), userUUID)
-	if err != nil {
-		h.handleError(c, err)
-		return
-	}
-
-	type PendingPaymentResponse struct {
-		HasPending bool                    `json:"hasPending"`
-		Payment    *dto.PaymentResponse    `json:"payment,omitempty"`
-	}
-
-	resp := PendingPaymentResponse{
-		HasPending: payment != nil,
-	}
-
-	if payment != nil {
-		paymentResp := toPaymentResponse(payment)
-		resp.Payment = &paymentResp
-	}
-
 	utils.SuccessResponse(c, resp)
 }
 
 func (h *PaymentHandler) UpdatePayment(c *gin.Context) {
 	paymentID, err := utils.ParseUUID(c.Param("paymentId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inválido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inv\u00e1lido")
 		return
 	}
-
 	var req dto.UpdatePaymentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.ValidationError(c, dto.ValidateRequest(req))
 		return
 	}
-
-	result, err := h.paymentService.UpdatePayment(c.Request.Context(), paymentID, req.IsConfirmed)
+	result, err := h.paymentService.UpdatePayment(c.Request.Context(), paymentID, req)
 	if err != nil {
 		h.handleError(c, err)
 		return
 	}
-
 	utils.SuccessResponse(c, toPaymentResponse(result))
 }
 
 func (h *PaymentHandler) DeletePayment(c *gin.Context) {
 	paymentID, err := utils.ParseUUID(c.Param("paymentId"))
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inválido")
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de pago inv\u00e1lido")
 		return
 	}
-
 	if err := h.paymentService.DeletePayment(c.Request.Context(), paymentID); err != nil {
 		h.handleError(c, err)
 		return
 	}
-
 	utils.SuccessResponse(c, nil)
 }
 
@@ -233,11 +188,39 @@ func toPaymentResponse(p *models.Payment) dto.PaymentResponse {
 		formatted := p.DeletedAt.Time.Format(time.RFC3339)
 		deletedAt = &formatted
 	}
-
 	var premiumUntil *string
 	if p.User.PremiumUntil != nil {
 		formatted := p.User.PremiumUntil.Format(time.RFC3339)
 		premiumUntil = &formatted
+	}
+	var approvedAt *string
+	if p.ApprovedAt != nil {
+		formatted := p.ApprovedAt.Format(time.RFC3339)
+		approvedAt = &formatted
+	}
+	var rejectedAt *string
+	if p.RejectedAt != nil {
+		formatted := p.RejectedAt.Format(time.RFC3339)
+		rejectedAt = &formatted
+	}
+	var rejectionReasonID *string
+	if p.RejectionReasonID != nil {
+		formatted := p.RejectionReasonID.String()
+		rejectionReasonID = &formatted
+	}
+
+	paymentStatus := &dto.PaymentStatusResponse{
+		ID:          p.PaymentStatus.ID.String(),
+		Name:        p.PaymentStatus.Name,
+		Description: p.PaymentStatus.Description,
+	}
+
+	var rejectionReason *dto.RejectionReasonResponse
+	if p.RejectionReason != nil {
+		rejectionReason = &dto.RejectionReasonResponse{
+			ID:     p.RejectionReason.ID.String(),
+			Reason: p.RejectionReason.Reason,
+		}
 	}
 
 	return dto.PaymentResponse{
@@ -252,7 +235,11 @@ func toPaymentResponse(p *models.Payment) dto.PaymentResponse {
 		Identification:  p.Identification,
 		IsDiscount:      p.IsDiscount,
 		PaidAt:          p.PaidAt.Format(time.RFC3339),
-		IsConfirmed:     p.IsConfirmed,
+		StatusID:        p.StatusID.String(),
+		RejectionReasonID: rejectionReasonID,
+		RejectionMessage:  p.RejectionMessage,
+		ApprovedAt:        approvedAt,
+		RejectedAt:        rejectedAt,
 		CreatedAt:       p.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:       p.UpdatedAt.Format(time.RFC3339),
 		DeletedAt:       deletedAt,
@@ -264,5 +251,7 @@ func toPaymentResponse(p *models.Payment) dto.PaymentResponse {
 			IsAnonymous:   p.User.IsAnonymous,
 			PremiumUntil:  premiumUntil,
 		},
+		PaymentStatus:   paymentStatus,
+		RejectionReason: rejectionReason,
 	}
 }

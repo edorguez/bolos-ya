@@ -50,6 +50,8 @@ func main() {
 	cartRepo := repository.NewCartRepository(db)
 	cartProductRepo := repository.NewCartProductRepository(db)
 	paymentRepo := repository.NewPaymentRepository(db)
+	rejectionReasonRepo := repository.NewRejectionReasonRepository(db)
+	paymentStatusRepo := repository.NewPaymentStatusRepository(db)
 
 	emailSvc := email.NewService(email.Config{
 		ResendAPIKey: cfg.Email.ResendAPIKey,
@@ -61,6 +63,8 @@ func main() {
 	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo, supermarketRepo)
 	syncService := services.NewSyncService(userRepo, cartRepo, cartProductRepo, productRepo, supermarketRepo)
 	paymentService := services.NewPaymentService(paymentRepo)
+	rejectionReasonService := services.NewRejectionReasonService(rejectionReasonRepo)
+	paymentStatusService := services.NewPaymentStatusService(paymentStatusRepo)
 	supermarketService := services.NewSupermarketService(supermarketRepo)
 
 	router := server.SetupRoutes(
@@ -68,6 +72,8 @@ func main() {
 		cartService,
 		syncService,
 		paymentService,
+		rejectionReasonService,
+		paymentStatusService,
 		supermarketService,
 		cfg.Auth.BetterAuthURL,
 		log,

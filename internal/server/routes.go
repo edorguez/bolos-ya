@@ -18,6 +18,8 @@ func SetupRoutes(
 	cartService services.CartService,
 	syncService services.SyncService,
 	paymentService services.PaymentService,
+	rejectionReasonService services.RejectionReasonService,
+	paymentStatusService services.PaymentStatusService,
 	supermarketService services.SupermarketService,
 	betterAuthURL string,
 	log *logger.Logger,
@@ -32,6 +34,8 @@ func SetupRoutes(
 	cartHandler := handlers.NewCartHandler(cartService)
 	syncHandler := handlers.NewSyncHandler(syncService)
 	paymentHandler := handlers.NewPaymentHandler(paymentService)
+	rejectionReasonHandler := handlers.NewRejectionReasonHandler(rejectionReasonService)
+	paymentStatusHandler := handlers.NewPaymentStatusHandler(paymentStatusService)
 	supermarketHandler := handlers.NewSupermarketHandler(supermarketService)
 
 	authMiddleware := internalmiddleware.NewAuthMiddleware(authService, betterAuthURL)
@@ -76,13 +80,15 @@ func SetupRoutes(
 			{
 				paymentsGroup.POST("", paymentHandler.CreatePayment)
 				paymentsGroup.GET("", paymentHandler.GetAllPayments)
-				paymentsGroup.GET("/pending", paymentHandler.GetPendingPayment)
 				paymentsGroup.GET("/:paymentId", paymentHandler.GetPaymentByID)
 				paymentsGroup.GET("/by-user/:userId", paymentHandler.GetPaymentsByUserID)
 				paymentsGroup.GET("/by-email/:email", paymentHandler.GetPaymentsByEmail)
 				paymentsGroup.PUT("/:paymentId", paymentHandler.UpdatePayment)
 				paymentsGroup.DELETE("/:paymentId", paymentHandler.DeletePayment)
 			}
+
+			protected.GET("/rejection-reasons", rejectionReasonHandler.GetAll)
+			protected.GET("/payment-statuses", paymentStatusHandler.GetAll)
 
 			supermarketsGroup := protected.Group("/supermarkets")
 			{
@@ -93,7 +99,7 @@ func SetupRoutes(
 
 		}
 
-	apiV1.GET("/", func(c *gin.Context) {
+		apiV1.GET("/", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Bolos Ya API v1",
 				"version": "1.0.0",

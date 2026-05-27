@@ -8,7 +8,7 @@ import { SettingItem } from '../../components/profile/SettingItem';
 import { GuestCard } from '../../components/profile/GuestCard';
 import { useAppTheme } from '../../styles/theme';
 import { useAuth } from '../../store/authStore';
-import { checkPendingPayment } from '../../services/paymentService';
+import { getPaymentsByUser, PENDING_STATUS_ID } from '../../services/paymentService';
 
 export default function ProfileTab() {
   const theme = useAppTheme();
@@ -48,8 +48,8 @@ export default function ProfileTab() {
 
   const handleUpgrade = async () => {
     try {
-      const { hasPending } = await checkPendingPayment(user!.id);
-      if (hasPending) {
+      const payments = await getPaymentsByUser(user!.id, PENDING_STATUS_ID);
+      if (payments.length > 0) {
         router.push('/(premium)/payment-pending');
       } else {
         router.push('/(premium)/plans');

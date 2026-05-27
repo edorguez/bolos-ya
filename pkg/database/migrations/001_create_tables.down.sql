@@ -12,6 +12,8 @@ DROP INDEX IF EXISTS idx_verification_identifier;
 
 -- Drop tables in reverse order of creation
 DROP TABLE IF EXISTS payments;
+DROP TABLE IF EXISTS rejection_reasons;
+DROP TABLE IF EXISTS payment_statuses;
 DROP TABLE IF EXISTS cart_products;
 DROP TABLE IF EXISTS carts;
 DROP TABLE IF EXISTS products;

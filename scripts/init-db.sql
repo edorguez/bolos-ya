@@ -64,6 +64,17 @@ CREATE TABLE IF NOT EXISTS cart_products (
     deleted_at TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS payment_statuses (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(30) NOT NULL,
+    description VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS rejection_reasons (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    reason VARCHAR(100) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS payments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id),
@@ -76,7 +87,11 @@ CREATE TABLE IF NOT EXISTS payments (
     identification VARCHAR(20) NOT NULL,
     is_discount BOOLEAN NOT NULL DEFAULT FALSE,
     paid_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    is_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+    status_id UUID NOT NULL REFERENCES payment_statuses(id),
+    rejection_reason_id UUID REFERENCES rejection_reasons(id),
+    rejection_message VARCHAR(200),
+    approved_at TIMESTAMP,
+    rejected_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
@@ -105,3 +120,21 @@ FROM (VALUES
 WHERE NOT EXISTS (
     SELECT 1 FROM supermarkets s WHERE s.id = data.id
 );
+
+-- Seed payment statuses
+INSERT INTO payment_statuses (id, name, description)
+VALUES
+    ('a1111111-1111-4a11-9a11-111111111111'::uuid, 'Pendiente', 'Pago recibido, esperando verificaci\u00f3n'),
+    ('a2222222-2222-4a22-9a22-222222222222'::uuid, 'Aprobado', 'Pago verificado y aprobado'),
+    ('a3333333-3333-4a33-9a33-333333333333'::uuid, 'Rechazado', 'Pago rechazado por el administrador')
+ON CONFLICT (id) DO NOTHING;
+
+-- Seed rejection reasons
+INSERT INTO rejection_reasons (id, reason)
+VALUES
+    ('b1111111-1111-4b11-9b11-111111111111'::uuid, 'Monto insuficiente'),
+    ('b2222222-2222-4b22-9b22-222222222222'::uuid, 'N\u00famero de referencia inv\u00e1lido'),
+    ('b3333333-3333-4b33-9b33-333333333333'::uuid, 'Pago fuera del per\u00edodo permitido'),
+    ('b4444444-4444-4b44-9b44-444444444444'::uuid, 'Pago duplicado'),
+    ('b5555555-5555-4b55-9b55-555555555555'::uuid, 'Otro')
+ON CONFLICT (id) DO NOTHING;

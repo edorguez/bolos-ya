@@ -7,6 +7,17 @@ export interface PaymentUser {
   premiumUntil?: string | null
 }
 
+export interface PaymentStatus {
+  id: string
+  name: string
+  description: string
+}
+
+export interface RejectionReason {
+  id: string
+  reason: string
+}
+
 export interface PaymentResponse {
   id: string
   userId: string
@@ -19,11 +30,17 @@ export interface PaymentResponse {
   identification: string
   isDiscount: boolean
   paidAt: string
-  isConfirmed: boolean
+  statusId: string
+  rejectionReasonId?: string | null
+  rejectionMessage?: string | null
+  approvedAt?: string | null
+  rejectedAt?: string | null
   createdAt: string
   updatedAt: string
   deletedAt?: string | null
   user: PaymentUser
+  paymentStatus: PaymentStatus
+  rejectionReason?: RejectionReason | null
 }
 
 export interface ApiResponse<T> {
