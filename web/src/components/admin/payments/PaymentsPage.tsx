@@ -12,7 +12,7 @@ import { usePayments } from '../../../hooks/usePayments'
 import { paymentsContent, PAYMENT_COLUMNS } from '../../../constants/admin/content'
 import type { PaymentResponse } from '../../../types/payment'
 import { updatePaymentStatus, getRejectionReasons } from '../../../services/paymentService'
-import { authClient } from '../../../lib/auth-client'
+import { useAuth } from '../../../hooks/auth/useAuth'
 import { PaymentStatusBadge } from './PaymentStatusBadge'
 import { PaymentDetailModal } from './PaymentDetailModal'
 import { ApproveConfirmModal } from './ApproveConfirmModal'
@@ -23,8 +23,8 @@ import styles from './PaymentsPage.module.scss'
 const cellSx = {
   fontFamily: 'Inter, sans-serif',
   color: 'var(--color-graphite)',
-  fontSize: '0.875rem',
-  padding: '1.25rem 1.5rem',
+  fontSize: '0.75rem',
+  padding: '0.5rem 0.75rem',
   borderBottom: 'none',
   whiteSpace: 'nowrap' as const,
 }
@@ -32,7 +32,7 @@ const cellSx = {
 const headCellSx = {
   ...cellSx,
   fontWeight: 600,
-  fontSize: '0.75rem',
+  fontSize: '0.675rem',
   letterSpacing: '0.05em',
   textTransform: 'uppercase' as const,
   color: 'var(--color-ash)',
@@ -41,14 +41,14 @@ const headCellSx = {
 const idCellSx = {
   ...cellSx,
   fontWeight: 600,
-  fontSize: '1rem',
+  fontSize: '0.8rem',
   color: 'var(--color-charcoal-primary)',
 }
 
 const amountCellSx = {
   ...cellSx,
   fontWeight: 600,
-  fontSize: '1rem',
+  fontSize: '0.8rem',
   color: 'var(--color-charcoal-primary)',
 }
 
@@ -95,14 +95,11 @@ function SkeletonRows() {
 }
 
 export function PaymentsPage() {
-  const { payments, loading, error, refetch } = usePayments()
+  const { token, userId: adminUserId } = useAuth()
+  const { payments, loading, error, refetch } = usePayments(token, adminUserId)
   const [selectedPayment, setSelectedPayment] = useState<PaymentResponse | null>(null)
   const [modalView, setModalView] = useState<ModalView>(null)
   const [rejectionReasons, setRejectionReasons] = useState<RejectionReason[]>([])
-
-  const { data: session } = authClient.useSession()
-  const token = session?.session?.token
-  const adminUserId = session?.user?.id
 
   const openDetail = useCallback((payment: PaymentResponse) => {
     setSelectedPayment(payment)

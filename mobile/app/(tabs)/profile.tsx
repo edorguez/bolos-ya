@@ -48,8 +48,8 @@ export default function ProfileTab() {
 
   const handleUpgrade = async () => {
     try {
-      const payments = await getPaymentsByUser(user!.id, PENDING_STATUS_ID);
-      if (payments.length > 0) {
+      const pendingPayments = await getPaymentsByUser(user!.userId!, PENDING_STATUS_ID);
+      if (pendingPayments.length > 0) {
         router.push('/(premium)/payment-pending');
       } else {
         router.push('/(premium)/plans');

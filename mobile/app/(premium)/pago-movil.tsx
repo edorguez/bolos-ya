@@ -108,6 +108,21 @@ export default function PagoMovilScreen() {
     });
   };
 
+  const handleDateFieldPress = () => {
+    if (!paymentDate) {
+      const today = new Date();
+      setSelectedDate(today);
+      setPaymentDate(
+        today.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        })
+      );
+    }
+    setShowDatePicker(true);
+  };
+
   const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
     if (Platform.OS === 'android') {
       setShowDatePicker(false);
@@ -472,7 +487,7 @@ export default function PagoMovilScreen() {
             <Text style={styles.label}>Fecha del pago *</Text>
             <Pressable
               style={[styles.dateInput, fieldErrors.date && styles.inputError]}
-              onPress={() => setShowDatePicker(true)}
+              onPress={handleDateFieldPress}
             >
               <Text
                 style={!paymentDate ? { color: theme.colors.ash } : { color: theme.colors.text }}

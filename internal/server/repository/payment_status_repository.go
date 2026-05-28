@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"github.com/edorguez/bolos-ya/internal/server/models"
@@ -11,6 +12,7 @@ import (
 
 type PaymentStatusRepository interface {
 	FindAll(ctx context.Context) ([]*models.PaymentStatus, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*models.PaymentStatus, error)
 }
 
 type paymentStatusRepository struct {
@@ -33,4 +35,14 @@ func (r *paymentStatusRepository) FindAll(ctx context.Context) ([]*models.Paymen
 		result[i] = &statuses[i]
 	}
 	return result, nil
+}
+
+func (r *paymentStatusRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.PaymentStatus, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	var status models.PaymentStatus
+	if err := r.db.WithContext(ctx).First(&status, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return &status, nil
 }

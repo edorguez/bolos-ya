@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import { useAuth } from '../../hooks/auth/useAuth'
 import { HeaderBar } from './HeaderBar'
 import { Sidebar } from './Sidebar'
@@ -26,6 +27,7 @@ export function AdminLayout() {
       <Sidebar onLogout={logout} isOpen={sidebarOpen} onClose={handleClose} />
       <main className={styles.content}>
         <HeaderBar onToggle={handleToggle} />
+        <Toaster position="top-right" richColors />
         <Outlet />
       </main>
     </div>

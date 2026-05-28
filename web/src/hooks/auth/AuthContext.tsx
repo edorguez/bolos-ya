@@ -1,10 +1,14 @@
 import { createContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import { authClient } from '../../lib/auth-client'
 
+const API_URL = import.meta.env.VITE_GO_BACKEND_URL || 'http://localhost:8080/api/v1'
+
 interface AuthState {
   isAuthenticated: boolean
   email: string | null
   role: string | null
+  userId: string | null
+  token: string | null
   loading: boolean
 }
 
@@ -22,6 +26,8 @@ export const AuthContext = createContext<AuthContextValue>({
   isAuthenticated: false,
   email: null,
   role: null,
+  userId: null,
+  token: null,
   loading: true,
   login: async () => ({ success: false, error: 'Auth not initialized' }),
   logout: () => {},
@@ -33,6 +39,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
     email: null,
     role: null,
+    userId: null,
+    token: null,
     loading: true,
   })
 
@@ -45,16 +53,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const user = session?.user as Record<string, unknown> | undefined
     const role = (user?.role as string) || ''
     const allowedRoles = ['admin', 'staff']
+    const token = session?.session?.token || null
 
     if (user && allowedRoles.includes(role)) {
-      setAuth({
-        isAuthenticated: true,
-        email: (user.email as string) || null,
-        role,
-        loading: false,
+      fetch(`${API_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
+        .then(r => r.json())
+        .then(res => {
+          setAuth({
+            isAuthenticated: true,
+            email: (user.email as string) || null,
+            role,
+            userId: res.data?.userId || null,
+            token,
+            loading: false,
+          })
+        })
+        .catch(() => {
+          setAuth({
+            isAuthenticated: true,
+            email: (user.email as string) || null,
+            role,
+            userId: (user.id as string) || null,
+            token,
+            loading: false,
+          })
+        })
     } else {
-      setAuth({ isAuthenticated: false, email: null, role: null, loading: false })
+      setAuth({ isAuthenticated: false, email: null, role: null, userId: null, token: null, loading: false })
     }
   }, [session, isPending])
 
@@ -70,13 +97,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await authClient.signOut()
       return { success: false, error: 'No tienes permisos para ingresar' }
     }
-
-    setAuth({
-      isAuthenticated: true,
-      email: (data?.user?.email as string) || null,
-      role,
-      loading: false,
-    })
 
     return { success: true }
   }, [])

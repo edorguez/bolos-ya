@@ -23,11 +23,12 @@ type PaymentService interface {
 }
 
 type paymentService struct {
-	paymentRepo repository.PaymentRepository
+	paymentRepo       repository.PaymentRepository
+	paymentStatusRepo repository.PaymentStatusRepository
 }
 
-func NewPaymentService(paymentRepo repository.PaymentRepository) PaymentService {
-	return &paymentService{paymentRepo: paymentRepo}
+func NewPaymentService(paymentRepo repository.PaymentRepository, paymentStatusRepo repository.PaymentStatusRepository) PaymentService {
+	return &paymentService{paymentRepo: paymentRepo, paymentStatusRepo: paymentStatusRepo}
 }
 
 func (s *paymentService) CreatePayment(ctx context.Context, payment *models.Payment) (*models.Payment, error) {
@@ -68,6 +69,11 @@ func (s *paymentService) UpdatePayment(ctx context.Context, paymentID uuid.UUID,
 		return nil, err
 	}
 
+	paymentStatus, err := s.paymentStatusRepo.FindByID(ctx, statusID)
+	if err != nil {
+		return nil, err
+	}
+
 	now := time.Now()
 
 	switch statusID.String() {
@@ -97,6 +103,7 @@ func (s *paymentService) UpdatePayment(ctx context.Context, paymentID uuid.UUID,
 	}
 
 	payment.StatusID = statusID
+	payment.PaymentStatus = *paymentStatus
 
 	if err := s.paymentRepo.Update(ctx, payment); err != nil {
 		return nil, err

@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react'
-import { authClient } from '../lib/auth-client'
 import { getAllPayments } from '../services/paymentService'
 import type { PaymentResponse } from '../types/payment'
 
@@ -10,11 +9,7 @@ interface UsePaymentsResult {
   refetch: () => void
 }
 
-export function usePayments(): UsePaymentsResult {
-  const { data: session } = authClient.useSession()
-  const token = session?.session?.token
-  const userId = session?.user?.id
-
+export function usePayments(token?: string, userId?: string): UsePaymentsResult {
   const [payments, setPayments] = useState<PaymentResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

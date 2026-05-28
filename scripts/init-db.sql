@@ -124,7 +124,7 @@ WHERE NOT EXISTS (
 -- Seed payment statuses
 INSERT INTO payment_statuses (id, name, description)
 VALUES
-    ('a1111111-1111-4a11-9a11-111111111111'::uuid, 'Pendiente', 'Pago recibido, esperando verificación'),
+    ('a1111111-1111-4a11-9a11-111111111111'::uuid, 'Pendiente', 'Pago pendiente, esperando verificación'),
     ('a2222222-2222-4a22-9a22-222222222222'::uuid, 'Aprobado', 'Pago verificado y aprobado'),
     ('a3333333-3333-4a33-9a33-333333333333'::uuid, 'Rechazado', 'Pago rechazado por el administrador')
 ON CONFLICT (id) DO NOTHING;
