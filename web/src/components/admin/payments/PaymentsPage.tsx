@@ -21,32 +21,16 @@ import type { RejectionReason } from '../../../types/payment'
 import styles from './PaymentsPage.module.scss'
 
 const cellSx = {
-  fontFamily: 'Inter, sans-serif',
-  color: 'var(--color-graphite)',
-  fontSize: '0.75rem',
-  padding: '0.5rem 0.75rem',
-  borderBottom: 'none',
   whiteSpace: 'nowrap' as const,
 }
 
-const headCellSx = {
-  ...cellSx,
-  fontWeight: 600,
-  fontSize: '0.675rem',
-  letterSpacing: '0.05em',
-  textTransform: 'uppercase' as const,
-  color: 'var(--color-ash)',
-}
-
 const idCellSx = {
-  ...cellSx,
   fontWeight: 600,
   fontSize: '0.8rem',
   color: 'var(--color-charcoal-primary)',
 }
 
 const amountCellSx = {
-  ...cellSx,
   fontWeight: 600,
   fontSize: '0.8rem',
   color: 'var(--color-charcoal-primary)',
@@ -157,8 +141,6 @@ export function PaymentsPage() {
     }
   }, [token, adminUserId, selectedPayment, refetch])
 
-  const canAct = selectedPayment?.statusId === 'a1111111-1111-4a11-9a11-111111111111'
-
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -185,7 +167,7 @@ export function PaymentsPage() {
               <TableHead>
                 <TableRow>
                   {PAYMENT_COLUMNS.map((col) => (
-                    <TableCell key={col.id} sx={headCellSx}>
+                    <TableCell key={col.id}>
                       {col.label}
                     </TableCell>
                   ))}
@@ -196,7 +178,7 @@ export function PaymentsPage() {
                   <SkeletonRows />
                 ) : payments.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={PAYMENT_COLUMNS.length} align="center" sx={{ ...cellSx, py: 6 }}>
+                    <TableCell colSpan={PAYMENT_COLUMNS.length} align="center" sx={{ py: 6 }}>
                       <div className={styles.emptyState}>
                         No hay pagos registrados
                       </div>
@@ -204,14 +186,7 @@ export function PaymentsPage() {
                   </TableRow>
                 ) : (
                   payments.map((row: PaymentResponse) => (
-                    <TableRow
-                      key={row.id}
-                      sx={{
-                        '&:hover': { backgroundColor: 'var(--color-parchment-card)' },
-                        borderRadius: '1rem',
-                        transition: 'background-color 0.2s',
-                      }}
-                    >
+                    <TableRow key={row.id}>
                       <TableCell sx={idCellSx}>{row.id.slice(0, 8)}</TableCell>
                       <TableCell sx={cellSx}>{formatDate(row.paidAt)}</TableCell>
                       <TableCell sx={cellSx}>{monthsLabel(row.numberOfMonths)}</TableCell>
@@ -245,8 +220,8 @@ export function PaymentsPage() {
         open={modalView === 'detail' && !!selectedPayment}
         payment={selectedPayment}
         onClose={closeAll}
-        onApprove={canAct ? handleApproveClick : closeAll}
-        onReject={canAct ? handleRejectClick : closeAll}
+        onApprove={handleApproveClick}
+        onReject={handleRejectClick}
       />
 
       <ApproveConfirmModal

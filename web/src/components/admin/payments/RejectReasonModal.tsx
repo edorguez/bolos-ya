@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  IconButton,
   FormControl,
   InputLabel,
   Select,
@@ -67,30 +68,20 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth
-      slotProps={{
-        paper: {
-          sx: {
-            borderRadius: 'var(--radius-cardslarge, 24px)',
-            padding: '0.5rem',
-            boxShadow: 'var(--shadow-subtle)',
-          },
-        },
-      }}
-    >
-      <DialogTitle sx={{
-        fontFamily: 'Inter, sans-serif',
-        fontSize: '1.125rem',
-        fontWeight: 600,
-        color: 'var(--color-charcoal-primary)',
-        padding: '1.5rem 1.5rem 0.25rem',
-      }}>
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle sx={{ position: 'relative' }}>
         {paymentModalContent.rejectTitle}
+        <IconButton
+          onClick={onClose}
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+        >
+          <span className="material-symbols-outlined">close</span>
+        </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ padding: '0.5rem 1.5rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <DialogContent sx={{ padding: '0.5rem 1.25rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         <FormControl fullWidth error={!!errors.reason}>
-          <InputLabel id="reject-reason-label" sx={{ fontFamily: 'Inter, sans-serif' }}>
+          <InputLabel id="reject-reason-label">
             {paymentModalContent.rejectReasonLabel}
           </InputLabel>
           <Select
@@ -99,13 +90,11 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
             label={paymentModalContent.rejectReasonLabel}
             onChange={handleReasonChange}
             sx={{
-              fontFamily: 'Inter, sans-serif',
-              borderRadius: 'var(--radius-inputs, 10px)',
               '&.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--color-coral-red)' },
             }}
           >
             {reasons.map((r) => (
-              <MenuItem key={r.id} value={r.id} sx={{ fontFamily: 'Inter, sans-serif' }}>
+              <MenuItem key={r.id} value={r.id}>
                 {r.reason}
               </MenuItem>
             ))}
@@ -129,33 +118,21 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
             htmlInput: { maxLength: 200 },
           }}
           sx={{
-            '& .MuiOutlinedInput-root': {
-              fontFamily: 'Inter, sans-serif',
-              borderRadius: 'var(--radius-inputs, 10px)',
-            },
             '& .MuiFormHelperText-root': {
-              fontFamily: 'Inter, sans-serif',
               color: errors.message ? 'var(--color-coral-red)' : 'var(--color-ash)',
               marginLeft: 0,
             },
-            '& .MuiInputLabel-root': { fontFamily: 'Inter, sans-serif' },
             '&.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--color-coral-red)' },
           }}
         />
       </DialogContent>
 
-      <DialogActions sx={{ padding: '0.5rem 1.5rem 1.5rem', gap: '0.75rem' }}>
+      <DialogActions>
         <Button
           variant="contained"
           fullWidth
           onClick={handleConfirm}
           sx={{
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 600,
-            fontSize: '0.875rem',
-            textTransform: 'none',
-            borderRadius: 'var(--radius-buttonspill, 32px)',
-            padding: '0.625rem 1rem',
             backgroundColor: 'var(--color-coral-red)',
             '&:hover': { backgroundColor: '#dc2626' },
           }}
@@ -166,17 +143,6 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
           variant="outlined"
           fullWidth
           onClick={onClose}
-          sx={{
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 600,
-            fontSize: '0.875rem',
-            textTransform: 'none',
-            borderRadius: 'var(--radius-buttonspill, 32px)',
-            padding: '0.625rem 1rem',
-            color: 'var(--color-graphite)',
-            borderColor: 'var(--color-stone-surface)',
-            '&:hover': { borderColor: 'var(--color-fog)', backgroundColor: 'var(--color-parchment-card)' },
-          }}
         >
           {paymentModalContent.rejectConfirmNo}
         </Button>

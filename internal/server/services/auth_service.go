@@ -1,7 +1,11 @@
 package services
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -15,26 +19,26 @@ import (
 	"github.com/edorguez/bolos-ya/internal/server/repository"
 )
 
-// AuthService defines user management operations.
-// Authentication (password hashing, token generation, session management)
-// is delegated to better-auth via the Expo API Routes.
 type AuthService interface {
 	GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string, isAnonymous bool) (*models.User, error)
 	GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string, isAnonymous bool) (*models.User, error)
 	GetUserByID(ctx context.Context, betterAuthUserID string) (*models.User, error)
+	UpdateUserPremium(ctx context.Context, betterAuthUserID string, isPremium bool, premiumUntil *time.Time) error
 }
 
 type authService struct {
-	userRepo repository.UserRepository
-	emailSvc email.Service
-	log      *zap.Logger
+	userRepo      repository.UserRepository
+	emailSvc      email.Service
+	log           *zap.Logger
+	betterAuthURL string
 }
 
-func NewAuthService(userRepo repository.UserRepository, emailSvc email.Service, log *zap.Logger) AuthService {
+func NewAuthService(userRepo repository.UserRepository, emailSvc email.Service, log *zap.Logger, betterAuthURL string) AuthService {
 	return &authService{
-		userRepo: userRepo,
-		emailSvc: emailSvc,
-		log:      log,
+		userRepo:      userRepo,
+		emailSvc:      emailSvc,
+		log:           log,
+		betterAuthURL: betterAuthURL,
 	}
 }
 
@@ -131,4 +135,39 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 	}
 
 	return user, nil
+}
+
+func (s *authService) UpdateUserPremium(ctx context.Context, betterAuthUserID string, isPremium bool, premiumUntil *time.Time) error {
+	body := map[string]any{
+		"userId":    betterAuthUserID,
+		"isPremium": isPremium,
+	}
+
+	if premiumUntil != nil {
+		body["premiumUntil"] = premiumUntil.Format(time.RFC3339)
+	}
+
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("failed to marshal premium update request: %w", err)
+	}
+
+	url := s.betterAuthURL + "/api/auth/update-premium"
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(jsonBody))
+	if err != nil {
+		return fmt.Errorf("failed to create premium update request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to call auth server for premium update: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("auth server returned status %d for premium update", resp.StatusCode)
+	}
+
+	return nil
 }

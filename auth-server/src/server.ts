@@ -62,6 +62,25 @@ app.post('/api/auth/validate-session', async (c) => {
   })
 })
 
+app.post('/api/auth/update-premium', async (c) => {
+  const { userId, isPremium, premiumUntil } = await c.req.json<{
+    userId: string
+    isPremium: boolean
+    premiumUntil: string | null
+  }>()
+
+  if (!userId) {
+    return c.json({ error: 'userId is required' }, 400)
+  }
+
+  await pool.query(
+    `UPDATE "user" SET "isPremium" = $1, "premiumUntil" = $2, "updatedAt" = NOW() WHERE id = $3`,
+    [isPremium, premiumUntil || null, userId],
+  )
+
+  return c.json({ success: true })
+})
+
 app.all('/api/auth/*', async (c) => {
   return auth.handler(c.req.raw)
 })

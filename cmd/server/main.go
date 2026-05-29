@@ -59,10 +59,10 @@ func main() {
 		FromName:     cfg.Email.FromName,
 	}, log.Logger)
 
-	authService := services.NewAuthService(userRepo, emailSvc, log.Logger)
+	authService := services.NewAuthService(userRepo, emailSvc, log.Logger, cfg.Auth.BetterAuthURL)
 	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo, supermarketRepo)
 	syncService := services.NewSyncService(userRepo, cartRepo, cartProductRepo, productRepo, supermarketRepo)
-	paymentService := services.NewPaymentService(paymentRepo, paymentStatusRepo)
+	paymentService := services.NewPaymentService(paymentRepo, paymentStatusRepo, userRepo, authService)
 	rejectionReasonService := services.NewRejectionReasonService(rejectionReasonRepo)
 	paymentStatusService := services.NewPaymentStatusService(paymentStatusRepo)
 	supermarketService := services.NewSupermarketService(supermarketRepo)

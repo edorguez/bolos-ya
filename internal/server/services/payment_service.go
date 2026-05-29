@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/edorguez/bolos-ya/internal/server/dto"
 	"github.com/edorguez/bolos-ya/internal/server/models"
@@ -25,10 +26,22 @@ type PaymentService interface {
 type paymentService struct {
 	paymentRepo       repository.PaymentRepository
 	paymentStatusRepo repository.PaymentStatusRepository
+	userRepo          repository.UserRepository
+	authService       AuthService
 }
 
-func NewPaymentService(paymentRepo repository.PaymentRepository, paymentStatusRepo repository.PaymentStatusRepository) PaymentService {
-	return &paymentService{paymentRepo: paymentRepo, paymentStatusRepo: paymentStatusRepo}
+func NewPaymentService(
+	paymentRepo repository.PaymentRepository,
+	paymentStatusRepo repository.PaymentStatusRepository,
+	userRepo repository.UserRepository,
+	authService AuthService,
+) PaymentService {
+	return &paymentService{
+		paymentRepo:       paymentRepo,
+		paymentStatusRepo: paymentStatusRepo,
+		userRepo:          userRepo,
+		authService:       authService,
+	}
 }
 
 func (s *paymentService) CreatePayment(ctx context.Context, payment *models.Payment) (*models.Payment, error) {
@@ -56,6 +69,14 @@ func (s *paymentService) FindByEmail(ctx context.Context, email string) ([]*mode
 
 func (s *paymentService) FindByUserIDAndStatus(ctx context.Context, userID uuid.UUID, statusID uuid.UUID) ([]*models.Payment, error) {
 	return s.paymentRepo.FindByUserIDAndStatus(ctx, userID, statusID)
+}
+
+func calculatePremiumUntil(current *time.Time, numberOfMonths int, now time.Time) time.Time {
+	base := now
+	if current != nil && current.After(now) {
+		base = *current
+	}
+	return base.AddDate(0, numberOfMonths, 0)
 }
 
 func (s *paymentService) UpdatePayment(ctx context.Context, paymentID uuid.UUID, req dto.UpdatePaymentRequest) (*models.Payment, error) {
@@ -108,6 +129,43 @@ func (s *paymentService) UpdatePayment(ctx context.Context, paymentID uuid.UUID,
 	if err := s.paymentRepo.Update(ctx, payment); err != nil {
 		return nil, err
 	}
+
+	user, err := s.userRepo.FindByID(ctx, payment.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	g, gCtx := errgroup.WithContext(ctx)
+
+	switch statusID.String() {
+	case models.ApprovedStatusID:
+		premiumUntil := calculatePremiumUntil(user.PremiumUntil, payment.NumberOfMonths, now)
+		user.IsPremium = true
+		user.PremiumUntil = &premiumUntil
+
+		g.Go(func() error {
+			return s.userRepo.Update(gCtx, user)
+		})
+		g.Go(func() error {
+			return s.authService.UpdateUserPremium(gCtx, user.BetterAuthUserID, true, &premiumUntil)
+		})
+
+	case models.RejectedStatusID:
+		user.IsPremium = false
+		user.PremiumUntil = nil
+
+		g.Go(func() error {
+			return s.userRepo.Update(gCtx, user)
+		})
+		g.Go(func() error {
+			return s.authService.UpdateUserPremium(gCtx, user.BetterAuthUserID, false, nil)
+		})
+	}
+
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
 	return payment, nil
 }
 

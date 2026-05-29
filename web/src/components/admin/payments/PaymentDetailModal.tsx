@@ -1,31 +1,30 @@
+import React from 'react'
 import {
+  Box,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Button,
+  IconButton,
 } from '@mui/material'
 import type { PaymentResponse } from '../../../types/payment'
 import { PaymentStatusBadge } from './PaymentStatusBadge'
 import { paymentModalContent } from '../../../constants/admin/content'
+import { PENDING_STATUS_ID, APPROVED_STATUS_ID, REJECTED_STATUS_ID } from '../../../constants/admin/paymentStatus'
 
-const detailSx = {
-  fontFamily: 'Inter, sans-serif',
-  fontSize: '0.875rem',
+const cellSx = {
+  fontSize: '0.75rem',
   color: 'var(--color-graphite)',
-  '& dt': {
-    fontWeight: 600,
-    color: 'var(--color-charcoal-primary)',
-    marginBottom: '0.25rem',
-    fontSize: '0.75rem',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em',
-  },
-  '& dd': {
-    margin: '0 0 1rem',
-    fontSize: '0.9375rem',
-    color: 'var(--color-graphite)',
-  },
+  padding: '0.5rem 0.75rem',
+}
+
+const labelSx = {
+  ...cellSx,
+  fontWeight: 600,
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.05em',
+  color: 'var(--color-charcoal-primary)',
 }
 
 interface PaymentDetailModalProps {
@@ -57,124 +56,98 @@ export function PaymentDetailModal({ open, payment, onClose, onApprove, onReject
   if (!payment) return null
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
-      slotProps={{
-        paper: {
-          sx: {
-            borderRadius: 'var(--radius-cardslarge, 24px)',
-            padding: '0.5rem',
-            boxShadow: 'var(--shadow-subtle)',
-          },
-        },
-      }}
-    >
-      <DialogTitle sx={{
-        fontFamily: 'Inter, sans-serif',
-        fontSize: '1.25rem',
-        fontWeight: 600,
-        color: 'var(--color-charcoal-primary)',
-        padding: '1.5rem 1.5rem 0.5rem',
-      }}>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ position: 'relative' }}>
         {paymentModalContent.detailTitle}
+        <IconButton
+          onClick={onClose}
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+        >
+          <span className="material-symbols-outlined">close</span>
+        </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ ...detailSx, padding: '0.5rem 1.5rem 1rem' }}>
-        <dl>
-          <dt>ID</dt>
-          <dd>{payment.id.slice(0, 8)}</dd>
+      <DialogContent sx={{ padding: '0.25rem 0 0.75rem' }}>
+        {(() => {
+          const rows: { label: string; value: React.ReactNode }[] = [
+            { label: 'ID', value: payment.id.slice(0, 8) },
+            { label: 'Usuario', value: payment.user.email },
+            { label: 'Estado', value: <PaymentStatusBadge paymentStatus={payment.paymentStatus} /> },
+            { label: 'Monto', value: formatAmount(payment.amountBs) },
+            { label: 'Meses Pagados', value: monthsLabel(payment.numberOfMonths) },
+            { label: 'Número de Referencia', value: payment.referenceNumber },
+            { label: 'Banco', value: payment.bankName },
+            { label: 'Cédula', value: payment.identification },
+            { label: 'Fecha de Pago', value: formatDate(payment.paidAt) },
+            { label: 'Descuento', value: payment.isDiscount ? 'Sí' : 'No' },
+          ]
 
-          <dt>Usuario</dt>
-          <dd>{payment.user.email}</dd>
+          if (payment.approvedAt) {
+            rows.push({ label: 'Aprobado el', value: formatDate(payment.approvedAt) })
+          }
 
-          <dt>Estado</dt>
-          <dd><PaymentStatusBadge paymentStatus={payment.paymentStatus} /></dd>
+          if (payment.rejectedAt) {
+            rows.push({ label: 'Rechazado el', value: formatDate(payment.rejectedAt) })
+            if (payment.rejectionReason) {
+              rows.push({ label: 'Motivo de Rechazo', value: payment.rejectionReason.reason })
+            }
+            if (payment.rejectionMessage) {
+              rows.push({ label: 'Mensaje Adicional', value: payment.rejectionMessage })
+            }
+          }
 
-          <dt>Monto</dt>
-          <dd>{formatAmount(payment.amountBs)}</dd>
-
-          <dt>Meses Pagados</dt>
-          <dd>{monthsLabel(payment.numberOfMonths)}</dd>
-
-          <dt>Número de Referencia</dt>
-          <dd>{payment.referenceNumber}</dd>
-
-          <dt>Banco</dt>
-          <dd>{payment.bankName}</dd>
-
-          <dt>Cédula</dt>
-          <dd>{payment.identification}</dd>
-
-          <dt>Fecha de Pago</dt>
-          <dd>{formatDate(payment.paidAt)}</dd>
-
-          <dt>Descuento</dt>
-          <dd>{payment.isDiscount ? 'Sí' : 'No'}</dd>
-
-          {payment.approvedAt && (
-            <>
-              <dt>Aprobado el</dt>
-              <dd>{formatDate(payment.approvedAt)}</dd>
-            </>
-          )}
-
-          {payment.rejectedAt && (
-            <>
-              <dt>Rechazado el</dt>
-              <dd>{formatDate(payment.rejectedAt)}</dd>
-              {payment.rejectionReason && (
-                <>
-                  <dt>Motivo de Rechazo</dt>
-                  <dd>{payment.rejectionReason.reason}</dd>
-                </>
-              )}
-              {payment.rejectionMessage && (
-                <>
-                  <dt>Mensaje Adicional</dt>
-                  <dd>{payment.rejectionMessage}</dd>
-                </>
-              )}
-            </>
-          )}
-        </dl>
+          return (
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+              {rows.map((row, i) => (
+                <React.Fragment key={row.label}>
+                  <Box sx={{
+                    ...labelSx,
+                    bgcolor: i % 2 === 0 ? 'var(--color-parchment-card)' : 'transparent',
+                  }}>
+                    {row.label}
+                  </Box>
+                  <Box sx={{
+                    ...cellSx,
+                    bgcolor: i % 2 === 0 ? 'var(--color-parchment-card)' : 'transparent',
+                  }}>
+                    {row.value}
+                  </Box>
+                </React.Fragment>
+              ))}
+            </Box>
+          )
+        })()}
       </DialogContent>
 
-      <DialogActions sx={{ padding: '0.5rem 1.5rem 1.5rem', gap: '0.75rem' }}>
-        <Button
-          variant="contained"
-          fullWidth
-          onClick={onApprove}
-          startIcon={<span className="material-symbols-outlined" style={{ fontSize: 20 }}>check_circle</span>}
-          sx={{
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 600,
-            fontSize: '0.875rem',
-            textTransform: 'none',
-            borderRadius: 'var(--radius-buttonspill, 32px)',
-            padding: '0.625rem 1rem',
-            backgroundColor: 'var(--color-meadow-green)',
-            '&:hover': { backgroundColor: '#059669' },
-          }}
-        >
-          {paymentModalContent.approveButton}
-        </Button>
-        <Button
-          variant="contained"
-          fullWidth
-          onClick={onReject}
-          startIcon={<span className="material-symbols-outlined" style={{ fontSize: 20 }}>cancel</span>}
-          sx={{
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 600,
-            fontSize: '0.875rem',
-            textTransform: 'none',
-            borderRadius: 'var(--radius-buttonspill, 32px)',
-            padding: '0.625rem 1rem',
-            backgroundColor: 'var(--color-coral-red)',
-            '&:hover': { backgroundColor: '#dc2626' },
-          }}
-        >
-          {paymentModalContent.rejectButton}
-        </Button>
+      <DialogActions>
+        {(payment.paymentStatus.id === PENDING_STATUS_ID || payment.paymentStatus.id === REJECTED_STATUS_ID) && (
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={onApprove}
+            startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span>}
+            sx={{
+              backgroundColor: 'var(--color-meadow-green)',
+              '&:hover': { backgroundColor: '#059669' },
+            }}
+          >
+            {paymentModalContent.approveButton}
+          </Button>
+        )}
+        {(payment.paymentStatus.id === PENDING_STATUS_ID || payment.paymentStatus.id === APPROVED_STATUS_ID) && (
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={onReject}
+            startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>cancel</span>}
+            sx={{
+              backgroundColor: 'var(--color-coral-red)',
+              '&:hover': { backgroundColor: '#dc2626' },
+            }}
+          >
+            {paymentModalContent.rejectButton}
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   )
