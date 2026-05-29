@@ -98,6 +98,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { success: false, error: 'No tienes permisos para ingresar' }
     }
 
+    setAuth({
+      isAuthenticated: true,
+      email: (data?.user?.email as string) || null,
+      role,
+      userId: (data?.user?.id as string) || null,
+      token: data?.token || null,
+      loading: false,
+    })
+
     return { success: true }
   }, [])
 

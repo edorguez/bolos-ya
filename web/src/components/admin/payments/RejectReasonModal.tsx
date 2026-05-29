@@ -79,8 +79,8 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ padding: '0.5rem 1.25rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <FormControl fullWidth error={!!errors.reason}>
+      <DialogContent sx={{ '&.MuiDialogContent-root': { padding: '1.25rem 1.25rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' } }}>
+        <FormControl fullWidth error={!!errors.reason}  >
           <InputLabel id="reject-reason-label">
             {paymentModalContent.rejectReasonLabel}
           </InputLabel>
