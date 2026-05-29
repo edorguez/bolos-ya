@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/edorguez/bolos-ya/internal/server/dto"
 	"github.com/edorguez/bolos-ya/internal/server/middleware"
+	"github.com/edorguez/bolos-ya/internal/server/models"
 	"github.com/edorguez/bolos-ya/internal/server/services"
+	"github.com/edorguez/bolos-ya/pkg/constants"
 	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
 	"github.com/edorguez/bolos-ya/pkg/utils"
 )
@@ -47,6 +50,11 @@ func (h *AuthHandler) SyncUser(c *gin.Context) {
 		return
 	}
 
+	var premiumUntil string
+	if user.PremiumUntil != nil {
+		premiumUntil = user.PremiumUntil.Format(time.RFC3339)
+	}
+
 	resp := dto.SyncUserResponse{
 		ID:               user.ID.String(),
 		BetterAuthUserID: user.BetterAuthUserID,
@@ -54,6 +62,9 @@ func (h *AuthHandler) SyncUser(c *gin.Context) {
 		AuthProvider:     user.AuthProvider,
 		IsPremium:        user.IsPremium,
 		IsAnonymous:      user.IsAnonymous,
+		PremiumUntil:     premiumUntil,
+		CreatedAt:        user.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:        user.UpdatedAt.Format(time.RFC3339),
 	}
 	utils.SuccessResponse(c, resp)
 }
@@ -65,7 +76,30 @@ func (h *AuthHandler) GetMe(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, dto.GetMeResponse{UserID: userID})
+	userAny, exists := c.Get(constants.CtxUserKey)
+	if !exists {
+		utils.SuccessResponse(c, dto.GetMeResponse{UserID: userID})
+		return
+	}
+
+	user, ok := userAny.(*models.User)
+	if !ok {
+		utils.SuccessResponse(c, dto.GetMeResponse{UserID: userID})
+		return
+	}
+
+	var premiumUntil *string
+	if user.PremiumUntil != nil {
+		formatted := user.PremiumUntil.Format(time.RFC3339)
+		premiumUntil = &formatted
+	}
+
+	utils.SuccessResponse(c, dto.GetMeResponse{
+		UserID:       userID,
+		IsPremium:    user.IsPremium,
+		IsAnonymous:  user.IsAnonymous,
+		PremiumUntil: premiumUntil,
+	})
 }
 
 func (h *AuthHandler) handleError(c *gin.Context, err error) {

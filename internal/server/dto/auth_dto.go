@@ -21,5 +21,8 @@ type SyncUserResponse struct {
 }
 
 type GetMeResponse struct {
-	UserID string `json:"userId"`
+	UserID       string  `json:"userId"`
+	IsPremium    bool    `json:"isPremium"`
+	IsAnonymous  bool    `json:"isAnonymous"`
+	PremiumUntil *string `json:"premiumUntil"`
 }

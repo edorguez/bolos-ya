@@ -24,32 +24,7 @@ const lightColors = {
   violetPop: '#9f4fff',
   coralRed: '#ff2b3a',
   validGreen: '#00c454',
-
-  background: '#fbfaf9',
-  surface: '#fbfaf9',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerLow: '#f8f7f4',
-  surfaceContainer: '#f2f0ed',
-  surfaceContainerHigh: '#e8e5e0',
-  surfaceContainerHighest: '#c6c6c6',
-  primary: '#121212',
-  primaryContainer: '#f6f4ef',
-  primaryLight: '#ff3e00',
-  secondary: '#ff3e00',
-  secondaryContainer: '#f6f4ef',
-  tertiary: '#00ca48',
-  tertiaryContainer: '#ffbb26',
-  text: '#474645',
-  textSecondary: '#848281',
-  onSurface: '#474645',
-  onSurfaceVariant: '#848281',
-  outline: '#c6c6c6',
-  outlineVariant: '#f2f0ed',
-  border: '#f2f0ed',
-  error: '#ff2b3a',
-  errorContainer: '#ff2b3a',
-  warning: '#ffbb26',
-  success: '#00c454',
+  white: '#ffffff',
 };
 
 const darkColors = {
@@ -102,6 +77,7 @@ const darkColors = {
   errorContainer: '#ff4757',
   warning: '#ffcc44',
   success: '#00d960',
+  white: '#ffffff',
 };
 
 const sharedSpacing = {

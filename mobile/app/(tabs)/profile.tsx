@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { profileStyles } from '../../styles/profileStyles';
 import { Avatar } from '../../components/profile/Avatar';
 import { PremiumCard } from '../../components/profile/PremiumCard';
+import { PremiumActiveCard } from '../../components/profile/PremiumActiveCard';
 import { SettingItem } from '../../components/profile/SettingItem';
 import { GuestCard } from '../../components/profile/GuestCard';
 import { useAppTheme } from '../../styles/theme';
@@ -89,7 +90,11 @@ export default function ProfileTab() {
               )}
             </View>
 
-            {!isPremium && <PremiumCard onUpgradePress={handleUpgrade} />}
+            {isPremium ? (
+              <PremiumActiveCard premiumUntil={user?.premiumUntil} onUpgradePress={handleUpgrade} />
+            ) : (
+              <PremiumCard onUpgradePress={handleUpgrade} />
+            )}
 
             {!user?.isAnonymous && (
               <Pressable
