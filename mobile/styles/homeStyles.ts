@@ -141,7 +141,7 @@ export function createHomeStyles(theme: AppTheme) {
     primaryButtonText: {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.medium,
-      color: '#FFFFFF',
+      color: theme.colors.white,
     },
     primaryButtonOverlay: {
       position: 'absolute',
@@ -149,7 +149,7 @@ export function createHomeStyles(theme: AppTheme) {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: '#ffffff',
+      backgroundColor: theme.colors.white,
       opacity: 0,
     },
     cartCardsContainer: {

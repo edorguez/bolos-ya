@@ -25,6 +25,26 @@ const lightColors = {
   coralRed: '#ff2b3a',
   validGreen: '#00c454',
   white: '#ffffff',
+
+  background: '#fbfaf9',
+  surfaceContainerLowest: '#ffffff',
+  surfaceContainerLow: '#f8f7f4',
+  surfaceContainer: '#f2f0ed',
+  surfaceContainerHigh: '#e8e6e3',
+  surfaceContainerHighest: '#d4d2cf',
+  primary: '#343433',
+  secondary: '#ff3e00',
+  secondaryContainer: '#f2f0ed',
+  text: '#474645',
+  textSecondary: '#848281',
+  onSurface: '#474645',
+  onSurfaceVariant: '#848281',
+  outline: '#c6c6c6',
+  outlineVariant: '#f2f0ed',
+  error: '#ff2b3a',
+  errorContainer: '#fee2e2',
+  warning: '#ffbb26',
+  success: '#00ca48',
 };
 
 const darkColors = {

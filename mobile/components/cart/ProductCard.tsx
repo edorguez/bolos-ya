@@ -94,7 +94,7 @@ const stylesheet = StyleSheet.create(theme => ({
     alignItems: 'flex-end',
   },
   priceBs: {
-    fontSize: theme.typography.fontSize.xs,
+    fontSize: theme.typography.fontSize.xxs,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
   },
@@ -127,7 +127,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }));
 
-export function ProductCard({ product, cartId, onMenuPress, onQuantityChange }: ProductCardProps) {
+export function ProductCard({ product, onMenuPress, onQuantityChange }: ProductCardProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
 

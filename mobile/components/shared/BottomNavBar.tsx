@@ -87,7 +87,7 @@ export function BottomNavBar({ activeRoute }: BottomNavBarProps) {
               <MaterialIcons
                 name={item.icon as any}
                 size={24}
-                color={isActive ? '#FFFFFF' : theme.colors.textSecondary}
+                color={isActive ? theme.colors.white : theme.colors.textSecondary}
               />
             </Pressable>
           );

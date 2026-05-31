@@ -309,7 +309,7 @@ export default function LoginChoiceScreen() {
     emailButtonText: {
       fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.semibold,
-      color: '#FFFFFF',
+      color: theme.colors.white,
     },
     registerButton: {
       width: '100%',
@@ -454,7 +454,7 @@ export default function LoginChoiceScreen() {
 
           <View style={styles.floatingBadge1}>
             <View style={styles.badgeIcon}>
-              <MaterialIcons name="local-mall" size={12} color="#FFFFFF" />
+              <MaterialIcons name="local-mall" size={12} color={theme.colors.white} />
             </View>
             <Text style={styles.badgeText}>Lista lista!</Text>
           </View>
@@ -462,7 +462,7 @@ export default function LoginChoiceScreen() {
           <View style={styles.floatingBadge2}>
             <Text style={styles.badgeText}>Total: $45.00</Text>
             <View style={[styles.badgeIcon, styles.badgeIconSecondary]}>
-              <MaterialIcons name="payments" size={12} color="#FFFFFF" />
+              <MaterialIcons name="payments" size={12} color={theme.colors.white} />
             </View>
           </View>
         </View>
@@ -504,7 +504,7 @@ export default function LoginChoiceScreen() {
                 isAnyLoading && { opacity: 0.6 },
               ]}
             >
-              <MaterialIcons name="mail" size={20} color="#FFFFFF" />
+              <MaterialIcons name="mail" size={20} color={theme.colors.white} />
               <Text style={styles.emailButtonText}>Iniciar con Correo</Text>
             </Pressable>
 

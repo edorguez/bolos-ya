@@ -38,9 +38,9 @@ const stylesheet = StyleSheet.create(theme => ({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: theme.spacing.xs,
     backgroundColor: theme.colors.meadowGreen,
-    alignSelf: 'flex-start',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
     borderRadius: theme.borderRadius.sm,
@@ -99,9 +99,7 @@ export function PremiumActiveCard({ premiumUntil, onUpgradePress }: PremiumActiv
         <Text style={styles.daysText as TextStyle}>
           Te quedan {days} {days === 1 ? 'día' : 'días'} de Premium
         </Text>
-        <Text style={styles.expiresText as TextStyle}>
-          Tu suscripción vence el {expires}
-        </Text>
+        <Text style={styles.expiresText as TextStyle}>Tu suscripción vence el {expires}</Text>
         <Pressable
           style={({ pressed }) => [
             styles.upgradeButton as ViewStyle,

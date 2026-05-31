@@ -91,7 +91,7 @@ export default function WelcomeScreen() {
       transform: [{ rotate: '-12deg' }],
     },
     priceTextBuble1: {
-      color: '#FFFFFF',
+      color: theme.colors.white,
       fontWeight: theme.typography.fontWeight.semibold,
       fontSize: theme.typography.fontSize.sm,
     },
@@ -134,7 +134,7 @@ export default function WelcomeScreen() {
       gap: theme.spacing.sm,
     },
     nextButtonText: {
-      color: '#FFFFFF',
+      color: theme.colors.white,
       fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.semibold,
     },
@@ -174,7 +174,7 @@ export default function WelcomeScreen() {
           style={({ pressed }) => [styles.nextButton, pressed && { opacity: 0.8 }]}
         >
           <Text style={styles.nextButtonText}>Siguiente</Text>
-          <MaterialIcons name="arrow-forward" size={24} color="#FFFFFF" />
+          <MaterialIcons name="arrow-forward" size={24} color={theme.colors.white} />
         </Pressable>
       </View>
     </View>

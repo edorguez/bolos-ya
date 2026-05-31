@@ -315,7 +315,7 @@ export default function CartDetailScreen() {
     buttonText: {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
-      color: '#FFFFFF',
+      color: theme.colors.white,
       flexShrink: 1,
     },
     buttonCircle: {
@@ -334,7 +334,7 @@ export default function CartDetailScreen() {
       backgroundColor: theme.colors.meadowGreen,
       borderRadius: theme.borderRadius.full,
       borderWidth: 2,
-      borderColor: '#FFFFFF',
+      borderColor: theme.colors.white,
       position: 'absolute',
       top: -10,
       left: '50%',
@@ -408,7 +408,7 @@ export default function CartDetailScreen() {
             accessibilityRole="button"
             accessibilityLabel="Agregar producto"
           >
-            <MaterialIcons name="add" size={12} color="#FFFFFF" />
+            <MaterialIcons name="add" size={12} color={theme.colors.white} />
             <Text style={styles.buttonText}>Agregar</Text>
           </Pressable>
 
@@ -421,7 +421,7 @@ export default function CartDetailScreen() {
             accessibilityRole="button"
             accessibilityLabel="Completar Carrito"
           >
-            <MaterialCommunityIcons name="cart-check" size={24} color="#FFFFFF" />
+            <MaterialCommunityIcons name="cart-check" size={24} color={theme.colors.white} />
           </Pressable>
 
           <Pressable
@@ -430,7 +430,7 @@ export default function CartDetailScreen() {
             accessibilityRole="button"
             accessibilityLabel="Escanear producto"
           >
-            <MaterialIcons name="camera-alt" size={12} color="#FFFFFF" />
+            <MaterialIcons name="camera-alt" size={12} color={theme.colors.white} />
             <Text style={styles.buttonText}>Escanear</Text>
           </Pressable>
         </View>

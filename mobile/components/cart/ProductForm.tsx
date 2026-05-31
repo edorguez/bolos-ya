@@ -227,7 +227,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               ]}
               onPress={incrementQuantity}
             >
-              <MaterialIcons name="add" size={24} color="#FFFFFF" />
+              <MaterialIcons name="add" size={24} color={theme.colors.white} />
             </Pressable>
           </View>
         </View>
@@ -281,7 +281,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
                   onRawDigitsChange={() => {}}
                   placeholder="0,00"
                   editable={false}
-                  style={[styles.priceInput as any, { color: theme.colors.onSurfaceVariant }]}
+                  style={[styles.priceInput as any, { color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.stoneSurface }]}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>$</Text>
               </View>
@@ -336,7 +336,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
                   onRawDigitsChange={() => {}}
                   placeholder="0,00"
                   editable={false}
-                  style={[styles.priceInput as any, { color: theme.colors.onSurfaceVariant }]}
+                  style={[styles.priceInput as any, { color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.stoneSurface }]}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>
               </View>

@@ -131,7 +131,7 @@ export default function PlansScreen() {
       color: theme.colors.midnight,
     },
     pillLabelSelected: {
-      color: '#FFFFFF',
+      color: theme.colors.white,
     },
     pillSavings: {
       fontSize: 10,
@@ -216,7 +216,7 @@ export default function PlansScreen() {
     submitText: {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
-      color: '#FFFFFF',
+      color: theme.colors.white,
     },
   });
 

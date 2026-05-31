@@ -12,6 +12,7 @@ import type { PaymentResponse } from '../../../types/payment'
 import { PaymentStatusBadge } from './PaymentStatusBadge'
 import { paymentModalContent } from '../../../constants/admin/content'
 import { PENDING_STATUS_ID, APPROVED_STATUS_ID, REJECTED_STATUS_ID } from '../../../constants/admin/paymentStatus'
+import { formatAmount } from '../../../utils/format'
 
 const cellSx = {
   fontSize: '0.75rem',
@@ -42,10 +43,6 @@ function formatDate(iso: string): string {
     month: 'short',
     year: 'numeric',
   }).replace('.', '')
-}
-
-function formatAmount(bs: number): string {
-  return `Bs. ${bs.toLocaleString('es-VE')}`
 }
 
 function monthsLabel(n: number): string {

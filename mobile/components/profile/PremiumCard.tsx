@@ -22,7 +22,7 @@ const stylesheet = StyleSheet.create(theme => ({
     top: -40,
     width: 160,
     height: 160,
-    backgroundColor: '#ffffff33',
+    backgroundColor: theme.colors.white + '33',
     borderRadius: 9999,
   },
   content: {
@@ -43,7 +43,7 @@ const stylesheet = StyleSheet.create(theme => ({
   badgeText: {
     fontSize: theme.typography.fontSize.xs,
     fontWeight: theme.typography.fontWeight.semibold,
-    color: '#FFFFFF',
+    color: theme.colors.white,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -74,7 +74,7 @@ const stylesheet = StyleSheet.create(theme => ({
   upgradeButtonText: {
     fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.medium,
-    color: '#FFFFFF',
+    color: theme.colors.white,
   },
 }));
 
@@ -89,7 +89,7 @@ export function PremiumCard({ onUpgradePress }: PremiumCardProps) {
       <View style={styles.blob as ViewStyle} />
       <View style={styles.content as ViewStyle}>
         <View style={styles.badge as ViewStyle}>
-          <MaterialIcons name="stars" size={14} color="#FFFFFF" />
+          <MaterialIcons name="stars" size={14} color={theme.colors.white} />
           <Text style={styles.badgeText as TextStyle}>Premium</Text>
         </View>
         <Text style={styles.title as TextStyle}>Hazte Premium por $3.99/mes</Text>

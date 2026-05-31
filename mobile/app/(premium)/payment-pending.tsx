@@ -52,7 +52,7 @@ export default function PaymentPendingScreen() {
       alignItems: 'center',
     },
     buttonText: {
-      color: '#FFFFFF',
+      color: theme.colors.white,
       fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.semibold,
     },

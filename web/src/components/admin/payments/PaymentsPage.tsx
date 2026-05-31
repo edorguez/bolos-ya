@@ -50,9 +50,7 @@ function formatDate(iso: string): string {
   }).replace('.', '')
 }
 
-function formatAmount(bs: number): string {
-  return `Bs. ${bs.toLocaleString('es-VE')}`
-}
+import { formatAmount } from '../../../utils/format'
 
 function monthsLabel(n: number): string {
   return `${n} ${n === 1 ? 'mes' : 'meses'}`

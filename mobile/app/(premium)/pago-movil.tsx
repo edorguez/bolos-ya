@@ -366,7 +366,7 @@ export default function PagoMovilScreen() {
     submitText: {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
-      color: '#FFFFFF',
+      color: theme.colors.white,
     },
   });
 

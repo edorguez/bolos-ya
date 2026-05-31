@@ -69,7 +69,7 @@ export function BudgetFields({
                 onRawDigitsChange={() => {}}
                 placeholder="0,00"
                 editable={false}
-                style={[styles.budgetInput as any, { color: theme.colors.onSurfaceVariant }]}
+                style={[styles.budgetInput as any, { color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.stoneSurface }]}
               />
               <Text style={styles.budgetSymbol as TextStyle}>$</Text>
             </View>
@@ -94,7 +94,7 @@ export function BudgetFields({
                 onRawDigitsChange={() => {}}
                 placeholder="0,00"
                 editable={false}
-                style={[styles.budgetInput as any, { color: theme.colors.onSurfaceVariant }]}
+                style={[styles.budgetInput as any, { color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.stoneSurface }]}
               />
               <Text style={styles.budgetSymbol as TextStyle}>Bs.</Text>
             </View>

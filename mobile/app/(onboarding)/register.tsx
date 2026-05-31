@@ -134,7 +134,7 @@ export default function RegisterScreen() {
       gap: theme.spacing.sm,
     },
     registerButtonText: {
-      color: '#FFFFFF',
+      color: theme.colors.white,
       fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.semibold,
     },
@@ -254,10 +254,10 @@ export default function RegisterScreen() {
               ]}
             >
               {isLoading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color={theme.colors.white} />
               ) : (
                 <>
-                  <MaterialIcons name="person-add" size={20} color="#FFFFFF" />
+                  <MaterialIcons name="person-add" size={20} color={theme.colors.white} />
                   <Text style={styles.registerButtonText}>Crear Cuenta</Text>
                 </>
               )}

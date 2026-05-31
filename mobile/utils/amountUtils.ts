@@ -1,7 +1,10 @@
 export function formatAmountInput(rawDigits: string): string {
   if (rawDigits.length === 0) return '';
   const num = parseInt(rawDigits, 10);
-  return (num / 100).toFixed(2).replace('.', ',');
+  const value = (num / 100).toFixed(2);
+  const [intPart, decPart] = value.split('.');
+  const withThousands = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `${withThousands},${decPart}`;
 }
 
 export function parseAmountInput(rawDigits: string): number {

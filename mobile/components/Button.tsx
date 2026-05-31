@@ -72,7 +72,7 @@ export function Button({
     };
 
     const variantTextStyles = {
-      primary: { color: '#FFFFFF' },
+      primary: { color: theme.colors.white },
       secondary: { color: theme.colors.midnight },
       outline: { color: theme.colors.graphite },
     };
@@ -89,7 +89,7 @@ export function Button({
       {isLoading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'outline' ? theme.colors.graphite : '#FFFFFF'}
+          color={variant === 'outline' ? theme.colors.graphite : theme.colors.white}
         />
       ) : (
         <Text style={getTextStyle()}>{title}</Text>

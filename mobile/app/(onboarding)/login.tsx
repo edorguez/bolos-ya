@@ -122,7 +122,7 @@ export default function LoginScreen() {
       gap: theme.spacing.sm,
     },
     loginButtonText: {
-      color: '#FFFFFF',
+      color: theme.colors.white,
       fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.semibold,
     },
@@ -216,10 +216,10 @@ export default function LoginScreen() {
               ]}
             >
               {isLoading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color={theme.colors.white} />
               ) : (
                 <>
-                  <MaterialIcons name="login" size={20} color="#FFFFFF" />
+                  <MaterialIcons name="login" size={20} color={theme.colors.white} />
                   <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
                 </>
               )}

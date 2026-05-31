@@ -23,7 +23,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       borderRadius: theme.borderRadius.xl,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.sm,
-      backgroundColor: theme.colors.surfaceContainerLowest,
+      backgroundColor: theme.colors.white,
       borderWidth: 1,
       borderColor: theme.colors.stoneSurface,
     },
@@ -92,13 +92,13 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               <MaterialIcons
                 name={iconName as any}
                 size={24}
-                color={isFocused ? '#FFFFFF' : theme.colors.textSecondary}
+                color={isFocused ? theme.colors.white : theme.colors.textSecondary}
                 style={styles.tabIcon}
               />
               <Text
                 style={[
                   styles.tabLabel,
-                  { color: isFocused ? '#FFFFFF' : theme.colors.textSecondary },
+                  { color: isFocused ? theme.colors.white : theme.colors.textSecondary },
                 ]}
               >
                 {label}

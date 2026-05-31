@@ -154,7 +154,7 @@ export default function ScanScreen() {
       height: 24,
       borderTopWidth: 4,
       borderLeftWidth: 4,
-      borderColor: '#FFFFFF',
+      borderColor: theme.colors.white,
       borderTopLeftRadius: 8,
     },
     cornerTR: {
@@ -165,7 +165,7 @@ export default function ScanScreen() {
       height: 24,
       borderTopWidth: 4,
       borderRightWidth: 4,
-      borderColor: '#FFFFFF',
+      borderColor: theme.colors.white,
       borderTopRightRadius: 8,
     },
     cornerBL: {
@@ -176,7 +176,7 @@ export default function ScanScreen() {
       height: 24,
       borderBottomWidth: 4,
       borderLeftWidth: 4,
-      borderColor: '#FFFFFF',
+      borderColor: theme.colors.white,
       borderBottomLeftRadius: 8,
     },
     cornerBR: {
@@ -187,7 +187,7 @@ export default function ScanScreen() {
       height: 24,
       borderBottomWidth: 4,
       borderRightWidth: 4,
-      borderColor: '#FFFFFF',
+      borderColor: theme.colors.white,
       borderBottomRightRadius: 8,
     },
     statusContainer: {
@@ -239,7 +239,7 @@ export default function ScanScreen() {
   if (hasPermission === null) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: '#FFFFFF' }}>Requesting camera permission...</Text>
+        <Text style={{ color: theme.colors.white }}>Requesting camera permission...</Text>
       </View>
     );
   }
@@ -247,7 +247,7 @@ export default function ScanScreen() {
   if (hasPermission === false) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: '#FFFFFF' }}>No access to camera</Text>
+        <Text style={{ color: theme.colors.white }}>No access to camera</Text>
         <Pressable onPress={() => router.back()}>
           <Text style={{ color: theme.colors.emberOrange, marginTop: 16 }}>Go back</Text>
         </Pressable>
@@ -317,11 +317,11 @@ export default function ScanScreen() {
           onPress={startScanning}
           disabled={isScanning}
         >
-          <MaterialIcons name="photo-camera" size={40} color="#FFFFFF" />
+          <MaterialIcons name="photo-camera" size={40} color={theme.colors.white} />
         </Pressable>
 
         <Pressable style={styles.flipCameraButton} onPress={toggleCameraType}>
-          <MaterialIcons name="flip-camera-ios" size={28} color="#FFFFFF" />
+          <MaterialIcons name="flip-camera-ios" size={28} color={theme.colors.white} />
         </Pressable>
       </View>
 

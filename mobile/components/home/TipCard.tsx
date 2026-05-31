@@ -25,11 +25,11 @@ const stylesheet = StyleSheet.create(theme => ({
     bottom: -theme.spacing.lg,
     width: 128,
     height: 128,
-    backgroundColor: '#ffffff33',
+    backgroundColor: theme.colors.white + '33',
     borderRadius: 64,
   },
   iconContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
     zIndex: 10,

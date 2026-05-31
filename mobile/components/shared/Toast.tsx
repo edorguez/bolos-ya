@@ -28,7 +28,7 @@ const stylesheet = StyleSheet.create(theme => ({
     shadowRadius: 4,
   },
   text: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.medium,
     textAlign: 'center',

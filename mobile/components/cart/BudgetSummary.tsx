@@ -26,6 +26,12 @@ const stylesheet = StyleSheet.create(theme => ({
     alignItems: 'center',
     marginBottom: theme.spacing.xs,
   },
+  limitRowColumn: {
+    flexDirection: 'column',
+    gap: 2,
+    marginBottom: theme.spacing.xs,
+    alignItems: 'flex-start',
+  },
   limitLabel: {
     fontSize: theme.typography.fontSize.xxs,
     fontWeight: theme.typography.fontWeight.semibold,
@@ -56,9 +62,8 @@ const stylesheet = StyleSheet.create(theme => ({
     marginBottom: theme.spacing.xs,
   },
   totalAmountRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 8,
+    flexDirection: 'column',
+    gap: 2,
   },
   totalBs: {
     fontSize: 28,
@@ -99,13 +104,15 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
   const progressPercentage = Math.min(100, (totalBs / budgetBs) * 100);
   const exchangeRate = budgetBs > 0 ? budgetUsd / budgetBs : 36.42;
   const overBudgetUsd = overBudgetAmount * exchangeRate;
+  const limitLabelText = `LÍMITE: Bs. ${budgetBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
+  const isLongBudget = limitLabelText.length > 22;
 
   return (
     <View style={styles.container as ViewStyle}>
-      <View style={styles.limitRow as ViewStyle}>
-        <Text style={styles.limitLabel as TextStyle}>
-          LÍMITE: Bs. {budgetBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
-        </Text>
+      <View
+        style={[styles.limitRow as ViewStyle, isLongBudget && (styles.limitRowColumn as ViewStyle)]}
+      >
+        <Text style={styles.limitLabel as TextStyle}>{limitLabelText}</Text>
         <Text style={styles.limitUsd as TextStyle}>
           ($ {budgetUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })})
         </Text>

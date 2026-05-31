@@ -420,11 +420,11 @@ export default function HomeTab() {
             >
               <View style={styles.primaryButtonOverlay} />
               {isSubmitting ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color={theme.colors.white} />
               ) : (
                 <>
                   <Text style={styles.primaryButtonText}>Comenzar Lista</Text>
-                  <MaterialIcons name="play-circle-outline" size={24} color="#FFFFFF" />
+                  <MaterialIcons name="play-circle-outline" size={24} color={theme.colors.white} />
                 </>
               )}
             </Pressable>

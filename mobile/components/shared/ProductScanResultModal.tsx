@@ -143,7 +143,7 @@ const stylesheet = StyleSheet.create(theme => ({
     gap: 8,
   },
   addButtonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: theme.typography.fontSize.md,
     fontWeight: theme.typography.fontWeight.semibold,
   },
@@ -223,7 +223,7 @@ export function ProductScanResultModal({
               onClose();
             }}
           >
-            <MaterialIcons name="add-circle" size={20} color="#FFFFFF" />
+            <MaterialIcons name="add-circle" size={20} color={theme.colors.white} />
             <Text style={styles.addButtonText as TextStyle}>Añadir a la libreta</Text>
           </Pressable>
         </Pressable>
