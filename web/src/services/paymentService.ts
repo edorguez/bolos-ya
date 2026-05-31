@@ -1,4 +1,4 @@
-import type { ApiResponse, PaymentResponse, RejectionReason, PaymentStatus } from '../types/payment'
+import type { ApiResponse, PaymentResponse, PaginatedPayments, RejectionReason, PaymentStatus } from '../types/payment'
 
 const API_URL = import.meta.env.VITE_GO_BACKEND_URL || 'http://localhost:8080/api/v1'
 
@@ -9,16 +9,33 @@ function headers(sessionToken: string, userId?: string): Record<string, string> 
   return h
 }
 
+export interface PaymentsQuery {
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortDir?: 'asc' | 'desc'
+}
+
 export async function getAllPayments(
   sessionToken: string,
   userId?: string,
-): Promise<PaymentResponse[]> {
-  const response = await fetch(`${API_URL}/payments`, { headers: headers(sessionToken, userId) })
+  query?: PaymentsQuery,
+): Promise<PaginatedPayments> {
+  const params = new URLSearchParams()
+  if (query?.page) params.set('page', String(query.page))
+  if (query?.pageSize) params.set('pageSize', String(query.pageSize))
+  if (query?.sortBy) params.set('sortBy', query.sortBy)
+  if (query?.sortDir) params.set('sortDir', query.sortDir)
+
+  const qs = params.toString()
+  const url = `${API_URL}/payments${qs ? `?${qs}` : ''}`
+
+  const response = await fetch(url, { headers: headers(sessionToken, userId) })
   if (!response.ok) {
     const err = await response.json().catch(() => ({ error: response.statusText }))
     throw new Error(err.error || 'Error del servidor')
   }
-  const result: ApiResponse<PaymentResponse[]> = await response.json()
+  const result: ApiResponse<PaginatedPayments> = await response.json()
   if (!result.success) throw new Error('Error al cargar pagos')
   return result.data
 }

@@ -6,6 +6,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
+  TablePagination,
 } from '@mui/material'
 import { toast } from 'sonner'
 import { usePayments } from '../../../hooks/usePayments'
@@ -80,7 +82,10 @@ function SkeletonRows() {
 
 export function PaymentsPage() {
   const { token, userId: adminUserId } = useAuth()
-  const { payments, loading, error, refetch } = usePayments(token, adminUserId)
+  const {
+    payments, loading, error, total, page, pageSize, sortBy, sortDir,
+    setPage, setPageSize, setSort, refetch,
+  } = usePayments(token, adminUserId)
   const [selectedPayment, setSelectedPayment] = useState<PaymentResponse | null>(null)
   const [modalView, setModalView] = useState<ModalView>(null)
   const [rejectionReasons, setRejectionReasons] = useState<RejectionReason[]>([])
@@ -141,6 +146,16 @@ export function PaymentsPage() {
     }
   }, [token, adminUserId, selectedPayment, refetch])
 
+  const handleSort = useCallback((colId: string) => {
+    if (sortBy === colId && sortDir === 'desc') {
+      setSort('', 'desc')
+    } else if (sortBy === colId && sortDir === 'asc') {
+      setSort(colId, 'desc')
+    } else {
+      setSort(colId, 'asc')
+    }
+  }, [sortBy, sortDir, setSort])
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -168,7 +183,17 @@ export function PaymentsPage() {
                 <TableRow>
                   {PAYMENT_COLUMNS.map((col) => (
                     <TableCell key={col.id}>
-                      {col.label}
+                      {col.sortable ? (
+                        <TableSortLabel
+                          active={sortBy !== '' && sortBy === col.id}
+                          direction={sortBy === col.id ? sortDir : 'asc'}
+                          onClick={() => handleSort(col.id)}
+                        >
+                          {col.label}
+                        </TableSortLabel>
+                      ) : (
+                        col.label
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -212,6 +237,16 @@ export function PaymentsPage() {
                 )}
               </TableBody>
             </Table>
+            <TablePagination
+              component="div"
+              count={total}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              rowsPerPage={pageSize}
+              onRowsPerPageChange={(e) => setPageSize(parseInt(e.target.value, 10))}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+              labelRowsPerPage="Filas por página:"
+            />
           </TableContainer>
         )}
       </div>

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -72,7 +73,12 @@ func (h *PaymentHandler) GetPaymentByID(c *gin.Context) {
 }
 
 func (h *PaymentHandler) GetAllPayments(c *gin.Context) {
-	payments, err := h.paymentService.FindAll(c.Request.Context())
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	sortBy := c.DefaultQuery("sortBy", "createdAt")
+	sortDir := c.DefaultQuery("sortDir", "desc")
+
+	payments, total, err := h.paymentService.FindAllPaginated(c.Request.Context(), page, pageSize, sortBy, sortDir)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -81,7 +87,12 @@ func (h *PaymentHandler) GetAllPayments(c *gin.Context) {
 	for i, p := range payments {
 		resp[i] = toPaymentResponse(p)
 	}
-	utils.SuccessResponse(c, resp)
+	utils.SuccessResponse(c, dto.PaginatedResponse[dto.PaymentResponse]{
+		Items:    resp,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
+	})
 }
 
 func (h *PaymentHandler) GetPaymentsByUserID(c *gin.Context) {

@@ -14,14 +14,14 @@ export const paymentsContent = {
 }
 
 export const PAYMENT_COLUMNS = [
-  { id: 'id', label: 'ID' },
-  { id: 'paidAt', label: 'Fecha' },
-  { id: 'numberOfMonths', label: 'Meses Pagados' },
-  { id: 'email', label: 'Email Usuario' },
-  { id: 'amountBs', label: 'Monto BS' },
-  { id: 'referenceNumber', label: 'N. Referencia' },
-  { id: 'status', label: 'Estado' },
-  { id: 'actions', label: '' },
+  { id: 'id', label: 'ID', sortable: false },
+  { id: 'paidAt', label: 'Fecha', sortable: true },
+  { id: 'numberOfMonths', label: 'Meses Pagados', sortable: true },
+  { id: 'email', label: 'Email Usuario', sortable: true },
+  { id: 'amountBs', label: 'Monto BS', sortable: true },
+  { id: 'referenceNumber', label: 'N. Referencia', sortable: true },
+  { id: 'status', label: 'Estado', sortable: true },
+  { id: 'actions', label: '', sortable: false },
 ]
 
 export const paymentModalContent = {

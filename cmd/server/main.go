@@ -62,7 +62,7 @@ func main() {
 	authService := services.NewAuthService(userRepo, emailSvc, log.Logger, cfg.Auth.BetterAuthURL)
 	cartService := services.NewCartService(cartRepo, cartProductRepo, productRepo, supermarketRepo)
 	syncService := services.NewSyncService(userRepo, cartRepo, cartProductRepo, productRepo, supermarketRepo)
-	paymentService := services.NewPaymentService(paymentRepo, paymentStatusRepo, userRepo, authService)
+	paymentService := services.NewPaymentService(paymentRepo, paymentStatusRepo, userRepo, authService, emailSvc, rejectionReasonRepo, log.Logger)
 	rejectionReasonService := services.NewRejectionReasonService(rejectionReasonRepo)
 	paymentStatusService := services.NewPaymentStatusService(paymentStatusRepo)
 	supermarketService := services.NewSupermarketService(supermarketRepo)

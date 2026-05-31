@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pago aprobado - Bolos Ya</title>
+</head>
+<body style="margin:0;padding:0;background-color:#fbfaf9;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fbfaf9;">
+    <tr>
+      <td align="center" style="padding:40px 0;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #f2f0ed;">
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#121212;padding:32px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:23px;font-weight:600;letter-spacing:-0.44px;">BOLOS YA</h1>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:32px;text-align:center;">
+              <!-- Green checkmark circle -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 24px auto;">
+                <tr>
+                  <td style="background-color:#00ca48;border-radius:50%;width:64px;height:64px;text-align:center;vertical-align:middle;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:16px auto;">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="#ffffff"/>
+                    </svg>
+                  </td>
+                </tr>
+              </table>
+
+              <h2 style="margin:0 0 8px 0;color:#121212;font-size:19px;font-weight:600;letter-spacing:-0.25px;">¡Felicidades, {{.Name}}!</h2>
+              <p style="margin:0 0 16px 0;color:#474645;font-size:15px;line-height:1.47;letter-spacing:-0.2px;">
+                Tu pago ha sido aprobado exitosamente. Ya disfrutas de todas las funciones premium de <strong>Bolos Ya</strong>.
+              </p>
+
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px auto;">
+                <tr>
+                  <td style="background-color:#f8f7f4;border-radius:10px;padding:16px 24px;text-align:center;">
+                    <p style="margin:0;color:#848281;font-size:12px;line-height:1.58;letter-spacing:-0.14px;">Eres premium hasta el</p>
+                    <p style="margin:4px 0 0 0;color:#121212;font-size:19px;font-weight:600;letter-spacing:-0.25px;">{{.PremiumUntil}}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 24px 0;color:#474645;font-size:15px;line-height:1.47;letter-spacing:-0.2px;">
+                Disfruta de las funciones premium de Bolos Ya y lleva el control de tus gastos del supermercado.
+              </p>
+
+              <hr style="border:none;border-top:1px solid #f2f0ed;margin:24px 0;">
+              <p style="margin:0;color:#848281;font-size:12px;line-height:1.58;letter-spacing:-0.14px;">
+                ¿Tienes dudas? Escríbenos a {{.SupportEmail}}.
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f8f7f4;padding:24px;text-align:center;">
+              <p style="margin:0;color:#848281;font-size:12px;line-height:1.58;letter-spacing:-0.14px;">
+                &copy; 2025 Bolos Ya. Todos los derechos reservados.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

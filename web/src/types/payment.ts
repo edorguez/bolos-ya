@@ -47,3 +47,10 @@ export interface ApiResponse<T> {
   success: boolean
   data: T
 }
+
+export interface PaginatedPayments {
+  items: PaymentResponse[]
+  total: number
+  page: number
+  pageSize: number
+}
