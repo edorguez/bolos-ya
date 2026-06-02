@@ -5,7 +5,6 @@ const BCV_RATE_KEY = '@bolosya_bcv_rate';
 const LEGACY_RATE_KEY = '@bolosya_exchange_rate';
 
 interface BCVStorageEntry {
-  rateDate: string;
   usdRate: number;
   eurRate: number;
 }
@@ -42,9 +41,7 @@ export async function setExchangeRate(rate: number): Promise<void> {
   if (rate <= 0) {
     throw new Error('Exchange rate must be positive');
   }
-  const today = new Date().toISOString().split('T')[0];
   const entry: BCVStorageEntry = {
-    rateDate: today,
     usdRate: rate,
     eurRate: 0,
   };

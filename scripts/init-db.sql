@@ -100,15 +100,12 @@ CREATE TABLE IF NOT EXISTS payments (
 -- BCV rates table
 CREATE TABLE IF NOT EXISTS bcv_rates (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    rate_date DATE NOT NULL,
     usd_rate BIGINT NOT NULL,
     eur_rate BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_bcv_rates_rate_date ON bcv_rates(rate_date);
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_supermarkets_user ON supermarkets(user_id);

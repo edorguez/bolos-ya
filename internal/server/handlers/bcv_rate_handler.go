@@ -36,7 +36,6 @@ func (h *BCVRateHandler) GetLatestRate(c *gin.Context) {
 func toBCVRateResponse(rate *models.BCVRate) dto.BCVRateResponse {
 	return dto.BCVRateResponse{
 		ID:        rate.ID.String(),
-		RateDate:  rate.RateDate,
 		UsdRate:   rate.UsdRate,
 		EurRate:   rate.EurRate,
 		CreatedAt: rate.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),

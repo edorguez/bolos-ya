@@ -9,14 +9,15 @@ import (
 	"github.com/edorguez/bolos-ya/internal/server/services"
 )
 
+const (
+	retryInterval = 10 * time.Minute
+	maxRetries    = 36
+)
+
 func StartBCVRateCron(svc services.BCVRateService, log *zap.Logger) {
 	ctx := context.Background()
 
-	if _, err := svc.ScrapeAndStore(ctx); err != nil {
-		log.Warn("initial BCV scrape failed", zap.Error(err))
-	} else {
-		log.Info("initial BCV scrape succeeded")
-	}
+	scrapeWithRetry(ctx, svc, log)
 
 	for {
 		now := time.Now()
@@ -29,9 +30,40 @@ func StartBCVRateCron(svc services.BCVRateService, log *zap.Logger) {
 
 		select {
 		case <-time.After(duration):
-			if _, err := svc.ScrapeAndStore(ctx); err != nil {
-				log.Error("scheduled BCV scrape failed", zap.Error(err))
+			scrapeWithRetry(ctx, svc, log)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+func scrapeWithRetry(ctx context.Context, svc services.BCVRateService, log *zap.Logger) {
+	for i := 0; i < maxRetries; i++ {
+		_, err := svc.ScrapeAndStore(ctx)
+		if err == nil {
+			log.Info("BCV scrape succeeded")
+			return
+		}
+
+		if i < maxRetries-1 {
+			log.Warn("BCV scrape failed, retrying",
+				zap.Int("attempt", i+1),
+				zap.Int("max_retries", maxRetries),
+				zap.Duration("retry_in", retryInterval),
+				zap.Error(err),
+			)
+
+			select {
+			case <-time.After(retryInterval):
+			case <-ctx.Done():
+				return
 			}
+		} else {
+			log.Error("BCV scrape failed after all retries, giving up until next cycle",
+				zap.Int("attempts", maxRetries),
+				zap.Duration("retry_duration", maxRetries*retryInterval),
+				zap.Error(err),
+			)
 		}
 	}
 }

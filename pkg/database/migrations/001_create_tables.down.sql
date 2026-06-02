@@ -10,9 +10,6 @@ DROP INDEX IF EXISTS idx_account_user_id;
 DROP INDEX IF EXISTS idx_account_provider;
 DROP INDEX IF EXISTS idx_verification_identifier;
 
--- Drop indexes
-DROP INDEX IF EXISTS idx_bcv_rates_rate_date;
-
 -- Drop tables in reverse order of creation
 DROP TABLE IF EXISTS bcv_rates;
 DROP TABLE IF EXISTS payments;

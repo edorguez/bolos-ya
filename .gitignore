@@ -29,6 +29,9 @@ go.work.sum
 .env.docker
 .env.*
 
+# Generated client code (not used — removed)
+gen/
+
 # Editor/IDE
 # .idea/
 # .vscode/

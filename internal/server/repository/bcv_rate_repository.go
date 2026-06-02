@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	"github.com/edorguez/bolos-ya/internal/server/models"
 	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
@@ -31,7 +30,7 @@ func (r *bcvRateRepository) GetLatest(ctx context.Context) (*models.BCVRate, err
 	var rate models.BCVRate
 	if err := r.db.WithContext(ctx).
 		Where("deleted_at IS NULL").
-		Order("rate_date DESC").
+		Order("created_at DESC").
 		First(&rate).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, apperrors.ErrNotFound
@@ -46,9 +45,10 @@ func (r *bcvRateRepository) Upsert(ctx context.Context, rate *models.BCVRate) er
 	defer cancel()
 
 	return r.db.WithContext(ctx).
-		Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "rate_date"}},
-			DoUpdates: clause.AssignmentColumns([]string{"usd_rate", "eur_rate", "updated_at"}),
+		Where("DATE(created_at) = CURRENT_DATE").
+		Assign(map[string]interface{}{
+			"usd_rate": rate.UsdRate,
+			"eur_rate": rate.EurRate,
 		}).
-		Create(rate).Error
+		FirstOrCreate(rate).Error
 }

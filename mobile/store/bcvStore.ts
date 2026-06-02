@@ -5,13 +5,12 @@ import { safeGetItem, safeSetItem } from '../utils/storage';
 const STORAGE_KEY = '@bolosya_bcv_rate';
 
 export interface BCVRateData {
-  rateDate: string;
+  createdAt: string;
   usdRate: number;
   eurRate: number;
 }
 
 interface StoreEntry {
-  rateDate: string;
   usdRate: number;
   eurRate: number;
   lastFetched: string;
@@ -27,17 +26,20 @@ export function useBCV() {
   }, []);
 
   async function loadRate() {
+    let rateData: BCVRateData | null = null;
+
     try {
       const cached = await safeGetItem(STORAGE_KEY);
       if (cached) {
         const parsed: StoreEntry = JSON.parse(cached);
-        const today = new Date().toISOString().split('T')[0];
-        if (parsed.rateDate === today) {
-          setRate({ rateDate: parsed.rateDate, usdRate: parsed.usdRate, eurRate: parsed.eurRate });
+        if (parsed.lastFetched?.startsWith(new Date().toISOString().split('T')[0])) {
+          rateData = { createdAt: parsed.lastFetched, usdRate: parsed.usdRate, eurRate: parsed.eurRate };
+          setRate(rateData);
           setIsLoading(false);
           return;
         }
-        setRate({ rateDate: parsed.rateDate, usdRate: parsed.usdRate, eurRate: parsed.eurRate });
+        rateData = { createdAt: parsed.lastFetched, usdRate: parsed.usdRate, eurRate: parsed.eurRate };
+        setRate(rateData);
       }
     } catch {
       // ignore parse errors, fetch fresh
@@ -47,16 +49,16 @@ export function useBCV() {
       const response = await getBCVRates();
       if (response.success) {
         const data: StoreEntry = {
-          rateDate: response.data.rateDate,
           usdRate: response.data.usdRate / 100,
           eurRate: response.data.eurRate / 100,
           lastFetched: new Date().toISOString(),
         };
         await safeSetItem(STORAGE_KEY, JSON.stringify(data));
-        setRate({ rateDate: data.rateDate, usdRate: data.usdRate, eurRate: data.eurRate });
+        rateData = { createdAt: response.data.createdAt, usdRate: data.usdRate, eurRate: data.eurRate };
+        setRate(rateData);
       }
     } catch (err) {
-      if (!rate) {
+      if (!rateData) {
         setError(err instanceof Error ? err : new Error('Failed to load BCV rate'));
       }
     } finally {

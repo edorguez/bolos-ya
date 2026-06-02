@@ -21,6 +21,12 @@ const stylesheet = StyleSheet.create(theme => ({
     alignItems: 'center',
     gap: theme.spacing.sm,
   },
+  titleBox: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   indicator: {
     width: 10,
     height: 10,
@@ -70,7 +76,6 @@ const stylesheet = StyleSheet.create(theme => ({
     fontWeight: theme.typography.fontWeight.regular,
     color: theme.colors.smoke,
     textAlign: 'right',
-    marginTop: theme.spacing.xxs,
   },
   loadingContainer: {
     backgroundColor: theme.colors.surfaceContainerLowest,
@@ -103,7 +108,14 @@ export function BCVRateCard() {
     <View style={styles.card as ViewStyle}>
       <View style={styles.header as ViewStyle}>
         <View style={styles.indicator as ViewStyle} />
-        <Text style={styles.headerLabel as TextStyle}>Tasa BCV</Text>
+        <View style={styles.titleBox as ViewStyle}>
+          <Text style={styles.headerLabel as TextStyle}>Tasa BCV</Text>
+          {rate.createdAt && (
+            <Text style={styles.dateText as TextStyle}>
+              {`Datos del ${formatDate(rate.createdAt)}`}
+            </Text>
+          )}
+        </View>
       </View>
 
       <View style={styles.rateRow as ViewStyle}>
@@ -118,13 +130,13 @@ export function BCVRateCard() {
         <Text style={styles.eurLabel as TextStyle}>1 EUR</Text>
         <Text style={styles.eurLabel as TextStyle}>{'\u2248'}</Text>
         <Text style={styles.eurValue as TextStyle}>
-          Bs. {rate.eurRate.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          Bs.{' '}
+          {rate.eurRate.toLocaleString('es-VE', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </Text>
       </View>
-
-      {rate.rateDate && (
-        <Text style={styles.dateText as TextStyle}>{formatDate(rate.rateDate)}</Text>
-      )}
     </View>
   );
 }

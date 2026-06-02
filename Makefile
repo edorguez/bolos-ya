@@ -66,12 +66,7 @@ generate:
 		go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest; \
 	fi
 	oapi-codegen -generate types,server -package api docs/openapi.yaml > internal/api/rest/generated.go
-	@echo "${YELLOW}Generating TypeScript client...${NC}"
-	@if ! command -v openapi-typescript-codegen >/dev/null 2>&1; then \
-		echo "Installing openapi-typescript-codegen..."; \
-		npm install -g openapi-typescript-codegen; \
-	fi
-	openapi-typescript-codegen --input docs/openapi.yaml --output gen/typescript --client axios
+	@echo "${YELLOW}Skipping TypeScript client generation (deprecated)${NC}"
 
 ## Dependencies: Install Go dependencies
 deps:

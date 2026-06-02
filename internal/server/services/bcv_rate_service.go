@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gocolly/colly/v2"
 	"go.uber.org/zap"
@@ -50,7 +49,6 @@ func (s *bcvRateService) ScrapeAndStore(ctx context.Context) (*models.BCVRate, e
 	}
 
 	s.log.Info("BCV rates scraped and stored",
-		zap.String("rate_date", rate.RateDate),
 		zap.Int64("usd_rate", rate.UsdRate),
 		zap.Int64("eur_rate", rate.EurRate),
 	)
@@ -95,22 +93,6 @@ func (s *bcvRateService) scrape(ctx context.Context) (*models.BCVRate, error) {
 		rate.EurRate = val
 	})
 
-	c.OnHTML(".date-display-single", func(e *colly.HTMLElement) {
-		if scrapeErr != nil {
-			return
-		}
-		content := e.Attr("content")
-		if content == "" {
-			return
-		}
-		t, err := time.Parse("2006-01-02T15:04:05-07:00", content)
-		if err != nil {
-			scrapeErr = fmt.Errorf("parse date: %w", err)
-			return
-		}
-		rate.RateDate = t.Format("2006-01-02")
-	})
-
 	c.OnError(func(_ *colly.Response, err error) {
 		scrapeErr = fmt.Errorf("colly request: %w", err)
 	})
@@ -125,8 +107,8 @@ func (s *bcvRateService) scrape(ctx context.Context) (*models.BCVRate, error) {
 		return nil, scrapeErr
 	}
 
-	if rate.UsdRate == 0 || rate.EurRate == 0 || rate.RateDate == "" {
-		return nil, fmt.Errorf("incomplete scrape: usd=%d eur=%d date=%s", rate.UsdRate, rate.EurRate, rate.RateDate)
+	if rate.UsdRate == 0 || rate.EurRate == 0 {
+		return nil, fmt.Errorf("incomplete scrape: usd=%d eur=%d", rate.UsdRate, rate.EurRate)
 	}
 
 	return rate, nil

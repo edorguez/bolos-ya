@@ -117,7 +117,6 @@ export interface ApiCartDetailResponse {
 
 export interface BCVRateResponse {
 	id: string;
-	rateDate: string;
 	usdRate: number;
 	eurRate: number;
 	createdAt: string;
