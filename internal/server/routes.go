@@ -21,6 +21,7 @@ func SetupRoutes(
 	rejectionReasonService services.RejectionReasonService,
 	paymentStatusService services.PaymentStatusService,
 	supermarketService services.SupermarketService,
+	bcvRateService services.BCVRateService,
 	betterAuthURL string,
 	log *logger.Logger,
 ) *gin.Engine {
@@ -37,6 +38,7 @@ func SetupRoutes(
 	rejectionReasonHandler := handlers.NewRejectionReasonHandler(rejectionReasonService)
 	paymentStatusHandler := handlers.NewPaymentStatusHandler(paymentStatusService)
 	supermarketHandler := handlers.NewSupermarketHandler(supermarketService)
+	bcvRateHandler := handlers.NewBCVRateHandler(bcvRateService)
 
 	authMiddleware := internalmiddleware.NewAuthMiddleware(authService, betterAuthURL)
 
@@ -96,6 +98,8 @@ func SetupRoutes(
 				supermarketsGroup.GET("", supermarketHandler.GetAllSupermarkets)
 				supermarketsGroup.GET("/:supermarketId", supermarketHandler.GetSupermarketByID)
 			}
+
+			protected.GET("/bcv-rates", bcvRateHandler.GetLatestRate)
 
 		}
 

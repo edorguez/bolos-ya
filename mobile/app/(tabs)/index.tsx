@@ -16,6 +16,7 @@ import { createHomeStyles } from '../../styles/homeStyles';
 import { BudgetFields } from '../../components/home/BudgetFields';
 import { SupermarketSelector } from '../../components/home/SupermarketSelector';
 import { TipCard } from '../../components/home/TipCard';
+import { BCVRateCard } from '../../components/home/BCVRateCard';
 import { HistoryCard } from '../../components/history/HistoryCard';
 import { SectionHeader } from '../../components/shared/SectionHeader';
 import { HorizontalScrollWithIndicators } from '../../components/shared/HorizontalScrollWithIndicators';
@@ -430,6 +431,8 @@ export default function HomeTab() {
             </Pressable>
           </View>
         </View>
+
+        <BCVRateCard />
 
         <View style={styles.section}>
           <SectionHeader

@@ -20,9 +20,8 @@ import { PickerField } from '../../components/shared/PickerField';
 import type { PickerOption } from '../../components/shared/PickerField';
 import { AmountInput } from '../../components/shared/AmountInput';
 import { useAuth } from '../../store/authStore';
+import { useBCV } from '../../store/bcvStore';
 import { createPayment } from '../../services/paymentService';
-
-const BCV_RATE = 475.7;
 
 const MY_PAYMENT_INFO = {
   phone: '0412-1234567',
@@ -77,16 +76,17 @@ export default function PagoMovilScreen() {
   const theme = useAppTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+	const { user } = useAuth();
+	const { rate: bcvRate } = useBCV();
 
-  const { billing, usdPrice, periodLabel } = useLocalSearchParams<{
-    billing: string;
-    usdPrice: string;
-    periodLabel: string;
-  }>();
+	const { billing, usdPrice, periodLabel } = useLocalSearchParams<{
+		billing: string;
+		usdPrice: string;
+		periodLabel: string;
+	}>();
 
-  const usdValue = parseFloat(usdPrice || '0');
-  const bsValue = usdValue * BCV_RATE;
+	const usdValue = parseFloat(usdPrice || '0');
+	const bsValue = usdValue * (bcvRate?.usdRate ?? 0);
 
   const [userCI, setUserCI] = useState('');
   const [ciPrefix, setCiPrefix] = useState('V');
@@ -160,23 +160,24 @@ export default function PagoMovilScreen() {
     };
 
     const [day, month, year] = paymentDate.split('/');
-    const paidAt = new Date(+year, +month - 1, +day).toISOString();
+		const paidAt = new Date(+year, +month - 1, +day).toISOString();
+		const bcvRateCents = bcvRate ? Math.round(bcvRate.usdRate * 100) : 0;
 
-    try {
-      await createPayment(
-        {
-          numberOfMonths: monthsMap[billing] || 1,
-          referenceNumber: referenceNumber.trim(),
-          bankName: userBank,
-          amountBs: parseInt(rawAmountDigits, 10),
-          amountUsd: Math.round(usdValue * 100),
-          priceBcv: Math.round(BCV_RATE * 100),
-          identification: `${ciPrefix}${userCI.trim()}`,
-          isDiscount: false,
-          paidAt,
-        },
-        user?.id
-      );
+		try {
+			await createPayment(
+				{
+					numberOfMonths: monthsMap[billing] || 1,
+					referenceNumber: referenceNumber.trim(),
+					bankName: userBank,
+					amountBs: parseInt(rawAmountDigits, 10),
+					amountUsd: Math.round(usdValue * 100),
+					priceBcv: bcvRateCents,
+					identification: `${ciPrefix}${userCI.trim()}`,
+					isDiscount: false,
+					paidAt,
+				},
+				user?.id
+			);
       router.replace('/(premium)/payment-pending');
     } catch (err) {
       setToast(err instanceof Error ? err.message : 'Error al procesar el pago');
@@ -385,7 +386,7 @@ export default function PagoMovilScreen() {
               ${usdPrice}
               {periodLabel}
             </Text>
-            <Text style={styles.summaryRate}>Tasa BCV: {formatBs(BCV_RATE)} Bs/USD</Text>
+            <Text style={styles.summaryRate}>Tasa BCV: {formatBs(bcvRate?.usdRate ?? 0)} Bs/USD</Text>
           </View>
           <View style={styles.summaryRight}>
             <Text style={styles.summaryUsd}>${usdPrice}</Text>

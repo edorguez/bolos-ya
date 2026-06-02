@@ -115,9 +115,18 @@ export interface ApiCartDetailResponse {
   products: ApiCartProductResponse[];
 }
 
+export interface BCVRateResponse {
+	id: string;
+	rateDate: string;
+	usdRate: number;
+	eurRate: number;
+	createdAt: string;
+	updatedAt: string;
+}
+
 export interface SyncOperation {
-  table: string;
-  action: 'INSERT' | 'UPDATE' | 'DELETE';
-  payload: Record<string, unknown>;
-  timestamp: number;
+	table: string;
+	action: 'INSERT' | 'UPDATE' | 'DELETE';
+	payload: Record<string, unknown>;
+	timestamp: number;
 }

@@ -14,7 +14,6 @@ type Config struct {
 	Database DatabaseConfig
 	Redis    RedisConfig
 	AWS      AWSConfig
-	BCV      BCVConfig
 	App      AppConfig
 	Auth     AuthConfig
 	Email    EmailConfig
@@ -47,11 +46,6 @@ type AWSConfig struct {
 	SecretAccessKey string `mapstructure:"secret_access_key"`
 	BucketName      string `mapstructure:"bucket_name"`
 	Endpoint        string `mapstructure:"endpoint"`
-}
-
-// BCVConfig holds BCV API configuration
-type BCVConfig struct {
-	URL string `mapstructure:"url"`
 }
 
 // AuthConfig holds better-auth integration configuration
@@ -129,11 +123,6 @@ func bindEnvVars() error {
 	}
 	if err := viper.BindEnv("aws.endpoint", "AWS_S3_ENDPOINT"); err != nil {
 		return fmt.Errorf("failed to bind AWS_S3_ENDPOINT: %w", err)
-	}
-
-	// BCV
-	if err := viper.BindEnv("bcv.url", "BCV_API_URL"); err != nil {
-		return fmt.Errorf("failed to bind BCV_API_URL: %w", err)
 	}
 
 	// Email (Resend)

@@ -159,6 +159,19 @@ CREATE INDEX idx_supermarkets_user ON supermarkets(user_id);
 CREATE INDEX idx_carts_user_active ON carts(user_id, is_active);
 CREATE INDEX idx_cart_products_product ON cart_products(product_id);
 
+-- BCV rates table
+CREATE TABLE bcv_rates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    rate_date DATE NOT NULL,
+    usd_rate BIGINT NOT NULL,
+    eur_rate BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+
+CREATE UNIQUE INDEX idx_bcv_rates_rate_date ON bcv_rates(rate_date);
+
 -- better-auth indexes
 CREATE INDEX idx_session_user_id ON "session"("userId");
 CREATE INDEX idx_session_token ON "session"(token);

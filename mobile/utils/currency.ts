@@ -1,39 +1,54 @@
 import { safeGetItem, safeSetItem } from './storage';
 
-// Default exchange rate (1 USD = X BS)
-// This is a reasonable default for Venezuela
-const DEFAULT_EXCHANGE_RATE = 35;
+const DEFAULT_EXCHANGE_RATE = 55;
+const BCV_RATE_KEY = '@bolosya_bcv_rate';
+const LEGACY_RATE_KEY = '@bolosya_exchange_rate';
 
-const EXCHANGE_RATE_KEY = '@bolosya_exchange_rate';
+interface BCVStorageEntry {
+  rateDate: string;
+  usdRate: number;
+  eurRate: number;
+}
 
-/**
- * Get the current exchange rate from storage, or return default
- */
 export async function getExchangeRate(): Promise<number> {
   try {
-    const stored = await safeGetItem(EXCHANGE_RATE_KEY);
+    const stored = await safeGetItem(BCV_RATE_KEY);
     if (stored) {
-      const rate = parseFloat(stored);
+      const parsed: BCVStorageEntry = JSON.parse(stored);
+      if (parsed.usdRate > 0) {
+        return parsed.usdRate;
+      }
+    }
+  } catch {
+    // fall through
+  }
+
+  try {
+    const legacy = await safeGetItem(LEGACY_RATE_KEY);
+    if (legacy) {
+      const rate = parseFloat(legacy);
       if (!isNaN(rate) && rate > 0) {
         return rate;
       }
     }
-  } catch (error) {
-    console.warn('Failed to load exchange rate from storage:', error);
+  } catch {
+    // fall through
   }
 
   return DEFAULT_EXCHANGE_RATE;
 }
 
-/**
- * Save a new exchange rate to storage
- */
 export async function setExchangeRate(rate: number): Promise<void> {
   if (rate <= 0) {
     throw new Error('Exchange rate must be positive');
   }
-
-  await safeSetItem(EXCHANGE_RATE_KEY, rate.toString());
+  const today = new Date().toISOString().split('T')[0];
+  const entry: BCVStorageEntry = {
+    rateDate: today,
+    usdRate: rate,
+    eurRate: 0,
+  };
+  await safeSetItem(BCV_RATE_KEY, JSON.stringify(entry));
 }
 
 /**

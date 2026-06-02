@@ -23,7 +23,10 @@ interface GetMeData {
 export function useAuth() {
   const { data: session, isPending } = useSession();
   const [internalUserId, setInternalUserId] = useState<string | null>(null);
-  const [premiumData, setPremiumData] = useState<{ isPremium: boolean; premiumUntil?: string | null } | null>(null);
+  const [premiumData, setPremiumData] = useState<{
+    isPremium: boolean;
+    premiumUntil?: string | null;
+  } | null>(null);
 
   useEffect(() => {
     if (session?.user && !internalUserId) {
@@ -50,7 +53,8 @@ export function useAuth() {
         id: session.user.id,
         userId: internalUserId ?? undefined,
         email: session.user.email,
-        isPremium: premiumData?.isPremium ?? (session.user as Record<string, unknown>).isPremium === true,
+        isPremium:
+          premiumData?.isPremium ?? (session.user as Record<string, unknown>).isPremium === true,
         isAnonymous: (session.user as Record<string, unknown>).isAnonymous === true,
         premiumUntil: premiumData?.premiumUntil,
         name: session.user.name,

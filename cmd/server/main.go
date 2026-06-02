@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	serverconfig "github.com/edorguez/bolos-ya/configs/server"
+	"github.com/edorguez/bolos-ya/internal/cron"
 	"github.com/edorguez/bolos-ya/internal/server"
 	"github.com/edorguez/bolos-ya/internal/server/email"
 	"github.com/edorguez/bolos-ya/internal/server/repository"
@@ -52,6 +53,7 @@ func main() {
 	paymentRepo := repository.NewPaymentRepository(db)
 	rejectionReasonRepo := repository.NewRejectionReasonRepository(db)
 	paymentStatusRepo := repository.NewPaymentStatusRepository(db)
+	bcvRateRepo := repository.NewBCVRateRepository(db)
 
 	emailSvc := email.NewService(email.Config{
 		ResendAPIKey: cfg.Email.ResendAPIKey,
@@ -66,6 +68,9 @@ func main() {
 	rejectionReasonService := services.NewRejectionReasonService(rejectionReasonRepo)
 	paymentStatusService := services.NewPaymentStatusService(paymentStatusRepo)
 	supermarketService := services.NewSupermarketService(supermarketRepo)
+	bcvRateService := services.NewBCVRateService(bcvRateRepo, log.Logger)
+
+	go cron.StartBCVRateCron(bcvRateService, log.Logger)
 
 	router := server.SetupRoutes(
 		authService,
@@ -75,6 +80,7 @@ func main() {
 		rejectionReasonService,
 		paymentStatusService,
 		supermarketService,
+		bcvRateService,
 		cfg.Auth.BetterAuthURL,
 		log,
 	)

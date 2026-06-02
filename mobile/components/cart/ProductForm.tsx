@@ -14,6 +14,7 @@ import { parseAmountInput } from '../../utils/amountUtils';
 import { Button } from '../Button';
 import { MaterialIcons } from '@expo/vector-icons';
 import { createProductFormStyles } from '../../styles/productFormStyles';
+import { useBCV } from '../../store/bcvStore';
 
 interface ProductFormProps {
   onSubmit: (product: {
@@ -33,10 +34,10 @@ interface ProductFormProps {
   };
 }
 
-const EXCHANGE_RATE = 475.7; // Mock exchange rate: 4000 Bs = 109 USD
-
 export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormProps) {
   const theme = useAppTheme();
+  const { rate: exchangeRate } = useBCV();
+  const EXCHANGE_RATE = exchangeRate?.usdRate ?? 55;
   const styles = createProductFormStyles(theme);
 
   const [name, setName] = useState('');
