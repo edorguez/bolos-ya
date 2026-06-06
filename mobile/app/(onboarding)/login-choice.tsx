@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../styles/theme';
 import { signIn } from '../../lib/auth-client';
 import Svg, { Path } from 'react-native-svg';
@@ -22,7 +21,6 @@ const isExtraLargeScreen = height > 900;
 export default function LoginChoiceScreen() {
   const router = useRouter();
   const theme = useAppTheme();
-  const insets = useSafeAreaInsets();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const isAnyLoading = isGoogleLoading || isGuestLoading;
@@ -30,11 +28,16 @@ export default function LoginChoiceScreen() {
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     try {
-      await signIn.social({
+      const { error } = await signIn.social({
         provider: 'google',
-        callbackURL: 'bolosya://callback',
+        callbackURL: '/callback',
       });
-    } catch {
+      if (error) {
+        console.error('Google sign-in error:', error);
+      }
+      // Session update triggers index.tsx → auto-redirect to /(tabs)
+    } catch (err) {
+      console.error('Google sign-in exception:', err);
     } finally {
       setIsGoogleLoading(false);
     }
@@ -59,7 +62,6 @@ export default function LoginChoiceScreen() {
   const blobScale = isExtraLargeScreen ? 1 : isLargeScreen ? 0.9 : 0.8;
   const badgeLeft = -Math.min(40, width * 0.08);
   const badgeRight = -Math.min(50, width * 0.1);
-  const mainMarginTop = isExtraLargeScreen ? -30 : isLargeScreen ? -35 : -40;
   const mainPaddingBottom = isExtraLargeScreen
     ? theme.spacing.xl
     : isLargeScreen
