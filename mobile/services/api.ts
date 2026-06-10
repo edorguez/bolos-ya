@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
+import { getGoBackendUrl } from '../lib/env';
 
-const GO_BACKEND_URL = process.env.EXPO_PUBLIC_GO_BACKEND_URL || 'http://localhost:8080/api/v1';
+const GO_BACKEND_URL = getGoBackendUrl();
 const STORAGE_KEY = 'better-auth_cookie';
 
 async function getSessionToken(): Promise<string | null> {

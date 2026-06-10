@@ -71,7 +71,7 @@ export default function ProfileTab() {
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.content as ViewStyle}
+        contentContainerStyle={[styles.content as ViewStyle, { paddingBottom: 140 }]}
         showsVerticalScrollIndicator={false}
       >
         {isAuthenticated ? (

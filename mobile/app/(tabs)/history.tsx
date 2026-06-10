@@ -80,7 +80,7 @@ export default function HistoryTab() {
         <Text style={styles.headerTitle}>MercadoLibreta</Text>
       </View>
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 140 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />}
       >

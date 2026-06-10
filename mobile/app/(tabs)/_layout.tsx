@@ -10,7 +10,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const styles = StyleSheet.create({
     container: {
       position: 'absolute',
-      bottom: theme.spacing.md,
+      bottom: theme.spacing.xs,
       left: 0,
       right: 0,
       alignItems: 'center',
@@ -18,11 +18,11 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     },
     tabBar: {
       flexDirection: 'row',
-      width: '90%',
+      width: '80%',
       maxWidth: 400,
       borderRadius: theme.borderRadius.xl,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.xxs,
+      paddingVertical: theme.spacing.xxs,
       backgroundColor: theme.colors.white,
       borderWidth: 1,
       borderColor: theme.colors.stoneSurface,
@@ -31,8 +31,8 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      paddingVertical: theme.spacing.xs,
-      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xxs,
+      paddingHorizontal: theme.spacing.xs,
       borderRadius: theme.borderRadius.md,
     },
     activeTabItem: {
@@ -42,7 +42,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       marginBottom: theme.spacing.xxs,
     },
     tabLabel: {
-      fontSize: theme.typography.fontSize.xxs,
+      fontSize: theme.typography.fontSize.xxxxs,
       fontWeight: theme.typography.fontWeight.semibold,
     },
   });

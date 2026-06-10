@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
 import { signUp } from '../../lib/auth-client';

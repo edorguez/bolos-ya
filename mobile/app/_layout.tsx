@@ -17,7 +17,7 @@ export default function RootLayout() {
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Stack
         screenOptions={{
           headerShown: false,

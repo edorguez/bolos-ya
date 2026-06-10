@@ -12,7 +12,6 @@ import { Toast } from '../../components/shared/Toast';
 import { ProductForm } from '../../components/cart/ProductForm';
 import { useState, useEffect } from 'react';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getCartDetail,
   addCartProduct,
@@ -28,7 +27,6 @@ export default function CartDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const theme = useAppTheme();
-  const insets = useSafeAreaInsets();
   const {
     carts,
     addCart,
@@ -83,7 +81,7 @@ export default function CartDetailScreen() {
             budgetUsd: apiCart.budgetUsd,
           });
         })
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => setIsLoadingFromApi(false));
     }
   }, [id, user?.id, addCart]);
@@ -234,7 +232,7 @@ export default function CartDetailScreen() {
   const budgetBs = cart.budgetBs || 4000;
   const budgetUsd = cart.budgetUsd || 109;
 
-  const buttonBarHeight = 56 + theme.spacing.lg * 2 + insets.bottom;
+  const buttonBarHeight = 56 + theme.spacing.lg * 2;
   const scrollContentPaddingBottom = buttonBarHeight + theme.spacing.md;
 
   const styles = StyleSheet.create({
@@ -284,7 +282,7 @@ export default function CartDetailScreen() {
     },
     buttonBarContainer: {
       position: 'absolute',
-      bottom: theme.spacing.md,
+      bottom: 0,
       left: 0,
       right: 0,
       backgroundColor: theme.colors.surfaceContainerLowest,
@@ -348,7 +346,11 @@ export default function CartDetailScreen() {
       <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} />
       <View style={styles.headerContainer}>
         <View style={styles.supermarketHeaderContainer}>
-          <SupermarketHeader cartId={cart.id} supermarket={cart.supermarket} productCount={cart.products.length} />
+          <SupermarketHeader
+            cartId={cart.id}
+            supermarket={cart.supermarket}
+            productCount={cart.products.length}
+          />
         </View>
         <BudgetSummary
           totalBs={totalBs}
@@ -446,7 +448,6 @@ export default function CartDetailScreen() {
           <ProductForm
             onSubmit={handleAddProduct}
             supermarket={cart.supermarket}
-            onCancel={() => setShowAddProduct(false)}
           />
         )}
       </BottomSheetModal>
@@ -465,10 +466,6 @@ export default function CartDetailScreen() {
             onSubmit={handleEditProduct}
             supermarket={cart.supermarket}
             initialData={editingProduct}
-            onCancel={() => {
-              setShowEditModal(false);
-              setEditingProduct(null);
-            }}
           />
         )}
       </BottomSheetModal>

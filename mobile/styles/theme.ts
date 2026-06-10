@@ -112,6 +112,8 @@ const sharedSpacing = {
 
 const sharedTypography = {
   fontSize: {
+    xxxxs: 8,
+    xxxs: 10,
     xxs: 12,
     xs: 13,
     sm: 14,
