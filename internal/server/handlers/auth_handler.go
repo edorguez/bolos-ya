@@ -102,6 +102,37 @@ func (h *AuthHandler) GetMe(c *gin.Context) {
 	})
 }
 
+func (h *AuthHandler) MigrateUserData(c *gin.Context) {
+	userAny, exists := c.Get(constants.CtxUserKey)
+	if !exists {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+	user, ok := userAny.(*models.User)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	var req dto.MigrateUserDataRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, dto.ValidateRequest(req))
+		return
+	}
+
+	if user.BetterAuthUserID != req.FromBetterAuthUserId {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	if err := h.authService.MigrateUserData(c.Request.Context(), req.FromBetterAuthUserId, req.ToBetterAuthUserId, req.Email, req.AuthProvider); err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, gin.H{"message": "data migrated successfully"})
+}
+
 func (h *AuthHandler) handleError(c *gin.Context, err error) {
 	switch err {
 	case apperrors.ErrConflict:

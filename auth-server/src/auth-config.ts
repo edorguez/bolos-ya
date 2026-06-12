@@ -47,6 +47,27 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [expo(), anonymous()],
+  plugins: [
+    expo(),
+    anonymous({
+      onLinkAccount: async (data) => {
+        const goBackendUrl = process.env.GO_BACKEND_URL || 'http://localhost:8080'
+
+        await fetch(`${goBackendUrl}/api/v1/auth/internal/migrate-user-data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${data.anonymousUser.session.token}`,
+          },
+          body: JSON.stringify({
+            fromBetterAuthUserId: data.anonymousUser.user.id,
+            toBetterAuthUserId: data.newUser.user.id,
+            email: data.newUser.user.email,
+            authProvider: 'email',
+          }),
+        })
+      },
+    }),
+  ],
   secret: process.env.BETTER_AUTH_SECRET,
 })

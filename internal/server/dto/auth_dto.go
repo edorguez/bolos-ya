@@ -26,3 +26,10 @@ type GetMeResponse struct {
 	IsAnonymous  bool    `json:"isAnonymous"`
 	PremiumUntil *string `json:"premiumUntil"`
 }
+
+type MigrateUserDataRequest struct {
+	FromBetterAuthUserId string `json:"fromBetterAuthUserId" validate:"required"`
+	ToBetterAuthUserId   string `json:"toBetterAuthUserId"   validate:"required"`
+	Email                string `json:"email"`
+	AuthProvider         string `json:"authProvider"`
+}

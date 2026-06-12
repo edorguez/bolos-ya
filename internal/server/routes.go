@@ -101,6 +101,7 @@ func SetupRoutes(
 
 			protected.GET("/bcv-rates", bcvRateHandler.GetLatestRate)
 
+			protected.POST("/auth/internal/migrate-user-data", authHandler.MigrateUserData)
 		}
 
 		apiV1.GET("/", func(c *gin.Context) {

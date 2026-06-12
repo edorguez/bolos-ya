@@ -112,6 +112,7 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       CORS_ORIGINS: ${APP_ALLOWED_ORIGINS}
       TRUSTED_ORIGINS: ${TRUSTED_ORIGINS}
+      GO_BACKEND_URL: http://server:8080
     depends_on:
       postgres:
         condition: service_healthy

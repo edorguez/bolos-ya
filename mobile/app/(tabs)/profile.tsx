@@ -5,6 +5,7 @@ import { profileStyles } from '../../styles/profileStyles';
 import { Avatar } from '../../components/profile/Avatar';
 import { PremiumCard } from '../../components/profile/PremiumCard';
 import { PremiumActiveCard } from '../../components/profile/PremiumActiveCard';
+import { AnonymousPromptCard } from '../../components/profile/AnonymousPromptCard';
 import { SettingItem } from '../../components/profile/SettingItem';
 import { GuestCard } from '../../components/profile/GuestCard';
 import { useAppTheme } from '../../styles/theme';
@@ -90,7 +91,9 @@ export default function ProfileTab() {
               )}
             </View>
 
-            {isPremium ? (
+            {user?.isAnonymous ? (
+              <AnonymousPromptCard onLoginPress={handleCreateAccount} />
+            ) : isPremium ? (
               <PremiumActiveCard premiumUntil={user?.premiumUntil} onUpgradePress={handleUpgrade} />
             ) : (
               <PremiumCard onUpgradePress={handleUpgrade} />

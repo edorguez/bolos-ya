@@ -24,6 +24,7 @@ type AuthService interface {
 	GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string, isAnonymous bool) (*models.User, error)
 	GetUserByID(ctx context.Context, betterAuthUserID string) (*models.User, error)
 	UpdateUserPremium(ctx context.Context, betterAuthUserID string, isPremium bool, premiumUntil *time.Time) error
+	MigrateUserData(ctx context.Context, fromBetterAuthUserId, toBetterAuthUserId, email, authProvider string) error
 }
 
 type authService struct {
@@ -135,6 +136,24 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 	}
 
 	return user, nil
+}
+
+func (s *authService) MigrateUserData(ctx context.Context, fromBetterAuthUserId, toBetterAuthUserId, email, authProvider string) error {
+	user, err := s.userRepo.FindByBetterAuthUserID(ctx, fromBetterAuthUserId)
+	if err != nil {
+		return fmt.Errorf("failed to find source user: %w", err)
+	}
+
+	user.BetterAuthUserID = toBetterAuthUserId
+	user.IsAnonymous = false
+	if email != "" {
+		user.Email = email
+	}
+	if authProvider != "" {
+		user.AuthProvider = authProvider
+	}
+
+	return s.userRepo.Update(ctx, user)
 }
 
 func (s *authService) UpdateUserPremium(ctx context.Context, betterAuthUserID string, isPremium bool, premiumUntil *time.Time) error {
