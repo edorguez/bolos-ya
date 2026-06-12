@@ -144,6 +144,16 @@ func (s *authService) MigrateUserData(ctx context.Context, fromBetterAuthUserId,
 		return fmt.Errorf("failed to find source user: %w", err)
 	}
 
+	_, err = s.userRepo.FindByBetterAuthUserID(ctx, toBetterAuthUserId)
+	if err == nil {
+		// Destination user exists → SIGN IN → delete anonymous data
+		if err := s.userRepo.DeleteUserData(ctx, user.ID); err != nil {
+			return fmt.Errorf("failed to delete anonymous data: %w", err)
+		}
+		return s.userRepo.Delete(ctx, user.ID)
+	}
+
+	// No destination user → SIGN UP → adopt the anonymous user
 	user.BetterAuthUserID = toBetterAuthUserId
 	user.IsAnonymous = false
 	if email != "" {
@@ -152,7 +162,6 @@ func (s *authService) MigrateUserData(ctx context.Context, fromBetterAuthUserId,
 	if authProvider != "" {
 		user.AuthProvider = authProvider
 	}
-
 	return s.userRepo.Update(ctx, user)
 }
 

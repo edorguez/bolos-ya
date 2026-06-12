@@ -18,6 +18,7 @@ type UserRepository interface {
 	FindByBetterAuthUserID(ctx context.Context, betterAuthUserID string) (*models.User, error)
 	Update(ctx context.Context, user *models.User) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	DeleteUserData(ctx context.Context, userID uuid.UUID) error
 }
 
 type userRepository struct {
@@ -92,4 +93,28 @@ func (r *userRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	defer cancel()
 
 	return r.db.WithContext(ctx).Delete(&models.User{}, "id = ?", id).Error
+}
+
+func (r *userRepository) DeleteUserData(ctx context.Context, userID uuid.UUID) error {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec(`DELETE FROM cart_products WHERE cart_id IN (SELECT id FROM carts WHERE user_id = ?)`, userID).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("user_id = ?", userID).Delete(&models.Cart{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("user_id = ?", userID).Delete(&models.Product{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("user_id = ?", userID).Delete(&models.Supermarket{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("user_id = ?", userID).Delete(&models.Payment{}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 }
