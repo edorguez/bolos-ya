@@ -53,19 +53,23 @@ export const auth = betterAuth({
       onLinkAccount: async (data) => {
         const goBackendUrl = process.env.GO_BACKEND_URL || 'http://localhost:8080'
 
-        await fetch(`${goBackendUrl}/api/v1/auth/internal/migrate-user-data`, {
+        const response = await fetch(`${goBackendUrl}/api/v1/auth/internal/migrate-user-data`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${data.anonymousUser.session.token}`,
+            'Authorization': `Bearer ${data.anonymousUser.session?.token}`,
           },
           body: JSON.stringify({
             fromBetterAuthUserId: data.anonymousUser.user.id,
             toBetterAuthUserId: data.newUser.user.id,
             email: data.newUser.user.email,
-            authProvider: 'email',
+            authProvider: (data.newUser.user as Record<string, unknown>).authProvider || 'email',
           }),
         })
+
+        if (!response.ok) {
+          console.error('migrate-user-data failed:', response.status, await response.text())
+        }
       },
     }),
   ],

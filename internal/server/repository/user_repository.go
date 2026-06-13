@@ -19,6 +19,7 @@ type UserRepository interface {
 	Update(ctx context.Context, user *models.User) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	DeleteUserData(ctx context.Context, userID uuid.UUID) error
+	TransferUserData(ctx context.Context, fromUserID, toUserID uuid.UUID) error
 }
 
 type userRepository struct {
@@ -100,7 +101,7 @@ func (r *userRepository) DeleteUserData(ctx context.Context, userID uuid.UUID) e
 	defer cancel()
 
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Exec(`DELETE FROM cart_products WHERE cart_id IN (SELECT id FROM carts WHERE user_id = ?)`, userID).Error; err != nil {
+		if err := tx.Where("cart_id IN (SELECT id FROM carts WHERE user_id = ?)", userID).Delete(&models.CartProduct{}).Error; err != nil {
 			return err
 		}
 		if err := tx.Where("user_id = ?", userID).Delete(&models.Cart{}).Error; err != nil {
@@ -113,6 +114,27 @@ func (r *userRepository) DeleteUserData(ctx context.Context, userID uuid.UUID) e
 			return err
 		}
 		if err := tx.Where("user_id = ?", userID).Delete(&models.Payment{}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
+func (r *userRepository) TransferUserData(ctx context.Context, fromUserID, toUserID uuid.UUID) error {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec(`UPDATE carts SET user_id = ? WHERE user_id = ?`, toUserID, fromUserID).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec(`UPDATE products SET user_id = ? WHERE user_id = ?`, toUserID, fromUserID).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec(`UPDATE supermarkets SET user_id = ? WHERE user_id = ?`, toUserID, fromUserID).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec(`UPDATE payments SET user_id = ? WHERE user_id = ?`, toUserID, fromUserID).Error; err != nil {
 			return err
 		}
 		return nil

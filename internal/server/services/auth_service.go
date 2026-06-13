@@ -52,6 +52,14 @@ func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, ema
 
 		user = models.NewUserFromBetterAuth(betterAuthUserID, email, authProvider, isAnonymous)
 		if err := s.userRepo.Create(ctx, user); err != nil {
+			// Race: user was created concurrently (e.g. by MigrateUserData). Retry find.
+			if dup, dupErr := s.userRepo.FindByBetterAuthUserID(ctx, betterAuthUserID); dupErr == nil {
+				s.log.Warn("race condition: user was created concurrently, returning existing",
+					zap.String("betterAuthUserID", betterAuthUserID),
+					zap.String("existingID", dup.ID.String()),
+				)
+				return dup, nil
+			}
 			return nil, err
 		}
 
@@ -115,6 +123,14 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 
 		user = models.NewUserFromBetterAuth(userID, userEmail, provider, isAnonymous)
 		if err := s.userRepo.Create(ctx, user); err != nil {
+			// Race: user was created concurrently (e.g. by MigrateUserData). Retry find.
+			if dup, dupErr := s.userRepo.FindByBetterAuthUserID(ctx, userID); dupErr == nil {
+				s.log.Warn("race condition: user was created concurrently, returning existing",
+					zap.String("betterAuthUserID", userID),
+					zap.String("existingID", dup.ID.String()),
+				)
+				return dup, nil
+			}
 			return nil, err
 		}
 
@@ -136,33 +152,6 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 	}
 
 	return user, nil
-}
-
-func (s *authService) MigrateUserData(ctx context.Context, fromBetterAuthUserId, toBetterAuthUserId, email, authProvider string) error {
-	user, err := s.userRepo.FindByBetterAuthUserID(ctx, fromBetterAuthUserId)
-	if err != nil {
-		return fmt.Errorf("failed to find source user: %w", err)
-	}
-
-	_, err = s.userRepo.FindByBetterAuthUserID(ctx, toBetterAuthUserId)
-	if err == nil {
-		// Destination user exists → SIGN IN → delete anonymous data
-		if err := s.userRepo.DeleteUserData(ctx, user.ID); err != nil {
-			return fmt.Errorf("failed to delete anonymous data: %w", err)
-		}
-		return s.userRepo.Delete(ctx, user.ID)
-	}
-
-	// No destination user → SIGN UP → adopt the anonymous user
-	user.BetterAuthUserID = toBetterAuthUserId
-	user.IsAnonymous = false
-	if email != "" {
-		user.Email = email
-	}
-	if authProvider != "" {
-		user.AuthProvider = authProvider
-	}
-	return s.userRepo.Update(ctx, user)
 }
 
 func (s *authService) UpdateUserPremium(ctx context.Context, betterAuthUserID string, isPremium bool, premiumUntil *time.Time) error {
@@ -198,4 +187,30 @@ func (s *authService) UpdateUserPremium(ctx context.Context, betterAuthUserID st
 	}
 
 	return nil
+}
+
+func (s *authService) MigrateUserData(ctx context.Context, fromBetterAuthUserId, toBetterAuthUserId, email, authProvider string) error {
+	user, err := s.userRepo.FindByBetterAuthUserID(ctx, fromBetterAuthUserId)
+	if err != nil {
+		return fmt.Errorf("failed to find source user: %w", err)
+	}
+
+	destUser, err := s.userRepo.FindByBetterAuthUserID(ctx, toBetterAuthUserId)
+	if err == nil {
+		if err := s.userRepo.DeleteUserData(ctx, user.ID); err != nil {
+			return fmt.Errorf("failed to delete anonymous data: %w", err)
+		}
+		return s.userRepo.Delete(ctx, user.ID)
+	}
+
+	destUser = models.NewUserFromBetterAuth(toBetterAuthUserId, email, authProvider, false)
+	if err := s.userRepo.Create(ctx, destUser); err != nil {
+		return fmt.Errorf("failed to create destination user: %w", err)
+	}
+
+	if err := s.userRepo.TransferUserData(ctx, user.ID, destUser.ID); err != nil {
+		return fmt.Errorf("failed to transfer user data: %w", err)
+	}
+
+	return s.userRepo.Delete(ctx, user.ID)
 }

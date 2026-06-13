@@ -82,10 +82,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }));
 
-const benefits = [
-  'Sincroniza tu historial entre dispositivos',
-  'Accede a funciones Premium',
-];
+const benefits = ['Sincroniza tu historial entre dispositivos', 'Accede a funciones Premium'];
 
 export function AnonymousPromptCard({ onLoginPress }: AnonymousPromptCardProps) {
   const theme = useAppTheme();
