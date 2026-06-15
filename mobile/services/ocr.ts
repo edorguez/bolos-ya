@@ -1,4 +1,5 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { getExchangeRate, detectCurrencyFromText, extractPriceFromText } from '../utils/currency';
 import { convertBsToUsd, convertUsdToBs } from '../utils/formatters';
 
@@ -10,33 +11,38 @@ export interface ScanResult {
   priceBs: number;
   priceUsd: number;
   confidence: number;
+  warning?: string;
 }
 
-export interface ScanError {
-  message: string;
-  rawText?: string;
-  error?: unknown;
+interface TextBlock {
+  text: string;
+  frame: { left: number; top: number; right: number; bottom: number };
+  recognizedLanguages: string[];
+  lines: { text: string; frame: any; recognizedLanguages: string[]; elements: any[] }[];
 }
 
-type RecognizeTextFn = (imageUri: string) => Promise<{ text: string; blocks: any[] }>;
+interface TextRecognitionResult {
+  text: string;
+  blocks: TextBlock[];
+}
+
+type RecognizeTextFn = (imageUri: string) => Promise<TextRecognitionResult>;
 
 let recognizeTextImpl: RecognizeTextFn | null = null;
-let mlKitLoadAttempted = false;
 
-function tryLoadMLKit(): RecognizeTextFn | null {
-  if (mlKitLoadAttempted) return recognizeTextImpl;
-  mlKitLoadAttempted = true;
+async function loadMLKit(): Promise<RecognizeTextFn | null> {
+  if (recognizeTextImpl) return recognizeTextImpl;
   try {
-    const mlKit = require('@infinitered/react-native-mlkit-text-recognition');
-    recognizeTextImpl = mlKit.recognizeText;
+    const { recognizeText } = await import('@infinitered/react-native-mlkit-text-recognition');
+    recognizeTextImpl = recognizeText;
+    return recognizeTextImpl;
   } catch {
-    console.warn('[OCR] ML Kit not available — using mock data (simulator mode)');
+    console.warn('[OCR] ML Kit not available');
+    return null;
   }
-  return recognizeTextImpl;
 }
 
 async function mockScanImage(_imageUri: string): Promise<ScanResult> {
-  // Simulate OCR processing delay
   await new Promise(resolve => setTimeout(resolve, 800));
 
   const exchangeRate = await getExchangeRate();
@@ -54,179 +60,168 @@ async function mockScanImage(_imageUri: string): Promise<ScanResult> {
   };
 }
 
-/**
- * Extract product name from OCR text blocks
- * Attempts to find the line closest to the price that isn't a price line
- */
-function extractProductName(blocks: any[], priceLineIndex: number): string {
-  if (blocks.length === 0) return 'Producto desconocido';
-
-  // Look for lines above the price line (product name is often above price)
-  for (let i = Math.max(0, priceLineIndex - 1); i >= 0; i--) {
-    const block = blocks[i];
-    const text = block.text.trim();
-    if (text && !detectCurrencyFromText(text) && !extractPriceFromText(text)) {
-      return text;
-    }
-  }
-
-  // If not found above, look below
-  for (let i = priceLineIndex + 1; i < blocks.length; i++) {
-    const block = blocks[i];
-    const text = block.text.trim();
-    if (text && !detectCurrencyFromText(text) && !extractPriceFromText(text)) {
-      return text;
-    }
-  }
-
-  // Fallback to first non-price line
-  for (const block of blocks) {
-    const text = block.text.trim();
-    if (text && !detectCurrencyFromText(text) && !extractPriceFromText(text)) {
-      return text;
-    }
-  }
-
-  // Last resort: return first line
-  return blocks[0]?.text.trim() || 'Producto desconocido';
+export async function preprocessImage(uri: string): Promise<string> {
+  const result = await manipulateAsync(uri, [{ resize: { width: 1920 } }], {
+    compress: 0.8,
+    format: SaveFormat.JPEG,
+  });
+  return result.uri;
 }
 
-/**
- * Main OCR scanning function
- * Takes an image URI (from camera or gallery) and returns parsed product data
- */
+function extractProductName(lines: string[], priceLineIndex: number): string {
+  if (lines.length === 0) return 'Producto desconocido';
+
+  for (let i = Math.max(0, priceLineIndex - 1); i >= 0; i--) {
+    const text = lines[i].trim();
+    if (text && !detectCurrencyFromText(text) && !extractPriceFromText(text)) {
+      return text;
+    }
+  }
+
+  for (let i = priceLineIndex + 1; i < lines.length; i++) {
+    const text = lines[i].trim();
+    if (text && !detectCurrencyFromText(text) && !extractPriceFromText(text)) {
+      return text;
+    }
+  }
+
+  for (const line of lines) {
+    const text = line.trim();
+    if (text && !detectCurrencyFromText(text) && !extractPriceFromText(text)) {
+      return text;
+    }
+  }
+
+  return lines[0]?.trim() || 'Producto desconocido';
+}
+
 export async function scanImage(imageUri: string): Promise<ScanResult> {
-  try {
-    // Verify image exists
-    const fileInfo = await FileSystem.getInfoAsync(imageUri);
-    if (!fileInfo.exists) {
-      throw new Error('Image file not found');
+  const fileInfo = await FileSystem.getInfoAsync(imageUri);
+  if (!fileInfo.exists) {
+    return {
+      rawText: '',
+      productName: 'Producto desconocido',
+      price: 0,
+      currency: 'BS',
+      priceBs: 0,
+      priceUsd: 0,
+      confidence: 0,
+      warning: 'No se pudo encontrar la imagen. Intenta nuevamente.',
+    };
+  }
+
+  const enhancedUri = await preprocessImage(imageUri);
+
+  const recognizer = await loadMLKit();
+  let text: string;
+  let blocks: TextBlock[];
+
+  if (recognizer) {
+    const result = await recognizer(enhancedUri);
+    text = result.text;
+    blocks = result.blocks;
+  } else {
+    return mockScanImage(imageUri);
+  }
+
+  if (!text || text.trim().length === 0) {
+    return {
+      rawText: '',
+      productName: 'Producto desconocido',
+      price: 0,
+      currency: 'BS',
+      priceBs: 0,
+      priceUsd: 0,
+      confidence: 0,
+      warning: 'No se pudo leer la etiqueta. Acerca la cámara y asegura buena iluminación.',
+    };
+  }
+
+  const lines = text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+
+  let detectedPrice: number | null = null;
+  let detectedCurrency: 'BS' | 'USD' | null = null;
+  let priceLineIndex = -1;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const price = extractPriceFromText(line);
+    const currency = detectCurrencyFromText(line);
+
+    if (price && currency) {
+      detectedPrice = price;
+      detectedCurrency = currency;
+      priceLineIndex = i;
+      break;
     }
+  }
 
-    // Perform OCR using ML Kit (or mock on simulator)
-    const recognizer = tryLoadMLKit();
-    let text: string;
-    let blocks: any[];
-
-    if (recognizer) {
-      const result = await recognizer(imageUri);
-      text = result.text;
-      blocks = result.blocks;
-    } else {
-      // Simulator fallback — return mock data
-      return mockScanImage(imageUri);
-    }
-
-    if (!text || text.trim().length === 0) {
-      throw new Error('No text detected in image');
-    }
-
-    // Split text into lines for analysis
-    const lines = text
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
-
-    let detectedPrice: number | null = null;
-    let detectedCurrency: 'BS' | 'USD' | null = null;
-    let priceLineIndex = -1;
-
-    // Find price and currency in lines
+  if (detectedPrice && !detectedCurrency) {
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const price = extractPriceFromText(line);
-      const currency = detectCurrencyFromText(line);
-
-      if (price && currency) {
-        detectedPrice = price;
+      const currency = detectCurrencyFromText(lines[i]);
+      if (currency) {
         detectedCurrency = currency;
-        priceLineIndex = i;
         break;
       }
     }
+  }
 
-    // If price found without currency, try to infer from context
-    if (detectedPrice && !detectedCurrency) {
-      for (let i = 0; i < lines.length; i++) {
-        const currency = detectCurrencyFromText(lines[i]);
-        if (currency) {
-          detectedCurrency = currency;
-          break;
-        }
-      }
-    }
+  if (!detectedCurrency) {
+    detectedCurrency = 'BS';
+  }
 
-    // If still no currency, default to BS (Bolívares)
-    if (!detectedCurrency) {
-      detectedCurrency = 'BS';
-    }
-
-    // If no price detected, throw error
-    if (!detectedPrice) {
-      throw new Error('No price found in image');
-    }
-
-    // Calculate both currency values using current exchange rate
-    const exchangeRate = await getExchangeRate();
-    let priceBs: number;
-    let priceUsd: number;
-
-    if (detectedCurrency === 'BS') {
-      priceBs = detectedPrice;
-      priceUsd = convertBsToUsd(detectedPrice, exchangeRate);
-    } else {
-      priceUsd = detectedPrice;
-      priceBs = convertUsdToBs(detectedPrice, exchangeRate);
-    }
-
-    // Extract product name
-    const productName = extractProductName(blocks || [], priceLineIndex);
-
+  if (!detectedPrice) {
     return {
       rawText: text,
-      productName,
-      price: detectedPrice,
+      productName: extractProductName(lines, -1),
+      price: 0,
       currency: detectedCurrency,
-      priceBs,
-      priceUsd,
-      confidence: 0.8, // TODO: Calculate actual confidence based on ML Kit results
+      priceBs: 0,
+      priceUsd: 0,
+      confidence: 0.4,
+      warning: 'No se detectó un precio. Asegúrate de que el precio esté visible.',
     };
-  } catch (error) {
-    console.error('OCR scanning error:', error);
-    throw new Error(
-      `Failed to scan image: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
   }
+
+  const exchangeRate = await getExchangeRate();
+  let priceBs: number;
+  let priceUsd: number;
+
+  if (detectedCurrency === 'BS') {
+    priceBs = detectedPrice;
+    priceUsd = convertBsToUsd(detectedPrice, exchangeRate);
+  } else {
+    priceUsd = detectedPrice;
+    priceBs = convertUsdToBs(detectedPrice, exchangeRate);
+  }
+
+  const productName = extractProductName(lines, priceLineIndex);
+
+  const totalLines = blocks.reduce((sum, b) => sum + b.lines.length, 0);
+  const avgConfidence =
+    blocks.length > 0 && totalLines > 0
+      ? Math.min(0.95, 0.6 + totalLines * 0.02 + blocks.length * 0.03)
+      : 0.7;
+
+  return {
+    rawText: text,
+    productName,
+    price: detectedPrice,
+    currency: detectedCurrency,
+    priceBs,
+    priceUsd,
+    confidence: Math.round(avgConfidence * 100) / 100,
+  };
 }
 
-/**
- * Utility function to capture image from camera and scan it
- * This would be used in the scan component
- */
-export async function captureAndScan(cameraRef: React.RefObject<any>): Promise<ScanResult> {
-  try {
-    if (!cameraRef.current) {
-      throw new Error('Camera not ready');
-    }
-
-    // Take picture
-    const photo = await cameraRef.current.takePictureAsync({
-      quality: 0.8,
-      base64: false,
-      exif: false,
-    });
-
-    // Scan the captured image
-    return await scanImage(photo.uri);
-  } catch (error) {
-    console.error('Capture and scan error:', error);
-    throw error;
-  }
-}
+export { detectCurrencyFromText, extractPriceFromText };
 
 export default {
   scanImage,
-  captureAndScan,
+  preprocessImage,
   detectCurrencyFromText,
   extractPriceFromText,
 };
