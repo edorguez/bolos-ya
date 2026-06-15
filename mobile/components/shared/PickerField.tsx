@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { View, Text, Platform } from 'react-native';
+import { View, Text } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
@@ -38,8 +38,8 @@ const stylesheet = StyleSheet.create(theme => ({
     borderColor: theme.colors.stoneSurface,
     borderRadius: theme.borderRadius.md,
     paddingHorizontal: theme.spacing.sm,
-    paddingVertical: Platform.OS === 'ios' ? theme.spacing.md : 10,
-    minHeight: 44,
+    paddingVertical: theme.spacing.sm,
+    minHeight: 40,
   },
   dropdownError: {
     borderColor: theme.colors.error,

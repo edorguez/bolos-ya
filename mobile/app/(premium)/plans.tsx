@@ -21,30 +21,26 @@ const BILLING_OPTIONS: BillingOption[] = [
     id: 'monthly',
     label: 'Mensual',
     price: 3.99,
-    periodLabel: '/mes',
+    periodLabel: 'Cada mes',
     savingsPercent: null,
   },
   {
     id: 'quarterly',
     label: '3 Meses',
     price: 9.99,
-    periodLabel: '/3 meses',
+    periodLabel: 'Cada 3 meses',
     savingsPercent: 17,
   },
   {
     id: 'annual',
     label: 'Anual',
     price: 29.99,
-    periodLabel: '/año',
+    periodLabel: 'Cada año',
     savingsPercent: 37,
   },
 ];
 
-const PREMIUM_FEATURES = [
-  'OCR Scanner ilimitado',
-  'Carritos ilimitados',
-  'Soporte prioritario',
-];
+const PREMIUM_FEATURES = ['OCR Scanner ilimitado', 'Carritos ilimitados', 'Soporte prioritario'];
 
 export default function PlansScreen() {
   const theme = useAppTheme();
@@ -57,9 +53,7 @@ export default function PlansScreen() {
 
   const getPerUnit = (option: BillingOption) => {
     if (option.id === 'monthly') return null;
-    const perMonth = option.id === 'quarterly'
-      ? (option.price / 3)
-      : (option.price / 12);
+    const perMonth = option.id === 'quarterly' ? option.price / 3 : option.price / 12;
     return `$${perMonth.toFixed(2)}/mes`;
   };
 
@@ -169,6 +163,7 @@ export default function PlansScreen() {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.medium,
       color: theme.colors.meadowGreen,
+      textAlign: 'center',
       marginTop: 2,
     },
     divider: {
@@ -224,10 +219,7 @@ export default function PlansScreen() {
     <View style={styles.container}>
       <TopAppBar title="Premium" onBackPress={() => router.back()} />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerSection}>
           <View style={styles.starIconContainer}>
             <MaterialIcons name="stars" size={24} color={theme.colors.sunburstYellow} />
@@ -248,11 +240,6 @@ export default function PlansScreen() {
                 <Text style={[styles.pillLabel, isSelected && styles.pillLabelSelected]}>
                   {option.label}
                 </Text>
-                {option.savingsPercent ? (
-                  <Text style={[styles.pillSavings, isSelected && styles.pillSavingsSelected]}>
-                    -{option.savingsPercent}%
-                  </Text>
-                ) : null}
               </Pressable>
             );
           })}
@@ -265,7 +252,7 @@ export default function PlansScreen() {
           </View>
 
           {getPerUnit(selected) ? (
-            <Text style={styles.perUnitText}>{getPerUnit(selected)}</Text>
+            <Text style={styles.perUnitText}>Oferta de {getPerUnit(selected)}</Text>
           ) : null}
 
           <View style={styles.divider} />
@@ -282,14 +269,12 @@ export default function PlansScreen() {
         </View>
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + theme.spacing.lg }]}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom }]}>
         <Pressable
           style={({ pressed }) => [styles.submitButton, pressed && styles.submitButtonPressed]}
           onPress={handleSubmit}
         >
-          <Text style={styles.submitText}>
-            Suscribir por ${selected.price.toFixed(2)}{selected.periodLabel}
-          </Text>
+          <Text style={styles.submitText}>Suscribirse por ${selected.price.toFixed(2)}</Text>
         </Pressable>
       </View>
     </View>

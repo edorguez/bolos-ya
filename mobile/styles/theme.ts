@@ -25,6 +25,7 @@ const lightColors = {
   coralRed: '#ff2b3a',
   validGreen: '#00c454',
   white: '#ffffff',
+  black: '#000000',
 
   background: '#fbfaf9',
   surfaceContainerLowest: '#ffffff',
@@ -71,6 +72,8 @@ const darkColors = {
   violetPop: '#b87aff',
   coralRed: '#ff4757',
   validGreen: '#00d960',
+  white: '#ffffff',
+  black: '#000000',
 
   background: '#1a1817',
   surface: '#1a1817',
@@ -97,7 +100,6 @@ const darkColors = {
   errorContainer: '#ff4757',
   warning: '#ffcc44',
   success: '#00d960',
-  white: '#ffffff',
 };
 
 const sharedSpacing = {

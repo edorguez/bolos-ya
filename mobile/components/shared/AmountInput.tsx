@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { TextInput, type TextInputProps } from 'react-native';
 import { formatAmountInput, sanitizeAmountInput } from '../../utils/amountUtils';
 import { useAppTheme } from '../../styles/theme';
@@ -8,18 +9,15 @@ interface AmountInputProps extends Omit<TextInputProps, 'value' | 'onChangeText'
   error?: boolean;
 }
 
-export function AmountInput({
-  rawDigits,
-  onRawDigitsChange,
-  placeholder,
-  error,
-  style,
-  ...rest
-}: AmountInputProps) {
+export const AmountInput = forwardRef<TextInput, AmountInputProps>(function AmountInput(
+  { rawDigits, onRawDigitsChange, placeholder, error, style, ...rest },
+  ref
+) {
   const theme = useAppTheme();
 
   return (
     <TextInput
+      ref={ref}
       value={formatAmountInput(rawDigits)}
       onChangeText={text => onRawDigitsChange(sanitizeAmountInput(text))}
       keyboardType="number-pad"
@@ -29,4 +27,4 @@ export function AmountInput({
       {...rest}
     />
   );
-}
+});

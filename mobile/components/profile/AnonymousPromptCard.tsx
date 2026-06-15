@@ -110,7 +110,7 @@ export function AnonymousPromptCard({ onLoginPress }: AnonymousPromptCardProps) 
           ]}
           onPress={onLoginPress}
         >
-          <Text style={styles.loginButtonText as TextStyle}>Iniciar sesión</Text>
+          <Text style={styles.loginButtonText as TextStyle}>Registrarse</Text>
         </Pressable>
       </View>
     </View>

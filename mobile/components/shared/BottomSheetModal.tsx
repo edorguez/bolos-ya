@@ -6,10 +6,11 @@ import {
   Dimensions,
   PanResponder,
   ScrollView,
+  Keyboard,
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -174,6 +175,21 @@ export function BottomSheetModal({
     });
   };
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', e => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
+    const hide = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
   useEffect(() => {
     if (isVisible) {
       openModal();
@@ -229,7 +245,12 @@ export function BottomSheetModal({
           </View>
         </View>
 
-        <ScrollView style={styles.content as ViewStyle} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.content as ViewStyle}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="always"
+          contentContainerStyle={{ paddingBottom: keyboardHeight }}
+        >
           {children}
         </ScrollView>
       </Animated.View>

@@ -76,17 +76,17 @@ export default function PagoMovilScreen() {
   const theme = useAppTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-	const { user } = useAuth();
-	const { rate: bcvRate } = useBCV();
+  const { user } = useAuth();
+  const { rate: bcvRate } = useBCV();
 
-	const { billing, usdPrice, periodLabel } = useLocalSearchParams<{
-		billing: string;
-		usdPrice: string;
-		periodLabel: string;
-	}>();
+  const { billing, usdPrice, periodLabel } = useLocalSearchParams<{
+    billing: string;
+    usdPrice: string;
+    periodLabel: string;
+  }>();
 
-	const usdValue = parseFloat(usdPrice || '0');
-	const bsValue = usdValue * (bcvRate?.usdRate ?? 0);
+  const usdValue = parseFloat(usdPrice || '0');
+  const bsValue = usdValue * (bcvRate?.usdRate ?? 0);
 
   const [userCI, setUserCI] = useState('');
   const [ciPrefix, setCiPrefix] = useState('V');
@@ -160,24 +160,24 @@ export default function PagoMovilScreen() {
     };
 
     const [day, month, year] = paymentDate.split('/');
-		const paidAt = new Date(+year, +month - 1, +day).toISOString();
-		const bcvRateCents = bcvRate ? Math.round(bcvRate.usdRate * 100) : 0;
+    const paidAt = new Date(+year, +month - 1, +day).toISOString();
+    const bcvRateCents = bcvRate ? Math.round(bcvRate.usdRate * 100) : 0;
 
-		try {
-			await createPayment(
-				{
-					numberOfMonths: monthsMap[billing] || 1,
-					referenceNumber: referenceNumber.trim(),
-					bankName: userBank,
-					amountBs: parseInt(rawAmountDigits, 10),
-					amountUsd: Math.round(usdValue * 100),
-					priceBcv: bcvRateCents,
-					identification: `${ciPrefix}${userCI.trim()}`,
-					isDiscount: false,
-					paidAt,
-				},
-				user?.id
-			);
+    try {
+      await createPayment(
+        {
+          numberOfMonths: monthsMap[billing] || 1,
+          referenceNumber: referenceNumber.trim(),
+          bankName: userBank,
+          amountBs: parseInt(rawAmountDigits, 10),
+          amountUsd: Math.round(usdValue * 100),
+          priceBcv: bcvRateCents,
+          identification: `${ciPrefix}${userCI.trim()}`,
+          isDiscount: false,
+          paidAt,
+        },
+        user?.id
+      );
       router.replace('/(premium)/payment-pending');
     } catch (err) {
       setToast(err instanceof Error ? err.message : 'Error al procesar el pago');
@@ -309,7 +309,7 @@ export default function PagoMovilScreen() {
       borderColor: theme.colors.stoneSurface,
       borderRadius: theme.borderRadius.md,
       paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
       fontSize: theme.typography.fontSize.sm,
       color: theme.colors.text,
     },
@@ -322,7 +322,7 @@ export default function PagoMovilScreen() {
       borderColor: theme.colors.stoneSurface,
       borderRadius: theme.borderRadius.md,
       paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -344,6 +344,10 @@ export default function PagoMovilScreen() {
       fontWeight: theme.typography.fontWeight.medium,
       color: theme.colors.ash,
       lineHeight: 18,
+    },
+    noteTextBold: {
+      color: theme.colors.black,
+      fontWeight: theme.typography.fontWeight.bold,
     },
     footer: {
       position: 'absolute',
@@ -382,11 +386,10 @@ export default function PagoMovilScreen() {
       >
         <View style={styles.summaryCard}>
           <View style={styles.summaryLeft}>
-            <Text style={styles.summaryPlan}>
-              ${usdPrice}
-              {periodLabel}
+            <Text style={styles.summaryPlan}>{periodLabel}</Text>
+            <Text style={styles.summaryRate}>
+              Tasa BCV: {formatBs(bcvRate?.usdRate ?? 0)} Bs/USD
             </Text>
-            <Text style={styles.summaryRate}>Tasa BCV: {formatBs(bcvRate?.usdRate ?? 0)} Bs/USD</Text>
           </View>
           <View style={styles.summaryRight}>
             <Text style={styles.summaryUsd}>${usdPrice}</Text>
@@ -451,11 +454,7 @@ export default function PagoMovilScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <TextInput
-                  style={[
-                    styles.textInput,
-                    { paddingVertical: theme.spacing.md },
-                    fieldErrors.ci && styles.inputError,
-                  ]}
+                  style={[styles.textInput, fieldErrors.ci && styles.inputError]}
                   placeholder="12345678"
                   placeholderTextColor={theme.colors.ash}
                   value={userCI}
@@ -533,13 +532,13 @@ export default function PagoMovilScreen() {
         <View style={styles.noteContainer}>
           <MaterialIcons name="info-outline" size={18} color={theme.colors.ash} />
           <Text style={styles.noteText}>
-            Recuerda realizar el pago a través de Pago Móvil antes de enviar el comprobante. El
-            monto debe coincidir con el indicado arriba.
+            Recuerda realizar el pago con el <Text style={styles.noteTextBold}>MONTO EXACTO</Text>{' '}
+            indicado y enviar el número de referencia
           </Text>
         </View>
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + theme.spacing.lg }]}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom }]}>
         <Pressable
           style={({ pressed }) => [styles.submitButton, pressed && styles.submitButtonPressed]}
           onPress={handleSubmit}

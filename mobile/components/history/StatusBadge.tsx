@@ -10,16 +10,16 @@ interface StatusBadgeProps {
 
 const stylesheet = StyleSheet.create(theme => ({
   badge: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.xs,
+    paddingVertical: theme.spacing.xxs,
     borderRadius: theme.borderRadius.sm,
   },
   iconBadge: {
-    padding: theme.spacing.xs,
+    padding: theme.spacing.xxs,
     borderRadius: theme.borderRadius.sm,
   },
   text: {
-    fontSize: theme.typography.fontSize.xxs,
+    fontSize: theme.typography.fontSize.xxxs,
     fontWeight: theme.typography.fontWeight.semibold,
     textTransform: 'uppercase',
   },

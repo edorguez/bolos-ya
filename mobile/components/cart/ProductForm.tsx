@@ -7,7 +7,7 @@ import {
   type TextStyle,
   LayoutAnimation,
 } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppTheme } from '../../styles/theme';
 import { AmountInput } from '../shared/AmountInput';
 import { parseAmountInput } from '../../utils/amountUtils';
@@ -48,6 +48,24 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const bsEditable = topCurrency === 'BS';
+
+  const bsInputRef = useRef<TextInput>(null);
+  const usdInputRef = useRef<TextInput>(null);
+  const prevTopCurrency = useRef(topCurrency);
+
+  useEffect(() => {
+    if (prevTopCurrency.current !== topCurrency) {
+      const timer = setTimeout(() => {
+        if (topCurrency === 'BS') {
+          bsInputRef.current?.focus();
+        } else {
+          usdInputRef.current?.focus();
+        }
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+    prevTopCurrency.current = topCurrency;
+  }, [topCurrency]);
 
   useEffect(() => {
     if (bsEditable && bsPrice) {
@@ -243,6 +261,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs)</Text>
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <AmountInput
+                  ref={bsInputRef}
                   rawDigits={bsPrice}
                   onRawDigitsChange={handleBsPriceChange}
                   placeholder="0,00"
@@ -298,6 +317,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               <Text style={styles.label as TextStyle}>Precio en Dólares ($)</Text>
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <AmountInput
+                  ref={usdInputRef}
                   rawDigits={usdPrice}
                   onRawDigitsChange={handleUsdPriceChange}
                   placeholder="0,00"
@@ -361,6 +381,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
           fullWidth
         />
       </View>
+
+      <View style={{ height: 120 }} />
     </View>
   );
 }
