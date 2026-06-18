@@ -1,6 +1,10 @@
 import * as FileSystem from 'expo-file-system/legacy';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import { getExchangeRate, detectCurrencyFromText, extractPriceFromText } from '../utils/currency';
+import {
+  getExchangeRate,
+  detectCurrencyFromText,
+  extractPriceFromText,
+  guessCurrencyFromPrice,
+} from '../utils/currency';
 import { convertBsToUsd, convertUsdToBs } from '../utils/formatters';
 
 export interface ScanResult {
@@ -61,38 +65,61 @@ async function mockScanImage(_imageUri: string): Promise<ScanResult> {
 }
 
 export async function preprocessImage(uri: string): Promise<string> {
-  const result = await manipulateAsync(uri, [{ resize: { width: 1920 } }], {
-    compress: 0.8,
-    format: SaveFormat.JPEG,
-  });
-  return result.uri;
+  return uri;
 }
 
-function extractProductName(lines: string[], priceLineIndex: number): string {
-  if (lines.length === 0) return 'Producto desconocido';
+function isLikelyNoise(text: string): boolean {
+  if (text.length < 3) return true;
+  if (/\d{6,}/.test(text)) return true;
+  if (/^(lote|fab|venc|fecha|serial|cod|ref)\s*:?\s*\d+$/i.test(text.replace(/\s/g, '')))
+    return true;
+  return false;
+}
 
-  for (let i = Math.max(0, priceLineIndex - 1); i >= 0; i--) {
-    const text = lines[i].trim();
-    if (text && !detectCurrencyFromText(text) && !extractPriceFromText(text)) {
-      return text;
+function extractProductNameFromBlocks(blocks: TextBlock[], priceBlockIndex: number): string {
+  for (let i = priceBlockIndex - 1; i >= 0; i--) {
+    const lines = blocks[i].text
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean);
+    for (const line of lines) {
+      if (!isLikelyNoise(line) && !extractPriceFromText(line) && !detectCurrencyFromText(line)) {
+        return line;
+      }
     }
   }
 
-  for (let i = priceLineIndex + 1; i < lines.length; i++) {
-    const text = lines[i].trim();
-    if (text && !detectCurrencyFromText(text) && !extractPriceFromText(text)) {
-      return text;
+  for (let i = priceBlockIndex + 1; i < blocks.length; i++) {
+    const lines = blocks[i].text
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean);
+    for (const line of lines) {
+      if (!isLikelyNoise(line) && !extractPriceFromText(line) && !detectCurrencyFromText(line)) {
+        return line;
+      }
     }
   }
 
-  for (const line of lines) {
-    const text = line.trim();
-    if (text && !detectCurrencyFromText(text) && !extractPriceFromText(text)) {
-      return text;
+  const priceLines = blocks[priceBlockIndex].text
+    .split('\n')
+    .map(l => l.trim())
+    .filter(Boolean);
+  for (const line of priceLines) {
+    if (!isLikelyNoise(line) && !extractPriceFromText(line) && !detectCurrencyFromText(line)) {
+      return line;
     }
   }
 
-  return lines[0]?.trim() || 'Producto desconocido';
+  return '';
+}
+
+function extractLenientPrice(text: string): number | null {
+  const cleaned = text.trim();
+  if (/^\d{2,6}$/.test(cleaned)) {
+    return parseInt(cleaned, 10);
+  }
+  return null;
 }
 
 export async function scanImage(imageUri: string): Promise<ScanResult> {
@@ -117,7 +144,9 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
   let blocks: TextBlock[];
 
   if (recognizer) {
+    console.log('Recognizer result: ');
     const result = await recognizer(enhancedUri);
+    console.log(result);
     text = result.text;
     blocks = result.blocks;
   } else {
@@ -137,55 +166,164 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
     };
   }
 
-  const lines = text
-    .split('\n')
-    .map(line => line.trim())
-    .filter(line => line.length > 0);
+  // ── Block-aware parsing ──────────────────────────────────────────
+  const sortedBlocks = [...blocks].sort((a, b) => a.frame.top - b.frame.top);
 
-  let detectedPrice: number | null = null;
-  let detectedCurrency: 'BS' | 'USD' | null = null;
-  let priceLineIndex = -1;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const price = extractPriceFromText(line);
-    const currency = detectCurrencyFromText(line);
-
-    if (price && currency) {
-      detectedPrice = price;
-      detectedCurrency = currency;
-      priceLineIndex = i;
-      break;
+  // Find product name block first (largest block of natural text)
+  let productBlockIndex = -1;
+  let productBlockScore = 0;
+  for (let i = 0; i < sortedBlocks.length; i++) {
+    const lines = sortedBlocks[i].text
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean);
+    let score = 0;
+    for (const line of lines) {
+      if (
+        line.length >= 8 &&
+        !isLikelyNoise(line) &&
+        !extractPriceFromText(line) &&
+        !detectCurrencyFromText(line)
+      ) {
+        score += line.length;
+      }
+    }
+    if (score > productBlockScore) {
+      productBlockScore = score;
+      productBlockIndex = i;
     }
   }
 
-  if (detectedPrice && !detectedCurrency) {
-    for (let i = 0; i < lines.length; i++) {
-      const currency = detectCurrencyFromText(lines[i]);
-      if (currency) {
+  // Score blocks for price with proximity bonus to product block
+  const PROXIMITY_RANGE = 2;
+  let detectedPrice: number | null = null;
+  let detectedCurrency: 'BS' | 'USD' | null = null;
+  let priceSourceText = '';
+  let bestBlockIndex = -1;
+
+  for (let i = 0; i < sortedBlocks.length; i++) {
+    const blockText = sortedBlocks[i].text.trim();
+    const price = extractPriceFromText(blockText);
+    const currency = detectCurrencyFromText(blockText);
+    let score = 0;
+
+    if (price !== null) score += 3;
+    if (currency !== null) score += 2;
+    if (/\d{6,}/.test(blockText)) score -= 2;
+    if (blockText.length < 4) score -= 1;
+    if (/^\d{2,6}$/.test(blockText)) score += 1;
+
+    if (productBlockIndex >= 0) {
+      const dist = Math.abs(i - productBlockIndex);
+      if (dist <= PROXIMITY_RANGE) {
+        score += PROXIMITY_RANGE - dist;
+      }
+    }
+
+    if (price !== null && score > (detectedPrice !== null ? 0 : -99)) {
+      detectedPrice = price;
+      detectedCurrency = currency;
+      priceSourceText = blockText;
+      bestBlockIndex = i;
+    }
+  }
+
+  // ── Lenient price fallback on blocks near product block ─────────
+  if (detectedPrice === null) {
+    for (let i = 0; i < sortedBlocks.length; i++) {
+      const nakedPrice = extractLenientPrice(sortedBlocks[i].text);
+      if (nakedPrice !== null) {
+        const dist = productBlockIndex >= 0 ? Math.abs(i - productBlockIndex) : 0;
+        if (productBlockIndex < 0 || dist <= PROXIMITY_RANGE + 1) {
+          detectedPrice = nakedPrice;
+          priceSourceText = sortedBlocks[i].text.trim();
+          bestBlockIndex = i;
+          break;
+        }
+      }
+    }
+  }
+
+  // ── Fallback: flat text parsing ──────────────────────────────────
+  if (detectedPrice === null) {
+    const lines = text
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+
+    for (const line of lines) {
+      const price = extractPriceFromText(line);
+      const currency = detectCurrencyFromText(line);
+      if (price !== null) {
+        detectedPrice = price;
         detectedCurrency = currency;
+        priceSourceText = line;
+        if (currency) break;
+      }
+    }
+
+    if (detectedPrice !== null && !detectedCurrency) {
+      for (const line of lines) {
+        const currency = detectCurrencyFromText(line);
+        if (currency) {
+          detectedCurrency = currency;
+          break;
+        }
+      }
+    }
+
+    // Lenient fallback in flat text too
+    if (detectedPrice === null) {
+      for (const line of lines) {
+        const nakedPrice = extractLenientPrice(line);
+        if (nakedPrice !== null) {
+          detectedPrice = nakedPrice;
+          priceSourceText = line;
+          break;
+        }
+      }
+    }
+  }
+
+  // ── Magnitude heuristic ──────────────────────────────────────────
+  if (detectedPrice !== null && !detectedCurrency) {
+    detectedCurrency = guessCurrencyFromPrice(detectedPrice, priceSourceText);
+  }
+  if (!detectedCurrency) detectedCurrency = 'BS';
+
+  if (detectedPrice === null) {
+    return {
+      rawText: text,
+      productName: 'Producto desconocido',
+      price: 0,
+      currency: detectedCurrency,
+      priceBs: 0,
+      priceUsd: 0,
+      confidence: 0.3,
+      warning: 'No se detectó un precio. Asegúrate de que el precio esté visible.',
+    };
+  }
+
+  // ── Product name ──────────────────────────────────────────────────
+  let productName = 'Producto desconocido';
+  if (bestBlockIndex >= 0) {
+    const found = extractProductNameFromBlocks(sortedBlocks, bestBlockIndex);
+    if (found) productName = found;
+  }
+  if (productName === 'Producto desconocido') {
+    const lines = text
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => l.length > 0);
+    for (const line of lines) {
+      if (!isLikelyNoise(line) && !extractPriceFromText(line) && !detectCurrencyFromText(line)) {
+        productName = line;
         break;
       }
     }
   }
 
-  if (!detectedCurrency) {
-    detectedCurrency = 'BS';
-  }
-
-  if (!detectedPrice) {
-    return {
-      rawText: text,
-      productName: extractProductName(lines, -1),
-      price: 0,
-      currency: detectedCurrency,
-      priceBs: 0,
-      priceUsd: 0,
-      confidence: 0.4,
-      warning: 'No se detectó un precio. Asegúrate de que el precio esté visible.',
-    };
-  }
-
+  // ── Currency conversion ───────────────────────────────────────────
   const exchangeRate = await getExchangeRate();
   let priceBs: number;
   let priceUsd: number;
@@ -198,13 +336,20 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
     priceBs = convertUsdToBs(detectedPrice, exchangeRate);
   }
 
-  const productName = extractProductName(lines, priceLineIndex);
+  // ── Confidence ────────────────────────────────────────────────────
+  const totalElements = blocks.reduce(
+    (sum, b) => sum + b.lines.reduce((s, l) => s + l.elements.length, 0),
+    0
+  );
 
-  const totalLines = blocks.reduce((sum, b) => sum + b.lines.length, 0);
-  const avgConfidence =
-    blocks.length > 0 && totalLines > 0
-      ? Math.min(0.95, 0.6 + totalLines * 0.02 + blocks.length * 0.03)
-      : 0.7;
+  let confidence = 0.4;
+  if (totalElements >= 3) confidence += 0.1;
+  if (totalElements >= 5) confidence += 0.1;
+  if (blocks.length >= 2) confidence += 0.05;
+  if (bestBlockIndex >= 0) confidence += 0.1;
+  if (productBlockIndex >= 0) confidence += 0.05;
+
+  confidence = Math.round(Math.min(0.95, Math.max(0.3, confidence)) * 100) / 100;
 
   return {
     rawText: text,
@@ -213,7 +358,7 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
     currency: detectedCurrency,
     priceBs,
     priceUsd,
-    confidence: Math.round(avgConfidence * 100) / 100,
+    confidence,
   };
 }
 

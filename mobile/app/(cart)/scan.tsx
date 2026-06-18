@@ -1,22 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, Animated, Dimensions, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CameraView, Camera } from 'expo-camera';
 import { useAppTheme } from '../../styles/theme';
+import { createScanStyles } from '../../styles/scanStyles';
 import { TopAppBar } from '../../components/shared/TopAppBar';
 import { Toast } from '../../components/shared/Toast';
 import { ProductScanResultModal } from '../../components/shared/ProductScanResultModal';
+import { ManualEntryModal } from '../../components/shared/ManualEntryModal';
 import { useCartStore } from '../../store/cartStore';
 import { scanImage, preprocessImage } from '../../services/ocr';
 import { MaterialIcons } from '@expo/vector-icons';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const SCANNER_FRAME_WIDTH = SCREEN_WIDTH * 0.8;
-const SCANNER_FRAME_HEIGHT = SCREEN_WIDTH * 0.6;
-
 export default function ScanScreen() {
   const router = useRouter();
   const theme = useAppTheme();
+  const styles = createScanStyles(theme);
   const { activeCartId, carts, addProductToCart } = useCartStore();
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -30,9 +29,10 @@ export default function ScanScreen() {
     confidence?: number;
   } | null>(null);
 
-  const scanLineAnim = useRef(new Animated.Value(0)).current;
   const cameraRef = useRef<CameraView>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [lastRawText, setLastRawText] = useState<string>('');
 
   const activeCart = activeCartId ? carts.find(c => c.id === activeCartId) : null;
 
@@ -48,36 +48,24 @@ export default function ScanScreen() {
 
     setIsScanning(true);
 
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(scanLineAnim, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scanLineAnim, {
-          toValue: 0,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    animation.start();
-
     try {
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.8,
+        quality: 1.0,
         base64: false,
         exif: false,
         shutterSound: false,
       });
 
       const processedUri = await preprocessImage(photo.uri);
-
       const result = await scanImage(processedUri);
+
+      setLastRawText(result.rawText);
 
       if (result.warning) {
         setToast(result.warning);
+        if (!result.price || result.price === 0) {
+          setShowManualEntry(true);
+        }
       } else {
         setScanResult({
           name: result.productName,
@@ -91,7 +79,6 @@ export default function ScanScreen() {
       console.error('OCR scanning failed:', error);
       setToast('Error inesperado al escanear. Intenta nuevamente.');
     } finally {
-      animation.stop();
       setIsScanning(false);
     }
   };
@@ -109,6 +96,22 @@ export default function ScanScreen() {
     });
 
     setScanResult(null);
+    router.back();
+  };
+
+  const handleManualSubmit = (name: string, priceBs: number, priceUsd: number) => {
+    if (!activeCart) return;
+
+    addProductToCart(activeCart.id, {
+      productId: `scanned_${Date.now()}`,
+      name,
+      priceBs,
+      priceUsd,
+      quantity: 1,
+      supermarket: activeCart.supermarket,
+    });
+
+    setShowManualEntry(false);
     router.back();
   };
 
@@ -145,52 +148,17 @@ export default function ScanScreen() {
           style={StyleSheet.absoluteFillObject}
           facing={cameraType}
           ratio="16:9"
+          autofocus="on"
         />
 
-        <View style={styles.scannerOverlay}>
-          <View style={styles.scannerFrame}>
-            <View style={styles.cornerTL} />
-            <View style={styles.cornerTR} />
-            <View style={styles.cornerBL} />
-            <View style={styles.cornerBR} />
-
-            {isScanning ? (
-              <Animated.View
-                style={[
-                  styles.scanLineContainer,
-                  {
-                    transform: [
-                      {
-                        translateY: scanLineAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0, SCANNER_FRAME_HEIGHT],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-                <View
-                  style={{
-                    height: 2,
-                    backgroundColor: theme.colors.emberOrange,
-                    shadowColor: theme.colors.emberOrange,
-                    shadowOffset: { width: 0, height: 0 },
-                    shadowOpacity: 0.8,
-                    shadowRadius: 8,
-                  }}
-                />
-              </Animated.View>
-            ) : null}
+        {isScanning ? (
+          <View style={styles.statusContainer}>
+            <View style={[styles.statusDot, { backgroundColor: theme.colors.emberOrange }]} />
+            <Text style={styles.statusText}>Escaneando...</Text>
           </View>
-
-          {isScanning ? (
-            <View style={styles.statusContainer}>
-              <View style={[styles.statusDot, { backgroundColor: theme.colors.emberOrange }]} />
-              <Text style={styles.statusText}>Escaneando...</Text>
-            </View>
-          ) : null}
-        </View>
+        ) : (
+          <Text style={styles.hintText}>Apunta a la etiqueta del producto</Text>
+        )}
 
         <Pressable
           style={({ pressed }) => [
@@ -223,129 +191,13 @@ export default function ScanScreen() {
         rawText={scanResult?.rawText}
         onAddToCart={handleAddToCart}
       />
+
+      <ManualEntryModal
+        isVisible={showManualEntry}
+        onClose={() => setShowManualEntry(false)}
+        rawText={lastRawText}
+        onSubmit={handleManualSubmit}
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  cameraContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scannerOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scannerFrame: {
-    width: SCANNER_FRAME_WIDTH,
-    height: SCANNER_FRAME_HEIGHT,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: 'transparent',
-  },
-  scanLineContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 2,
-  },
-  cornerTL: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 24,
-    height: 24,
-    borderTopWidth: 4,
-    borderLeftWidth: 4,
-    borderColor: '#fff',
-    borderTopLeftRadius: 8,
-  },
-  cornerTR: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 24,
-    height: 24,
-    borderTopWidth: 4,
-    borderRightWidth: 4,
-    borderColor: '#fff',
-    borderTopRightRadius: 8,
-  },
-  cornerBL: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: 24,
-    height: 24,
-    borderBottomWidth: 4,
-    borderLeftWidth: 4,
-    borderColor: '#fff',
-    borderBottomLeftRadius: 8,
-  },
-  cornerBR: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 24,
-    height: 24,
-    borderBottomWidth: 4,
-    borderRightWidth: 4,
-    borderColor: '#fff',
-    borderBottomRightRadius: 8,
-  },
-  statusContainer: {
-    marginTop: 32,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 999,
-  },
-  statusDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  statusText: {
-    color: '#111',
-    fontSize: 14,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-  },
-  floatingCameraButton: {
-    position: 'absolute',
-    bottom: 140,
-    alignSelf: 'center',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  flipCameraButton: {
-    position: 'absolute',
-    bottom: 140,
-    right: 32,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

@@ -102,11 +102,31 @@ export function formatUsd(amount: number): string {
 /**
  * Detect currency from text
  * Returns 'BS', 'USD', or null
+ * Uses word-boundary regex to avoid false positives on noise text.
  */
 export function detectCurrencyFromText(text: string): 'BS' | 'USD' | null {
-  const lower = text.toLowerCase();
-  if (lower.includes('bs') || lower.includes('bolívar')) return 'BS';
-  if (lower.includes('usd') || lower.includes('dólar') || lower.includes('$')) return 'USD';
+  const upper = text.toUpperCase();
+
+  if (/\b(BS\.?(?:F\.?)?|BSF|BF|BOL[IÍ]VAR(?:ES)?)\b/.test(upper)) return 'BS';
+  if (/\b(USD|U\$S|D[OÓ]LAR(?:ES)?|DLS|REF)\b/.test(upper)) return 'USD';
+  if (/\b(EUR|EURO)\b/.test(upper)) return 'USD';
+  if (/\$/.test(text)) return 'USD';
+  if (/^REF/i.test(text)) return 'USD';
+
+  return null;
+}
+
+/**
+ * Guess currency from price magnitude and format.
+ * Used as fallback when no keyword is found.
+ * In Venezuelan context:
+ *   - Prices >= 300 or with thousand separators → BS
+ *   - Small prices ≤ 50 → likely USD
+ */
+export function guessCurrencyFromPrice(price: number, rawText: string): 'BS' | 'USD' | null {
+  const hasThousandSeparator = /\.(?=\d{3})/.test(rawText);
+  if (hasThousandSeparator || price >= 300) return 'BS';
+  if (price <= 100) return 'USD';
   return null;
 }
 
