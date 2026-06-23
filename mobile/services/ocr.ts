@@ -1,4 +1,5 @@
 import * as FileSystem from 'expo-file-system/legacy';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import {
   getExchangeRate,
   detectCurrencyFromText,
@@ -65,7 +66,15 @@ async function mockScanImage(_imageUri: string): Promise<ScanResult> {
 }
 
 export async function preprocessImage(uri: string): Promise<string> {
-  return uri;
+  try {
+    const result = await manipulateAsync(uri, [{ resize: { width: 1200 } }], {
+      compress: 0.8,
+      format: SaveFormat.JPEG,
+    });
+    return result.uri;
+  } catch {
+    return uri;
+  }
 }
 
 function isLikelyNoise(text: string): boolean {
@@ -76,42 +85,64 @@ function isLikelyNoise(text: string): boolean {
   return false;
 }
 
-function extractProductNameFromBlocks(blocks: TextBlock[], priceBlockIndex: number): string {
-  for (let i = priceBlockIndex - 1; i >= 0; i--) {
-    const lines = blocks[i].text
-      .split('\n')
-      .map(l => l.trim())
-      .filter(Boolean);
-    for (const line of lines) {
-      if (!isLikelyNoise(line) && !extractPriceFromText(line) && !detectCurrencyFromText(line)) {
-        return line;
+function avgElementHeight(block: TextBlock): number {
+  const heights: number[] = [];
+  for (const line of block.lines) {
+    for (const el of line.elements) {
+      if (el.frame && el.frame.bottom != null && el.frame.top != null) {
+        heights.push(el.frame.bottom - el.frame.top);
       }
     }
   }
+  if (heights.length === 0) return 0;
+  return heights.reduce((a, b) => a + b, 0) / heights.length;
+}
 
-  for (let i = priceBlockIndex + 1; i < blocks.length; i++) {
-    const lines = blocks[i].text
-      .split('\n')
-      .map(l => l.trim())
-      .filter(Boolean);
-    for (const line of lines) {
-      if (!isLikelyNoise(line) && !extractPriceFromText(line) && !detectCurrencyFromText(line)) {
-        return line;
+function isSmallPrint(block: TextBlock, threshold: number): boolean {
+  const h = avgElementHeight(block);
+  if (h === 0) return false;
+  return h < threshold;
+}
+
+function hasPricePatternOnly(text: string): boolean {
+  const cleaned = text.replace(/\s/g, '');
+  return /^\d+[.,]\d{2}$/.test(cleaned) || /^[\d{2,6}$]/.test(cleaned);
+}
+
+function collectProductNameLines(blocks: TextBlock[], anchorIndex: number): string[] {
+  if (anchorIndex < 0) return [];
+  const result: string[] = [];
+
+  const anchorFontSize = avgElementHeight(blocks[anchorIndex]);
+
+  for (const line of blocks[anchorIndex].lines) {
+    const t = line.text.trim();
+    if (!isLikelyNoise(t) && !extractPriceFromText(t) && !detectCurrencyFromText(t)) {
+      result.push(t);
+    }
+  }
+
+  const checkAdjacent = (idx: number) => {
+    if (idx < 0 || idx >= blocks.length) return;
+    const adjFontSize = avgElementHeight(blocks[idx]);
+    if (adjFontSize === 0 || anchorFontSize === 0) return;
+    if (Math.abs(adjFontSize - anchorFontSize) / anchorFontSize > 0.4) return;
+    for (const line of blocks[idx].lines) {
+      const t = line.text.trim();
+      if (!isLikelyNoise(t) && !extractPriceFromText(t) && !detectCurrencyFromText(t)) {
+        if (idx < anchorIndex) {
+          result.unshift(t);
+        } else {
+          result.push(t);
+        }
       }
     }
-  }
+  };
 
-  const priceLines = blocks[priceBlockIndex].text
-    .split('\n')
-    .map(l => l.trim())
-    .filter(Boolean);
-  for (const line of priceLines) {
-    if (!isLikelyNoise(line) && !extractPriceFromText(line) && !detectCurrencyFromText(line)) {
-      return line;
-    }
-  }
+  checkAdjacent(anchorIndex - 1);
+  checkAdjacent(anchorIndex + 1);
 
-  return '';
+  return result;
 }
 
 function extractLenientPrice(text: string): number | null {
@@ -144,9 +175,7 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
   let blocks: TextBlock[];
 
   if (recognizer) {
-    console.log('Recognizer result: ');
     const result = await recognizer(enhancedUri);
-    console.log(result);
     text = result.text;
     blocks = result.blocks;
   } else {
@@ -169,24 +198,32 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
   // ── Block-aware parsing ──────────────────────────────────────────
   const sortedBlocks = [...blocks].sort((a, b) => a.frame.top - b.frame.top);
 
-  // Find product name block first (largest block of natural text)
+  // Compute global average font size for small-print threshold
+  const globalAvgHeight =
+    sortedBlocks.reduce((sum, b) => sum + avgElementHeight(b), 0) / sortedBlocks.length;
+  const SMALL_PRINT_THRESHOLD = globalAvgHeight * 0.6;
+
+  // Find product name block (largest block of natural text, weighted by font size)
   let productBlockIndex = -1;
   let productBlockScore = 0;
   for (let i = 0; i < sortedBlocks.length; i++) {
-    const lines = sortedBlocks[i].text
-      .split('\n')
-      .map(l => l.trim())
-      .filter(Boolean);
+    const block = sortedBlocks[i];
     let score = 0;
-    for (const line of lines) {
+    for (const line of block.lines) {
+      const t = line.text.trim();
       if (
-        line.length >= 8 &&
-        !isLikelyNoise(line) &&
-        !extractPriceFromText(line) &&
-        !detectCurrencyFromText(line)
+        t.length >= 5 &&
+        !isLikelyNoise(t) &&
+        !extractPriceFromText(t) &&
+        !detectCurrencyFromText(t)
       ) {
-        score += line.length;
+        score += t.length;
       }
+    }
+    // Boost blocks with larger font (more likely product name)
+    const fontHeight = avgElementHeight(block);
+    if (fontHeight > 0 && fontHeight >= globalAvgHeight) {
+      score = Math.round(score * (1 + fontHeight / globalAvgHeight));
     }
     if (score > productBlockScore) {
       productBlockScore = score;
@@ -194,7 +231,7 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
     }
   }
 
-  // Score blocks for price with proximity bonus to product block
+  // Score blocks for price — prefer large font, penalize small print
   const PROXIMITY_RANGE = 2;
   let detectedPrice: number | null = null;
   let detectedCurrency: 'BS' | 'USD' | null = null;
@@ -202,7 +239,8 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
   let bestBlockIndex = -1;
 
   for (let i = 0; i < sortedBlocks.length; i++) {
-    const blockText = sortedBlocks[i].text.trim();
+    const block = sortedBlocks[i];
+    const blockText = block.text.trim();
     const price = extractPriceFromText(blockText);
     const currency = detectCurrencyFromText(blockText);
     let score = 0;
@@ -212,6 +250,21 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
     if (/\d{6,}/.test(blockText)) score -= 2;
     if (blockText.length < 4) score -= 1;
     if (/^\d{2,6}$/.test(blockText)) score += 1;
+
+    // Font size heuristic: small-print blocks (IVA, unit price, serial) get penalized
+    if (isSmallPrint(block, SMALL_PRINT_THRESHOLD)) {
+      score -= 3;
+    } else if (avgElementHeight(block) > 0) {
+      // Boost blocks with font size >= average (likely main price)
+      if (avgElementHeight(block) >= globalAvgHeight) {
+        score += 2;
+      }
+    }
+
+    // Penalize bare price-only lines (likely unit price / tax, not final)
+    if (price !== null && !currency && hasPricePatternOnly(blockText)) {
+      score -= 1;
+    }
 
     if (productBlockIndex >= 0) {
       const dist = Math.abs(i - productBlockIndex);
@@ -231,6 +284,7 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
   // ── Lenient price fallback on blocks near product block ─────────
   if (detectedPrice === null) {
     for (let i = 0; i < sortedBlocks.length; i++) {
+      if (isSmallPrint(sortedBlocks[i], SMALL_PRINT_THRESHOLD)) continue;
       const nakedPrice = extractLenientPrice(sortedBlocks[i].text);
       if (nakedPrice !== null) {
         const dist = productBlockIndex >= 0 ? Math.abs(i - productBlockIndex) : 0;
@@ -306,9 +360,9 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
 
   // ── Product name ──────────────────────────────────────────────────
   let productName = 'Producto desconocido';
-  if (bestBlockIndex >= 0) {
-    const found = extractProductNameFromBlocks(sortedBlocks, bestBlockIndex);
-    if (found) productName = found;
+  const nameLines = collectProductNameLines(sortedBlocks, productBlockIndex);
+  if (nameLines.length > 0) {
+    productName = nameLines.join(' ');
   }
   if (productName === 'Producto desconocido') {
     const lines = text
@@ -348,6 +402,12 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
   if (blocks.length >= 2) confidence += 0.05;
   if (bestBlockIndex >= 0) confidence += 0.1;
   if (productBlockIndex >= 0) confidence += 0.05;
+  // Bonus if price block has large font (confirmed main price)
+  if (bestBlockIndex >= 0 && !isSmallPrint(sortedBlocks[bestBlockIndex], SMALL_PRINT_THRESHOLD)) {
+    confidence += 0.05;
+  }
+  // Bonus for multi-line product name (more info captured)
+  if (nameLines.length >= 2) confidence += 0.05;
 
   confidence = Math.round(Math.min(0.95, Math.max(0.3, confidence)) * 100) / 100;
 
