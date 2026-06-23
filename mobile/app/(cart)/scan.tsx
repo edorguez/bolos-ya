@@ -9,7 +9,7 @@ import { Toast } from '../../components/shared/Toast';
 import { ProductScanResultModal } from '../../components/shared/ProductScanResultModal';
 import { ManualEntryModal } from '../../components/shared/ManualEntryModal';
 import { useCartStore } from '../../store/cartStore';
-import { scanImage, preprocessImage } from '../../services/ocr';
+import { scanImage, preprocessImage } from '../../lib/ocr';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function ScanScreen() {
@@ -151,13 +151,38 @@ export default function ScanScreen() {
           autofocus="on"
         />
 
+        <View style={styles.overlayPanels} pointerEvents="none">
+          <View style={[styles.overlayTint, { flex: 0.8 }]} />
+
+          <View style={styles.overlayMiddleRow}>
+            <View style={[styles.overlayTint, { flex: 1 }]} />
+
+            <View style={styles.scanArea}>
+              <View style={[styles.cornerLine, styles.cornerVertical, { top: 0, left: 0 }]} />
+              <View style={[styles.cornerLine, styles.cornerHorizontal, { top: 0, left: 0 }]} />
+              <View style={[styles.cornerLine, styles.cornerVertical, { top: 0, right: 0 }]} />
+              <View style={[styles.cornerLine, styles.cornerHorizontal, { top: 0, right: 0 }]} />
+              <View style={[styles.cornerLine, styles.cornerVertical, { bottom: 0, left: 0 }]} />
+              <View style={[styles.cornerLine, styles.cornerHorizontal, { bottom: 0, left: 0 }]} />
+              <View style={[styles.cornerLine, styles.cornerVertical, { bottom: 0, right: 0 }]} />
+              <View style={[styles.cornerLine, styles.cornerHorizontal, { bottom: 0, right: 0 }]} />
+            </View>
+
+            <View style={[styles.overlayTint, { flex: 1 }]} />
+          </View>
+
+          <View style={[styles.overlayTint, { flex: 1 }]} />
+        </View>
+
         {isScanning ? (
           <View style={styles.statusContainer}>
             <View style={[styles.statusDot, { backgroundColor: theme.colors.emberOrange }]} />
             <Text style={styles.statusText}>Escaneando...</Text>
           </View>
         ) : (
-          <Text style={styles.hintText}>Apunta a la etiqueta del producto</Text>
+          <Text style={styles.hintText}>
+            Apunta a la etiqueta del producto y mantén tu teléfono vertical
+          </Text>
         )}
 
         <Pressable

@@ -237,33 +237,42 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
   let detectedCurrency: 'BS' | 'USD' | null = null;
   let priceSourceText = '';
   let bestBlockIndex = -1;
+  let bestPriceScore = -99;
 
   for (let i = 0; i < sortedBlocks.length; i++) {
     const block = sortedBlocks[i];
     const blockText = block.text.trim();
     const price = extractPriceFromText(blockText);
     const currency = detectCurrencyFromText(blockText);
+    // "Ref." is a price label (Ref. KG = price/kg, Total Ref = total price), not a currency indicator
+    const isRefLabel = /\bRef\.?\b/i.test(blockText);
+    const isActualCurrency = currency !== null && !isRefLabel;
     let score = 0;
 
     if (price !== null) score += 3;
-    if (currency !== null) score += 2;
+    if (isActualCurrency) score += 2;
     if (/\d{6,}/.test(blockText)) score -= 2;
     if (blockText.length < 4) score -= 1;
     if (/^\d{2,6}$/.test(blockText)) score += 1;
 
-    // Font size heuristic: small-print blocks (IVA, unit price, serial) get penalized
+    // Font size heuristic: small-print blocks get penalized, larger fonts get proportional bonus
     if (isSmallPrint(block, SMALL_PRINT_THRESHOLD)) {
       score -= 3;
     } else if (avgElementHeight(block) > 0) {
-      // Boost blocks with font size >= average (likely main price)
-      if (avgElementHeight(block) >= globalAvgHeight) {
-        score += 2;
-      }
+      const fontHeight = avgElementHeight(block);
+      const ratio = fontHeight / globalAvgHeight;
+      // Proportional font bonus: bigger font = higher score
+      score += Math.round(2 * ratio);
     }
 
     // Penalize bare price-only lines (likely unit price / tax, not final)
-    if (price !== null && !currency && hasPricePatternOnly(blockText)) {
+    if (price !== null && !isActualCurrency && hasPricePatternOnly(blockText)) {
       score -= 1;
+    }
+
+    // Bonus for "Total" keyword — indicates final price over unit price
+    if (/total/i.test(blockText)) {
+      score += 1;
     }
 
     if (productBlockIndex >= 0) {
@@ -273,9 +282,10 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
       }
     }
 
-    if (price !== null && score > (detectedPrice !== null ? 0 : -99)) {
+    if (price !== null && score > bestPriceScore) {
+      bestPriceScore = score;
       detectedPrice = price;
-      detectedCurrency = currency;
+      detectedCurrency = isActualCurrency ? currency : null;
       priceSourceText = blockText;
       bestBlockIndex = i;
     }

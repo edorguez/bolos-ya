@@ -56,12 +56,47 @@ export function createScanStyles(theme: AppTheme) {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    overlayPanels: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      flexDirection: 'column',
+    },
+    overlayTint: {
+      backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    },
+    overlayMiddleRow: {
+      flexDirection: 'row',
+      height: 180,
+      alignItems: 'stretch',
+    },
+    scanArea: {
+      width: '80%',
+      maxWidth: 380,
+      height: 180,
+    },
+    cornerLine: {
+      position: 'absolute',
+      backgroundColor: '#fff',
+      borderRadius: 1.5,
+    },
+    cornerVertical: {
+      width: 3,
+      height: 24,
+    },
+    cornerHorizontal: {
+      width: 24,
+      height: 3,
+    },
     hintText: {
       position: 'absolute',
-      bottom: 100,
+      bottom: 90,
       alignSelf: 'center',
       color: theme.colors.white,
       fontSize: theme.typography.fontSize.sm,
+      textAlign: 'center',
       opacity: 0.7,
     },
   });
