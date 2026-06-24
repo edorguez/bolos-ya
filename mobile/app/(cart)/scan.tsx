@@ -5,9 +5,9 @@ import { CameraView, Camera } from 'expo-camera';
 import { useAppTheme } from '../../styles/theme';
 import { createScanStyles } from '../../styles/scanStyles';
 import { TopAppBar } from '../../components/shared/TopAppBar';
-import { Toast } from '../../components/shared/Toast';
 import { ProductScanResultModal } from '../../components/shared/ProductScanResultModal';
 import { ManualEntryModal } from '../../components/shared/ManualEntryModal';
+import { NoRecognitionModal } from '../../components/shared/NoRecognitionModal';
 import { useCartStore } from '../../store/cartStore';
 import { scanImage, preprocessImage } from '../../lib/ocr';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -25,14 +25,12 @@ export default function ScanScreen() {
     name: string;
     priceBs: number;
     priceUsd: number;
-    rawText?: string;
     confidence?: number;
   } | null>(null);
 
   const cameraRef = useRef<CameraView>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [showNoRecognition, setShowNoRecognition] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
-  const [lastRawText, setLastRawText] = useState<string>('');
 
   const activeCart = activeCartId ? carts.find(c => c.id === activeCartId) : null;
 
@@ -59,25 +57,19 @@ export default function ScanScreen() {
       const processedUri = await preprocessImage(photo.uri);
       const result = await scanImage(processedUri);
 
-      setLastRawText(result.rawText);
-
-      if (result.warning) {
-        setToast(result.warning);
-        if (!result.price || result.price === 0) {
-          setShowManualEntry(true);
-        }
+      if (result.warning || !result.productName || !result.price || result.price === 0) {
+        setShowNoRecognition(true);
       } else {
         setScanResult({
           name: result.productName,
           priceBs: result.priceBs,
           priceUsd: result.priceUsd,
-          rawText: result.rawText,
           confidence: result.confidence,
         });
       }
     } catch (error) {
       console.error('OCR scanning failed:', error);
-      setToast('Error inesperado al escanear. Intenta nuevamente.');
+      setShowNoRecognition(true);
     } finally {
       setIsScanning(false);
     }
@@ -190,6 +182,7 @@ export default function ScanScreen() {
             styles.floatingCameraButton,
             { backgroundColor: theme.colors.emberOrange },
             pressed ? { opacity: 0.8 } : null,
+            isScanning ? { opacity: 0.4 } : null,
           ]}
           onPress={startScanning}
           disabled={isScanning}
@@ -198,14 +191,17 @@ export default function ScanScreen() {
         </Pressable>
 
         <Pressable
-          style={({ pressed }) => [styles.flipCameraButton, pressed ? { opacity: 0.6 } : null]}
+          style={({ pressed }) => [
+            styles.flipCameraButton,
+            pressed ? { opacity: 0.6 } : null,
+            isScanning ? { opacity: 0.4 } : null,
+          ]}
           onPress={toggleCameraType}
+          disabled={isScanning}
         >
           <MaterialIcons name="flip-camera-ios" size={28} color="#fff" />
         </Pressable>
       </View>
-
-      <Toast message={toast} onDismiss={() => setToast(null)} />
 
       <ProductScanResultModal
         isVisible={!!scanResult}
@@ -213,14 +209,21 @@ export default function ScanScreen() {
         productName={scanResult?.name || ''}
         priceBs={scanResult?.priceBs || 0}
         priceUsd={scanResult?.priceUsd || 0}
-        rawText={scanResult?.rawText}
         onAddToCart={handleAddToCart}
+      />
+
+      <NoRecognitionModal
+        isVisible={showNoRecognition}
+        onClose={() => setShowNoRecognition(false)}
+        onManualEntry={() => {
+          setShowNoRecognition(false);
+          setShowManualEntry(true);
+        }}
       />
 
       <ManualEntryModal
         isVisible={showManualEntry}
         onClose={() => setShowManualEntry(false)}
-        rawText={lastRawText}
         onSubmit={handleManualSubmit}
       />
     </View>

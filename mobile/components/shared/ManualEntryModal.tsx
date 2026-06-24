@@ -22,7 +22,6 @@ const MODAL_WIDTH = Math.min(SCREEN_WIDTH * 0.9, 400);
 interface ManualEntryModalProps {
   isVisible: boolean;
   onClose: () => void;
-  rawText: string;
   onSubmit: (name: string, priceBs: number, priceUsd: number) => void;
 }
 
@@ -32,6 +31,7 @@ const stylesheet = StyleSheet.create(theme => ({
     justifyContent: 'flex-end',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    marginBottom: theme.spacing.xxl,
   },
   modalContent: {
     width: MODAL_WIDTH,
@@ -42,11 +42,6 @@ const stylesheet = StyleSheet.create(theme => ({
     borderWidth: 1,
     borderColor: theme.colors.stoneSurface,
     gap: theme.spacing.md,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   headerTitle: {
     fontSize: theme.typography.fontSize.xs,
@@ -115,29 +110,9 @@ const stylesheet = StyleSheet.create(theme => ({
   currencyToggleTextActive: {
     color: theme.colors.white,
   },
-  rawTextContainer: {
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.sm,
-    backgroundColor: theme.colors.surfaceContainerLow,
-  },
-  rawTextLabel: {
-    fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.outline,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: theme.spacing.xs,
-  },
-  rawText: {
-    fontSize: theme.typography.fontSize.xs,
-    color: theme.colors.outline,
-    fontFamily: 'monospace',
-  },
   actionRow: {
     flexDirection: 'row',
-    gap: theme.spacing.sm,
+    gap: theme.spacing.xxs,
   },
   cancelButton: {
     flex: 1,
@@ -154,7 +129,7 @@ const stylesheet = StyleSheet.create(theme => ({
     color: theme.colors.onSurfaceVariant,
   },
   addButton: {
-    flex: 2,
+    flex: 1,
     backgroundColor: theme.colors.midnight,
     borderRadius: theme.borderRadius.button,
     paddingVertical: theme.spacing.md,
@@ -168,22 +143,9 @@ const stylesheet = StyleSheet.create(theme => ({
     fontSize: theme.typography.fontSize.md,
     fontWeight: theme.typography.fontWeight.semibold,
   },
-  warningBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.xs,
-    backgroundColor: theme.colors.sunburstYellow + '20',
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-  },
-  warningText: {
-    fontSize: theme.typography.fontSize.xs,
-    color: theme.colors.warning,
-    flex: 1,
-  },
 }));
 
-export function ManualEntryModal({ isVisible, onClose, rawText, onSubmit }: ManualEntryModalProps) {
+export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryModalProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
   const { rate: exchangeRate } = useBCV();
@@ -236,19 +198,7 @@ export function ManualEntryModal({ isVisible, onClose, rawText, onSubmit }: Manu
     <Modal visible={isVisible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.modalContainer as ViewStyle} onPress={onClose}>
         <Pressable style={styles.modalContent as ViewStyle} onPress={e => e.stopPropagation()}>
-          <View style={styles.headerRow as ViewStyle}>
-            <Text style={styles.headerTitle as TextStyle}>Entrada Manual</Text>
-            <Pressable onPress={onClose}>
-              <MaterialIcons name="close" size={24} color={theme.colors.outline} />
-            </Pressable>
-          </View>
-
-          <View style={styles.warningBadge as ViewStyle}>
-            <MaterialIcons name="warning" size={16} color={theme.colors.warning} />
-            <Text style={styles.warningText as TextStyle}>
-              No se pudo leer el precio automáticamente. Ingresa los datos manualmente.
-            </Text>
-          </View>
+          <Text style={styles.headerTitle as TextStyle}>Ingreso Manual</Text>
 
           <View style={styles.inputGroup as ViewStyle}>
             <Text style={styles.label as TextStyle}>Nombre del Producto</Text>
@@ -256,7 +206,7 @@ export function ManualEntryModal({ isVisible, onClose, rawText, onSubmit }: Manu
               style={styles.textInput as TextStyle}
               value={name}
               onChangeText={setName}
-              placeholder="Ej: Cerami-k brillante marfil 1 ga"
+              placeholder="Ej: Harina Pan"
               placeholderTextColor={theme.colors.ash}
             />
           </View>
@@ -290,15 +240,6 @@ export function ManualEntryModal({ isVisible, onClose, rawText, onSubmit }: Manu
               </Pressable>
             </View>
           </View>
-
-          {rawText ? (
-            <View style={styles.rawTextContainer as ViewStyle}>
-              <Text style={styles.rawTextLabel as TextStyle}>Texto detectado</Text>
-              <Text style={styles.rawText as TextStyle} numberOfLines={3}>
-                {rawText}
-              </Text>
-            </View>
-          ) : null}
 
           <View style={styles.actionRow as ViewStyle}>
             <Pressable

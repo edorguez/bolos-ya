@@ -9,8 +9,7 @@ import {
 import { convertBsToUsd, convertUsdToBs } from '../utils/formatters';
 
 export interface ScanResult {
-  rawText: string;
-  productName: string;
+  productName: string | null;
   price: number;
   currency: 'BS' | 'USD';
   priceBs: number;
@@ -55,7 +54,6 @@ async function mockScanImage(_imageUri: string): Promise<ScanResult> {
   const priceUsd = convertBsToUsd(priceBs, exchangeRate);
 
   return {
-    rawText: 'Arroz Paddy\nBs 25,50',
     productName: 'Arroz Paddy',
     price: priceBs,
     currency: 'BS',
@@ -157,8 +155,7 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
   const fileInfo = await FileSystem.getInfoAsync(imageUri);
   if (!fileInfo.exists) {
     return {
-      rawText: '',
-      productName: 'Producto desconocido',
+      productName: null,
       price: 0,
       currency: 'BS',
       priceBs: 0,
@@ -184,8 +181,7 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
 
   if (!text || text.trim().length === 0) {
     return {
-      rawText: '',
-      productName: 'Producto desconocido',
+      productName: null,
       price: 0,
       currency: 'BS',
       priceBs: 0,
@@ -357,8 +353,7 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
 
   if (detectedPrice === null) {
     return {
-      rawText: text,
-      productName: 'Producto desconocido',
+      productName: null,
       price: 0,
       currency: detectedCurrency,
       priceBs: 0,
@@ -369,22 +364,10 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
   }
 
   // ── Product name ──────────────────────────────────────────────────
-  let productName = 'Producto desconocido';
+  let productName: string | null = null;
   const nameLines = collectProductNameLines(sortedBlocks, productBlockIndex);
   if (nameLines.length > 0) {
     productName = nameLines.join(' ');
-  }
-  if (productName === 'Producto desconocido') {
-    const lines = text
-      .split('\n')
-      .map(l => l.trim())
-      .filter(l => l.length > 0);
-    for (const line of lines) {
-      if (!isLikelyNoise(line) && !extractPriceFromText(line) && !detectCurrencyFromText(line)) {
-        productName = line;
-        break;
-      }
-    }
   }
 
   // ── Currency conversion ───────────────────────────────────────────
@@ -422,7 +405,6 @@ export async function scanImage(imageUri: string): Promise<ScanResult> {
   confidence = Math.round(Math.min(0.95, Math.max(0.3, confidence)) * 100) / 100;
 
   return {
-    rawText: text,
     productName,
     price: detectedPrice,
     currency: detectedCurrency,

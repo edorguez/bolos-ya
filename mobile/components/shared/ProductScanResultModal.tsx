@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   View,
   Text,
@@ -7,7 +6,6 @@ import {
   Dimensions,
   type ViewStyle,
   type TextStyle,
-  ScrollView,
 } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
@@ -22,7 +20,6 @@ interface ProductScanResultModalProps {
   productName: string;
   priceBs: number;
   priceUsd: number;
-  rawText?: string;
   onAddToCart: () => void;
 }
 
@@ -32,6 +29,7 @@ const stylesheet = StyleSheet.create(theme => ({
     justifyContent: 'flex-end',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    marginBottom: theme.spacing.xxl,
   },
   modalContent: {
     width: MODAL_WIDTH,
@@ -60,7 +58,7 @@ const stylesheet = StyleSheet.create(theme => ({
     marginBottom: theme.spacing.xs,
   },
   productName: {
-    fontSize: theme.typography.fontSize.lg,
+    fontSize: theme.typography.fontSize.md,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
     lineHeight: 24,
@@ -82,20 +80,6 @@ const stylesheet = StyleSheet.create(theme => ({
     color: theme.colors.emberOrange,
     fontSize: theme.typography.fontSize.xs,
     fontWeight: theme.typography.fontWeight.medium,
-  },
-  rawTextContainer: {
-    marginTop: theme.spacing.md,
-    maxHeight: 150,
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.sm,
-    backgroundColor: theme.colors.surfaceContainerLow,
-  },
-  rawText: {
-    fontSize: theme.typography.fontSize.xs,
-    color: theme.colors.outline,
-    fontFamily: 'monospace',
   },
   priceRow: {
     flexDirection: 'row',
@@ -133,7 +117,27 @@ const stylesheet = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.stoneSurface,
     marginBottom: theme.spacing.xs,
   },
+  actionRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.xxs,
+    marginTop: theme.spacing.sm,
+  },
+  retryButton: {
+    flex: 1,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.button,
+    borderWidth: 1,
+    borderColor: theme.colors.stoneSurface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  retryButtonText: {
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: theme.typography.fontWeight.semibold,
+    color: theme.colors.onSurfaceVariant,
+  },
   addButton: {
+    flex: 1,
     backgroundColor: theme.colors.midnight,
     borderRadius: theme.borderRadius.button,
     paddingVertical: theme.spacing.md,
@@ -144,7 +148,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   addButtonText: {
     color: theme.colors.white,
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
   },
 }));
@@ -155,12 +159,10 @@ export function ProductScanResultModal({
   productName,
   priceBs,
   priceUsd,
-  rawText,
   onAddToCart,
 }: ProductScanResultModalProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
-  const [showRawText, setShowRawText] = useState(false);
 
   const formatPriceBs = (price: number) => {
     return `Bs. ${price.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -179,20 +181,8 @@ export function ProductScanResultModal({
               <Text style={styles.subtitle as TextStyle}>Producto Detectado</Text>
               <Text style={styles.productName as TextStyle}>{productName}</Text>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {rawText && (
-                <Pressable
-                  style={styles.toggleButton as ViewStyle}
-                  onPress={() => setShowRawText(!showRawText)}
-                >
-                  <Text style={styles.toggleButtonText as TextStyle}>
-                    {showRawText ? 'Ocultar texto' : 'Ver texto'}
-                  </Text>
-                </Pressable>
-              )}
-              <View style={styles.verifiedBadge as ViewStyle}>
-                <MaterialIcons name="verified" size={24} color={theme.colors.meadowGreen} />
-              </View>
+            <View style={styles.verifiedBadge as ViewStyle}>
+              <MaterialIcons name="verified" size={24} color={theme.colors.meadowGreen} />
             </View>
           </View>
 
@@ -208,24 +198,28 @@ export function ProductScanResultModal({
             </View>
           </View>
 
-          {rawText && showRawText && (
-            <View style={styles.rawTextContainer as ViewStyle}>
-              <ScrollView>
-                <Text style={styles.rawText as TextStyle}>{rawText}</Text>
-              </ScrollView>
-            </View>
-          )}
+          <View style={styles.actionRow as ViewStyle}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.retryButton as ViewStyle,
+                pressed && { opacity: 0.8 },
+              ]}
+              onPress={onClose}
+            >
+              <Text style={styles.retryButtonText as TextStyle}>Reintentar</Text>
+            </Pressable>
 
-          <Pressable
-            style={({ pressed }) => [styles.addButton as ViewStyle, pressed && { opacity: 0.8 }]}
-            onPress={() => {
-              onAddToCart();
-              onClose();
-            }}
-          >
-            <MaterialIcons name="add-circle" size={20} color={theme.colors.white} />
-            <Text style={styles.addButtonText as TextStyle}>Añadir a la libreta</Text>
-          </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.addButton as ViewStyle, pressed && { opacity: 0.8 }]}
+              onPress={() => {
+                onAddToCart();
+                onClose();
+              }}
+            >
+              <MaterialIcons name="add-circle" size={20} color={theme.colors.white} />
+              <Text style={styles.addButtonText as TextStyle}>Añadir</Text>
+            </Pressable>
+          </View>
         </Pressable>
       </Pressable>
     </Modal>

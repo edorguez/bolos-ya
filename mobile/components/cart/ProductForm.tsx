@@ -211,7 +211,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
         <Text style={styles.label as TextStyle}>Nombre del Producto</Text>
         <TextInput
           style={styles.textInput as TextStyle}
-          placeholder="Ej. Harina Pan 1kg"
+          placeholder="Ej. Harina Pan"
           placeholderTextColor={theme.colors.onSurfaceVariant}
           value={name}
           onChangeText={text => {
@@ -298,10 +298,16 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <AmountInput
                   rawDigits={usdPrice}
-                  onRawDigitsChange={() => {}}
+                  onRawDigitsChange={() => { }}
                   placeholder="0,00"
                   editable={false}
-                  style={[styles.priceInput as any, { color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.stoneSurface }]}
+                  style={[
+                    styles.priceInput as any,
+                    {
+                      color: theme.colors.onSurfaceVariant,
+                      backgroundColor: theme.colors.stoneSurface,
+                    },
+                  ]}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>$</Text>
               </View>
@@ -354,10 +360,16 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <AmountInput
                   rawDigits={bsPrice}
-                  onRawDigitsChange={() => {}}
+                  onRawDigitsChange={() => { }}
                   placeholder="0,00"
                   editable={false}
-                  style={[styles.priceInput as any, { color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.stoneSurface }]}
+                  style={[
+                    styles.priceInput as any,
+                    {
+                      color: theme.colors.onSurfaceVariant,
+                      backgroundColor: theme.colors.stoneSurface,
+                    },
+                  ]}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>
               </View>
