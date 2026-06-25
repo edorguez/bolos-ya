@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCartStore, type Cart, type CartProduct } from '../../store/cartStore';
 import { useAppTheme } from '../../styles/theme';
+import { createCartDetailStyles } from '../../styles/cartDetailStyles';
 import { ProductCard } from '../../components/cart/ProductCard';
 import { BudgetSummary } from '../../components/cart/BudgetSummary';
 import { SupermarketHeader } from '../../components/cart/SupermarketHeader';
@@ -94,6 +95,7 @@ export default function CartDetailScreen() {
     name: string;
     priceBs: number;
     priceUsd: number;
+    priceBcv: number;
     quantity: number;
     supermarket: string;
   }) => {
@@ -108,6 +110,7 @@ export default function CartDetailScreen() {
           name: product.name,
           priceUsd: product.priceUsd,
           priceBs: product.priceBs,
+          priceBcv: product.priceBcv,
           quantity: product.quantity,
           isManualEntry: true,
         },
@@ -137,6 +140,7 @@ export default function CartDetailScreen() {
     name: string;
     priceBs: number;
     priceUsd: number;
+    priceBcv: number;
     quantity: number;
     supermarket: string;
   }) => {
@@ -151,6 +155,7 @@ export default function CartDetailScreen() {
           name: product.name,
           priceUsd: product.priceUsd,
           priceBs: product.priceBs,
+          priceBcv: product.priceBcv,
           quantity: product.quantity,
         },
         user.id
@@ -232,114 +237,7 @@ export default function CartDetailScreen() {
   const budgetBs = cart.budgetBs || 4000;
   const budgetUsd = cart.budgetUsd || 109;
 
-  const buttonBarHeight = 56 + theme.spacing.lg * 2;
-  const scrollContentPaddingBottom = buttonBarHeight + theme.spacing.md;
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    headerContainer: {
-      backgroundColor: theme.colors.surfaceContainerLowest,
-      paddingHorizontal: theme.spacing.lg,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.stoneSurface,
-    },
-    supermarketHeaderContainer: {
-      paddingTop: theme.spacing.md,
-    },
-    scrollView: {
-      flex: 1,
-      paddingTop: theme.spacing.sm,
-    },
-    scrollContent: {
-      paddingHorizontal: 24,
-      paddingBottom: scrollContentPaddingBottom,
-    },
-    productList: {
-      gap: 16,
-    },
-    sectionHeader: {
-      fontSize: theme.typography.fontSize.lg,
-      fontWeight: '600',
-      color: theme.colors.onSurface,
-      marginBottom: 16,
-      marginTop: 8,
-      letterSpacing: theme.typography.letterSpacing.lg,
-    },
-    emptyState: {
-      paddingVertical: theme.spacing.lg,
-      alignItems: 'center',
-      justifyContent: 'center',
-      opacity: 0.4,
-    },
-    emptyStateText: {
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.medium,
-      color: theme.colors.onSurface,
-      marginTop: theme.spacing.md,
-    },
-    buttonBarContainer: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: theme.colors.surfaceContainerLowest,
-      paddingTop: theme.spacing.md,
-      paddingBottom: theme.spacing.md,
-      paddingHorizontal: theme.spacing.md,
-      alignItems: 'center',
-    },
-    buttonBar: {
-      flexDirection: 'row',
-      gap: theme.spacing.md,
-      width: '100%',
-      maxWidth: 400,
-      alignSelf: 'center',
-      position: 'relative',
-    },
-    button: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: theme.spacing.xs,
-      paddingVertical: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.md,
-      backgroundColor: theme.colors.midnight,
-      borderRadius: theme.borderRadius.button,
-    },
-    buttonText: {
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.white,
-      flexShrink: 1,
-    },
-    buttonCircle: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: theme.spacing.sm,
-      backgroundColor: theme.colors.secondaryContainer,
-      borderRadius: theme.borderRadius.full,
-    },
-    buttonCircleComplete: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: theme.spacing.md,
-      backgroundColor: theme.colors.meadowGreen,
-      borderRadius: theme.borderRadius.full,
-      borderWidth: 2,
-      borderColor: theme.colors.white,
-      position: 'absolute',
-      top: -10,
-      left: '50%',
-      transform: [{ translateX: '-50%' }],
-      zIndex: 10,
-    },
-  });
+  const styles = createCartDetailStyles(theme);
 
   return (
     <View style={styles.container}>

@@ -21,6 +21,7 @@ interface ProductFormProps {
     name: string;
     priceBs: number;
     priceUsd: number;
+    priceBcv: number;
     quantity: number;
     supermarket: string;
   }) => void;
@@ -37,7 +38,7 @@ interface ProductFormProps {
 export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormProps) {
   const theme = useAppTheme();
   const { rate: exchangeRate } = useBCV();
-  const EXCHANGE_RATE = exchangeRate?.usdRate ?? 55;
+  const EXCHANGE_RATE = exchangeRate?.usdRate ?? 0;
   const styles = createProductFormStyles(theme);
 
   const [name, setName] = useState('');
@@ -129,8 +130,16 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
+    if (!exchangeRate) {
+      newErrors.price = 'Tasa de cambio no disponible. Verifica tu conexión.';
+      setErrors(newErrors);
+      return false;
+    }
+
     if (!name.trim()) {
       newErrors.name = 'El nombre del producto es requerido';
+    } else if (name.trim().length > 100) {
+      newErrors.name = 'El nombre no puede exceder 100 caracteres';
     }
 
     const bsValue = parseAmountInput(bsPrice);
@@ -169,6 +178,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
       name: name.trim(),
       priceBs: finalBs,
       priceUsd: finalUsd,
+      priceBcv: exchangeRate?.usdRate ?? 0,
       quantity,
       supermarket,
     });
@@ -218,6 +228,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
             setName(text);
             setErrors(prev => ({ ...prev, name: '' }));
           }}
+          maxLength={100}
         />
         {errors.name && <Text style={styles.errorText as TextStyle}>{errors.name}</Text>}
       </View>

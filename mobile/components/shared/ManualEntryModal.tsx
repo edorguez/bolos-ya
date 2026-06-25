@@ -5,149 +5,25 @@ import {
   TextInput,
   Pressable,
   Modal,
-  Dimensions,
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
-import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
+import { createManualEntryModalStyles } from '../../styles/manualEntryModalStyles';
 import { AmountInput } from './AmountInput';
 import { parseAmountInput } from '../../utils/amountUtils';
 import { useBCV } from '../../store/bcvStore';
 import { MaterialIcons } from '@expo/vector-icons';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const MODAL_WIDTH = Math.min(SCREEN_WIDTH * 0.9, 400);
-
 interface ManualEntryModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onSubmit: (name: string, priceBs: number, priceUsd: number) => void;
+  onSubmit: (name: string, priceBs: number, priceUsd: number, priceBcv: number, quantity: number) => void;
 }
-
-const stylesheet = StyleSheet.create(theme => ({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    marginBottom: theme.spacing.xxl,
-  },
-  modalContent: {
-    width: MODAL_WIDTH,
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-    gap: theme.spacing.md,
-  },
-  headerTitle: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.emberOrange,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  inputGroup: {
-    gap: theme.spacing.xs,
-  },
-  label: {
-    fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurfaceVariant,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginLeft: theme.spacing.xs,
-  },
-  textInput: {
-    backgroundColor: theme.colors.surfaceContainerLow,
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.sm,
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.colors.text,
-  },
-  priceRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    alignItems: 'flex-end',
-  },
-  priceInputWrapper: {
-    flex: 1,
-    position: 'relative',
-  },
-  priceInput: {
-    backgroundColor: theme.colors.surfaceContainerLow,
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.sm,
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.colors.text,
-    textAlign: 'right',
-  },
-  currencyToggle: {
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.stoneSurface,
-    minWidth: 60,
-    alignItems: 'center',
-  },
-  currencyToggleActive: {
-    backgroundColor: theme.colors.midnight,
-  },
-  currencyToggleText: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurfaceVariant,
-  },
-  currencyToggleTextActive: {
-    color: theme.colors.white,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.xxs,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.button,
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cancelButtonText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurfaceVariant,
-  },
-  addButton: {
-    flex: 1,
-    backgroundColor: theme.colors.midnight,
-    borderRadius: theme.borderRadius.button,
-    paddingVertical: theme.spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  addButtonText: {
-    color: theme.colors.white,
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.semibold,
-  },
-}));
 
 export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryModalProps) {
   const theme = useAppTheme();
-  const styles = stylesheet(theme);
+  const styles = createManualEntryModalStyles(theme);
   const { rate: exchangeRate } = useBCV();
   const EXCHANGE_RATE = exchangeRate?.usdRate ?? 55;
 
@@ -155,6 +31,13 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
   const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS');
   const [bsRawDigits, setBsRawDigits] = useState('');
   const [usdRawDigits, setUsdRawDigits] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState(1);
+
+  const incrementQuantity = () => setQuantity(prev => prev + 1);
+  const decrementQuantity = () => {
+    if (quantity > 1) setQuantity(prev => prev - 1);
+  };
 
   const isBsEditable = topCurrency === 'BS';
 
@@ -179,7 +62,17 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
   };
 
   const handleSubmit = () => {
-    if (!name.trim()) return;
+    setError(null);
+
+    if (!name.trim()) {
+      setError('El nombre del producto es requerido');
+      return;
+    }
+
+    if (!exchangeRate) {
+      setError('Tasa de cambio no disponible. Verifica tu conexión.');
+      return;
+    }
 
     const priceBs = isBsEditable
       ? parseAmountInput(bsRawDigits)
@@ -189,9 +82,17 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
       ? parseAmountInput(bsRawDigits) / EXCHANGE_RATE
       : parseAmountInput(usdRawDigits);
 
-    if (priceBs <= 0 && priceUsd <= 0) return;
+    if (priceBs <= 0 && priceUsd <= 0) {
+      setError('Ingresa un precio válido');
+      return;
+    }
 
-    onSubmit(name.trim(), priceBs, priceUsd);
+    if (priceBs < 0 || priceUsd < 0) {
+      setError('Precio inválido');
+      return;
+    }
+
+    onSubmit(name.trim().slice(0, 100), priceBs, priceUsd, exchangeRate.usdRate, quantity);
   };
 
   return (
@@ -208,7 +109,35 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
               onChangeText={setName}
               placeholder="Ej: Harina Pan"
               placeholderTextColor={theme.colors.ash}
+              maxLength={100}
             />
+          </View>
+
+          <View style={styles.quantitySection as ViewStyle}>
+            <Text style={styles.label as TextStyle}>Cantidad</Text>
+            <View style={styles.quantityControls as ViewStyle}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quantityButton as ViewStyle,
+                  { backgroundColor: theme.colors.surfaceContainerHigh },
+                  pressed && { opacity: 0.8 },
+                ]}
+                onPress={decrementQuantity}
+              >
+                <MaterialIcons name="remove" size={24} color={theme.colors.primary} />
+              </Pressable>
+              <Text style={styles.quantityNumber as TextStyle}>{quantity}</Text>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quantityButton as ViewStyle,
+                  { backgroundColor: theme.colors.primary },
+                  pressed && { opacity: 0.8 },
+                ]}
+                onPress={incrementQuantity}
+              >
+                <MaterialIcons name="add" size={24} color={theme.colors.white} />
+              </Pressable>
+            </View>
           </View>
 
           <View style={styles.inputGroup as ViewStyle}>
@@ -240,6 +169,9 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
               </Pressable>
             </View>
           </View>
+          {error && (
+            <Text style={styles.errorText as TextStyle}>{error}</Text>
+          )}
 
           <View style={styles.actionRow as ViewStyle}>
             <Pressable

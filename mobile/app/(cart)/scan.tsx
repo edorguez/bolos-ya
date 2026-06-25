@@ -9,6 +9,10 @@ import { ProductScanResultModal } from '../../components/shared/ProductScanResul
 import { ManualEntryModal } from '../../components/shared/ManualEntryModal';
 import { NoRecognitionModal } from '../../components/shared/NoRecognitionModal';
 import { useCartStore } from '../../store/cartStore';
+import { useAuth } from '../../store/authStore';
+import { useBCV } from '../../store/bcvStore';
+import { addCartProduct } from '../../services/cartService';
+import { Toast } from '../../components/shared/Toast';
 import { scanImage, preprocessImage } from '../../lib/ocr';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -17,6 +21,8 @@ export default function ScanScreen() {
   const theme = useAppTheme();
   const styles = createScanStyles(theme);
   const { activeCartId, carts, addProductToCart } = useCartStore();
+  const { user } = useAuth();
+  const { rate: exchangeRate } = useBCV();
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [cameraType, setCameraType] = useState<'back' | 'front'>('back');
@@ -31,6 +37,8 @@ export default function ScanScreen() {
   const cameraRef = useRef<CameraView>(null);
   const [showNoRecognition, setShowNoRecognition] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState<{ message: string; isError: boolean } | null>(null);
 
   const activeCart = activeCartId ? carts.find(c => c.id === activeCartId) : null;
 
@@ -75,36 +83,135 @@ export default function ScanScreen() {
     }
   };
 
-  const handleAddToCart = () => {
-    if (!scanResult || !activeCart) return;
+  const handleAddToCart = async (quantity: number) => {
+    if (!scanResult || !activeCart || !user?.id) return;
 
-    addProductToCart(activeCart.id, {
-      productId: `scanned_${Date.now()}`,
-      name: scanResult.name,
-      priceBs: scanResult.priceBs,
-      priceUsd: scanResult.priceUsd,
-      quantity: 1,
-      supermarket: activeCart.supermarket,
-    });
+    const name = scanResult.name.slice(0, 100).trim();
+    const priceBs = scanResult.priceBs;
+    const priceUsd = scanResult.priceUsd;
+    const rate = exchangeRate?.usdRate ?? 0;
 
-    setScanResult(null);
-    router.back();
+    if (!name) {
+      setToast({ message: 'Nombre de producto inválido', isError: true });
+      return;
+    }
+    if (priceBs <= 0 && priceUsd <= 0) {
+      setToast({ message: 'Precio inválido', isError: true });
+      return;
+    }
+    if (priceBs < 0 || priceUsd < 0) {
+      setToast({ message: 'Precio inválido', isError: true });
+      return;
+    }
+    if (!exchangeRate) {
+      setToast({ message: 'Tasa de cambio no disponible. Verifica tu conexión.', isError: true });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const result = await addCartProduct(
+        {
+          cartId: activeCart.id,
+          supermarketId: activeCart.supermarketId,
+          name,
+          priceUsd,
+          priceBs,
+          priceBcv: rate,
+          quantity,
+          isManualEntry: false,
+        },
+        user.id
+      );
+
+      addProductToCart(activeCart.id, {
+        id: result.id,
+        productId: result.productId,
+        name: result.name,
+        priceBs: result.priceBs,
+        priceUsd: result.priceUsd,
+        quantity: result.quantity,
+        supermarket: activeCart.supermarket,
+        productImageUrl: result.imageUrl || undefined,
+      });
+
+      setScanResult(null);
+      setToast({ message: 'Producto agregado exitosamente', isError: false });
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : 'Error al agregar producto',
+        isError: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleManualSubmit = (name: string, priceBs: number, priceUsd: number) => {
-    if (!activeCart) return;
+  const handleManualSubmit = async (
+    name: string,
+    priceBs: number,
+    priceUsd: number,
+    priceBcv: number,
+    quantity: number
+  ) => {
+    if (!activeCart || !user?.id) return;
 
-    addProductToCart(activeCart.id, {
-      productId: `scanned_${Date.now()}`,
-      name,
-      priceBs,
-      priceUsd,
-      quantity: 1,
-      supermarket: activeCart.supermarket,
-    });
+    const trimmed = name.trim().slice(0, 100);
 
-    setShowManualEntry(false);
-    router.back();
+    if (!trimmed) {
+      setToast({ message: 'Nombre de producto requerido', isError: true });
+      return;
+    }
+    if (priceBs <= 0 && priceUsd <= 0) {
+      setToast({ message: 'Ingresa un precio válido', isError: true });
+      return;
+    }
+    if (priceBs < 0 || priceUsd < 0) {
+      setToast({ message: 'Precio inválido', isError: true });
+      return;
+    }
+    if (priceBcv <= 0) {
+      setToast({ message: 'Tasa de cambio no disponible. Verifica tu conexión.', isError: true });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const result = await addCartProduct(
+        {
+          cartId: activeCart.id,
+          supermarketId: activeCart.supermarketId,
+          name: trimmed,
+          priceUsd,
+          priceBs,
+          priceBcv,
+          quantity,
+          isManualEntry: true,
+        },
+        user.id
+      );
+
+      addProductToCart(activeCart.id, {
+        id: result.id,
+        productId: result.productId,
+        name: result.name,
+        priceBs: result.priceBs,
+        priceUsd: result.priceUsd,
+        quantity: result.quantity,
+        supermarket: activeCart.supermarket,
+        productImageUrl: result.imageUrl || undefined,
+      });
+
+      setShowManualEntry(false);
+      setToast({ message: 'Producto agregado exitosamente', isError: false });
+    } catch (err) {
+      setToast({
+        message: err instanceof Error ? err.message : 'Error al agregar producto',
+        isError: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const toggleCameraType = () => {
@@ -225,6 +332,12 @@ export default function ScanScreen() {
         isVisible={showManualEntry}
         onClose={() => setShowManualEntry(false)}
         onSubmit={handleManualSubmit}
+      />
+
+      <Toast
+        message={toast?.message ?? null}
+        isError={toast?.isError ?? true}
+        onDismiss={() => setToast(null)}
       />
     </View>
   );

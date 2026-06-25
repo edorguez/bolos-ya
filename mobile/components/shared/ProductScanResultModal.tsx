@@ -1,18 +1,15 @@
+import { useState } from 'react';
 import {
   View,
   Text,
   Pressable,
   Modal,
-  Dimensions,
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
-import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
+import { createProductScanResultModalStyles } from '../../styles/productScanResultModalStyles';
 import { MaterialIcons } from '@expo/vector-icons';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const MODAL_WIDTH = Math.min(SCREEN_WIDTH * 0.9, 400);
 
 interface ProductScanResultModalProps {
   isVisible: boolean;
@@ -20,138 +17,8 @@ interface ProductScanResultModalProps {
   productName: string;
   priceBs: number;
   priceUsd: number;
-  onAddToCart: () => void;
+  onAddToCart: (quantity: number) => void;
 }
-
-const stylesheet = StyleSheet.create(theme => ({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    marginBottom: theme.spacing.xxl,
-  },
-  modalContent: {
-    width: MODAL_WIDTH,
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing.md,
-  },
-  titleContainer: {
-    flex: 1,
-  },
-  subtitle: {
-    fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.emberOrange,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: theme.spacing.xs,
-  },
-  productName: {
-    fontSize: theme.typography.fontSize.md,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurface,
-    lineHeight: 24,
-    letterSpacing: theme.typography.letterSpacing.lg,
-  },
-  verifiedBadge: {
-    backgroundColor: theme.colors.meadowGreen + '20',
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-  },
-  toggleButton: {
-    backgroundColor: theme.colors.stoneSurface,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.borderRadius.sm,
-    marginLeft: theme.spacing.sm,
-  },
-  toggleButtonText: {
-    color: theme.colors.emberOrange,
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.medium,
-  },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 16,
-    marginTop: theme.spacing.sm,
-    marginBottom: theme.spacing.lg,
-  },
-  priceColumn: {
-    flex: 1,
-  },
-  priceLabel: {
-    fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.outline,
-    textTransform: 'uppercase',
-    marginBottom: theme.spacing.xs,
-    letterSpacing: 1,
-  },
-  priceBs: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurface,
-    letterSpacing: theme.typography.letterSpacing.lg,
-  },
-  priceUsd: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.emberOrange,
-    letterSpacing: theme.typography.letterSpacing.lg,
-  },
-  divider: {
-    width: 1,
-    height: 40,
-    backgroundColor: theme.colors.stoneSurface,
-    marginBottom: theme.spacing.xs,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.xxs,
-    marginTop: theme.spacing.sm,
-  },
-  retryButton: {
-    flex: 1,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.button,
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  retryButtonText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurfaceVariant,
-  },
-  addButton: {
-    flex: 1,
-    backgroundColor: theme.colors.midnight,
-    borderRadius: theme.borderRadius.button,
-    paddingVertical: theme.spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  addButtonText: {
-    color: theme.colors.white,
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.semibold,
-  },
-}));
 
 export function ProductScanResultModal({
   isVisible,
@@ -162,7 +29,14 @@ export function ProductScanResultModal({
   onAddToCart,
 }: ProductScanResultModalProps) {
   const theme = useAppTheme();
-  const styles = stylesheet(theme);
+  const styles = createProductScanResultModalStyles(theme);
+
+  const [quantity, setQuantity] = useState(1);
+
+  const incrementQuantity = () => setQuantity(prev => prev + 1);
+  const decrementQuantity = () => {
+    if (quantity > 1) setQuantity(prev => prev - 1);
+  };
 
   const formatPriceBs = (price: number) => {
     return `Bs. ${price.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -198,6 +72,33 @@ export function ProductScanResultModal({
             </View>
           </View>
 
+          <View style={styles.quantitySection as ViewStyle}>
+            <Text style={styles.priceLabel as TextStyle}>Cantidad</Text>
+            <View style={styles.quantityControls as ViewStyle}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quantityButton as ViewStyle,
+                  { backgroundColor: theme.colors.surfaceContainerHigh },
+                  pressed && { opacity: 0.8 },
+                ]}
+                onPress={decrementQuantity}
+              >
+                <MaterialIcons name="remove" size={24} color={theme.colors.primary} />
+              </Pressable>
+              <Text style={styles.quantityNumber as TextStyle}>{quantity}</Text>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.quantityButton as ViewStyle,
+                  { backgroundColor: theme.colors.primary },
+                  pressed && { opacity: 0.8 },
+                ]}
+                onPress={incrementQuantity}
+              >
+                <MaterialIcons name="add" size={24} color={theme.colors.white} />
+              </Pressable>
+            </View>
+          </View>
+
           <View style={styles.actionRow as ViewStyle}>
             <Pressable
               style={({ pressed }) => [
@@ -212,7 +113,7 @@ export function ProductScanResultModal({
             <Pressable
               style={({ pressed }) => [styles.addButton as ViewStyle, pressed && { opacity: 0.8 }]}
               onPress={() => {
-                onAddToCart();
+                onAddToCart(quantity);
                 onClose();
               }}
             >
