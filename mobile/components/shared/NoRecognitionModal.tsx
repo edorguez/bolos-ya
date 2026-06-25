@@ -1,8 +1,10 @@
+import { useEffect, useRef } from 'react';
 import {
   View,
   Text,
   Pressable,
   Modal,
+  Animated,
   Dimensions,
   type ViewStyle,
   type TextStyle,
@@ -91,42 +93,62 @@ export function NoRecognitionModal({ isVisible, onClose, onManualEntry }: NoReco
   const theme = useAppTheme();
   const styles = stylesheet(theme);
 
+  const slideAnim = useRef(new Animated.Value(500)).current;
+
+  useEffect(() => {
+    if (isVisible) {
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: 500,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isVisible, slideAnim]);
+
   return (
-    <Modal visible={isVisible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={isVisible} transparent animationType="none" onRequestClose={onClose}>
       <Pressable style={styles.modalContainer as ViewStyle} onPress={onClose}>
-        <Pressable style={styles.modalContent as ViewStyle} onPress={e => e.stopPropagation()}>
-          <Text style={styles.headerTitle as TextStyle}>Producto no detectado</Text>
+        <Animated.View style={{ transform: [{ translateY: slideAnim }] }}>
+          <Pressable style={styles.modalContent as ViewStyle} onPress={e => e.stopPropagation()}>
+            <Text style={styles.headerTitle as TextStyle}>Producto no detectado</Text>
 
-          <Text style={styles.message as TextStyle}>
-            No se pudo reconocer el producto. Intenta tomar una foto más clara o ingresa los datos
-            manualmente.
-          </Text>
+            <Text style={styles.message as TextStyle}>
+              No se pudo reconocer el producto. Intenta tomar una foto más clara o ingresa los datos
+              manualmente.
+            </Text>
 
-          <View style={styles.actionRow as ViewStyle}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.retryButton as ViewStyle,
-                pressed && { opacity: 0.8 },
-              ]}
-              onPress={onClose}
-            >
-              <Text style={styles.retryButtonText as TextStyle}>Reintentar</Text>
-            </Pressable>
+            <View style={styles.actionRow as ViewStyle}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.retryButton as ViewStyle,
+                  pressed && { opacity: 0.8 },
+                ]}
+                onPress={onClose}
+              >
+                <Text style={styles.retryButtonText as TextStyle}>Reintentar</Text>
+              </Pressable>
 
-            <Pressable
-              style={({ pressed }) => [
-                styles.manualButton as ViewStyle,
-                pressed && { opacity: 0.8 },
-              ]}
-              onPress={() => {
-                onClose();
-                onManualEntry();
-              }}
-            >
-              <Text style={styles.manualButtonText as TextStyle}>Ingreso manual</Text>
-            </Pressable>
-          </View>
-        </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.manualButton as ViewStyle,
+                  pressed && { opacity: 0.8 },
+                ]}
+                onPress={() => {
+                  onClose();
+                  onManualEntry();
+                }}
+              >
+                <Text style={styles.manualButtonText as TextStyle}>Ingreso manual</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Animated.View>
       </Pressable>
     </Modal>
   );

@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { createHomeStyles } from '../../styles/homeStyles';
 import { CreateCartSection } from '../../components/home/CreateCartSection';
 import { BCVRateCard } from '../../components/home/BCVRateCard';
+import type { BCVRateRef } from '../../store/bcvStore';
 import {
   LatestCartsSection,
   type LatestCartsSectionRef,
@@ -21,6 +22,7 @@ export default function HomeTab() {
   const { user } = useAuth();
   const router = useRouter();
   const cartsRef = useRef<LatestCartsSectionRef>(null);
+  const bcvRef = useRef<BCVRateRef>(null);
 
   const [refreshing, setRefreshing] = useState(false);
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
@@ -37,7 +39,10 @@ export default function HomeTab() {
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await cartsRef.current?.refresh();
+      await Promise.all([
+        cartsRef.current?.refresh(),
+        bcvRef.current?.refresh(),
+      ]);
     } catch {
       // silently fail
     } finally {
@@ -67,7 +72,7 @@ export default function HomeTab() {
       >
         <CreateCartSection userId={user?.id} onCartCreated={handleCartCreated} onError={setToast} />
 
-        <BCVRateCard />
+        <BCVRateCard ref={bcvRef} />
 
         <LatestCartsSection ref={cartsRef} userId={user?.id} />
 

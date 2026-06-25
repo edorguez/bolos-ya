@@ -56,11 +56,11 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   totalLabel: {
     fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.semibold,
+    fontWeight: theme.typography.fontWeight.bold,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    color: theme.colors.onSurfaceVariant,
-    marginBottom: theme.spacing.xs,
+    color: theme.colors.onSurface,
+    marginTop: theme.spacing.xs,
   },
   totalAmountRow: {
     flexDirection: 'column',
@@ -74,7 +74,7 @@ const stylesheet = StyleSheet.create(theme => ({
   totalUsd: {
     fontSize: 14,
     fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurfaceVariant,
+    color: theme.colors.onSurface,
   },
   progressBarContainer: {
     marginBottom: theme.spacing.sm,

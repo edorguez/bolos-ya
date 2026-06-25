@@ -148,7 +148,7 @@ export function HistoryCard({
               { color: exceeded ? theme.colors.error : theme.colors.onSurface },
             ]}
           >
-            {budgetUsage}%
+            {exceeded ? '+100' : budgetUsage}%
           </Text>
         </View>
         <ProgressBar

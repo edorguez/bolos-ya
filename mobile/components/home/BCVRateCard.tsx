@@ -1,7 +1,9 @@
-import { View, Text, ActivityIndicator, type ViewStyle, type TextStyle } from 'react-native';
+import { View, Text, ActivityIndicator, AppState, type ViewStyle, type TextStyle } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
-import { useBCV } from '../../store/bcvStore';
+import { useBCV, type BCVRateRef } from '../../store/bcvStore';
 import { formatBs } from '../../utils/currency';
 import { formatDate } from '../../utils/dateUtils';
 
@@ -89,12 +91,47 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }));
 
-export function BCVRateCard() {
+export const BCVRateCard = forwardRef<BCVRateRef, object>((_props, ref) => {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
-  const { rate, isLoading } = useBCV();
+  const { rate, isLoading, error, refresh, loadRate } = useBCV();
+  const appStateRef = useRef(AppState.currentState);
 
-  if (isLoading) {
+  useFocusEffect(
+    useCallback(() => {
+      loadRate();
+    }, [loadRate])
+  );
+
+  useImperativeHandle(ref, () => ({ refresh }), [refresh]);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (nextState) => {
+      if (appStateRef.current.match(/inactive|background/) && nextState === 'active') {
+        loadRate();
+      }
+      appStateRef.current = nextState;
+    });
+    return () => sub.remove();
+  }, [loadRate]);
+
+  if (error && !rate) {
+    return (
+      <View style={styles.card as ViewStyle}>
+        <View style={styles.header as ViewStyle}>
+          <View style={styles.indicator as ViewStyle} />
+          <View style={styles.titleBox as ViewStyle}>
+            <Text style={styles.headerLabel as TextStyle}>Tasa BCV</Text>
+          </View>
+        </View>
+        <Text style={{ color: theme.colors.error, fontSize: theme.typography.fontSize.sm }}>
+          No disponible
+        </Text>
+      </View>
+    );
+  }
+
+  if (isLoading && !rate) {
     return (
       <View style={styles.loadingContainer as ViewStyle}>
         <ActivityIndicator size="small" color={theme.colors.ash} />
@@ -139,4 +176,6 @@ export function BCVRateCard() {
       </View>
     </View>
   );
-}
+});
+
+BCVRateCard.displayName = 'BCVRateCard';

@@ -63,9 +63,15 @@ async function mockScanImage(_imageUri: string): Promise<ScanResult> {
   };
 }
 
-export async function preprocessImage(uri: string): Promise<string> {
+export async function preprocessImage(
+  uri: string,
+  crop?: { originX: number; originY: number; width: number; height: number }
+): Promise<string> {
   try {
-    const result = await manipulateAsync(uri, [{ resize: { width: 1200 } }], {
+    const actions: any[] = [];
+    if (crop) actions.push({ crop });
+    actions.push({ resize: { width: 1200 } });
+    const result = await manipulateAsync(uri, actions, {
       compress: 0.8,
       format: SaveFormat.JPEG,
     });

@@ -17,12 +17,12 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 function calcBudgetUsage(cart: ApiCartResponse): { usage: number; exceeded: boolean } {
   if (cart.budgetBs > 0 && cart.totalEstimatedBs !== null) {
-    const usage = Math.round((cart.totalEstimatedBs / cart.budgetBs) * 100);
-    return { usage, exceeded: usage > 100 };
+    const raw = Math.round((cart.totalEstimatedBs / cart.budgetBs) * 100);
+    return { usage: Math.min(raw, 100), exceeded: raw > 100 };
   }
   if (cart.budgetUsd > 0 && cart.totalEstimatedUsd !== null) {
-    const usage = Math.round((cart.totalEstimatedUsd / cart.budgetUsd) * 100);
-    return { usage, exceeded: usage > 100 };
+    const raw = Math.round((cart.totalEstimatedUsd / cart.budgetUsd) * 100);
+    return { usage: Math.min(raw, 100), exceeded: raw > 100 };
   }
   return { usage: 0, exceeded: false };
 }

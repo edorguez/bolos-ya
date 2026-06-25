@@ -35,9 +35,10 @@ export default function ScanScreen() {
   } | null>(null);
 
   const cameraRef = useRef<CameraView>(null);
+  const cameraContainerRef = useRef<any>(null);
+  const scanAreaRef = useRef<any>(null);
   const [showNoRecognition, setShowNoRecognition] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; isError: boolean } | null>(null);
 
   const activeCart = activeCartId ? carts.find(c => c.id === activeCartId) : null;
@@ -62,7 +63,32 @@ export default function ScanScreen() {
         shutterSound: false,
       });
 
-      const processedUri = await preprocessImage(photo.uri);
+      const [camMeasure, scanMeasure] = await Promise.all([
+        new Promise<any>(resolve => cameraContainerRef.current?.measure((...a: any[]) => resolve(a))),
+        new Promise<any>(resolve => scanAreaRef.current?.measure((...a: any[]) => resolve(a))),
+      ]);
+
+      const [, , camW, camH, camPageX, camPageY] = camMeasure || [];
+      const [, , scanW, scanH, scanPageX, scanPageY] = scanMeasure || [];
+
+      let processedUri: string;
+
+      if (camW > 0 && scanW > 0) {
+        const scaleX = photo.width / camW;
+        const scaleY = photo.height / camH;
+        const relX = Math.max(0, scanPageX - camPageX);
+        const relY = Math.max(0, scanPageY - camPageY);
+
+        processedUri = await preprocessImage(photo.uri, {
+          originX: Math.round(relX * scaleX),
+          originY: Math.round(relY * scaleY),
+          width: Math.round(scanW * scaleX),
+          height: Math.round(scanH * scaleY),
+        });
+      } else {
+        processedUri = await preprocessImage(photo.uri);
+      }
+
       const result = await scanImage(processedUri);
 
       if (result.warning || !result.productName || !result.price || result.price === 0) {
@@ -108,7 +134,6 @@ export default function ScanScreen() {
       return;
     }
 
-    setIsSubmitting(true);
     try {
       const result = await addCartProduct(
         {
@@ -142,8 +167,6 @@ export default function ScanScreen() {
         message: err instanceof Error ? err.message : 'Error al agregar producto',
         isError: true,
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -175,7 +198,6 @@ export default function ScanScreen() {
       return;
     }
 
-    setIsSubmitting(true);
     try {
       const result = await addCartProduct(
         {
@@ -209,8 +231,6 @@ export default function ScanScreen() {
         message: err instanceof Error ? err.message : 'Error al agregar producto',
         isError: true,
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -241,7 +261,7 @@ export default function ScanScreen() {
     <View style={styles.container}>
       <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} />
 
-      <View style={styles.cameraContainer}>
+      <View ref={cameraContainerRef} style={styles.cameraContainer}>
         <CameraView
           ref={cameraRef}
           style={StyleSheet.absoluteFillObject}
@@ -256,7 +276,7 @@ export default function ScanScreen() {
           <View style={styles.overlayMiddleRow}>
             <View style={[styles.overlayTint, { flex: 1 }]} />
 
-            <View style={styles.scanArea}>
+            <View ref={scanAreaRef} style={styles.scanArea}>
               <View style={[styles.cornerLine, styles.cornerVertical, { top: 0, left: 0 }]} />
               <View style={[styles.cornerLine, styles.cornerHorizontal, { top: 0, left: 0 }]} />
               <View style={[styles.cornerLine, styles.cornerVertical, { top: 0, right: 0 }]} />
