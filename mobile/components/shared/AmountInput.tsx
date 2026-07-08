@@ -19,10 +19,13 @@ interface AmountInputProps {
   error?: boolean;
   editable?: boolean;
   style?: StyleProp<ViewStyle>;
+  maxValue?: number;
 }
 
+const MAX_DEFAULT = 999_999_999_999.99;
+
 export const AmountInput = forwardRef<TextInput, AmountInputProps>(function AmountInput(
-  { value, onValueChange, placeholder, error, editable = true, style },
+  { value, onValueChange, placeholder, error, editable = true, style, maxValue = MAX_DEFAULT },
   _ref
 ) {
   const theme = useAppTheme();
@@ -73,6 +76,7 @@ export const AmountInput = forwardRef<TextInput, AmountInputProps>(function Amou
           separator=","
           precision={2}
           editable={editable}
+          maxValue={maxValue}
           style={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
         />
         <Text style={[textStyle, !value && { color: theme.colors.ash }]}>
