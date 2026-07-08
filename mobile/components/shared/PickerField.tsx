@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
+import { Dropdown, type IDropdownRef } from 'react-native-element-dropdown';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
 
@@ -100,7 +100,7 @@ export function PickerField({
 }: PickerFieldProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
-  const ref = useRef<Dropdown<PickerOption>>(null);
+  const ref = useRef<IDropdownRef>(null);
 
   return (
     <View style={styles.container as ViewStyle}>
@@ -111,7 +111,7 @@ export function PickerField({
         containerStyle={styles.containerStyle as object}
         placeholderStyle={styles.placeholderText as TextStyle}
         selectedTextStyle={styles.dropdownText as TextStyle}
-        iconStyle={styles.icon as ViewStyle}
+        iconStyle={styles.icon as object}
         inputSearchStyle={styles.searchInput as TextStyle}
         itemTextStyle={styles.itemText as TextStyle}
         activeColor={theme.colors.surfaceContainerHigh}

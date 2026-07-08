@@ -203,7 +203,7 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
                     value={isBsEditable ? bsAmount : usdAmount}
                     onValueChange={isBsEditable ? handleBsChange : handleUsdChange}
                     placeholder={isBsEditable ? 'Bs. 0,00' : '$ 0,00'}
-                    style={styles.priceInput as TextStyle}
+                    style={styles.priceInput as ViewStyle}
                   />
                 </View>
                 <Pressable

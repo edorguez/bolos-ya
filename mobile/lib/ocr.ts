@@ -1,5 +1,5 @@
 import * as FileSystem from 'expo-file-system/legacy';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { manipulateAsync, SaveFormat, type Action } from 'expo-image-manipulator';
 import {
   getExchangeRate,
   detectCurrencyFromText,
@@ -76,7 +76,7 @@ export async function preprocessImage(
   crop?: { originX: number; originY: number; width: number; height: number }
 ): Promise<string> {
   try {
-    const actions: { crop?: object; resize?: object }[] = [];
+    const actions: Action[] = [];
     if (crop) actions.push({ crop });
     actions.push({ resize: { width: 1200 } });
     const result = await manipulateAsync(uri, actions, {
