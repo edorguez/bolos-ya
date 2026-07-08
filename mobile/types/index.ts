@@ -116,16 +116,16 @@ export interface ApiCartDetailResponse {
 }
 
 export interface BCVRateResponse {
-	id: string;
-	usdRate: number;
-	eurRate: number;
-	createdAt: string;
-	updatedAt: string;
+  id: string;
+  usdRate: number;
+  eurRate: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface SyncOperation {
-	table: string;
-	action: 'INSERT' | 'UPDATE' | 'DELETE';
-	payload: Record<string, unknown>;
-	timestamp: number;
+  table: string;
+  action: 'INSERT' | 'UPDATE' | 'DELETE';
+  payload: Record<string, unknown>;
+  timestamp: number;
 }

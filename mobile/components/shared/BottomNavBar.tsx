@@ -1,7 +1,7 @@
 import { View, Pressable, type ViewStyle } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
-import { useRouter, useSegments } from 'expo-router';
+import { useRouter, useSegments, type Href } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface BottomNavBarProps {
@@ -69,7 +69,7 @@ export function BottomNavBar({ activeRoute }: BottomNavBarProps) {
 
   const handlePress = (target: string | null) => {
     if (target) {
-      router.push(target as any);
+      router.push(target as Href);
     }
   };
 
@@ -85,7 +85,7 @@ export function BottomNavBar({ activeRoute }: BottomNavBarProps) {
               onPress={() => handlePress(item.target)}
             >
               <MaterialIcons
-                name={item.icon as any}
+                name={item.icon as keyof typeof MaterialIcons.glyphMap}
                 size={24}
                 color={isActive ? theme.colors.white : theme.colors.textSecondary}
               />

@@ -10,7 +10,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -143,7 +143,7 @@ export function BottomSheetModal({
     })
   ).current;
 
-  const openModal = () => {
+  const openModal = useCallback(() => {
     Animated.parallel([
       Animated.timing(translateY, {
         toValue: 0,
@@ -156,7 +156,7 @@ export function BottomSheetModal({
         useNativeDriver: true,
       }),
     ]).start();
-  };
+  }, [translateY, backdropOpacity]);
 
   const closeModal = () => {
     Animated.parallel([
@@ -194,7 +194,7 @@ export function BottomSheetModal({
     if (isVisible) {
       openModal();
     }
-  }, [isVisible]);
+  }, [isVisible, openModal]);
 
   if (!isVisible) {
     return null;

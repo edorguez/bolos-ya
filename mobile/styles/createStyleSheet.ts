@@ -2,7 +2,7 @@ import { StyleSheet as RNStyleSheet } from 'react-native';
 import { AppTheme } from './theme';
 
 type StyleFunction<T> = (theme: AppTheme) => T;
-type StyleObject = Record<string, any>;
+type StyleObject = Record<string, object>;
 
 export function createStyleSheet<T extends StyleObject>(styleFunction: StyleFunction<T>) {
   return (theme: AppTheme): RNStyleSheet.NamedStyles<T> => {

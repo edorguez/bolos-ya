@@ -90,7 +90,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               style={[styles.tabItem, isFocused && styles.activeTabItem]}
             >
               <MaterialIcons
-                name={iconName as any}
+                name={iconName as keyof typeof MaterialIcons.glyphMap}
                 size={24}
                 color={isFocused ? theme.colors.white : theme.colors.textSecondary}
                 style={styles.tabIcon}

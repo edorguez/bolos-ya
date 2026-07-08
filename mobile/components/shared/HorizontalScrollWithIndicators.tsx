@@ -119,7 +119,7 @@ export function HorizontalScrollWithIndicators({
         >
           <View style={styles.arrowBackground as ViewStyle}>
             <MaterialIcons
-              name={iconNameLeft as any}
+              name={iconNameLeft as keyof typeof MaterialIcons.glyphMap}
               size={iconSize}
               style={styles.icon as TextStyle}
             />
@@ -138,7 +138,7 @@ export function HorizontalScrollWithIndicators({
         >
           <View style={styles.arrowBackground as ViewStyle}>
             <MaterialIcons
-              name={iconNameRight as any}
+              name={iconNameRight as keyof typeof MaterialIcons.glyphMap}
               size={iconSize}
               style={styles.icon as TextStyle}
             />

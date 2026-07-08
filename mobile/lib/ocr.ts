@@ -22,7 +22,15 @@ interface TextBlock {
   text: string;
   frame: { left: number; top: number; right: number; bottom: number };
   recognizedLanguages: string[];
-  lines: { text: string; frame: any; recognizedLanguages: string[]; elements: any[] }[];
+  lines: {
+    text: string;
+    frame: { left: number; top: number; right: number; bottom: number };
+    recognizedLanguages: string[];
+    elements: {
+      text: string;
+      frame: { left: number; top: number; right: number; bottom: number };
+    }[];
+  }[];
 }
 
 interface TextRecognitionResult {
@@ -68,7 +76,7 @@ export async function preprocessImage(
   crop?: { originX: number; originY: number; width: number; height: number }
 ): Promise<string> {
   try {
-    const actions: any[] = [];
+    const actions: { crop?: object; resize?: object }[] = [];
     if (crop) actions.push({ crop });
     actions.push({ resize: { width: 1200 } });
     const result = await manipulateAsync(uri, actions, {

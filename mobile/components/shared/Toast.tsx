@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { View, Text, Animated, type TextStyle } from 'react-native';
+import { View, Text, Animated, type TextStyle, type ViewStyle } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
@@ -42,7 +42,13 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }));
 
-export function Toast({ message, onDismiss, duration = 4000, position = 'bottom', isError = true }: ToastProps) {
+export function Toast({
+  message,
+  onDismiss,
+  duration = 4000,
+  position = 'bottom',
+  isError = true,
+}: ToastProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
   const opacity = useRef(new Animated.Value(0)).current;
@@ -70,9 +76,15 @@ export function Toast({ message, onDismiss, duration = 4000, position = 'bottom'
   if (!message) return null;
 
   return (
-    <Animated.View style={[styles.container as any, positionStyle, { opacity, backgroundColor: bgColor }]}>
-      <View style={styles.row as any}>
-        <MaterialIcons name={isError ? 'error' : 'check-circle'} size={20} color={theme.colors.white} />
+    <Animated.View
+      style={[styles.container as ViewStyle, positionStyle, { opacity, backgroundColor: bgColor }]}
+    >
+      <View style={styles.row as ViewStyle}>
+        <MaterialIcons
+          name={isError ? 'error' : 'check-circle'}
+          size={20}
+          color={theme.colors.white}
+        />
         <Text style={styles.text as TextStyle}>{message}</Text>
       </View>
     </Animated.View>

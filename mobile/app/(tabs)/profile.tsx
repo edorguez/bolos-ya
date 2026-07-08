@@ -6,7 +6,6 @@ import { Avatar } from '../../components/profile/Avatar';
 import { PremiumCard } from '../../components/profile/PremiumCard';
 import { PremiumActiveCard } from '../../components/profile/PremiumActiveCard';
 import { AnonymousPromptCard } from '../../components/profile/AnonymousPromptCard';
-import { SettingItem } from '../../components/profile/SettingItem';
 import { GuestCard } from '../../components/profile/GuestCard';
 import { useAppTheme } from '../../styles/theme';
 import { useAuth } from '../../store/authStore';
@@ -18,30 +17,6 @@ export default function ProfileTab() {
   const { user, logout, isAuthenticated } = useAuth();
   const isPremium = user?.isPremium || false;
   const styles = profileStyles(theme);
-
-  const settingsItems = [
-    {
-      id: 'account',
-      title: 'Mi Cuenta',
-      icon: 'person',
-      iconColor: theme.colors.midnight,
-      iconBgColor: theme.colors.stoneSurface,
-    },
-    {
-      id: 'notifications',
-      title: 'Notificaciones',
-      icon: 'notifications',
-      iconColor: theme.colors.midnight,
-      iconBgColor: theme.colors.stoneSurface,
-    },
-    {
-      id: 'security',
-      title: 'Seguridad',
-      icon: 'shield',
-      iconColor: theme.colors.midnight,
-      iconBgColor: theme.colors.stoneSurface,
-    },
-  ];
 
   const handleLogout = async () => {
     await logout();

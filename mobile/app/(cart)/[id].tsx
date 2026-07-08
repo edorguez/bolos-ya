@@ -41,7 +41,7 @@ export default function CartDetailScreen() {
   const { user } = useAuth();
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [isLoadingFromApi, setIsLoadingFromApi] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, setIsSubmitting] = useState(false);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showCompleteCartSheet, setShowCompleteCartSheet] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<CartProduct | null>(null);
@@ -82,10 +82,10 @@ export default function CartDetailScreen() {
             budgetUsd: apiCart.budgetUsd,
           });
         })
-        .catch(() => { })
+        .catch(() => {})
         .finally(() => setIsLoadingFromApi(false));
     }
-  }, [id, user?.id, addCart]);
+  }, [id, user?.id, addCart, carts]);
 
   const handleScanPress = () => {
     router.push('/(cart)/scan');
@@ -342,12 +342,7 @@ export default function CartDetailScreen() {
         title="Agregar Producto"
         showBackButton={true}
       >
-        {cart && (
-          <ProductForm
-            onSubmit={handleAddProduct}
-            supermarket={cart.supermarket}
-          />
-        )}
+        {cart && <ProductForm onSubmit={handleAddProduct} supermarket={cart.supermarket} />}
       </BottomSheetModal>
 
       <BottomSheetModal

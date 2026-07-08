@@ -34,9 +34,13 @@ export const LatestCartsSection = forwardRef<LatestCartsSectionRef, LatestCartsS
       setRecentCarts(data);
     }, [userId]);
 
-    useImperativeHandle(ref, () => ({
-      refresh: fetchCarts,
-    }), [fetchCarts]);
+    useImperativeHandle(
+      ref,
+      () => ({
+        refresh: fetchCarts,
+      }),
+      [fetchCarts]
+    );
 
     useFocusEffect(
       useCallback(() => {
@@ -61,9 +65,12 @@ export const LatestCartsSection = forwardRef<LatestCartsSectionRef, LatestCartsS
       router.push({ pathname: '/history' });
     }, [router]);
 
-    const handleCartPress = useCallback((id: string) => {
-      router.push({ pathname: '/(cart)/[id]', params: { id } });
-    }, [router]);
+    const handleCartPress = useCallback(
+      (id: string) => {
+        router.push({ pathname: '/(cart)/[id]', params: { id } });
+      },
+      [router]
+    );
 
     function calcBudgetUsage(cart: ApiCartResponse): { usage: number; exceeded: boolean } {
       if (cart.budgetBs > 0 && cart.totalEstimatedBs !== null) {
@@ -79,11 +86,7 @@ export const LatestCartsSection = forwardRef<LatestCartsSectionRef, LatestCartsS
 
     return (
       <View style={styles.section}>
-        <SectionHeader
-          title="Últimos Carritos"
-          linkText="Ver todos"
-          onLinkPress={handleViewAll}
-        />
+        <SectionHeader title="Últimos Carritos" linkText="Ver todos" onLinkPress={handleViewAll} />
 
         {recentCarts.length > 0 ? (
           <HorizontalScrollWithIndicators contentContainerStyle={styles.cartCardsContainer}>

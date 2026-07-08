@@ -1,5 +1,14 @@
 import { forwardRef, useRef, useCallback } from 'react';
-import { View, Text, Pressable, TextInput, StyleSheet, type TextStyle } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  TextInput,
+  StyleSheet,
+  type TextStyle,
+  type ViewStyle,
+  type StyleProp,
+} from 'react-native';
 import CurrencyInput, { formatNumber } from 'react-native-currency-input';
 import { useAppTheme } from '../../styles/theme';
 
@@ -9,12 +18,12 @@ interface AmountInputProps {
   placeholder?: string;
   error?: boolean;
   editable?: boolean;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const AmountInput = forwardRef<TextInput, AmountInputProps>(function AmountInput(
   { value, onValueChange, placeholder, error, editable = true, style },
-  ref
+  _ref
 ) {
   const theme = useAppTheme();
   const inputRef = useRef<TextInput>(null);
@@ -25,7 +34,7 @@ export const AmountInput = forwardRef<TextInput, AmountInputProps>(function Amou
     }
   }, [editable]);
 
-  const flatStyle = StyleSheet.flatten(style) as TextStyle || {};
+  const flatStyle = (StyleSheet.flatten(style) as TextStyle) || {};
   const textStyle: TextStyle = {
     fontSize: flatStyle?.fontSize,
     color: flatStyle?.color,
@@ -34,9 +43,8 @@ export const AmountInput = forwardRef<TextInput, AmountInputProps>(function Amou
     textAlign: 'right',
   };
 
-  const displayValue = value != null
-    ? formatNumber(value, { delimiter: '.', separator: ',', precision: 2 })
-    : '';
+  const displayValue =
+    value != null ? formatNumber(value, { delimiter: '.', separator: ',', precision: 2 }) : '';
 
   return (
     <Pressable onPress={handlePress} style={{ flex: 1 }}>
@@ -53,7 +61,7 @@ export const AmountInput = forwardRef<TextInput, AmountInputProps>(function Amou
             paddingHorizontal: theme.spacing.sm,
             paddingVertical: theme.spacing.sm,
           },
-          flatStyle as any,
+          flatStyle as ViewStyle,
           error && { borderColor: theme.colors.error },
         ]}
       >

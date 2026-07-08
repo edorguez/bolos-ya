@@ -65,7 +65,7 @@ export function SectionHeader({
       <View style={styles.leftContainer as ViewStyle}>
         {leftIcon && (
           <MaterialIcons
-            name={icon as any}
+            name={icon as keyof typeof MaterialIcons.glyphMap}
             size={24}
             color={iconColor || theme.colors.onSurface}
             style={styles.icon as TextStyle}
@@ -77,7 +77,7 @@ export function SectionHeader({
       <View style={styles.rightContainer as ViewStyle}>
         {rightIcon && (
           <MaterialIcons
-            name={icon as any}
+            name={icon as keyof typeof MaterialIcons.glyphMap}
             size={24}
             color={iconColor || theme.colors.onSurface}
             style={styles.iconRight as TextStyle}

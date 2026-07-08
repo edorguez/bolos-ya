@@ -84,7 +84,7 @@ export function SupermarketCarousel({ supermarkets, onSelect }: SupermarketCarou
             onPress={() => onSelect(supermarket.id)}
           >
             <MaterialIcons
-              name={supermarket.icon as any}
+              name={supermarket.icon as keyof typeof MaterialIcons.glyphMap}
               size={24}
               color={supermarket.selected ? theme.colors.midnight : theme.colors.ash}
             />

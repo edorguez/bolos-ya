@@ -8,7 +8,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -127,7 +127,7 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
     })
   ).current;
 
-  const openModal = () => {
+  const openModal = useCallback(() => {
     Animated.parallel([
       Animated.timing(translateY, {
         toValue: 0,
@@ -140,7 +140,7 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
         useNativeDriver: true,
       }),
     ]).start();
-  };
+  }, [translateY, backdropOpacity]);
 
   const closeModal = () => {
     Animated.parallel([
@@ -163,7 +163,7 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
     if (isVisible) {
       openModal();
     }
-  }, [isVisible]);
+  }, [isVisible, openModal]);
 
   if (!isVisible) {
     return null;
@@ -209,7 +209,11 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
                 }}
               >
                 <View style={styles.optionIcon as ViewStyle}>
-                  <MaterialIcons name={option.icon as any} size={24} color={option.color} />
+                  <MaterialIcons
+                    name={option.icon as keyof typeof MaterialIcons.glyphMap}
+                    size={24}
+                    color={option.color}
+                  />
                 </View>
                 <Text style={[styles.optionLabel as TextStyle, { color: option.color }]}>
                   {option.label}

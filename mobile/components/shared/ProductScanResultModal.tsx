@@ -131,7 +131,10 @@ export function ProductScanResultModal({
               </Pressable>
 
               <Pressable
-                style={({ pressed }) => [styles.addButton as ViewStyle, pressed && { opacity: 0.8 }]}
+                style={({ pressed }) => [
+                  styles.addButton as ViewStyle,
+                  pressed && { opacity: 0.8 },
+                ]}
                 onPress={() => {
                   onAddToCart(quantity);
                   onClose();

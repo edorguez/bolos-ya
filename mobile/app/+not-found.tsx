@@ -27,7 +27,7 @@ export default function NotFoundScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.textHeading}>404 - Not Found</Text>
-      <Text style={styles.textBody}>The screen you're looking for doesn't exist.</Text>
+      <Text style={styles.textBody}>The screen you&apos;re looking for doesn&apos;t exist.</Text>
     </View>
   );
 }

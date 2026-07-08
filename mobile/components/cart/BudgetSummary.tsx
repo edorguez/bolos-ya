@@ -104,7 +104,8 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
   const isOverBudget = totalBs > budgetBs;
   const overBudgetAmount = Math.max(0, totalBs - budgetBs);
   const progressPercentage = Math.min(100, (totalBs / budgetBs) * 100);
-  const exchangeRate = budgetBs > 0 && budgetUsd > 0 ? budgetUsd / budgetBs : (bcvRate?.usdRate ?? 55);
+  const exchangeRate =
+    budgetBs > 0 && budgetUsd > 0 ? budgetUsd / budgetBs : (bcvRate?.usdRate ?? 55);
   const overBudgetUsd = overBudgetAmount * exchangeRate;
   const limitLabelText = `LÍMITE: Bs. ${budgetBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
   const isLongBudget = limitLabelText.length > 22;

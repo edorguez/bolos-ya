@@ -59,7 +59,11 @@ export function TipCard({ title, text, icon = 'lightbulb' }: TipCardProps) {
     <View style={styles.card as ViewStyle}>
       <View style={styles.blurCircle as ViewStyle} />
       <View style={styles.iconContainer as ViewStyle}>
-        <MaterialIcons name={icon as any} size={24} color={theme.colors.deepAmber} />
+        <MaterialIcons
+          name={icon as keyof typeof MaterialIcons.glyphMap}
+          size={24}
+          color={theme.colors.deepAmber}
+        />
       </View>
       <View style={styles.content as ViewStyle}>
         <Text style={styles.title as TextStyle}>{title}</Text>

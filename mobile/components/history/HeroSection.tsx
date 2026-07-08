@@ -52,7 +52,11 @@ export function HeroSection({ title, subtitle, icon = 'receipt' }: HeroSectionPr
         <Text style={styles.subtitle as TextStyle}>{subtitle}</Text>
       </View>
       <View style={styles.iconContainer as ViewStyle}>
-        <MaterialIcons name={icon as any} size={64} color={theme.colors.emberOrange} />
+        <MaterialIcons
+          name={icon as keyof typeof MaterialIcons.glyphMap}
+          size={64}
+          color={theme.colors.emberOrange}
+        />
       </View>
     </View>
   );

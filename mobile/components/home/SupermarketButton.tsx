@@ -44,7 +44,7 @@ export function SupermarketButton({ selected, icon, name, onPress }: Supermarket
       onPress={onPress}
     >
       <MaterialIcons
-        name={icon as any}
+        name={icon as keyof typeof MaterialIcons.glyphMap}
         size={24}
         color={selected ? theme.colors.midnight : theme.colors.outline}
       />

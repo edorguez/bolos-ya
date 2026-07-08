@@ -115,7 +115,11 @@ export function HistoryCard({
           <View
             style={[styles.storeIconContainer as ViewStyle, { backgroundColor: iconColor + '20' }]}
           >
-            <MaterialIcons name={icon as any} size={24} color={iconColor} />
+            <MaterialIcons
+              name={icon as keyof typeof MaterialIcons.glyphMap}
+              size={24}
+              color={iconColor}
+            />
           </View>
           <View style={styles.storeDetails as ViewStyle}>
             <Text style={styles.storeName as TextStyle}>{storeName}</Text>

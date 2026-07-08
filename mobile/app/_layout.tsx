@@ -7,7 +7,7 @@ import '../styles/unistylesConfigured';
 
 export default function RootLayout() {
   const theme = useAppTheme();
-	useBCV();
+  useBCV();
 
   const styles = StyleSheet.create({
     container: {

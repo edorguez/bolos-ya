@@ -1,4 +1,11 @@
-import { View, Text, ActivityIndicator, AppState, type ViewStyle, type TextStyle } from 'react-native';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  AppState,
+  type ViewStyle,
+  type TextStyle,
+} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { StyleSheet } from '../../styles/createStyleSheet';
@@ -106,7 +113,7 @@ export const BCVRateCard = forwardRef<BCVRateRef, object>((_props, ref) => {
   useImperativeHandle(ref, () => ({ refresh }), [refresh]);
 
   useEffect(() => {
-    const sub = AppState.addEventListener('change', (nextState) => {
+    const sub = AppState.addEventListener('change', nextState => {
       if (appStateRef.current.match(/inactive|background/) && nextState === 'active') {
         loadRate();
       }

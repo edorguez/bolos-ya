@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
@@ -100,20 +100,20 @@ export function PickerField({
 }: PickerFieldProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
-  const ref = useRef<any>(null);
+  const ref = useRef<Dropdown<PickerOption>>(null);
 
   return (
-    <View style={styles.container as any}>
-      {label ? <Text style={styles.label as any}>{label}</Text> : null}
+    <View style={styles.container as ViewStyle}>
+      {label ? <Text style={styles.label as TextStyle}>{label}</Text> : null}
       <Dropdown
         ref={ref}
-        style={[styles.dropdown as any, error && (styles.dropdownError as any)]}
-        containerStyle={styles.containerStyle as any}
-        placeholderStyle={styles.placeholderText as any}
-        selectedTextStyle={styles.dropdownText as any}
-        iconStyle={styles.icon as any}
-        inputSearchStyle={styles.searchInput as any}
-        itemTextStyle={styles.itemText as any}
+        style={[styles.dropdown as ViewStyle, error && (styles.dropdownError as ViewStyle)]}
+        containerStyle={styles.containerStyle as object}
+        placeholderStyle={styles.placeholderText as TextStyle}
+        selectedTextStyle={styles.dropdownText as TextStyle}
+        iconStyle={styles.icon as ViewStyle}
+        inputSearchStyle={styles.searchInput as TextStyle}
+        itemTextStyle={styles.itemText as TextStyle}
         activeColor={theme.colors.surfaceContainerHigh}
         data={options}
         labelField="label"
@@ -123,7 +123,7 @@ export function PickerField({
         search={search}
         searchPlaceholder={searchPlaceholder || 'Buscar...'}
         onChangeText={() => {}}
-        onChange={(item: any) => {
+        onChange={(item: PickerOption) => {
           onValueChange(item.value);
         }}
         iconColor={theme.colors.ash}

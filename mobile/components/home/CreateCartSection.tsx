@@ -97,7 +97,7 @@ export function CreateCartSection({ userId, onCartCreated, onError }: CreateCart
     } else {
       setRenderCustomMarket(false);
     }
-  }, [showCustomMarket]);
+  }, [showCustomMarket, fadeAnim, slideAnim]);
 
   const { addCart, setActiveCart } = useCartStore();
 

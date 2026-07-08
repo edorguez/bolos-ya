@@ -96,7 +96,7 @@ export async function getPaymentsByUser(
   const query = statusId ? `?statusId=${statusId}` : '';
   const response = await apiGet<ApiResponse<PaymentResponse[]>>(
     `/payments/by-user/${userId}${query}`,
-    userId,
+    userId
   );
 
   if (!response.success) {

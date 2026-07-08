@@ -63,7 +63,11 @@ export function CartCard({ title, subtitle, date, progress, color, icon }: CartC
     <View style={styles.card as ViewStyle}>
       <View style={styles.header as ViewStyle}>
         <View style={[styles.iconContainer as ViewStyle, { backgroundColor: color + '20' }]}>
-          <MaterialIcons name={icon as any} size={24} color={color} />
+          <MaterialIcons
+            name={icon as keyof typeof MaterialIcons.glyphMap}
+            size={24}
+            color={color}
+          />
         </View>
         <Text style={styles.date as TextStyle}>{date}</Text>
       </View>

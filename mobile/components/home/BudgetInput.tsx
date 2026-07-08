@@ -40,7 +40,13 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }));
 
-export function BudgetInput({ label, currency, inputStyle, hasError, ...props }: BudgetInputProps) {
+export function BudgetInput({
+  label,
+  currency: _currency,
+  inputStyle,
+  hasError,
+  ...props
+}: BudgetInputProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
   return (

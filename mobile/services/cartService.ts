@@ -126,12 +126,10 @@ export async function createCart(
     ...response.data,
     budgetBs: fromCents(response.data.budgetBs),
     budgetUsd: fromCents(response.data.budgetUsd),
-    totalEstimatedBs: response.data.totalEstimatedBs !== null
-      ? fromCents(response.data.totalEstimatedBs)
-      : null,
-    totalEstimatedUsd: response.data.totalEstimatedUsd !== null
-      ? fromCents(response.data.totalEstimatedUsd)
-      : null,
+    totalEstimatedBs:
+      response.data.totalEstimatedBs !== null ? fromCents(response.data.totalEstimatedBs) : null,
+    totalEstimatedUsd:
+      response.data.totalEstimatedUsd !== null ? fromCents(response.data.totalEstimatedUsd) : null,
   };
 }
 
@@ -246,14 +244,8 @@ function transformCartResponse(response: ApiCartResponse): ApiCartResponse {
   };
 }
 
-export async function checkoutCart(
-  cartId: string,
-  userId?: string
-): Promise<ApiCartResponse> {
-  const response = await apiPost<ApiResponse<ApiCartResponse>>(
-    `/carts/${cartId}/checkout`,
-    userId
-  );
+export async function checkoutCart(cartId: string, userId?: string): Promise<ApiCartResponse> {
+  const response = await apiPost<ApiResponse<ApiCartResponse>>(`/carts/${cartId}/checkout`, userId);
 
   if (!response.success) {
     throw new Error('Error al completar carrito');

@@ -2,6 +2,7 @@ import { View, Text, Pressable, PressableProps, ViewStyle, TextStyle } from 'rea
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import type { ComponentProps } from 'react';
 
 interface SettingItemProps extends Omit<PressableProps, 'style'> {
   title: string;
@@ -54,7 +55,11 @@ export function SettingItem({ title, icon, iconColor, iconBgColor, ...props }: S
     >
       <View style={styles.left as ViewStyle}>
         <View style={[styles.iconContainer as ViewStyle, { backgroundColor: iconBgColor }]}>
-          <MaterialIcons name={icon as any} size={20} color={iconColor} />
+          <MaterialIcons
+            name={icon as ComponentProps<typeof MaterialIcons>['name']}
+            size={20}
+            color={iconColor}
+          />
         </View>
         <Text style={styles.text as TextStyle}>{title}</Text>
       </View>

@@ -71,13 +71,13 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
     if (bsEditable && bsPrice > 0) {
       setUsdPrice(bsPrice / EXCHANGE_RATE);
     }
-  }, [bsPrice, bsEditable]);
+  }, [bsPrice, bsEditable, EXCHANGE_RATE]);
 
   useEffect(() => {
     if (!bsEditable && usdPrice > 0) {
       setBsPrice(usdPrice * EXCHANGE_RATE);
     }
-  }, [usdPrice, bsEditable]);
+  }, [usdPrice, bsEditable, EXCHANGE_RATE]);
 
   // Initialize form with initialData
   useEffect(() => {
@@ -265,7 +265,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
                   value={bsPrice}
                   onValueChange={handleBsPriceChange}
                   placeholder="0,00"
-                  style={styles.priceInput as any}
+                  style={styles.priceInput as ViewStyle}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>
               </View>
@@ -298,15 +298,15 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <AmountInput
                   value={usdPrice}
-                  onValueChange={() => { }}
+                  onValueChange={() => {}}
                   placeholder="0,00"
                   editable={false}
                   style={[
-                    styles.priceInput as any,
+                    styles.priceInput as ViewStyle,
                     {
                       color: theme.colors.onSurfaceVariant,
                       backgroundColor: theme.colors.stoneSurface,
-                    },
+                    } as ViewStyle,
                   ]}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>$</Text>
@@ -327,7 +327,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
                   value={usdPrice}
                   onValueChange={handleUsdPriceChange}
                   placeholder="0,00"
-                  style={styles.priceInput as any}
+                  style={styles.priceInput as ViewStyle}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>$</Text>
               </View>
@@ -360,15 +360,15 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <AmountInput
                   value={bsPrice}
-                  onValueChange={() => { }}
+                  onValueChange={() => {}}
                   placeholder="0,00"
                   editable={false}
                   style={[
-                    styles.priceInput as any,
+                    styles.priceInput as ViewStyle,
                     {
                       color: theme.colors.onSurfaceVariant,
                       backgroundColor: theme.colors.stoneSurface,
-                    },
+                    } as ViewStyle,
                   ]}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>

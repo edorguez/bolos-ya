@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  Pressable,
-  type ViewStyle,
-  type TextStyle,
-} from 'react-native';
+import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
 import { CartProduct } from '../../store/cartStore';

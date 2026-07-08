@@ -53,7 +53,11 @@ export function SupermarketHeader({ cartId, supermarket, productCount }: Superma
   return (
     <View style={styles.container as ViewStyle}>
       <View style={[styles.logoContainer as ViewStyle, { backgroundColor: iconColor + '20' }]}>
-        <MaterialIcons name={icon as any} size={24} color={iconColor} />
+        <MaterialIcons
+          name={icon as keyof typeof MaterialIcons.glyphMap}
+          size={24}
+          color={iconColor}
+        />
       </View>
       <View style={styles.textContainer as ViewStyle}>
         <Text style={styles.title as TextStyle}>{supermarket}</Text>

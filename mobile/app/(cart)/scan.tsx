@@ -35,8 +35,8 @@ export default function ScanScreen() {
   } | null>(null);
 
   const cameraRef = useRef<CameraView>(null);
-  const cameraContainerRef = useRef<any>(null);
-  const scanAreaRef = useRef<any>(null);
+  const cameraContainerRef = useRef<View>(null);
+  const scanAreaRef = useRef<View>(null);
   const [showNoRecognition, setShowNoRecognition] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [toast, setToast] = useState<{ message: string; isError: boolean } | null>(null);
@@ -64,8 +64,12 @@ export default function ScanScreen() {
       });
 
       const [camMeasure, scanMeasure] = await Promise.all([
-        new Promise<any>(resolve => cameraContainerRef.current?.measure((...a: any[]) => resolve(a))),
-        new Promise<any>(resolve => scanAreaRef.current?.measure((...a: any[]) => resolve(a))),
+        new Promise<number[]>(resolve =>
+          cameraContainerRef.current?.measure((...a: number[]) => resolve(a))
+        ),
+        new Promise<number[]>(resolve =>
+          scanAreaRef.current?.measure((...a: number[]) => resolve(a))
+        ),
       ]);
 
       const [, , camW, camH, camPageX, camPageY] = camMeasure || [];

@@ -47,13 +47,21 @@ export function useBCV() {
       if (cached) {
         const parsed: StoreEntry = JSON.parse(cached);
         if (!force && parsed.lastFetched === today) {
-          rateData = { createdAt: parsed.createdAt, usdRate: parsed.usdRate, eurRate: parsed.eurRate };
+          rateData = {
+            createdAt: parsed.createdAt,
+            usdRate: parsed.usdRate,
+            eurRate: parsed.eurRate,
+          };
           setRate(rateData);
           setIsLoading(false);
           fetchingRef.current = false;
           return;
         }
-        rateData = { createdAt: parsed.createdAt, usdRate: parsed.usdRate, eurRate: parsed.eurRate };
+        rateData = {
+          createdAt: parsed.createdAt,
+          usdRate: parsed.usdRate,
+          eurRate: parsed.eurRate,
+        };
         setRate(rateData);
       }
     } catch {
@@ -70,7 +78,11 @@ export function useBCV() {
           lastFetched: today,
         };
         await safeSetItem(STORAGE_KEY, JSON.stringify(data));
-        rateData = { createdAt: response.data.createdAt, usdRate: data.usdRate, eurRate: data.eurRate };
+        rateData = {
+          createdAt: response.data.createdAt,
+          usdRate: data.usdRate,
+          eurRate: data.eurRate,
+        };
         setRate(rateData);
         setError(null);
       }

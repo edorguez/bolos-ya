@@ -19,7 +19,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 interface ManualEntryModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onSubmit: (name: string, priceBs: number, priceUsd: number, priceBcv: number, quantity: number) => void;
+  onSubmit: (
+    name: string,
+    priceBs: number,
+    priceUsd: number,
+    priceBcv: number,
+    quantity: number
+  ) => void;
 }
 
 export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryModalProps) {
@@ -123,7 +129,7 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
   }, [isVisible]);
 
   useEffect(() => {
-    const show = Keyboard.addListener('keyboardDidShow', (e) => {
+    const show = Keyboard.addListener('keyboardDidShow', e => {
       Animated.timing(keyboardOffset, {
         toValue: -e.endCoordinates.height,
         duration: 250,
@@ -141,7 +147,7 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
       show.remove();
       hide.remove();
     };
-  }, []);
+  }, [keyboardOffset]);
 
   return (
     <Modal visible={isVisible} transparent animationType="none" onRequestClose={onClose}>
@@ -218,9 +224,7 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
                 </Pressable>
               </View>
             </View>
-            {error && (
-              <Text style={styles.errorText as TextStyle}>{error}</Text>
-            )}
+            {error && <Text style={styles.errorText as TextStyle}>{error}</Text>}
 
             <View style={styles.actionRow as ViewStyle}>
               <Pressable
@@ -233,7 +237,10 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
                 <Text style={styles.cancelButtonText as TextStyle}>Cancelar</Text>
               </Pressable>
               <Pressable
-                style={({ pressed }) => [styles.addButton as ViewStyle, pressed && { opacity: 0.8 }]}
+                style={({ pressed }) => [
+                  styles.addButton as ViewStyle,
+                  pressed && { opacity: 0.8 },
+                ]}
                 onPress={handleSubmit}
               >
                 <MaterialIcons name="add-circle" size={20} color={theme.colors.white} />
