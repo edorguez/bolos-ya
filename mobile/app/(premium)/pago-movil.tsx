@@ -93,7 +93,7 @@ export default function PagoMovilScreen() {
   const [userBank, setUserBank] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [rawAmountDigits, setRawAmountDigits] = useState('');
+  const [amountBs, setAmountBs] = useState(0);
   const [referenceNumber, setReferenceNumber] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<string | null>(null);
@@ -145,7 +145,7 @@ export default function PagoMovilScreen() {
     if (!ciPrefix || !userCI.trim()) errors.ci = 'required';
     if (!userBank) errors.bank = 'required';
     if (!paymentDate) errors.date = 'required';
-    if (!rawAmountDigits) errors.amount = 'required';
+    if (!amountBs || amountBs <= 0) errors.amount = 'required';
     if (!referenceNumber.trim()) errors.reference = 'required';
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) {
@@ -169,7 +169,7 @@ export default function PagoMovilScreen() {
           numberOfMonths: monthsMap[billing] || 1,
           referenceNumber: referenceNumber.trim(),
           bankName: userBank,
-          amountBs: parseInt(rawAmountDigits, 10),
+          amountBs: Math.round(amountBs * 100),
           amountUsd: Math.round(usdValue * 100),
           priceBcv: bcvRateCents,
           identification: `${ciPrefix}${userCI.trim()}`,
@@ -213,7 +213,7 @@ export default function PagoMovilScreen() {
       color: theme.colors.midnight,
     },
     summaryRate: {
-      fontSize: theme.typography.fontSize.xxs,
+      fontSize: theme.typography.fontSize.xs,
       fontWeight: theme.typography.fontWeight.regular,
       color: theme.colors.ash,
     },
@@ -254,7 +254,7 @@ export default function PagoMovilScreen() {
       marginBottom: theme.spacing.xs,
     },
     infoTitle: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.midnight,
     },
@@ -288,7 +288,7 @@ export default function PagoMovilScreen() {
       color: theme.colors.midnight,
     },
     infoAmountValue: {
-      fontSize: theme.typography.fontSize.lg,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.bold,
       color: theme.colors.midnight,
     },
@@ -501,9 +501,9 @@ export default function PagoMovilScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Monto en Bs *</Text>
             <AmountInput
-              rawDigits={rawAmountDigits}
-              onRawDigitsChange={digits => {
-                setRawAmountDigits(digits);
+              value={amountBs}
+              onValueChange={val => {
+                setAmountBs(val ?? 0);
                 clearFieldError('amount');
               }}
               placeholder="0,00"

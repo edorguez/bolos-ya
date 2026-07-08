@@ -35,7 +35,7 @@ export default function PaymentPendingScreen() {
       marginBottom: theme.spacing.sm,
     },
     subtitle: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       color: theme.colors.onSurfaceVariant,
       textAlign: 'center',
       marginBottom: theme.spacing.xxl,
@@ -53,7 +53,7 @@ export default function PaymentPendingScreen() {
     },
     buttonText: {
       color: theme.colors.white,
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },
   });

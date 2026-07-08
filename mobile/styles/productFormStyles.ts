@@ -24,7 +24,7 @@ export function createProductFormStyles(theme: AppTheme) {
       color: theme.colors.emberOrange,
     },
     title: {
-      fontSize: theme.typography.fontSize.lg,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.onSurface,
       letterSpacing: theme.typography.letterSpacing.lg,

@@ -48,7 +48,7 @@ const stylesheet = StyleSheet.create(theme => ({
     letterSpacing: 1,
   },
   message: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.regular,
     color: theme.colors.onSurface,
     lineHeight: 22,

@@ -48,7 +48,7 @@ const stylesheet = StyleSheet.create(theme => ({
     gap: theme.spacing.xs,
   },
   rateValue: {
-    fontSize: theme.typography.fontSize.xl,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.midnight,
     letterSpacing: theme.typography.letterSpacing.xl,

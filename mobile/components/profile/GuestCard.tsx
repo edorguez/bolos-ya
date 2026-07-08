@@ -28,7 +28,7 @@ const stylesheet = StyleSheet.create(theme => ({
     justifyContent: 'center',
   },
   title: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
     textAlign: 'center',

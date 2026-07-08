@@ -39,7 +39,7 @@ const stylesheet = StyleSheet.create(theme => ({
     zIndex: 10,
   },
   title: {
-    fontSize: theme.typography.fontSize.lg,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.pepper,
     letterSpacing: theme.typography.letterSpacing.lg,

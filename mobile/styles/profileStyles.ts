@@ -32,14 +32,14 @@ export const profileStyles = StyleSheet.create(theme => ({
     gap: theme.spacing.md,
   },
   profileName: {
-    fontSize: theme.typography.fontSize.xl,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
     letterSpacing: theme.typography.letterSpacing.xl,
     textAlign: 'center',
   },
   profileEmail: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.medium,
     color: theme.colors.onSurfaceVariant,
     textAlign: 'center',
@@ -58,7 +58,7 @@ export const profileStyles = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.coralRed + '1A',
   },
   logoutText: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.error,
   },

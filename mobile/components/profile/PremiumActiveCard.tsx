@@ -53,7 +53,7 @@ const stylesheet = StyleSheet.create(theme => ({
     letterSpacing: 1,
   },
   daysText: {
-    fontSize: theme.typography.fontSize.xl,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.charcoalPrimary,
     letterSpacing: theme.typography.letterSpacing.xl,

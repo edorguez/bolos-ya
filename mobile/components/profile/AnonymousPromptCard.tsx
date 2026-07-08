@@ -51,7 +51,7 @@ const stylesheet = StyleSheet.create(theme => ({
     letterSpacing: 1,
   },
   title: {
-    fontSize: theme.typography.fontSize.xl,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.charcoalPrimary,
     letterSpacing: theme.typography.letterSpacing.xl,
@@ -62,7 +62,7 @@ const stylesheet = StyleSheet.create(theme => ({
     gap: theme.spacing.sm,
   },
   featureText: {
-    fontSize: theme.typography.fontSize.md,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.medium,
     color: theme.colors.graphite,
     opacity: 0.8,

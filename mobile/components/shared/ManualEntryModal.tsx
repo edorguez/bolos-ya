@@ -13,7 +13,6 @@ import {
 import { useAppTheme } from '../../styles/theme';
 import { createManualEntryModalStyles } from '../../styles/manualEntryModalStyles';
 import { AmountInput } from './AmountInput';
-import { parseAmountInput } from '../../utils/amountUtils';
 import { useBCV } from '../../store/bcvStore';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -31,8 +30,8 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
 
   const [name, setName] = useState('');
   const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS');
-  const [bsRawDigits, setBsRawDigits] = useState('');
-  const [usdRawDigits, setUsdRawDigits] = useState('');
+  const [bsAmount, setBsAmount] = useState(0);
+  const [usdAmount, setUsdAmount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
 
@@ -43,23 +42,23 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
 
   const isBsEditable = topCurrency === 'BS';
 
-  const handleBsChange = (digits: string) => {
-    setBsRawDigits(digits);
-    if (digits.length > 0) {
-      const bsValue = parseAmountInput(digits);
-      setUsdRawDigits(String(Math.round((bsValue / EXCHANGE_RATE) * 100)));
+  const handleBsChange = (value: number | null) => {
+    const bsVal = value ?? 0;
+    setBsAmount(bsVal);
+    if (bsVal > 0) {
+      setUsdAmount(bsVal / EXCHANGE_RATE);
     } else {
-      setUsdRawDigits('');
+      setUsdAmount(0);
     }
   };
 
-  const handleUsdChange = (digits: string) => {
-    setUsdRawDigits(digits);
-    if (digits.length > 0) {
-      const usdValue = parseAmountInput(digits);
-      setBsRawDigits(String(Math.round(usdValue * EXCHANGE_RATE * 100)));
+  const handleUsdChange = (value: number | null) => {
+    const usdVal = value ?? 0;
+    setUsdAmount(usdVal);
+    if (usdVal > 0) {
+      setBsAmount(usdVal * EXCHANGE_RATE);
     } else {
-      setBsRawDigits('');
+      setBsAmount(0);
     }
   };
 
@@ -76,13 +75,8 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
       return;
     }
 
-    const priceBs = isBsEditable
-      ? parseAmountInput(bsRawDigits)
-      : parseAmountInput(usdRawDigits) * EXCHANGE_RATE;
-
-    const priceUsd = isBsEditable
-      ? parseAmountInput(bsRawDigits) / EXCHANGE_RATE
-      : parseAmountInput(usdRawDigits);
+    const priceBs = isBsEditable ? bsAmount : usdAmount * EXCHANGE_RATE;
+    const priceUsd = isBsEditable ? bsAmount / EXCHANGE_RATE : usdAmount;
 
     if (priceBs <= 0 && priceUsd <= 0) {
       setError('Ingresa un precio válido');
@@ -121,8 +115,8 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
     if (isVisible) {
       setName('');
       setTopCurrency('BS');
-      setBsRawDigits('');
-      setUsdRawDigits('');
+      setBsAmount(0);
+      setUsdAmount(0);
       setError(null);
       setQuantity(1);
     }
@@ -200,8 +194,8 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
               <View style={styles.priceRow as ViewStyle}>
                 <View style={styles.priceInputWrapper as ViewStyle}>
                   <AmountInput
-                    rawDigits={isBsEditable ? bsRawDigits : usdRawDigits}
-                    onRawDigitsChange={isBsEditable ? handleBsChange : handleUsdChange}
+                    value={isBsEditable ? bsAmount : usdAmount}
+                    onValueChange={isBsEditable ? handleBsChange : handleUsdChange}
                     placeholder={isBsEditable ? 'Bs. 0,00' : '$ 0,00'}
                     style={styles.priceInput as TextStyle}
                   />

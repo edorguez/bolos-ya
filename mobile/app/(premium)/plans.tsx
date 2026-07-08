@@ -99,7 +99,7 @@ export default function PlansScreen() {
       letterSpacing: theme.typography.letterSpacing.xl,
     },
     headerSubtitle: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.regular,
       color: theme.colors.ash,
     },
@@ -155,7 +155,7 @@ export default function PlansScreen() {
       letterSpacing: -1,
     },
     pricePeriod: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.regular,
       color: theme.colors.ash,
     },
@@ -174,7 +174,7 @@ export default function PlansScreen() {
       gap: theme.spacing.md,
     },
     featuresTitle: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.midnight,
     },
@@ -184,7 +184,7 @@ export default function PlansScreen() {
       gap: theme.spacing.sm,
     },
     featureText: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.medium,
       color: theme.colors.text,
     },

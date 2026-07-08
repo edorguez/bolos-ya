@@ -10,7 +10,6 @@ import {
 import { useState, useEffect, useRef } from 'react';
 import { useAppTheme } from '../../styles/theme';
 import { AmountInput } from '../shared/AmountInput';
-import { parseAmountInput } from '../../utils/amountUtils';
 import { Button } from '../Button';
 import { MaterialIcons } from '@expo/vector-icons';
 import { createProductFormStyles } from '../../styles/productFormStyles';
@@ -43,8 +42,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
 
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState(1);
-  const [bsPrice, setBsPrice] = useState('');
-  const [usdPrice, setUsdPrice] = useState('');
+  const [bsPrice, setBsPrice] = useState(0);
+  const [usdPrice, setUsdPrice] = useState(0);
   const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -69,24 +68,14 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
   }, [topCurrency]);
 
   useEffect(() => {
-    if (bsEditable && bsPrice) {
-      const bsValue = parseAmountInput(bsPrice);
-      if (bsValue > 0) {
-        setUsdPrice(String(Math.round((bsValue / EXCHANGE_RATE) * 100)));
-      } else {
-        setUsdPrice('');
-      }
+    if (bsEditable && bsPrice > 0) {
+      setUsdPrice(bsPrice / EXCHANGE_RATE);
     }
   }, [bsPrice, bsEditable]);
 
   useEffect(() => {
-    if (!bsEditable && usdPrice) {
-      const usdValue = parseAmountInput(usdPrice);
-      if (usdValue > 0) {
-        setBsPrice(String(Math.round(usdValue * EXCHANGE_RATE * 100)));
-      } else {
-        setBsPrice('');
-      }
+    if (!bsEditable && usdPrice > 0) {
+      setBsPrice(usdPrice * EXCHANGE_RATE);
     }
   }, [usdPrice, bsEditable]);
 
@@ -95,20 +84,20 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
     if (initialData) {
       setName(initialData.name);
       setQuantity(initialData.quantity);
-      setBsPrice(String(Math.round(initialData.priceBs * 100)));
-      setUsdPrice(String(Math.round(initialData.priceUsd * 100)));
+      setBsPrice(initialData.priceBs);
+      setUsdPrice(initialData.priceUsd);
       setTopCurrency('BS');
       setErrors({});
     }
   }, [initialData]);
 
-  const handleBsPriceChange = (digits: string) => {
-    setBsPrice(digits);
+  const handleBsPriceChange = (value: number | null) => {
+    setBsPrice(value ?? 0);
     setErrors(prev => ({ ...prev, bsPrice: '' }));
   };
 
-  const handleUsdPriceChange = (digits: string) => {
-    setUsdPrice(digits);
+  const handleUsdPriceChange = (value: number | null) => {
+    setUsdPrice(value ?? 0);
     setErrors(prev => ({ ...prev, usdPrice: '' }));
   };
 
@@ -142,8 +131,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
       newErrors.name = 'El nombre no puede exceder 100 caracteres';
     }
 
-    const bsValue = parseAmountInput(bsPrice);
-    const usdValue = parseAmountInput(usdPrice);
+    const bsValue = bsPrice;
+    const usdValue = usdPrice;
 
     if (bsValue <= 0 && usdValue <= 0) {
       newErrors.price = 'Ingresa un precio en Bs. o USD';
@@ -162,8 +151,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
       return;
     }
 
-    const bsValue = parseAmountInput(bsPrice);
-    const usdValue = parseAmountInput(usdPrice);
+    const bsValue = bsPrice;
+    const usdValue = usdPrice;
 
     let finalBs = bsValue;
     let finalUsd = usdValue;
@@ -186,8 +175,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
     // Reset form
     setName('');
     setQuantity(1);
-    setBsPrice('');
-    setUsdPrice('');
+    setBsPrice(0);
+    setUsdPrice(0);
     setTopCurrency('BS');
     setErrors({});
   };
@@ -273,8 +262,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <AmountInput
                   ref={bsInputRef}
-                  rawDigits={bsPrice}
-                  onRawDigitsChange={handleBsPriceChange}
+                  value={bsPrice}
+                  onValueChange={handleBsPriceChange}
                   placeholder="0,00"
                   style={styles.priceInput as any}
                 />
@@ -308,8 +297,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               <Text style={styles.label as TextStyle}>Precio en Dólares ($)</Text>
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <AmountInput
-                  rawDigits={usdPrice}
-                  onRawDigitsChange={() => { }}
+                  value={usdPrice}
+                  onValueChange={() => { }}
                   placeholder="0,00"
                   editable={false}
                   style={[
@@ -335,8 +324,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <AmountInput
                   ref={usdInputRef}
-                  rawDigits={usdPrice}
-                  onRawDigitsChange={handleUsdPriceChange}
+                  value={usdPrice}
+                  onValueChange={handleUsdPriceChange}
                   placeholder="0,00"
                   style={styles.priceInput as any}
                 />
@@ -370,8 +359,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               <Text style={styles.label as TextStyle}>Precio en Bolívares (Bs)</Text>
               <View style={styles.priceInputWrapper as ViewStyle}>
                 <AmountInput
-                  rawDigits={bsPrice}
-                  onRawDigitsChange={() => { }}
+                  value={bsPrice}
+                  onValueChange={() => { }}
                   placeholder="0,00"
                   editable={false}
                   style={[

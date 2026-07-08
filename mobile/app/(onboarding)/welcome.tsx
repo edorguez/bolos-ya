@@ -32,6 +32,7 @@ export default function WelcomeScreen() {
       paddingHorizontal: theme.spacing.lg,
       justifyContent: 'flex-start',
       paddingTop: theme.spacing.xl,
+      backgroundColor: theme.colors.surfaceContainerLowest,
     },
     illustrationContainer: {
       width: '100%',
@@ -111,7 +112,7 @@ export default function WelcomeScreen() {
       letterSpacing: theme.typography.letterSpacing.xl,
     },
     description: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       lineHeight: 24,
       color: theme.colors.textSecondary,
     },
@@ -135,7 +136,7 @@ export default function WelcomeScreen() {
     },
     nextButtonText: {
       color: theme.colors.white,
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },
   });

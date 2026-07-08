@@ -85,7 +85,7 @@ const stylesheet = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.surfaceContainerLow,
   },
   headerTitle: {
-    fontSize: theme.typography.fontSize.lg,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
     letterSpacing: theme.typography.letterSpacing.lg,

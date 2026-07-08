@@ -40,7 +40,7 @@ export function createProductScanResultModalStyles(theme: AppTheme) {
       marginBottom: theme.spacing.xs,
     },
     productName: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.onSurface,
       lineHeight: 24,
@@ -70,13 +70,13 @@ export function createProductScanResultModalStyles(theme: AppTheme) {
       letterSpacing: 1,
     },
     priceBs: {
-      fontSize: theme.typography.fontSize.lg,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.onSurface,
       letterSpacing: theme.typography.letterSpacing.lg,
     },
     priceUsd: {
-      fontSize: theme.typography.fontSize.lg,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.emberOrange,
       letterSpacing: theme.typography.letterSpacing.lg,

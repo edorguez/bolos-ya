@@ -47,7 +47,6 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   arrowBackground: {
     backgroundColor: theme.colors.midnight,
-    opacity: 0.1,
     borderRadius: theme.borderRadius.full,
     width: 32,
     height: 32,

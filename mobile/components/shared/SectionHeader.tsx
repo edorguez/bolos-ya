@@ -20,7 +20,7 @@ const stylesheet = StyleSheet.create(theme => ({
     marginBottom: theme.spacing.md,
   },
   title: {
-    fontSize: theme.typography.fontSize.lg,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
     color: theme.colors.onSurface,
     letterSpacing: theme.typography.letterSpacing.lg,

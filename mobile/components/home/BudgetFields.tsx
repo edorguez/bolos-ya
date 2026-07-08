@@ -13,11 +13,11 @@ import { createHomeStyles } from '../../styles/homeStyles';
 
 interface BudgetFieldsProps {
   topCurrency: 'BS' | 'USD';
-  budgetBs: string;
-  budgetUsd: string;
+  budgetBs: number;
+  budgetUsd: number;
   fieldErrors: Record<string, string>;
-  onBsChange: (text: string) => void;
-  onUsdChange: (text: string) => void;
+  onBsChange: (value: number | null) => void;
+  onUsdChange: (value: number | null) => void;
   onToggleCurrency: () => void;
 }
 
@@ -33,14 +33,6 @@ export function BudgetFields({
   const theme = useAppTheme();
   const styles = createHomeStyles(theme);
 
-  const handleBsChange = (digits: string) => {
-    onBsChange(digits);
-  };
-
-  const handleUsdChange = (digits: string) => {
-    onUsdChange(digits);
-  };
-
   const handleToggle = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onToggleCurrency();
@@ -54,8 +46,8 @@ export function BudgetFields({
             <Text style={styles.budgetLabel as TextStyle}>Presupuesto Bolívares</Text>
             <View style={styles.budgetInputWrapper as ViewStyle}>
               <AmountInput
-                rawDigits={budgetBs}
-                onRawDigitsChange={handleBsChange}
+                value={budgetBs}
+                onValueChange={onBsChange}
                 placeholder="0,00"
                 error={!!fieldErrors.budgetBs || !!fieldErrors.budgetUsd}
                 style={styles.budgetInput as any}
@@ -65,8 +57,8 @@ export function BudgetFields({
             <Text style={styles.budgetLabel as TextStyle}>Presupuesto USD</Text>
             <View style={styles.budgetInputWrapper as ViewStyle}>
               <AmountInput
-                rawDigits={budgetUsd}
-                onRawDigitsChange={() => {}}
+                value={budgetUsd}
+                onValueChange={() => {}}
                 placeholder="0,00"
                 editable={false}
                 style={[styles.budgetInput as any, { color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.stoneSurface }]}
@@ -79,8 +71,8 @@ export function BudgetFields({
             <Text style={styles.budgetLabel as TextStyle}>Presupuesto USD</Text>
             <View style={styles.budgetInputWrapper as ViewStyle}>
               <AmountInput
-                rawDigits={budgetUsd}
-                onRawDigitsChange={handleUsdChange}
+                value={budgetUsd}
+                onValueChange={onUsdChange}
                 placeholder="0,00"
                 error={!!fieldErrors.budgetBs || !!fieldErrors.budgetUsd}
                 style={styles.budgetInput as any}
@@ -90,8 +82,8 @@ export function BudgetFields({
             <Text style={styles.budgetLabel as TextStyle}>Presupuesto Bolívares</Text>
             <View style={styles.budgetInputWrapper as ViewStyle}>
               <AmountInput
-                rawDigits={budgetBs}
-                onRawDigitsChange={() => {}}
+                value={budgetBs}
+                onValueChange={() => {}}
                 placeholder="0,00"
                 editable={false}
                 style={[styles.budgetInput as any, { color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.stoneSurface }]}

@@ -8,7 +8,7 @@ import { useAppTheme } from '../../styles/theme';
 import { useCartStore } from '../../store/cartStore';
 import { getAllSupermarkets } from '../../services/supermarketService';
 import { createCart } from '../../services/cartService';
-import { parseAmountInput } from '../../utils/amountUtils';
+
 import { validateName, sanitizeName } from '../../utils/validation';
 import { getExchangeRate } from '../../utils/currency';
 import type { SupermarketOption } from '../../services/supermarketService';
@@ -25,8 +25,8 @@ export function CreateCartSection({ userId, onCartCreated, onError }: CreateCart
 
   const [supermarkets, setSupermarkets] = useState<SupermarketOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [budgetBs, setBudgetBs] = useState('');
-  const [budgetUsd, setBudgetUsd] = useState('');
+  const [budgetBs, setBudgetBs] = useState(0);
+  const [budgetUsd, setBudgetUsd] = useState(0);
   const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS');
   const [exchangeRate, setExchangeRate] = useState(0);
   const [customMarketName, setCustomMarketName] = useState('');
@@ -68,24 +68,14 @@ export function CreateCartSection({ userId, onCartCreated, onError }: CreateCart
   const bsEditable = topCurrency === 'BS';
 
   useEffect(() => {
-    if (bsEditable && budgetBs && exchangeRate > 0) {
-      const bsValue = parseAmountInput(budgetBs);
-      if (bsValue > 0) {
-        setBudgetUsd(String(Math.round((bsValue / exchangeRate) * 100)));
-      } else {
-        setBudgetUsd('');
-      }
+    if (bsEditable && budgetBs > 0 && exchangeRate > 0) {
+      setBudgetUsd(budgetBs / exchangeRate);
     }
   }, [budgetBs, bsEditable, exchangeRate]);
 
   useEffect(() => {
-    if (!bsEditable && budgetUsd && exchangeRate > 0) {
-      const usdValue = parseAmountInput(budgetUsd);
-      if (usdValue > 0) {
-        setBudgetBs(String(Math.round(usdValue * exchangeRate * 100)));
-      } else {
-        setBudgetBs('');
-      }
+    if (!bsEditable && budgetUsd > 0 && exchangeRate > 0) {
+      setBudgetBs(budgetUsd * exchangeRate);
     }
   }, [budgetUsd, bsEditable, exchangeRate]);
 
@@ -129,8 +119,8 @@ export function CreateCartSection({ userId, onCartCreated, onError }: CreateCart
     setTopCurrency(prev => (prev === 'BS' ? 'USD' : 'BS'));
   };
 
-  const handleBsBudgetChange = (text: string) => {
-    setBudgetBs(text);
+  const handleBsBudgetChange = (value: number | null) => {
+    setBudgetBs(value ?? 0);
     setFieldErrors(prev => {
       if (!prev.budgetBs) return prev;
       const next = { ...prev };
@@ -139,8 +129,8 @@ export function CreateCartSection({ userId, onCartCreated, onError }: CreateCart
     });
   };
 
-  const handleUsdBudgetChange = (text: string) => {
-    setBudgetUsd(text);
+  const handleUsdBudgetChange = (value: number | null) => {
+    setBudgetUsd(value ?? 0);
     setFieldErrors(prev => {
       if (!prev.budgetUsd) return prev;
       const next = { ...prev };
@@ -181,8 +171,8 @@ export function CreateCartSection({ userId, onCartCreated, onError }: CreateCart
       finalName = selectedSupermarket.name;
     }
 
-    const bsAmount = parseAmountInput(budgetBs);
-    const usdAmount = parseAmountInput(budgetUsd);
+    const bsAmount = budgetBs;
+    const usdAmount = budgetUsd;
 
     if (bsEditable) {
       if (bsAmount <= 0) {
@@ -232,8 +222,8 @@ export function CreateCartSection({ userId, onCartCreated, onError }: CreateCart
         budgetUsd: result.budgetUsd,
       });
       setActiveCart(result.id);
-      setBudgetBs('');
-      setBudgetUsd('');
+      setBudgetBs(0);
+      setBudgetUsd(0);
       setCustomMarketName('');
       setShowCustomMarket(false);
       setFieldErrors({});

@@ -62,11 +62,6 @@ export default function LoginChoiceScreen() {
   const blobScale = isExtraLargeScreen ? 1 : isLargeScreen ? 0.9 : 0.8;
   const badgeLeft = -Math.min(40, width * 0.08);
   const badgeRight = -Math.min(50, width * 0.1);
-  const mainPaddingBottom = isExtraLargeScreen
-    ? theme.spacing.xl
-    : isLargeScreen
-      ? theme.spacing.xl
-      : theme.spacing.xxl;
   const headlineMarginBottom = isExtraLargeScreen ? theme.spacing.lg : theme.spacing.xl;
   const actionsGap = isExtraLargeScreen ? theme.spacing.md : theme.spacing.md;
   const titleFontSize = isExtraLargeScreen
@@ -249,7 +244,6 @@ export default function LoginChoiceScreen() {
       flex: 1,
       paddingHorizontal: theme.spacing.lg,
       paddingTop: theme.spacing.xl,
-      paddingBottom: mainPaddingBottom,
       backgroundColor: theme.colors.surfaceContainerLowest,
       borderTopLeftRadius: theme.borderRadius.xl,
       borderTopRightRadius: theme.borderRadius.xl,
@@ -270,7 +264,7 @@ export default function LoginChoiceScreen() {
       color: theme.colors.emberOrange,
     },
     subtitle: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       color: theme.colors.textSecondary,
       textAlign: 'center',
       paddingHorizontal: theme.spacing.md,
@@ -293,7 +287,7 @@ export default function LoginChoiceScreen() {
       borderRadius: theme.borderRadius.button,
     },
     googleButtonText: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.text,
     },
@@ -309,7 +303,7 @@ export default function LoginChoiceScreen() {
       borderRadius: theme.borderRadius.button,
     },
     emailButtonText: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.white,
     },
@@ -327,7 +321,7 @@ export default function LoginChoiceScreen() {
       borderColor: theme.colors.graphite,
     },
     registerButtonText: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.graphite,
     },
@@ -350,18 +344,16 @@ export default function LoginChoiceScreen() {
       textTransform: 'uppercase',
     },
     guestButton: {
-      width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       gap: theme.spacing.md,
       paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.lg,
       backgroundColor: 'transparent',
       borderRadius: theme.borderRadius.button,
     },
     guestButtonText: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.emberOrange,
     },
@@ -480,22 +472,22 @@ export default function LoginChoiceScreen() {
           </View>
 
           <View style={styles.actions}>
-            <Pressable
-              onPress={handleGoogleLogin}
-              disabled={isAnyLoading}
-              style={({ pressed }) => [
-                styles.googleButton,
-                pressed && { opacity: 0.8 },
-                isAnyLoading && { opacity: 0.6 },
-              ]}
-            >
-              {isGoogleLoading ? (
-                <ActivityIndicator size="small" color={theme.colors.text} />
-              ) : (
-                <GoogleIcon />
-              )}
-              <Text style={styles.googleButtonText}>Continuar con Google</Text>
-            </Pressable>
+            {/* <Pressable */}
+            {/*   onPress={handleGoogleLogin} */}
+            {/*   disabled={isAnyLoading} */}
+            {/*   style={({ pressed }) => [ */}
+            {/*     styles.googleButton, */}
+            {/*     pressed && { opacity: 0.8 }, */}
+            {/*     isAnyLoading && { opacity: 0.6 }, */}
+            {/*   ]} */}
+            {/* > */}
+            {/*   {isGoogleLoading ? ( */}
+            {/*     <ActivityIndicator size="small" color={theme.colors.text} /> */}
+            {/*   ) : ( */}
+            {/*     <GoogleIcon /> */}
+            {/*   )} */}
+            {/*   <Text style={styles.googleButtonText}>Continuar con Google</Text> */}
+            {/* </Pressable> */}
 
             <Pressable
               onPress={() => router.push('/(onboarding)/login')}

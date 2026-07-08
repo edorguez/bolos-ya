@@ -153,7 +153,7 @@ export function createManualEntryModalStyles(theme: AppTheme) {
     },
     addButtonText: {
       color: theme.colors.white,
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },
   });

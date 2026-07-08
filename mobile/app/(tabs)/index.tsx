@@ -39,10 +39,7 @@ export default function HomeTab() {
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await Promise.all([
-        cartsRef.current?.refresh(),
-        bcvRef.current?.refresh(),
-      ]);
+      await Promise.all([cartsRef.current?.refresh(), bcvRef.current?.refresh()]);
     } catch {
       // silently fail
     } finally {

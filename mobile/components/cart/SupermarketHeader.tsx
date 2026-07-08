@@ -29,7 +29,7 @@ const stylesheet = StyleSheet.create(theme => ({
     flex: 1,
   },
   title: {
-    fontSize: 18,
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: '600',
     color: theme.colors.onSurface,
     letterSpacing: -0.25,

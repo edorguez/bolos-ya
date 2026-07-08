@@ -1,16 +1,14 @@
 import {
   View,
   Text,
-  Image,
   Pressable,
   type ViewStyle,
   type TextStyle,
-  type ImageStyle,
 } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
 import { CartProduct } from '../../store/cartStore';
-import { MaterialIcons } from '@expo/vector-icons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 interface ProductCardProps {
   product: CartProduct;
@@ -30,18 +28,16 @@ const stylesheet = StyleSheet.create(theme => ({
     alignItems: 'center',
     gap: theme.spacing.md,
   },
-  imageContainer: {
+  iconContainer: {
     width: 60,
     height: 60,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.surfaceContainer,
-    overflow: 'hidden',
+    backgroundColor: theme.colors.primary + '0D',
+    borderWidth: 1,
+    borderColor: theme.colors.primary + '1A',
+    alignItems: 'center',
+    justifyContent: 'center',
     flexShrink: 0,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
   },
   content: {
     flex: 1,
@@ -131,10 +127,6 @@ export function ProductCard({ product, onMenuPress, onQuantityChange }: ProductC
   const theme = useAppTheme();
   const styles = stylesheet(theme);
 
-  const imageUrl =
-    product.productImageUrl ||
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuC6k9pYxNSoMVMuc_vD59UZLC-6VfJK8aEj5uGakolu4kW-WgHO5MYUzFdiz18MRHXcl5QwWKNYA3lcu3qjrcKIlEDziPD99ApevVCk68rNjpFzDoa07ZSNWGgycQ-FybsEAcp2m6XR0Xk5Eg-78cyYvv0sWlTsi2GZcEfF34On_I7yXLw0VoBA_j_lsxIrWvpr5bfk7A5EnddqyWWzX3g-uNNI-bcIAxI8UgtygDvh_GnHD_McmAhMAjay3GZCUx5DwN75OI4HM-T4';
-
   const handleDecrease = () => {
     if (product.quantity <= 1 || !onQuantityChange) return;
     onQuantityChange(product.id, product.quantity - 1);
@@ -147,8 +139,8 @@ export function ProductCard({ product, onMenuPress, onQuantityChange }: ProductC
 
   return (
     <View style={styles.card as ViewStyle}>
-      <View style={styles.imageContainer as ViewStyle}>
-        <Image source={{ uri: imageUrl }} style={styles.image as ImageStyle} />
+      <View style={styles.iconContainer as ViewStyle}>
+        <MaterialIcons name="shopping-basket" size={28} color={theme.colors.primary} />
       </View>
       <View style={styles.content as ViewStyle}>
         <View style={styles.header as ViewStyle}>

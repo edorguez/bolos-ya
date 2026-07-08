@@ -31,7 +31,7 @@ export function createCartDetailStyles(theme: AppTheme) {
       gap: 16,
     },
     sectionHeader: {
-      fontSize: theme.typography.fontSize.lg,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: '600',
       color: theme.colors.onSurface,
       marginBottom: 16,

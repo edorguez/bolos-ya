@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Animated, type ViewStyle, type TextStyle } from 'react-native';
+import { View, Text, TextInput, Animated, type TextStyle } from 'react-native';
 import { useAppTheme } from '../../styles/theme';
 import { createHomeStyles } from '../../styles/homeStyles';
 import { SupermarketCarousel } from './SupermarketCarousel';

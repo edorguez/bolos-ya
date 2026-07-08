@@ -84,7 +84,7 @@ export default function LoginScreen() {
       letterSpacing: theme.typography.letterSpacing.xl,
     },
     subtitle: {
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       color: theme.colors.textSecondary,
       textAlign: 'center',
     },
@@ -103,7 +103,7 @@ export default function LoginScreen() {
     input: {
       flex: 1,
       paddingVertical: theme.spacing.md,
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       color: theme.colors.text,
     },
     inputIcon: {
@@ -123,7 +123,7 @@ export default function LoginScreen() {
     },
     loginButtonText: {
       color: theme.colors.white,
-      fontSize: theme.typography.fontSize.md,
+      fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },
     footer: {
