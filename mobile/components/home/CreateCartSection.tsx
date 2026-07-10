@@ -68,13 +68,13 @@ export function CreateCartSection({ userId, onCartCreated, onError }: CreateCart
   const bsEditable = topCurrency === 'BS';
 
   useEffect(() => {
-    if (bsEditable && budgetBs > 0 && exchangeRate > 0) {
+    if (bsEditable && exchangeRate > 0) {
       setBudgetUsd(budgetBs / exchangeRate);
     }
   }, [budgetBs, bsEditable, exchangeRate]);
 
   useEffect(() => {
-    if (!bsEditable && budgetUsd > 0 && exchangeRate > 0) {
+    if (!bsEditable && exchangeRate > 0) {
       setBudgetBs(budgetUsd * exchangeRate);
     }
   }, [budgetUsd, bsEditable, exchangeRate]);

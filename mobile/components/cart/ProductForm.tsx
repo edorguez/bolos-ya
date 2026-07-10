@@ -68,13 +68,13 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
   }, [topCurrency]);
 
   useEffect(() => {
-    if (bsEditable && bsPrice > 0) {
+    if (bsEditable) {
       setUsdPrice(bsPrice / EXCHANGE_RATE);
     }
   }, [bsPrice, bsEditable, EXCHANGE_RATE]);
 
   useEffect(() => {
-    if (!bsEditable && usdPrice > 0) {
+    if (!bsEditable) {
       setBsPrice(usdPrice * EXCHANGE_RATE);
     }
   }, [usdPrice, bsEditable, EXCHANGE_RATE]);
