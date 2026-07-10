@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useSession, signOut } from '../lib/auth-client';
 import { apiGet } from '../services/api';
+import * as SecureStore from 'expo-secure-store';
+
+const OFFLINE_GUEST_KEY = '@bolosya_offline_guest';
 
 interface AuthUser {
   id: string;
@@ -20,6 +23,12 @@ interface GetMeData {
   premiumUntil?: string | null;
 }
 
+interface OfflineGuest {
+  id: string;
+  isAnonymous: boolean;
+  createdAt: string;
+}
+
 export function useAuth() {
   const { data: session, isPending } = useSession();
   const [internalUserId, setInternalUserId] = useState<string | null>(null);
@@ -27,6 +36,19 @@ export function useAuth() {
     isPremium: boolean;
     premiumUntil?: string | null;
   } | null>(null);
+  const [offlineGuest, setOfflineGuest] = useState<OfflineGuest | null>(null);
+
+  useEffect(() => {
+    SecureStore.getItemAsync(OFFLINE_GUEST_KEY).then(raw => {
+      if (raw) {
+        try {
+          setOfflineGuest(JSON.parse(raw));
+        } catch {
+          // ignore
+        }
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (session?.user && !internalUserId) {
@@ -60,16 +82,29 @@ export function useAuth() {
         name: session.user.name,
         image: (session.user as Record<string, unknown>).image as string | null | undefined,
       }
-    : null;
+    : offlineGuest
+      ? {
+          id: offlineGuest.id,
+          userId: offlineGuest.id,
+          email: '',
+          isPremium: false,
+          isAnonymous: true,
+          premiumUntil: null,
+          name: 'Invitado',
+          image: null,
+        }
+      : null;
 
   const handleLogout = async () => {
+    await SecureStore.deleteItemAsync(OFFLINE_GUEST_KEY);
     await signOut();
+    setOfflineGuest(null);
   };
 
   return {
     user,
-    isLoading: isPending,
-    isAuthenticated: !!session,
+    isLoading: isPending && !offlineGuest,
+    isAuthenticated: !!session || !!offlineGuest,
     logout: handleLogout,
   };
 }

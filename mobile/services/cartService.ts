@@ -1,4 +1,8 @@
-import { apiGet, apiPost, apiPut, apiDelete } from './api';
+import { apiGet, apiPost } from './api';
+import { cartRepository } from '../lib/local/repositories/cartRepository';
+import { cartProductRepository } from '../lib/local/repositories/cartProductRepository';
+import { syncService } from './syncService';
+import { generateLocalId } from '../lib/local/database';
 import type { ApiCartDetailResponse, ApiCartResponse, ApiCartProductResponse } from '../types';
 import { toCents, fromCents, transformPrices } from '../utils/priceUtils';
 
@@ -92,44 +96,110 @@ export async function getCartDetail(
   cartId: string,
   userId?: string
 ): Promise<ApiCartDetailResponse> {
-  const response = await apiGet<ApiResponse<ApiCartDetailResponse>>(`/carts/${cartId}`, userId);
+  try {
+    const response = await apiGet<ApiResponse<ApiCartDetailResponse>>(`/carts/${cartId}`, userId);
+    if (response.success) {
+      await cartRepository.upsert({
+        id: response.data.id,
+        supermarketId: response.data.supermarketId,
+        supermarketName: response.data.supermarketName,
+        userId,
+        isActive: response.data.isActive,
+        budgetBs: fromCents(response.data.budgetBs),
+        budgetUsd: fromCents(response.data.budgetUsd),
+      });
 
-  if (!response.success) {
+      for (const product of response.data.products) {
+        await cartProductRepository.upsert({
+          id: product.id,
+          cartId: product.cartId,
+          productId: product.productId,
+          name: product.name,
+          priceBs: fromCents(product.priceBs),
+          priceUsd: fromCents(product.priceUsd),
+          quantity: product.quantity,
+          isManualEntry: product.isManualEntry,
+          imageUrl: product.imageUrl,
+        });
+      }
+    }
+    return transformCartDetail(response.data);
+  } catch {
+    const localCart = await cartRepository.getById(cartId);
+    if (localCart) {
+      return {
+        id: localCart.id,
+        supermarketId: localCart.supermarketId,
+        supermarketName: localCart.supermarketName,
+        userId: localCart.userId || '',
+        isActive: localCart.isActive,
+        budgetBs: localCart.budgetBs,
+        budgetUsd: localCart.budgetUsd,
+        totalEstimatedBs: localCart.totalEstimatedBs,
+        totalEstimatedUsd: localCart.totalEstimatedUsd,
+        createdAt: localCart.createdAt,
+        updatedAt: localCart.updatedAt,
+        products: localCart.products.map(p => ({
+          id: p.id,
+          cartId: p.cartId,
+          productId: p.productId || '',
+          name: p.name,
+          priceBs: p.priceBs,
+          priceUsd: p.priceUsd,
+          imageUrl: p.imageUrl,
+          quantity: p.quantity,
+          isManualEntry: p.isManualEntry,
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt,
+        })),
+      };
+    }
     throw new Error('Error al obtener el carrito');
   }
-
-  return transformCartDetail(response.data);
 }
 
 export async function createCart(
   params: CreateCartParams,
   userId?: string
 ): Promise<CreateCartResponse> {
-  const body: Record<string, unknown> = {
-    budgetBs: toCents(params.budgetBs),
-    budgetUsd: toCents(params.budgetUsd),
-  };
+  const localCart = await cartRepository.upsert({
+    supermarketId: params.supermarketId || generateLocalId(),
+    supermarketName: params.newSupermarket?.name || "Plaza's",
+    userId,
+    budgetBs: params.budgetBs,
+    budgetUsd: params.budgetUsd,
+  });
 
-  if (params.supermarketId) {
-    body.supermarketId = params.supermarketId;
-  } else if (params.newSupermarket) {
-    body.newSupermarket = { name: params.newSupermarket.name };
-  }
+  const now = new Date().toISOString();
 
-  const response = await apiPost<ApiResponse<CreateCartResponse>>('/carts', userId, body);
-
-  if (!response.success) {
-    throw new Error('Error al crear el carrito');
-  }
+  await syncService.enqueueAndSync(
+    'carts',
+    'INSERT',
+    localCart.id,
+    {
+      id: localCart.id,
+      supermarketId: params.supermarketId,
+      newSupermarket: params.newSupermarket,
+      budgetBs: toCents(params.budgetBs),
+      budgetUsd: toCents(params.budgetUsd),
+      budgetBsRaw: params.budgetBs,
+      budgetUsdRaw: params.budgetUsd,
+      userId,
+    },
+    userId
+  );
 
   return {
-    ...response.data,
-    budgetBs: fromCents(response.data.budgetBs),
-    budgetUsd: fromCents(response.data.budgetUsd),
-    totalEstimatedBs:
-      response.data.totalEstimatedBs !== null ? fromCents(response.data.totalEstimatedBs) : null,
-    totalEstimatedUsd:
-      response.data.totalEstimatedUsd !== null ? fromCents(response.data.totalEstimatedUsd) : null,
+    id: localCart.id,
+    supermarketId: params.supermarketId || localCart.supermarketId,
+    userId: userId || '',
+    isActive: true,
+    budgetBs: params.budgetBs,
+    budgetUsd: params.budgetUsd,
+    totalEstimatedBs: null,
+    totalEstimatedUsd: null,
+    createdAt: now,
+    updatedAt: now,
   };
 }
 
@@ -137,36 +207,53 @@ export async function addCartProduct(
   params: AddCartProductParams,
   userId?: string
 ): Promise<CartProductResponse> {
-  const body: Record<string, unknown> = {
+  const localProduct = await cartProductRepository.upsert({
     cartId: params.cartId,
-    supermarketId: params.supermarketId,
     name: params.name,
-    priceUsd: toCents(params.priceUsd),
-    priceBs: toCents(params.priceBs),
-    priceBcv: params.priceBcv !== undefined ? toCents(params.priceBcv) : 0,
+    priceBs: params.priceBs,
+    priceUsd: params.priceUsd,
     quantity: params.quantity,
     isManualEntry: params.isManualEntry ?? true,
+    imageUrl: params.imageUrl,
+    supermarket: params.cartId,
+  });
+
+  await syncService.enqueueAndSync(
+    'cart_products',
+    'INSERT',
+    localProduct.id,
+    {
+      id: localProduct.id,
+      cartId: params.cartId,
+      supermarketId: params.supermarketId,
+      name: params.name,
+      priceUsd: toCents(params.priceUsd),
+      priceBs: toCents(params.priceBs),
+      priceBcv: params.priceBcv !== undefined ? toCents(params.priceBcv) : 0,
+      quantity: params.quantity,
+      isManualEntry: params.isManualEntry ?? true,
+      barcode: params.barcode || null,
+      isWeightBased: params.isWeightBased,
+      imageUrl: params.imageUrl || null,
+      userId,
+    },
+    userId
+  );
+
+  const now = new Date().toISOString();
+  return {
+    id: localProduct.id,
+    cartId: params.cartId,
+    productId: localProduct.id,
+    name: params.name,
+    priceBs: params.priceBs,
+    priceUsd: params.priceUsd,
+    imageUrl: params.imageUrl || null,
+    quantity: params.quantity,
+    isManualEntry: params.isManualEntry ?? true,
+    createdAt: now,
+    updatedAt: now,
   };
-
-  if (params.barcode != null) {
-    body.barcode = params.barcode;
-  }
-
-  if (params.isWeightBased !== undefined) {
-    body.isWeightBased = params.isWeightBased;
-  }
-
-  if (params.imageUrl != null) {
-    body.imageUrl = params.imageUrl;
-  }
-
-  const response = await apiPost<ApiResponse<CartProductResponse>>('/cart-products', userId, body);
-
-  if (!response.success) {
-    throw new Error('Error al agregar producto');
-  }
-
-  return transformPrices(response.data);
 }
 
 export async function updateCartProduct(
@@ -174,38 +261,44 @@ export async function updateCartProduct(
   params: UpdateCartProductParams,
   userId?: string
 ): Promise<CartProductResponse> {
-  const body: Record<string, unknown> = {
-    cartId: params.cartId,
+  await cartProductRepository.update(cartProductId, {
     name: params.name,
-    priceUsd: toCents(params.priceUsd),
-    priceBs: toCents(params.priceBs),
-    priceBcv: params.priceBcv !== undefined ? toCents(params.priceBcv) : 0,
+    priceBs: params.priceBs,
+    priceUsd: params.priceUsd,
     quantity: params.quantity,
-  };
+    imageUrl: params.imageUrl || null,
+  });
 
-  if (params.barcode != null) {
-    body.barcode = params.barcode;
-  }
-
-  if (params.isWeightBased !== undefined) {
-    body.isWeightBased = params.isWeightBased;
-  }
-
-  if (params.imageUrl != null) {
-    body.imageUrl = params.imageUrl;
-  }
-
-  const response = await apiPut<ApiResponse<CartProductResponse>>(
-    `/cart-products/${cartProductId}`,
-    userId,
-    body
+  await syncService.enqueueAndSync(
+    'cart_products',
+    'UPDATE',
+    cartProductId,
+    {
+      id: cartProductId,
+      cartId: params.cartId,
+      name: params.name,
+      priceUsd: toCents(params.priceUsd),
+      priceBs: toCents(params.priceBs),
+      quantity: params.quantity,
+      userId,
+    },
+    userId
   );
 
-  if (!response.success) {
-    throw new Error('Error al actualizar producto');
-  }
-
-  return transformPrices(response.data);
+  const now = new Date().toISOString();
+  return {
+    id: cartProductId,
+    cartId: params.cartId,
+    productId: cartProductId,
+    name: params.name,
+    priceBs: params.priceBs,
+    priceUsd: params.priceUsd,
+    imageUrl: params.imageUrl || null,
+    quantity: params.quantity,
+    isManualEntry: false,
+    createdAt: now,
+    updatedAt: now,
+  };
 }
 
 export async function updateCartProductQuantity(
@@ -213,23 +306,34 @@ export async function updateCartProductQuantity(
   params: UpdateCartProductQuantityParams,
   userId?: string
 ): Promise<CartProductResponse> {
-  const body: Record<string, unknown> = {
-    cartProductId: params.cartProductId,
-    cartId: params.cartId,
-    quantity: params.quantity,
-  };
+  await cartProductRepository.updateQuantity(cartProductId, params.quantity);
 
-  const response = await apiPut<ApiResponse<CartProductResponse>>(
-    `/cart-products/${cartProductId}/quantity`,
-    userId,
-    body
+  await syncService.enqueueAndSync(
+    'cart_products',
+    'UPDATE',
+    cartProductId,
+    {
+      id: cartProductId,
+      cartId: params.cartId,
+      quantity: params.quantity,
+      userId,
+    },
+    userId
   );
 
-  if (!response.success) {
-    throw new Error('Error al actualizar cantidad');
-  }
-
-  return transformPrices(response.data);
+  return {
+    id: cartProductId,
+    cartId: params.cartId,
+    productId: cartProductId,
+    name: '',
+    priceBs: 0,
+    priceUsd: 0,
+    imageUrl: null,
+    quantity: params.quantity,
+    isManualEntry: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 function transformCartResponse(response: ApiCartResponse): ApiCartResponse {
@@ -245,19 +349,50 @@ function transformCartResponse(response: ApiCartResponse): ApiCartResponse {
 }
 
 export async function checkoutCart(cartId: string, userId?: string): Promise<ApiCartResponse> {
-  const response = await apiPost<ApiResponse<ApiCartResponse>>(`/carts/${cartId}/checkout`, userId);
+  try {
+    const response = await apiPost<ApiResponse<ApiCartResponse>>(
+      `/carts/${cartId}/checkout`,
+      userId
+    );
+    if (response.success) {
+      await cartRepository.update(cartId, { isActive: false });
+    }
+    return transformCartResponse(response.data);
+  } catch {
+    await cartRepository.update(cartId, { isActive: false });
 
-  if (!response.success) {
-    throw new Error('Error al completar carrito');
+    await syncService.enqueueAndSync(
+      'carts',
+      'UPDATE',
+      cartId,
+      { id: cartId, isActive: false, checkout: true, userId },
+      userId
+    );
+
+    return {
+      id: cartId,
+      supermarketId: '',
+      supermarketName: '',
+      userId: userId || '',
+      isActive: false,
+      budgetBs: 0,
+      budgetUsd: 0,
+      totalEstimatedBs: null,
+      totalEstimatedUsd: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
   }
-
-  return transformCartResponse(response.data);
 }
 
 export async function deleteCartProduct(cartProductId: string, userId?: string): Promise<void> {
-  const response = await apiDelete<ApiResponse<void>>(`/cart-products/${cartProductId}`, userId);
+  await cartProductRepository.delete(cartProductId);
 
-  if (!response.success) {
-    throw new Error('Error al eliminar producto');
-  }
+  await syncService.enqueueAndSync(
+    'cart_products',
+    'DELETE',
+    cartProductId,
+    { id: cartProductId, userId },
+    userId
+  );
 }

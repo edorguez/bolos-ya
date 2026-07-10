@@ -31,7 +31,7 @@ func SetupRoutes(
 	router.Use(pkgmiddleware.LoggingMiddleware(log))
 	router.Use(corsMiddleware())
 
-	authHandler := handlers.NewAuthHandler(authService)
+	authHandler := handlers.NewAuthHandler(authService, syncService)
 	cartHandler := handlers.NewCartHandler(cartService)
 	syncHandler := handlers.NewSyncHandler(syncService)
 	paymentHandler := handlers.NewPaymentHandler(paymentService)

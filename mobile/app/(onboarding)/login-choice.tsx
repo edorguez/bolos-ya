@@ -12,23 +12,54 @@ import { useAppTheme } from '../../styles/theme';
 import { signIn } from '../../lib/auth-client';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
+import * as Network from 'expo-network';
+import * as SecureStore from 'expo-secure-store';
 
 const { width, height } = Dimensions.get('window');
 const isLargeScreen = height > 800;
 const isExtraLargeScreen = height > 900;
 
+const OFFLINE_GUEST_KEY = '@bolosya_offline_guest';
+
 export default function LoginChoiceScreen() {
   const router = useRouter();
   const theme = useAppTheme();
   const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const [, setToast] = useState<string | null>(null);
 
   const handleGuestLogin = async () => {
     setIsGuestLoading(true);
     try {
-      await signIn.anonymous();
-      router.replace('/(tabs)');
+      const networkState = await Network.getNetworkStateAsync();
+      if (networkState.isConnected) {
+        await signIn.anonymous();
+        router.replace('/(tabs)');
+      } else {
+        await SecureStore.setItemAsync(
+          OFFLINE_GUEST_KEY,
+          JSON.stringify({
+            id: `offline_${Date.now()}`,
+            isAnonymous: true,
+            createdAt: new Date().toISOString(),
+          })
+        );
+        router.replace('/(tabs)');
+      }
     } catch {
-      setIsGuestLoading(false);
+      try {
+        await SecureStore.setItemAsync(
+          OFFLINE_GUEST_KEY,
+          JSON.stringify({
+            id: `offline_${Date.now()}`,
+            isAnonymous: true,
+            createdAt: new Date().toISOString(),
+          })
+        );
+        router.replace('/(tabs)');
+      } catch {
+        setToast('Error al iniciar sesión como invitado');
+        setIsGuestLoading(false);
+      }
     }
   };
 

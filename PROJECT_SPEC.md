@@ -19,8 +19,9 @@ A mobile application (iOS/Android) and web admin dashboard that allows users in 
 | **Mobile**             | React Native (Expo SDK 55) with TypeScript, Expo Router                    |
 | **Web / Admin**        | React 19, Vite 5, TypeScript 6, MUI 9, GSAP 3, SCSS Modules               |
 | **Styling (Mobile)**   | Unistyles (`react-native-unistyles`)                                       |
-| **State Management**   | Zustand (cart only); custom React hooks (auth, BCV)                        |
-| **Local Storage**      | AsyncStorage (caching), expo-secure-store (auth tokens)                    |
+| **State Management**   | Zustand (cart only, persisted via AsyncStorage); custom React hooks (auth, BCV) |
+| **Local Storage**      | `expo-sqlite` (offline DB), AsyncStorage (Zustand persist + caching), `expo-secure-store` (auth tokens) |
+| **Offline DB**         | Local SQLite (`expo-sqlite`) mirroring backend tables with sync queue      |
 | **OCR**                | `@infinitered/react-native-mlkit-text-recognition` (on‑device)             |
 | **Auth**               | better-auth with Hono (standalone auth server + shared PostgreSQL)         |
 | **Email**              | Resend (transactional emails with HTML templates)                          |
@@ -98,7 +99,16 @@ bolos-ya/
 │   ├── lib/                 # Core libraries
 │   │   ├── auth-client.ts   # Better Auth Expo client + anonymous plugin
 │   │   ├── env.ts           # Environment/device host resolution
-│   │   └── ocr.ts           # ML Kit OCR with image preprocessing + fallback
+│   │   ├── ocr.ts           # ML Kit OCR with image preprocessing + fallback
+│   │   └── local/           # Offline SQLite database layer
+│   │       ├── database.ts  # SQLite init, migrations, helpers
+│   │       ├── syncQueue.ts # Offline sync queue management
+│   │       └── repositories/
+│   │           ├── cartRepository.ts        # Local cart CRUD
+│   │           ├── cartProductRepository.ts # Local cart product CRUD
+│   │           └── supermarketRepository.ts # Local supermarket cache
+│   ├── hooks/               # React hooks
+│   │   └── useNetwork.ts    # Network state detection hook
 │   ├── components/          # UI components by domain (42 total)
 │   │   ├── home/            # BCVRateCard, SupermarketCarousel, CartCard, etc.
 │   │   ├── cart/            # BudgetSummary, ProductCard, ProductForm, etc.
@@ -106,18 +116,21 @@ bolos-ya/
 │   │   ├── profile/         # PremiumCard, GuestCard, SettingItem, etc.
 │   │   └── history/         # HistoryCard, AmountCard, StatusBadge, etc.
 │   ├── store/               # State management
-│   │   ├── cartStore.ts     # Zustand store (carts + products)
-│   │   ├── authStore.ts     # Custom React hook (not Zustand)
-│   │   └── bcvStore.ts      # Custom React hook with AsyncStorage cache (not Zustand)
+│   │   ├── cartStore.ts     # Zustand store with AsyncStorage persist (carts + products)
+│   │   ├── authStore.ts     # Custom React hook with offline guest support via SecureStore
+│   │   └── bcvStore.ts      # Custom React hook with AsyncStorage cache (offline-first)
 │   ├── services/            # HTTP client + per‑feature services
 │   │   ├── api.ts           # fetch-based client with auth headers
 │   │   ├── bcvService.ts
-│   │   ├── cartService.ts
-│   │   ├── historyService.ts
+│   │   ├── cartService.ts   # Offline-first CRUD + sync enqueue
+│   │   ├── historyService.ts # Offline-capable with local DB fallback
 │   │   ├── paymentService.ts
-│   │   └── supermarketService.ts
+│   │   ├── supermarketService.ts # Offline-capable with local cache
+│   │   ├── syncService.ts   # Sync engine orchestrator (push/pull)
+│   │   └── migrationService.ts # Guest→registered data migration
 │   ├── styles/              # Unistyles theme + per‑screen styles
 │   ├── types/               # TypeScript interfaces (domain models, API responses)
+│   │   └── sync.ts          # Mobile-side sync DTOs (SyncOperation, SyncResponse)
 │   └── utils/               # Currency, validation, formatting, storage, icons, tips
 ├── docs/
 │   └── openapi.yaml         # OpenAPI 3.0 specification (OUTDATED — only 4/25+ paths)
@@ -175,14 +188,22 @@ func NewCartService(cartRepo repository.CartRepository, productRepo repository.P
 ## 5. Mobile Architecture
 
 - **Routing**: Expo Router file‑based routing with tab navigation and modal stacks.
-- **State Management**: Zustand for cart data (`store/cartStore.ts`); custom React hooks with `useState`/`useEffect` for auth (`store/authStore.ts`) and BCV rate (`store/bcvStore.ts` with AsyncStorage cache).
+- **State Management**: Zustand for cart data (`store/cartStore.ts`) with `zustand/middleware` persist layer backed by AsyncStorage — survives app restarts. Custom React hooks for auth (`store/authStore.ts` with SecureStore offline guest support) and BCV rate (`store/bcvStore.ts` with AsyncStorage cache, offline-first).
 - **HTTP Client**: Custom `fetch`‑based API client (`mobile/services/api.ts`). Sends the better-auth session token as `Authorization: Bearer` + `X-User-ID` header. Backend URL is resolved via `lib/env.ts` (auto-detects device host in dev mode).
-- **Caching**: AsyncStorage for BCV rate (reduces API calls) and auth session data (via expo-secure-store).
-- **Auth Client**: `lib/auth-client.ts` — better-auth Expo plugin with SecureStore storage + anonymous guest plugin.
-- **OCR**: `@infinitered/react-native-mlkit-text-recognition` for on‑device price extraction from receipt photos. Image preprocessing via `expo-image-manipulator` (crop + resize to 1200px). Falls back to mock data if ML Kit unavailable.
-- **Manual Entry**: `ManualEntryModal` for adding products without a receipt (barcode, prices, quantity).
+- **Caching**: AsyncStorage for BCV rate (reduces API calls), Zustand cart store persistence, and auth session data (via expo-secure-store).
+- **Auth Client**: `lib/auth-client.ts` — better-auth Expo plugin with SecureStore storage + anonymous guest plugin. Supports offline guest mode with local SecureStore fallback.
+- **OCR**: `@infinitered/react-native-mlkit-text-recognition` for on‑device price extraction from receipt photos. Image preprocessing via `expo-image-manipulator` (crop + resize to 1200px). Falls back to mock data if ML Kit unavailable. Works fully offline.
+- **Manual Entry**: `ManualEntryModal` for adding products without a receipt (barcode, prices, quantity). Works fully offline.
 - **Styling**: Unistyles with a shared theme (`mobile/styles/theme.ts`) and per‑screen style modules (light/dark mode via `useColorScheme()`).
-- **Local DB**: `expo-sqlite` included as a dependency for future offline sync queue.
+- **Local DB**: `expo-sqlite` with a local schema mirroring backend tables (`carts`, `cart_products`, `supermarkets`) plus a `sync_queue` table for tracking pending changes. Three local repositories (`cartRepository`, `cartProductRepository`, `supermarketRepository`) provide offline CRUD operations.
+- **Sync Engine**: `services/syncService.ts` orchestrates offline→online synchronization. On connectivity restored, the sync queue is drained by calling `POST /api/v1/sync` with batched `SyncOperation` items. Conflict resolution uses **last-write-wins** based on timestamps.
+- **Network Detection**: `hooks/useNetwork.ts` wraps `expo-network` to detect connectivity state changes; auto-triggers sync on reconnection.
+- **Data Flow**:
+  1. All mutations (create/update/delete) write to local SQLite + Zustand first (optimistic).
+  2. After local write, a `SyncOperation` is enqueued in the `sync_queue` table.
+  3. If online, `syncService.syncAll()` is called immediately to push changes to the server.
+  4. If offline, the operation stays queued and is processed when connectivity returns.
+  5. On successful sync, the server returns the real UUID which replaces the temporary `local_` prefix.
 
 ---
 
@@ -490,14 +511,80 @@ Authentication is handled by a **standalone auth server** (`auth-server/`) using
 
 ## 9. Offline Strategy
 
-The mobile app does **not** implement a full offline sync queue. Instead:
+The mobile app implements a **full offline-first** architecture with local SQLite storage and a sync queue for background synchronization.
 
-- **Reads** are always served from the API first, falling back to AsyncStorage‑cached data (e.g., BCV rate).
-- **Writes** (create cart, add products) require network connectivity.
-- **Auth sessions** are stored in expo-secure-store and persist across app restarts.
-- **BCV rate** is cached in AsyncStorage and updated daily from the API, with fallback to yesterday's rate if the API or BCV website is unavailable.
-- **Sync endpoint**: The backend exposes a `POST /api/v1/sync` endpoint that processes batches of `SyncOperation` (INSERT/UPDATE/DELETE on users, supermarkets, products, carts, cart_products). The mobile app defines `SyncOperation`, `SyncRequest`, and `SyncResponse` types in `dto/sync_dto.go` and `services/cartService.ts`, laying groundwork for future offline write support.
-- **Local DB**: `expo-sqlite` is included as a dependency for future local SQLite storage.
+### 9.1 Architecture
+
+```
+User Action → Local SQLite (immediate) → Zustand Store (optimistic UI) → Sync Queue → POST /api/v1/sync (when online)
+```
+
+### 9.2 Local SQLite Database
+
+Location: `mobile/lib/local/database.ts`
+
+Tables: `carts`, `cart_products`, `supermarkets`, `sync_queue`, `auth_cache`
+
+All tables mirror the backend schema with cents-denominated monetary values. Records use either server-assigned UUIDs or temporary `local_`-prefixed UUIDs for offline-created items.
+
+### 9.3 Sync Queue
+
+Location: `mobile/lib/local/syncQueue.ts`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INTEGER PK | Auto-increment |
+| `table_name` | TEXT | Affected table (`carts`, `cart_products`, `supermarkets`) |
+| `action` | TEXT | `INSERT`, `UPDATE`, `DELETE` |
+| `local_id` | TEXT | UUID of the affected row |
+| `payload` | TEXT | JSON payload of the operation |
+| `status` | TEXT | `pending` → `syncing` → `completed` / `failed` |
+| `error` | TEXT | Error message on failure |
+| `retry_count` | INTEGER | Max 5 retries before permanent failure |
+
+### 9.4 Sync Engine
+
+Location: `mobile/services/syncService.ts`
+
+- On connectivity restored: fetch pending operations, batch into `SyncRequest`, POST to `/api/v1/sync`
+- After successful sync: replace `local_` UUIDs with server-assigned UUIDs in both SQLite and Zustand
+- Failed operations: retry with exponential backoff (up to 5 attempts)
+- Reset stuck `syncing` operations to `pending` on app startup
+
+### 9.5 Conflict Resolution
+
+**Strategy: Last-write-wins** — timestamps from each operation are compared against the server's `updated_at`. The most recent change wins. If a conflict is detected, the server returns the `serverVersion` so the mobile can update its local state.
+
+### 9.6 Offline Capabilities by Screen
+
+| Screen | Offline | Notes |
+|--------|---------|-------|
+| **Login/Register** | Partial | Guest mode works offline via SecureStore; email/Google auth requires internet |
+| **Home (Create Cart)** | ✅ Full | Carts created locally, synced when online |
+| **Cart Detail** | ✅ Full | Add/edit/delete products locally, quantities, checkout |
+| **Scan (OCR)** | ✅ Full | ML Kit runs on-device; products added locally |
+| **History** | ✅ Full | Reads from local SQLite; shows last synced timestamp |
+| **Profile** | Partial | Profile data from last sync; premium/upgrade buttons require internet |
+| **Premium (Plans, Pago-móvil)** | ❌ Requires internet | Network guard at layout level redirects to profile |
+
+### 9.7 Guest Mode Offline
+
+- When the user taps "Entrar como Invitado" without internet, a local guest session is stored in `expo-secure-store` with a generated UUID
+- All local CRUD operations work with this guest identity
+- When the user registers later, `services/migrationService.ts` calls `POST /api/v1/auth/internal/migrate-user-data` with all pending sync operations to merge data into the new account
+- Auth sessions are cached for up to **7 days** before requiring re-authentication
+
+### 9.8 Backend Sync Endpoint
+
+`POST /api/v1/sync` — processes batched `SyncOperation` items for all tables:
+
+- **supermarkets**: INSERT (custom), UPDATE, DELETE
+- **products**: INSERT, UPDATE, DELETE
+- **carts**: INSERT, UPDATE (including checkout), DELETE
+- **cart_products**: INSERT, UPDATE (quantity), DELETE
+- **users**: UPDATE, DELETE (limited to own record)
+
+Returns `SyncResponse` with per-operation results and `serverVersion` for conflict resolution.
 
 ---
 

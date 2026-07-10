@@ -7,9 +7,12 @@ import { PremiumCard } from '../../components/profile/PremiumCard';
 import { PremiumActiveCard } from '../../components/profile/PremiumActiveCard';
 import { AnonymousPromptCard } from '../../components/profile/AnonymousPromptCard';
 import { GuestCard } from '../../components/profile/GuestCard';
+import { Toast } from '../../components/shared/Toast';
 import { useAppTheme } from '../../styles/theme';
 import { useAuth } from '../../store/authStore';
 import { getPaymentsByUser, PENDING_STATUS_ID } from '../../services/paymentService';
+import { useState, useEffect } from 'react';
+import * as Network from 'expo-network';
 
 export default function ProfileTab() {
   const theme = useAppTheme();
@@ -17,6 +20,14 @@ export default function ProfileTab() {
   const { user, logout, isAuthenticated } = useAuth();
   const isPremium = user?.isPremium || false;
   const styles = profileStyles(theme);
+  const [isOnline, setIsOnline] = useState(true);
+  const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    Network.getNetworkStateAsync().then(state => {
+      setIsOnline(state.isConnected ?? true);
+    });
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -24,6 +35,10 @@ export default function ProfileTab() {
   };
 
   const handleUpgrade = async () => {
+    if (!isOnline) {
+      setToast('Se necesita conexión a internet para gestionar tu suscripción');
+      return;
+    }
     try {
       const pendingPayments = await getPaymentsByUser(user!.userId!, PENDING_STATUS_ID);
       if (pendingPayments.length > 0) {
@@ -94,6 +109,7 @@ export default function ProfileTab() {
           MercadoLibreta v{Constants.expoConfig?.version || '2.4.0'}
         </Text>
       </ScrollView>
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </View>
   );
 }

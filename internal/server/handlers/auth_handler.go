@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"github.com/edorguez/bolos-ya/internal/server/dto"
 	"github.com/edorguez/bolos-ya/internal/server/middleware"
@@ -17,11 +18,13 @@ import (
 
 type AuthHandler struct {
 	authService services.AuthService
+	syncService services.SyncService
 }
 
-func NewAuthHandler(authService services.AuthService) *AuthHandler {
+func NewAuthHandler(authService services.AuthService, syncService services.SyncService) *AuthHandler {
 	return &AuthHandler{
 		authService: authService,
+		syncService: syncService,
 	}
 }
 
@@ -128,6 +131,16 @@ func (h *AuthHandler) MigrateUserData(c *gin.Context) {
 	if err := h.authService.MigrateUserData(c.Request.Context(), req.FromBetterAuthUserId, req.ToBetterAuthUserId, req.Email, req.AuthProvider); err != nil {
 		h.handleError(c, err)
 		return
+	}
+
+	if len(req.Operations) > 0 {
+		userID, ok := middleware.GetUserIDFromContext(c)
+		if ok {
+			parsedUserID, parseErr := uuid.Parse(userID)
+			if parseErr == nil {
+				_, _ = h.syncService.MigrateUserData(c.Request.Context(), parsedUserID, parsedUserID, req.Operations)
+			}
+		}
 	}
 
 	utils.SuccessResponse(c, gin.H{"message": "data migrated successfully"})

@@ -133,9 +133,11 @@ export default function ScanScreen() {
       setToast({ message: 'Precio inválido', isError: true });
       return;
     }
-    if (!exchangeRate) {
-      setToast({ message: 'Tasa de cambio no disponible. Verifica tu conexión.', isError: true });
-      return;
+    if (!rate && rate !== 0) {
+      setToast({
+        message: 'Tasa de cambio no disponible. Se usará 0 como referencia.',
+        isError: false,
+      });
     }
 
     try {
@@ -146,7 +148,7 @@ export default function ScanScreen() {
           name,
           priceUsd,
           priceBs,
-          priceBcv: rate,
+          priceBcv: rate || 0,
           quantity,
           isManualEntry: false,
         },
@@ -198,8 +200,10 @@ export default function ScanScreen() {
       return;
     }
     if (priceBcv <= 0) {
-      setToast({ message: 'Tasa de cambio no disponible. Verifica tu conexión.', isError: true });
-      return;
+      setToast({
+        message: 'Tasa de cambio no disponible. Se usará 0 como referencia.',
+        isError: false,
+      });
     }
 
     try {

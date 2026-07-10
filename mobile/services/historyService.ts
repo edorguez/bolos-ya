@@ -1,4 +1,5 @@
 import { apiGet } from './api';
+import { cartRepository } from '../lib/local/repositories/cartRepository';
 import type { ApiCartResponse } from '../types';
 
 interface ApiResponse<T> {
@@ -7,16 +8,47 @@ interface ApiResponse<T> {
 }
 
 export async function getCarts(userId?: string, limit?: number): Promise<ApiCartResponse[]> {
-  let path = '/carts';
-  if (limit && limit > 0) {
-    path += `?limit=${limit}`;
-  }
+  try {
+    let path = '/carts';
+    if (limit && limit > 0) {
+      path += `?limit=${limit}`;
+    }
 
-  const response = await apiGet<ApiResponse<ApiCartResponse[]>>(path, userId);
+    const response = await apiGet<ApiResponse<ApiCartResponse[]>>(path, userId);
 
-  if (!response.success || !Array.isArray(response.data)) {
+    if (response.success && Array.isArray(response.data)) {
+      for (const cart of response.data) {
+        await cartRepository.upsert({
+          id: cart.id,
+          supermarketId: cart.supermarketId,
+          supermarketName: cart.supermarketName,
+          userId,
+          isActive: cart.isActive,
+          budgetBs: cart.budgetBs,
+          budgetUsd: cart.budgetUsd,
+        });
+      }
+      return response.data;
+    }
+
     throw new Error('Error al obtener el historial');
-  }
+  } catch {
+    const localCarts = await cartRepository.getAll(userId);
 
-  return response.data;
+    const apiCarts: ApiCartResponse[] = localCarts.map(cart => ({
+      id: cart.id,
+      supermarketId: cart.supermarketId,
+      supermarketName: cart.supermarketName,
+      userId: cart.userId || userId || '',
+      isActive: cart.isActive,
+      budgetBs: cart.budgetBs,
+      budgetUsd: cart.budgetUsd,
+      totalEstimatedBs: cart.totalEstimatedBs,
+      totalEstimatedUsd: cart.totalEstimatedUsd,
+      createdAt: cart.createdAt,
+      updatedAt: cart.updatedAt,
+    }));
+
+    return limit ? apiCarts.slice(0, limit) : apiCarts;
+  }
 }

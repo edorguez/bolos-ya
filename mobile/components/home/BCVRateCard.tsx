@@ -126,13 +126,15 @@ export const BCVRateCard = forwardRef<BCVRateRef, object>((_props, ref) => {
     return (
       <View style={styles.card as ViewStyle}>
         <View style={styles.header as ViewStyle}>
-          <View style={styles.indicator as ViewStyle} />
+          <View
+            style={[styles.indicator as ViewStyle, { backgroundColor: theme.colors.emberOrange }]}
+          />
           <View style={styles.titleBox as ViewStyle}>
             <Text style={styles.headerLabel as TextStyle}>Tasa BCV</Text>
           </View>
         </View>
-        <Text style={{ color: theme.colors.error, fontSize: theme.typography.fontSize.sm }}>
-          No disponible
+        <Text style={{ color: theme.colors.emberOrange, fontSize: theme.typography.fontSize.sm }}>
+          No disponible sin conexión
         </Text>
       </View>
     );

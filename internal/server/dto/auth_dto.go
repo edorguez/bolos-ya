@@ -28,8 +28,9 @@ type GetMeResponse struct {
 }
 
 type MigrateUserDataRequest struct {
-	FromBetterAuthUserId string `json:"fromBetterAuthUserId" validate:"required"`
-	ToBetterAuthUserId   string `json:"toBetterAuthUserId"   validate:"required"`
-	Email                string `json:"email"`
-	AuthProvider         string `json:"authProvider"`
+	FromBetterAuthUserId string          `json:"fromBetterAuthUserId" validate:"required"`
+	ToBetterAuthUserId   string          `json:"toBetterAuthUserId"   validate:"required"`
+	Email                string          `json:"email"`
+	AuthProvider         string          `json:"authProvider"`
+	Operations           []SyncOperation `json:"operations,omitempty"`
 }

@@ -40,10 +40,11 @@ export function useBCV() {
     fetchingRef.current = true;
 
     let rateData: BCVRateData | null = null;
+    let cached: string | null = null;
     const today = localDateStr();
 
     try {
-      const cached = await safeGetItem(STORAGE_KEY);
+      cached = await safeGetItem(STORAGE_KEY);
       if (cached) {
         const parsed: StoreEntry = JSON.parse(cached);
         if (!force && parsed.lastFetched === today) {
@@ -88,7 +89,20 @@ export function useBCV() {
       }
     } catch (err) {
       if (!rateData) {
-        setError(err instanceof Error ? err : new Error('Failed to load BCV rate'));
+        if (cached) {
+          try {
+            const parsed: StoreEntry = JSON.parse(cached);
+            setRate({
+              createdAt: parsed.createdAt,
+              usdRate: parsed.usdRate,
+              eurRate: parsed.eurRate,
+            });
+          } catch {
+            setError(err instanceof Error ? err : new Error('Failed to load BCV rate'));
+          }
+        } else {
+          setError(err instanceof Error ? err : new Error('Failed to load BCV rate'));
+        }
       }
     } finally {
       setIsLoading(false);

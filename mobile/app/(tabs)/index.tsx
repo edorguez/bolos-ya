@@ -67,7 +67,7 @@ export default function HomeTab() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
       >
-        <CreateCartSection userId={user?.id} onCartCreated={handleCartCreated} onError={setToast} />
+        <CreateCartSection userId={user?.id} onCartCreated={handleCartCreated} />
 
         <BCVRateCard ref={bcvRef} />
 

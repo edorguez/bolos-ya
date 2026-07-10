@@ -1,8 +1,50 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
+import { useState, useEffect } from 'react';
+import { View, Text } from 'react-native';
+import * as Network from 'expo-network';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function PremiumLayout() {
   const theme = useAppTheme();
+  const router = useRouter();
+  const [isOnline, setIsOnline] = useState(true);
+
+  useEffect(() => {
+    Network.getNetworkStateAsync().then(state => {
+      const connected = state.isConnected ?? true;
+      setIsOnline(connected);
+      if (!connected) {
+        router.replace('/(tabs)/profile');
+      }
+    });
+  }, [router]);
+
+  if (!isOnline) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.background,
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: theme.spacing.lg,
+        }}
+      >
+        <MaterialIcons name="wifi-off" size={48} color={theme.colors.ash} />
+        <Text
+          style={{
+            marginTop: theme.spacing.md,
+            fontSize: theme.typography.fontSize.md,
+            color: theme.colors.textSecondary,
+            textAlign: 'center',
+          }}
+        >
+          Se necesita conexión a internet para acceder a esta sección
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <Stack

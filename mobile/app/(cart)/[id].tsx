@@ -22,6 +22,7 @@ import {
   checkoutCart,
 } from '../../services/cartService';
 import { useAuth } from '../../store/authStore';
+import { syncService } from '../../services/syncService';
 import type { ApiCartDetailResponse } from '../../types';
 
 export default function CartDetailScreen() {
@@ -48,9 +49,15 @@ export default function CartDetailScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<CartProduct | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
 
   useEffect(() => {
     setActiveCart(id);
+    const interval = setInterval(async () => {
+      const count = await syncService.getPendingCount();
+      setPendingSyncCount(count);
+    }, 5000);
+    return () => clearInterval(interval);
   }, [id, setActiveCart]);
 
   useEffect(() => {
@@ -256,6 +263,18 @@ export default function CartDetailScreen() {
           budgetBs={budgetBs}
           budgetUsd={budgetUsd}
         />
+        {pendingSyncCount > 0 && (
+          <Text
+            style={{
+              fontSize: 10,
+              color: theme.colors.emberOrange,
+              textAlign: 'center',
+              marginTop: 4,
+            }}
+          >
+            {pendingSyncCount} cambio(s) pendiente(s) de sincronizar
+          </Text>
+        )}
       </View>
 
       <ScrollView

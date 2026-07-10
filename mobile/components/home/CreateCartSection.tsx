@@ -16,10 +16,9 @@ import type { SupermarketOption } from '../../services/supermarketService';
 interface CreateCartSectionProps {
   userId?: string;
   onCartCreated: (cartId: string) => void;
-  onError: (message: string) => void;
 }
 
-export function CreateCartSection({ userId, onCartCreated, onError }: CreateCartSectionProps) {
+export function CreateCartSection({ userId, onCartCreated }: CreateCartSectionProps) {
   const theme = useAppTheme();
   const styles = createHomeStyles(theme);
 
@@ -50,7 +49,12 @@ export function CreateCartSection({ userId, onCartCreated, onError }: CreateCart
         }
         setSupermarkets(data);
       } catch {
+        const localData = await getAllSupermarkets(userId);
         if (!mounted) return;
+        if (localData.length > 0) {
+          localData[0].selected = true;
+        }
+        setSupermarkets(localData);
       } finally {
         if (mounted) setIsLoading(false);
       }
@@ -231,8 +235,37 @@ export function CreateCartSection({ userId, onCartCreated, onError }: CreateCart
 
       const updatedMarkets = await getAllSupermarkets(userId);
       setSupermarkets(updatedMarkets);
-    } catch (err) {
-      onError(err instanceof Error ? err.message : 'Error al crear el carrito');
+    } catch {
+      const result = await createCart(
+        {
+          supermarketId: finalSupermarketId,
+          newSupermarket: finalSupermarketId ? undefined : { name: finalName || '' },
+          budgetBs: finalBs,
+          budgetUsd: finalUsd,
+        },
+        userId
+      );
+
+      const cartName = `${finalName || "Plaza's"} - ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`;
+
+      addCart({
+        id: result.id,
+        name: cartName,
+        supermarket: finalName || "Plaza's",
+        supermarketId: result.supermarketId,
+        products: [],
+        totalBs: 0,
+        totalUsd: 0,
+        budgetBs: result.budgetBs,
+        budgetUsd: result.budgetUsd,
+      });
+      setActiveCart(result.id);
+      setBudgetBs(0);
+      setBudgetUsd(0);
+      setCustomMarketName('');
+      setShowCustomMarket(false);
+      setFieldErrors({});
+      onCartCreated(result.id);
     } finally {
       setIsSubmitting(false);
     }
