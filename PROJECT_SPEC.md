@@ -6,7 +6,7 @@
 
 ## 1. Overview
 
-A mobile application (iOS/Android) that allows users in Venezuela to create supermarket shopping carts with dual‑currency pricing (Bolívares + USD built-in, EUR via BCV official rate), manage budgets, and track spending. The project is a monorepo containing a Go backend (using **Gin** and **GORM**), a React Native (Expo) frontend, and a standalone auth server (Hono + better-auth).
+A mobile application (iOS/Android) and web admin dashboard that allows users in Venezuela to create supermarket shopping carts with dual‑currency pricing (Bolívares + USD built-in, EUR via BCV official rate), manage budgets, and track spending. The project is a monorepo containing a Go backend (using **Gin** and **GORM**), a React Native (Expo) mobile frontend, a standalone auth server (Hono + better-auth), and a web admin dashboard (React + Vite).
 
 ---
 
@@ -17,17 +17,18 @@ A mobile application (iOS/Android) that allows users in Venezuela to create supe
 | **Backend**            | Go 1.25, PostgreSQL 15, Redis 7, **Gin** (HTTP), **GORM** (ORM)           |
 | **Backend APIs**       | REST (OpenAPI 3.0 specification)                                           |
 | **Mobile**             | React Native (Expo SDK 55) with TypeScript, Expo Router                    |
-| **Styling**            | Unistyles (`react-native-unistyles`)                                       |
-| **State Management**   | Zustand                                                                     |
+| **Web / Admin**        | React 19, Vite 5, TypeScript 6, MUI 9, GSAP 3, SCSS Modules               |
+| **Styling (Mobile)**   | Unistyles (`react-native-unistyles`)                                       |
+| **State Management**   | Zustand (cart only); custom React hooks (auth, BCV)                        |
 | **Local Storage**      | AsyncStorage (caching), expo-secure-store (auth tokens)                    |
 | **OCR**                | `@infinitered/react-native-mlkit-text-recognition` (on‑device)             |
 | **Auth**               | better-auth with Hono (standalone auth server + shared PostgreSQL)         |
 | **Email**              | Resend (transactional emails with HTML templates)                          |
 | **BCV Rate Scraper**   | gocolly/colly v2 with retry logic (10 min interval, 6 h cap)              |
-| **Image Storage**      | AWS S3 / MinIO (local dev) for premium users                               |
-| **Infrastructure**     | Docker containers, deployed on AWS ECS                                     |
+| **Image Storage**      | AWS S3 / MinIO (local dev)                                                 |
+| **Infrastructure**     | Docker containers                                                          |
 
-**Key Go dependencies:** `gin-gonic/gin`, `gorm.io/gorm`, `gorm.io/driver/postgres`, `go-redis/redis/v8`, `gocolly/colly/v2`, `resend/resend-go/v3`, `spf13/viper`, `joho/godotenv`, `google/uuid`, `go.uber.org/zap`.
+**Key Go dependencies:** `gin-gonic/gin`, `gorm.io/gorm`, `gorm.io/driver/postgres`, `go-redis/redis/v8`, `gocolly/colly/v2`, `resend/resend-go/v3`, `spf13/viper`, `joho/godotenv`, `google/uuid`, `go.uber.org/zap`, `go-playground/validator/v10`.
 
 ---
 
@@ -43,18 +44,22 @@ bolos-ya/
 │   ├── cron/                # Background jobs
 │   │   └── bcv_rate_cron.go # BCV exchange rate scraper
 │   └── server/
-│       ├── dto/             # Request/response DTOs
+│       ├── dto/             # Request/response DTOs + validator (Spanish errors)
+│       │   └── validator.go # go-playground/validator wrapper
 │       ├── email/           # Resend email service + templates
+│       │   ├── email.go     # SendWelcome, SendPaymentApproved, SendPaymentRejected
 │       │   └── templates/   # approved.gohtml, rejected.gohtml, welcome.gohtml
-│       ├── handlers/        # Gin HTTP handlers
+│       ├── handlers/        # Gin HTTP handlers (auth, cart, payment, sync, etc.)
 │       ├── middleware/      # Auth middleware (better-auth session validation)
-│       ├── models/          # GORM models
+│       ├── models/          # GORM models (user, cart, product, payment, etc.)
 │       ├── repository/      # Data access layer (GORM queries)
 │       ├── services/        # Business logic layer
-│       └── routes.go        # Central route registration
+│       └── routes.go        # Central route registration (25+ endpoints)
 ├── pkg/
-│   ├── constants/           # Shared constants (plan limits, header keys)
-│   ├── core/errors/         # Custom error types
+│   ├── constants/           # Shared constants (plan limits, header keys, app info)
+│   │   ├── constants.go
+│   │   └── user_plans.go    # Free vs Premium limits
+│   ├── core/errors/         # Custom error types (ErrNotFound, ErrConflict, etc.)
 │   ├── database/
 │   │   ├── migrations/      # SQL migration files (golang-migrate)
 │   │   ├── postgresql/      # GORM connection setup
@@ -64,31 +69,61 @@ bolos-ya/
 │   ├── models/              # BaseModel (UUID, timestamps, soft-delete)
 │   └── utils/               # HTTP helpers, UUID utilities
 ├── auth-server/             # Standalone auth service (Hono + better-auth)
-│   └── src/
-│       ├── auth-config.ts   # better-auth configuration
-│       └── server.ts        # Hono server
+│   ├── src/
+│   │   ├── auth-config.ts   # better-auth config (email, Google OAuth, anonymous)
+│   │   └── server.ts        # Hono server + custom routes
+│   ├── scripts/
+│   │   └── set-role.ts      # CLI tool to promote user role (user/staff/admin)
+│   └── Dockerfile
+├── web/                     # Web admin dashboard + landing page (React 19 + Vite 5)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── home/        # Landing page (Hero, Features, Story, Social Proof, etc.)
+│   │   │   ├── auth/        # Admin login
+│   │   │   └── admin/       # Protected dashboard (payments table, modals)
+│   │   ├── hooks/           # AuthContext, usePayments, useScrollProgress
+│   │   ├── services/        # PaymentService, API client
+│   │   ├── constants/       # Copy text, payment status UUIDs
+│   │   ├── styles/          # MUI theme customization
+│   │   ├── types/           # TypeScript interfaces
+│   │   └── utils/           # Currency formatting
+│   ├── public/
+│   └── vite.config.ts
 ├── mobile/                  # Expo / React Native app
 │   ├── app/                 # Expo Router file‑based routing
 │   │   ├── (tabs)/          # Home, history, profile
 │   │   ├── (cart)/          # Cart detail, scan, checkout
 │   │   ├── (onboarding)/    # Welcome, login, register
 │   │   └── (premium)/       # Plans, pago-móvil
-│   ├── components/          # UI components by domain
-│   │   ├── home/
-│   │   ├── cart/
-│   │   ├── shared/
-│   │   ├── profile/
-│   │   └── history/
-│   ├── store/               # Zustand stores (auth, cart, bcv)
-│   ├── services/            # API client + per‑feature services
+│   ├── lib/                 # Core libraries
+│   │   ├── auth-client.ts   # Better Auth Expo client + anonymous plugin
+│   │   ├── env.ts           # Environment/device host resolution
+│   │   └── ocr.ts           # ML Kit OCR with image preprocessing + fallback
+│   ├── components/          # UI components by domain (42 total)
+│   │   ├── home/            # BCVRateCard, SupermarketCarousel, CartCard, etc.
+│   │   ├── cart/            # BudgetSummary, ProductCard, ProductForm, etc.
+│   │   ├── shared/          # Toast, BottomSheet, ActionSheet, ManualEntryModal, etc.
+│   │   ├── profile/         # PremiumCard, GuestCard, SettingItem, etc.
+│   │   └── history/         # HistoryCard, AmountCard, StatusBadge, etc.
+│   ├── store/               # State management
+│   │   ├── cartStore.ts     # Zustand store (carts + products)
+│   │   ├── authStore.ts     # Custom React hook (not Zustand)
+│   │   └── bcvStore.ts      # Custom React hook with AsyncStorage cache (not Zustand)
+│   ├── services/            # HTTP client + per‑feature services
+│   │   ├── api.ts           # fetch-based client with auth headers
+│   │   ├── bcvService.ts
+│   │   ├── cartService.ts
+│   │   ├── historyService.ts
+│   │   ├── paymentService.ts
+│   │   └── supermarketService.ts
 │   ├── styles/              # Unistyles theme + per‑screen styles
-│   ├── types/               # TypeScript interfaces
-│   └── utils/               # Currency, validation, formatting, storage
+│   ├── types/               # TypeScript interfaces (domain models, API responses)
+│   └── utils/               # Currency, validation, formatting, storage, icons, tips
 ├── docs/
-│   └── openapi.yaml         # OpenAPI 3.0 specification
+│   └── openapi.yaml         # OpenAPI 3.0 specification (OUTDATED — only 4/25+ paths)
 ├── scripts/
 │   └── init-db.sql          # DB init + seed data
-├── Dockerfile               # Multi‑stage Alpine build
+├── Dockerfile               # Multi‑stage Alpine build (Go backend)
 ├── docker-compose.yml       # Local dev: server, postgres, redis, minio, auth-server
 └── Makefile                 # build, test, run, migrate, docker‑up, etc.
 ```
@@ -101,7 +136,7 @@ bolos-ya/
 
 The backend follows a **conventional layered architecture**:
 
-- **Handlers** (`internal/server/handlers/`): Gin HTTP handlers that parse requests, validate input, call the appropriate service, and return JSON responses. Each handler focuses on a specific resource.
+- **Handlers** (`internal/server/handlers/`): Gin HTTP handlers that parse requests, validate input (via `dto/validator.go` — `go-playground/validator` with Spanish error messages), call the appropriate service, and return JSON responses. Each handler focuses on a specific resource.
 - **Services** (`internal/server/services/`): Core business logic. Orchestrates data operations, enforces rules (premium limits, budget validation, BCV rate syncing), and calls repositories. HTTP‑agnostic and unit‑testable.
 - **Repository** (`internal/server/repository/`): Data access layer using GORM. Each repository implements CRUD and custom queries for one model. The only layer that directly interacts with the database.
 - **Models** (`internal/server/models/`): GORM structs representing database tables, embedding `pkg/models.BaseModel` (UUID PK, timestamps, soft‑delete).
@@ -140,11 +175,14 @@ func NewCartService(cartRepo repository.CartRepository, productRepo repository.P
 ## 5. Mobile Architecture
 
 - **Routing**: Expo Router file‑based routing with tab navigation and modal stacks.
-- **State Management**: Zustand stores for auth, cart, and BCV rate data.
-- **HTTP Client**: Custom `fetch`‑based API client (`mobile/services/api.ts`). Sends the better-auth session token as `Authorization: Bearer` + `X-User-ID` header.
+- **State Management**: Zustand for cart data (`store/cartStore.ts`); custom React hooks with `useState`/`useEffect` for auth (`store/authStore.ts`) and BCV rate (`store/bcvStore.ts` with AsyncStorage cache).
+- **HTTP Client**: Custom `fetch`‑based API client (`mobile/services/api.ts`). Sends the better-auth session token as `Authorization: Bearer` + `X-User-ID` header. Backend URL is resolved via `lib/env.ts` (auto-detects device host in dev mode).
 - **Caching**: AsyncStorage for BCV rate (reduces API calls) and auth session data (via expo-secure-store).
-- **OCR**: `@infinitered/react-native-mlkit-text-recognition` for on‑device price extraction from receipt photos.
-- **Styling**: Unistyles with a shared theme (`mobile/styles/theme.ts`) and per‑screen style modules.
+- **Auth Client**: `lib/auth-client.ts` — better-auth Expo plugin with SecureStore storage + anonymous guest plugin.
+- **OCR**: `@infinitered/react-native-mlkit-text-recognition` for on‑device price extraction from receipt photos. Image preprocessing via `expo-image-manipulator` (crop + resize to 1200px). Falls back to mock data if ML Kit unavailable.
+- **Manual Entry**: `ManualEntryModal` for adding products without a receipt (barcode, prices, quantity).
+- **Styling**: Unistyles with a shared theme (`mobile/styles/theme.ts`) and per‑screen style modules (light/dark mode via `useColorScheme()`).
+- **Local DB**: `expo-sqlite` included as a dependency for future offline sync queue.
 
 ---
 
@@ -152,8 +190,9 @@ func NewCartService(cartRepo repository.CartRepository, productRepo repository.P
 
 The OpenAPI 3.0 spec (`docs/openapi.yaml`) is the **source of truth** for the API contract.
 
-- **Go server stubs** are generated via `oapi-codegen` → `internal/api/rest/generated.go` (deprecated — code is currently hand‑written).
+- **Go server stubs** were previously generated via `oapi-codegen` → `internal/api/rest/generated.go`, but that directory no longer exists — all handlers are hand‑written.
 - **TypeScript client generation** is deprecated; mobile uses hand‑written service functions in `mobile/services/`.
+- **Note:** The actual OpenAPI spec at `docs/openapi.yaml` is **severely outdated** — it documents only 4 paths while the backend has 25+ routes. It should be regenerated.
 
 ### 6.1 Endpoints
 
@@ -176,12 +215,15 @@ The OpenAPI 3.0 spec (`docs/openapi.yaml`) is the **source of truth** for the AP
 | GET | `/api/v1/payments/:paymentId` | Bearer + X-User-ID | Get payment detail |
 | PUT | `/api/v1/payments/:paymentId` | Bearer + X-User-ID | Update payment |
 | DELETE | `/api/v1/payments/:paymentId` | Bearer + X-User-ID | Delete payment |
+| GET | `/api/v1/payments/by-user/:userId` | Bearer + X-User-ID | Get payments by user (admin) |
+| GET | `/api/v1/payments/by-email/:email` | Bearer + X-User-ID | Get payments by email (admin) |
 | GET | `/api/v1/supermarkets` | Bearer + X-User-ID | List supermarkets |
 | POST | `/api/v1/supermarkets` | Bearer + X-User-ID | Create custom supermarket |
 | GET | `/api/v1/supermarkets/:supermarketId` | Bearer + X-User-ID | Get supermarket |
 | GET | `/api/v1/bcv-rates` | Bearer + X-User-ID | Get latest BCV rate |
 | GET | `/api/v1/rejection-reasons` | Bearer + X-User-ID | List rejection reasons |
 | GET | `/api/v1/payment-statuses` | Bearer + X-User-ID | List payment statuses |
+| POST | `/api/v1/auth/internal/migrate-user-data` | Bearer + X-User-ID | Migrate data from anonymous to registered user |
 
 ---
 
@@ -200,11 +242,14 @@ CREATE TABLE "user" (
     role        TEXT DEFAULT 'user',
     "isPremium" BOOLEAN DEFAULT FALSE,
     "premiumUntil" TIMESTAMP,
-    "authProvider" TEXT,
-    "deletedAt" TIMESTAMP,
+    "authProvider" TEXT,          -- 'email' | 'google' | 'anonymous'
+    "deletedAt" TIMESTAMP,        -- soft-delete
     "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Fields `role`, `isPremium`, `premiumUntil`, `authProvider`, `deletedAt`
+-- are custom additionalFields configured via better-auth in auth-config.ts.
 
 CREATE TABLE "session" (
     id          TEXT PRIMARY KEY NOT NULL,
@@ -371,6 +416,7 @@ CREATE TABLE bcv_rates (
 CREATE INDEX idx_supermarkets_user ON supermarkets(user_id);
 CREATE INDEX idx_carts_user_active ON carts(user_id, is_active);
 CREATE INDEX idx_cart_products_product ON cart_products(product_id);
+CREATE INDEX idx_cart_products_cart ON cart_products(cart_id);
 CREATE INDEX idx_session_user_id ON "session"("userId");
 CREATE INDEX idx_session_token ON "session"(token);
 CREATE INDEX idx_account_user_id ON "account"("userId");
@@ -378,9 +424,32 @@ CREATE INDEX idx_account_provider ON "account"("providerId", "accountId");
 CREATE INDEX idx_verification_identifier ON "verification"(identifier);
 ```
 
-### 7.4 Seed Data
+### 7.4 Payment Status UUIDs
 
-The migration seeds 11 Venezuelan supermarkets (Central Madeirense, Excelsior Gama, Unicasa, Farmatodo, etc.) and payment status/rejection reason lookup records.
+Payment statuses use fixed UUIDs referenced in the Go backend code:
+
+```go
+PendingStatusID  = "a1111111-1111-4a11-9a11-111111111111"
+ApprovedStatusID = "a2222222-2222-4a22-9a22-222222222222"
+RejectedStatusID = "a3333333-3333-4a33-9a33-333333333333"
+```
+
+### 7.5 Plan Limits (Free vs Premium)
+
+Defined in `pkg/constants/user_plans.go`:
+
+| Limit | Free | Premium |
+|-------|------|---------|
+| Max active carts | 1 | 10 |
+| Max products per cart | 20 | 100 |
+| Max saved products | 10 | 100 |
+| Max price reports | 5 | 50 |
+| Max OCR scans per day | 3 | 50 |
+| Premium duration | — | 30 days (monthly) / 365 days (yearly) |
+
+### 7.6 Seed Data
+
+The migration seeds 11 Venezuelan supermarkets (Central Madeirense, Excelsior Gama, Unicasa, Farmatodo, Paramo, Forum, Rio Vida, Plan Suarez, Plaza's, Makro, HiperLider), 3 payment statuses (Pendiente, Aprobado, Rechazado), and 5 rejection reasons.
 
 ---
 
@@ -392,25 +461,30 @@ Authentication is handled by a **standalone auth server** (`auth-server/`) using
 
 **Flow:**
 1. **Mobile App** sends auth requests (sign-in, sign-up, Google OAuth) to the auth server.
-2. **Auth Server** uses better-auth to manage credentials, sessions, and OAuth in shared PostgreSQL tables (`user`, `session`, `account`).
-3. **Auth Server** exposes a `POST /api/auth/validate-session` endpoint that validates a Bearer token via direct DB lookup (fast path) or better-auth's cookie-unsigning (fallback).
-4. **Go Middleware** passes the Bearer token to the auth server's validate endpoint, retrieves `{ user: { id, email, isAnonymous } }`, and auto‑creates/updates the application user record in the `users` table.
+2. **Auth Server** uses better-auth to manage credentials, sessions, and OAuth in shared PostgreSQL tables (`user`, `session`, `account`). It also exposes a custom OAuth proxy for iOS (`/api/auth/expo-authorization-proxy`) that returns an HTML page with cookies instead of a 302 redirect (workaround for `ASWebAuthenticationSession` limitations).
+3. **Auth Server** exposes a `POST /api/auth/validate-session` endpoint that validates a Bearer token using a **two-path approach**:
+   - **Fast path (direct SQL):** Looks up the session token in the `session` table with `expiresAt > NOW()`.
+   - **Fallback (better-auth handler):** If no direct match, sends a synthetic request to better-auth's `get-session` endpoint with the token as a cookie.
+   - Returns `{ user: { id, email, isAnonymous } }` or `null`.
+4. **Go Middleware** passes the Bearer token to the auth server's validate endpoint, retrieves the user info, and auto‑creates/updates the application user record in the `users` table.
 5. **Handlers** use `GetUserIDFromContext(c)` to access the authenticated user's UUID.
 
 ### 8.2 Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/auth/validate-session` | Validate Bearer token, return user info |
+| POST | `/api/auth/validate-session` | Validate Bearer token (direct SQL fast path + better-auth fallback) |
 | POST | `/api/auth/update-premium` | Update premium status in better-auth `user` table |
-| ALL | `/api/auth/*` | Pass‑through to better-auth handler (register, login, OAuth, etc.) |
+| GET | `/api/auth/expo-authorization-proxy` | iOS OAuth proxy (HTML+JS redirect instead of 302) |
+| ALL | `/api/auth/*` | Pass‑through to better-auth handler (register, login, OAuth, anonymous, etc.) |
 | GET | `/health` | Auth server health check |
 
 ### 8.3 Authorization
 
 - **Free vs Premium**: Premium status is stored in both `users.is_premium` and better-auth's `"user"."isPremium"`. The Go backend syncs both on approval.
 - **Guest users**: Supported via better-auth anonymous sessions (`"isAnonymous"`).
-- **Admin users**: Identified by better-auth's `role` field (`'admin'`). Admin endpoints are not yet implemented.
+- **Roles**: Identified by better-auth's `role` field. Supported values: `user`, `staff`, `admin`. A CLI script (`auth-server/scripts/set-role.ts`) can promote a user by email.
+- **Admin/staff users**: Access the web admin dashboard at `/admin/payments` to manage premium subscription payments (approve/reject).
 
 ---
 
@@ -422,8 +496,8 @@ The mobile app does **not** implement a full offline sync queue. Instead:
 - **Writes** (create cart, add products) require network connectivity.
 - **Auth sessions** are stored in expo-secure-store and persist across app restarts.
 - **BCV rate** is cached in AsyncStorage and updated daily from the API, with fallback to yesterday's rate if the API or BCV website is unavailable.
-
-Future iterations may add a local SQLite + sync queue for offline write support.
+- **Sync endpoint**: The backend exposes a `POST /api/v1/sync` endpoint that processes batches of `SyncOperation` (INSERT/UPDATE/DELETE on users, supermarkets, products, carts, cart_products). The mobile app defines `SyncOperation`, `SyncRequest`, and `SyncResponse` types in `dto/sync_dto.go` and `services/cartService.ts`, laying groundwork for future offline write support.
+- **Local DB**: `expo-sqlite` is included as a dependency for future local SQLite storage.
 
 ---
 
@@ -433,37 +507,39 @@ Future iterations may add a local SQLite + sync queue for offline write support.
 - **Setup**: Installed as an Expo bare‑workflow dependency with native pods/Gradle config.
 - **Flow**:
   1. User captures a receipt photo using `expo-camera`.
-  2. Image is processed on‑device by ML Kit Text Recognition.
-  3. Extracted text is parsed with regex to identify product names and prices:
+  2. Image is preprocessed via `expo-image-manipulator` (cropped + resized to 1200px) for better recognition.
+  3. Text is recognized on‑device by ML Kit Text Recognition. Falls back to mock/structured data if ML Kit is unavailable.
+  4. Extracted text is parsed with block-aware heuristics to identify product names and prices:
+     - Name block detected by largest font size.
+     - Price block detected by currency keywords (`Bs`, `USD`, `$`) and proximity to name.
      - `priceRegex`: `/(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})/`
      - `currencyRegex`: `/(Bs|USD|\$)/i`
-  4. The scan result populates the product form, allowing the user to confirm/edit before adding to cart.
+  5. The scan result populates the product form (`ProductScanResultModal`), allowing the user to confirm/edit before adding to cart.
 
 ---
 
 ## 11. Deployment & Configuration
 
-### 11.1 Backend (Docker + ECS)
+### 11.1 Backend (Docker)
 
 - **Dockerfile**: Multi‑stage build (Go 1.25 alpine → alpine:3.21). Runs as non‑root user (UID 1001). Includes health check on `/health`.
 - **docker-compose.yml**: 5 services for local development:
-  - `server` — Go backend
+  - `server` — Go backend (depends on postgres + redis)
   - `postgres` — PostgreSQL 15 with auto‑init via `scripts/init-db.sql`
   - `redis` — Redis 7
-  - `minio` — S3‑compatible storage for product images
-  - `auth-server` — Hono + better-auth service
+  - `minio` — S3‑compatible storage for product images (standalone)
+  - `auth-server` — Hono + better-auth service (depends on postgres, shares DB)
 - **Environment variables**: Loaded via Viper from `.env` / `.env.docker` files.
 
 ### 11.2 Mobile (Expo)
 
 - Builds via **EAS Build** for development and production.
-- Environment variables injected at build time via `app.config.js`.
+- Environment variables injected at build time via `app.config.js` / `.env` files. Device host auto-detected in dev mode via `lib/env.ts`.
 
-### 11.3 CI/CD
+### 11.3 Web (Admin Dashboard)
 
-- GitHub Actions workflows:
-  - `backend-ci.yml`: Go tests, linter, Docker build → ECR on `main`.
-  - `mobile-ci.yml`: TypeScript type check, ESLint, EAS build on `main`.
+- Built with **Vite 5**, served as static files (`dist/`).
+- No Dockerfile currently — deployable via any static host or CDN.
 
 ---
 
@@ -472,18 +548,20 @@ Future iterations may add a local SQLite + sync queue for offline write support.
 1. **Clone** the repo and run `make docker-up` (starts PostgreSQL, Redis, MinIO, auth server).
 2. **Backend**: `make run` (or `air` for hot reload) — Go server on `:8080`.
 3. **Auth server**: `cd auth-server && npm run dev` — Hono server on `:3001`.
-4. **Mobile**: `cd mobile && npx expo run:ios` (or Android).
-5. **Database migrations**: `make migrate-up` (applies `pkg/database/migrations/001_create_tables.up.sql`).
-6. **API changes**: Update `docs/openapi.yaml`, then run `make generate` to regenerate Go stubs.
+4. **Web dashboard**: `cd web && npm run dev` — Vite dev server on `:5173`.
+5. **Mobile**: `cd mobile && npx expo run:ios` (or Android).
+6. **Database migrations**: `make migrate-up` (applies `pkg/database/migrations/001_create_tables.up.sql`).
+7. **Auth roles**: `cd auth-server && npx tsx scripts/set-role.ts <email> <role>` (promote user to staff/admin).
+8. **API changes**: Update handlers manually (OpenAPI spec at `docs/openapi.yaml` is outdated and should be regenerated).
 
 ---
 
 ## 13. Future Considerations
 
 - **Crowdsourced pricing**: A `prices` table with confidence‑scoring algorithm for community‑reported product prices (as originally specified).
-- **Offline sync queue**: Local SQLite + background sync with exponential backoff for write‑operations without network.
+- **Offline sync queue**: Local SQLite + background sync with exponential backoff for write‑operations without network. (Partially started — `POST /api/v1/sync` endpoint + `SyncOperation` types exist, `expo-sqlite` dependency added.)
 - **Push notifications**: Via Expo Push Notifications for premium expiry reminders and cart sharing.
-- **Admin dashboard**: Web‑based panel for managing payments, users, and reviewing reported prices.
+- **Admin dashboard**: ✅ **Implemented** — The `web/` app provides a marketing landing page and an admin panel at `/admin/payments` for approving/rejecting premium subscription payments. Future iterations may add user management, reported price review, and analytics.
 - **Stripe / USDT payments**: Alternative payment methods for premium subscriptions.
 
 ---
