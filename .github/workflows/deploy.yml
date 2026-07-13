@@ -1,0 +1,40 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
+      - 'Dockerfile'
+      - 'docker-compose.prod.yml'
+      - 'Caddyfile'
+      - 'auth-server/**'
+      - 'web/**'
+      - '.github/workflows/deploy.yml'
+      - '.env.production.example'
+
+jobs:
+  deploy:
+    name: Deploy to Lightsail
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Lightsail VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: deploy
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/bolos-ya
+            git pull origin main
+            docker compose -f docker-compose.prod.yml --env-file .env up -d --build --pull always
+            docker image prune -f
+            echo "Deploy completed at $(date)"
