@@ -64,7 +64,7 @@ interface UsePaymentsResult {
   refetch: () => void
 }
 
-export function usePayments(token?: string, userId?: string): UsePaymentsResult {
+export function usePayments(token?: string | null, userId?: string | null): UsePaymentsResult {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   const fetch = useCallback(async (p: number, ps: number, sb: string, sd: 'asc' | 'desc') => {
