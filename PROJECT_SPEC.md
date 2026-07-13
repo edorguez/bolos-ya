@@ -29,7 +29,7 @@ A mobile application (iOS/Android) and web admin dashboard that allows users in 
 | **Image Storage**      | AWS S3 / MinIO (local dev)                                                 |
 | **Infrastructure**     | Docker containers                                                          |
 
-**Key Go dependencies:** `gin-gonic/gin`, `gorm.io/gorm`, `gorm.io/driver/postgres`, `go-redis/redis/v8`, `gocolly/colly/v2`, `resend/resend-go/v3`, `spf13/viper`, `joho/godotenv`, `google/uuid`, `go.uber.org/zap`, `go-playground/validator/v10`.
+**Key Go dependencies:** `gin-gonic/gin`, `gorm.io/gorm`, `gorm.io/driver/postgres`, `go-redis/redis/v8`, `gocolly/colly/v2`, `resend/resend-go/v3`, `spf13/viper`, `joho/godotenv`, `google/uuid`, `go.uber.org/zap`, `go-playground/validator/v10`, `golang.org/x/time/rate`.
 
 ---
 
@@ -66,7 +66,9 @@ bolos-ya/
 │   │   ├── postgresql/      # GORM connection setup
 │   │   └── redis/           # Redis client setup
 │   ├── logger/              # Zap logger wrapper
-│   ├── middleware/          # Reusable logging middleware
+│   ├── middleware/          # Reusable logging + rate limiter middleware
+│   │   ├── logging.go       # Request logging middleware (Zap)
+│   │   └── ratelimit.go     # Per-IP rate limiter (100 req/s, burst 200)
 │   ├── models/              # BaseModel (UUID, timestamps, soft-delete)
 │   └── utils/               # HTTP helpers, UUID utilities
 ├── auth-server/             # Standalone auth service (Hono + better-auth)
@@ -132,13 +134,20 @@ bolos-ya/
 │   ├── types/               # TypeScript interfaces (domain models, API responses)
 │   │   └── sync.ts          # Mobile-side sync DTOs (SyncOperation, SyncResponse)
 │   └── utils/               # Currency, validation, formatting, storage, icons, tips
+├── Caddyfile                # Reverse proxy config (Caddy, auto TLS)
+├── docker-compose.yml       # Local dev: server, postgres, redis, minio, auth-server
+├── docker-compose.prod.yml  # Production: caddy, server, postgres, redis, auth-server, web
+├── .env.example             # Template for local dev environment
+├── .env.docker              # Docker Compose dev environment
+├── .env.production.example  # Template for production environment
 ├── docs/
 │   └── openapi.yaml         # OpenAPI 3.0 specification (OUTDATED — only 4/25+ paths)
 ├── scripts/
 │   └── init-db.sql          # DB init + seed data
 ├── Dockerfile               # Multi‑stage Alpine build (Go backend)
-├── docker-compose.yml       # Local dev: server, postgres, redis, minio, auth-server
-└── Makefile                 # build, test, run, migrate, docker‑up, etc.
+├── Makefile                 # build, test, run, migrate, docker‑up, etc.
+├── web/
+│   └── Dockerfile           # Multi‑stage build (Vite → Caddy file-server)
 ```
 
 ---
@@ -154,7 +163,7 @@ The backend follows a **conventional layered architecture**:
 - **Repository** (`internal/server/repository/`): Data access layer using GORM. Each repository implements CRUD and custom queries for one model. The only layer that directly interacts with the database.
 - **Models** (`internal/server/models/`): GORM structs representing database tables, embedding `pkg/models.BaseModel` (UUID PK, timestamps, soft‑delete).
 - **DTO** (`internal/server/dto/`): Request/response structs with JSON tags, separate from models.
-- **Middleware** (`internal/server/middleware/`): Auth middleware that validates the Bearer token against better-auth's session validation endpoint, auto‑creates/updates the local user record.
+- **Middleware** (`internal/server/middleware/` + `pkg/middleware/`): Auth middleware that validates the Bearer token against better-auth's session validation endpoint, auto‑creates/updates the local user record. Global middleware stack includes request logging (`pkg/middleware/logging.go`) and per‑IP rate limiting (`pkg/middleware/ratelimit.go` — 100 req/s, burst 200).
 - **Cron** (`internal/cron/`): Background goroutines (currently: BCV rate scraper).
 
 ### 4.2 Data Flow
@@ -607,10 +616,9 @@ Returns `SyncResponse` with per-operation results and `serverVersion` for confli
 
 ## 11. Deployment & Configuration
 
-### 11.1 Backend (Docker)
+### 11.1 Local Development (Docker Compose)
 
-- **Dockerfile**: Multi‑stage build (Go 1.25 alpine → alpine:3.21). Runs as non‑root user (UID 1001). Includes health check on `/health`.
-- **docker-compose.yml**: 5 services for local development:
+- **docker-compose.yml** (`docker compose --env-file .env.docker up`): 5 services:
   - `server` — Go backend (depends on postgres + redis)
   - `postgres` — PostgreSQL 15 with auto‑init via `scripts/init-db.sql`
   - `redis` — Redis 7
@@ -618,19 +626,52 @@ Returns `SyncResponse` with per-operation results and `serverVersion` for confli
   - `auth-server` — Hono + better-auth service (depends on postgres, shares DB)
 - **Environment variables**: Loaded via Viper from `.env` / `.env.docker` files.
 
-### 11.2 Mobile (Expo)
+### 11.2 Backend Go Server
+
+- **Dockerfile**: Multi‑stage build (Go 1.25 alpine → alpine:3.21). Runs as non‑root user (UID 1001). Includes health check on `/health`.
+- **Connection pool**: PostgreSQL configured with `MaxOpenConns=25`, `MaxIdleConns=10` for production load.
+- **Graceful shutdown**: Listens for `SIGINT`/`SIGTERM`, drains active connections with a 30‑second timeout before exit.
+- **Rate limiting**: Per‑IP token bucket (100 req/s, burst 200) using `golang.org/x/time/rate`. Returns `429 Too Many Requests` with Spanish error message.
+- **Logger**: Zap structured logger. Debug mode controlled via `APP_DEBUG` env var.
+
+### 11.3 Mobile (Expo)
 
 - Builds via **EAS Build** for development and production.
 - Environment variables injected at build time via `app.config.js` / `.env` files. Device host auto-detected in dev mode via `lib/env.ts`.
 
-### 11.3 Web (Admin Dashboard)
+### 11.4 Web Admin Dashboard
 
-- Built with **Vite 5**, served as static files (`dist/`).
-- No Dockerfile currently — deployable via any static host or CDN.
+- Built with **Vite 5**, served via **Caddy file-server** Docker container.
+- **web/Dockerfile**: Multi‑stage build (node:22-alpine builder → caddy:2-alpine runner). Vite build args (`VITE_BETTER_AUTH_URL`, `VITE_GO_BACKEND_URL`) injected at build time.
+
+### 11.5 Production Deployment
+
+- **docker-compose.prod.yml** (`docker compose -f docker-compose.prod.yml --env-file .env up -d`): 6 services:
+
+  | Service | Role | Ports exposed |
+  |---------|------|---------------|
+  | `caddy` | Reverse proxy with auto TLS (Let's Encrypt) | 80, 443 |
+  | `server` | Go backend API | Internal only |
+  | `postgres` | PostgreSQL 15 | Internal only (no host port) |
+  | `redis` | Redis 7 | Internal only (no host port) |
+  | `auth-server` | Hono + better-auth | Internal only |
+  | `web` | Admin dashboard (nginx) | Internal only |
+
+- **Caddy reverse proxy** routes:
+  - `api.{DOMAIN}` → `server:8080`
+  - `auth.{DOMAIN}` → `auth-server:3001`
+  - `admin.{DOMAIN}` → `web:80`
+- **Caddyfile** uses `{$DOMAIN}` env var for domain substitution. Caddy automatically provisions Let's Encrypt certificates for all subdomains.
+- **MinIO is excluded** from production — not yet used.
+- **No database/Redis ports are exposed** to the host — all inter‑service communication happens over the internal Docker bridge network.
+- **Environment**: `APP_ENV=production`, `APP_DEBUG=false` are hardcoded in the production compose file.
+- **Production env template**: `.env.production.example` documents all required variables. Copy to VPS as `.env`, fill in secrets, and deploy.
 
 ---
 
-## 12. Development Workflow
+## 12. Development & Production Workflow
+
+### 12.1 Local Development
 
 1. **Clone** the repo and run `make docker-up` (starts PostgreSQL, Redis, MinIO, auth server).
 2. **Backend**: `make run` (or `air` for hot reload) — Go server on `:8080`.
@@ -640,6 +681,18 @@ Returns `SyncResponse` with per-operation results and `serverVersion` for confli
 6. **Database migrations**: `make migrate-up` (applies `pkg/database/migrations/001_create_tables.up.sql`).
 7. **Auth roles**: `cd auth-server && npx tsx scripts/set-role.ts <email> <role>` (promote user to staff/admin).
 8. **API changes**: Update handlers manually (OpenAPI spec at `docs/openapi.yaml` is outdated and should be regenerated).
+
+### 12.2 Production Deploy
+
+1. Provision a VPS (Ubuntu 24.04, Docker + Compose installed).
+2. Clone the repo to `/opt/bolos-ya`.
+3. Copy `.env.production.example` to `.env` and fill in all secrets and the `DOMAIN`.
+4. Build and start all services:
+   ```bash
+   docker compose -f docker-compose.prod.yml --env-file .env up -d
+   ```
+5. Caddy automatically provisions TLS certificates for `api.{DOMAIN}`, `auth.{DOMAIN}`, and `admin.{DOMAIN}`.
+6. Monitor with `docker compose logs -f`.
 
 ---
 

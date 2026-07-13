@@ -1,0 +1,24 @@
+{
+	email admin@{$DOMAIN}
+}
+
+# API backend
+api.{$DOMAIN} {
+	reverse_proxy server:8080 {
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}
+
+# Auth server
+auth.{$DOMAIN} {
+	reverse_proxy auth-server:3001 {
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}
+
+# Web admin dashboard
+admin.{$DOMAIN} {
+	reverse_proxy web:80
+}

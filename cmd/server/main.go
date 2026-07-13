@@ -1,7 +1,13 @@
 package main
 
 import (
+	"context"
+	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
+	"time"
 
 	redisv8 "github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
@@ -26,7 +32,9 @@ func main() {
 	log := logger.New(cfg.App.Debug)
 
 	db, err := postgresql.Connect(postgresql.Config{
-		URL: cfg.Database.URL,
+		URL:          cfg.Database.URL,
+		MaxOpenConns: 25,
+		MaxIdleConns: 10,
 	})
 	if err != nil {
 		log.Fatal("Failed to connect to PostgreSQL", zap.Error(err))
@@ -86,8 +94,30 @@ func main() {
 	)
 
 	addr := cfg.Server.Host + ":" + strconv.Itoa(cfg.Server.Port)
-	log.Info("Starting server", zap.String("addr", addr))
-	if err := router.Run(addr); err != nil {
-		log.Fatal("Failed to start server", zap.Error(err))
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: router,
 	}
+
+	go func() {
+		log.Info("Starting server", zap.String("addr", addr))
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal("Failed to start server", zap.Error(err))
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Info("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown", zap.Error(err))
+	}
+
+	log.Info("Server exited")
 }

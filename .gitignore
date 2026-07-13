@@ -28,6 +28,9 @@ go.work.sum
 .env
 .env.docker
 .env.*
+# But keep example templates committed
+!.env.example
+!.env.production.example
 
 # Generated client code (not used — removed)
 gen/

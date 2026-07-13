@@ -1,0 +1,134 @@
+services:
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: bolos-ya-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      - DOMAIN=${DOMAIN}
+    depends_on:
+      server:
+        condition: service_started
+      auth-server:
+        condition: service_started
+      web:
+        condition: service_started
+    networks:
+      - bolos-ya-network
+    restart: unless-stopped
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bolos-ya-server
+    environment:
+      PORT: ${PORT}
+      SERVER_HOST: ${SERVER_HOST}
+      SERVER_READ_TIMEOUT: ${SERVER_READ_TIMEOUT}
+      SERVER_WRITE_TIMEOUT: ${SERVER_WRITE_TIMEOUT}
+      DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable
+      REDIS_URL: redis://redis:6379/${REDIS_DB}
+      REDIS_DB: ${REDIS_DB}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      BETTER_AUTH_URL: http://auth-server:3001
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_ALLOWED_ORIGINS: https://admin.${DOMAIN},https://api.${DOMAIN}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      RESEND_FROM_NAME: ${RESEND_FROM_NAME}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - bolos-ya-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: bolos-ya-postgres
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - bolos_ya_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bolos-ya-network
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: bolos-ya-redis
+    volumes:
+      - bolos_ya_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bolos-ya-network
+    restart: always
+
+  auth-server:
+    build:
+      context: ./auth-server
+      dockerfile: Dockerfile
+    container_name: bolos-ya-auth-server
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      CORS_ORIGINS: https://admin.${DOMAIN},https://api.${DOMAIN}
+      TRUSTED_ORIGINS: https://admin.${DOMAIN}
+      GO_BACKEND_URL: http://server:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bolos-ya-network
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        VITE_BETTER_AUTH_URL: https://auth.${DOMAIN}/api/auth
+        VITE_GO_BACKEND_URL: https://api.${DOMAIN}/api/v1
+    container_name: bolos-ya-web
+    networks:
+      - bolos-ya-network
+    restart: unless-stopped
+
+volumes:
+  bolos_ya_db_data:
+  bolos_ya_redis_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  bolos-ya-network:
+    driver: bridge
