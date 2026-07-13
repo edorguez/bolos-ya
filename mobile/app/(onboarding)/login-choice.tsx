@@ -19,7 +19,7 @@ const { width, height } = Dimensions.get('window');
 const isLargeScreen = height > 800;
 const isExtraLargeScreen = height > 900;
 
-const OFFLINE_GUEST_KEY = '@bolosya_offline_guest';
+const OFFLINE_GUEST_KEY = 'bolosya.offline.guest';
 
 export default function LoginChoiceScreen() {
   const router = useRouter();

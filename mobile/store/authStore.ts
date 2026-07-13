@@ -3,7 +3,7 @@ import { useSession, signOut } from '../lib/auth-client';
 import { apiGet } from '../services/api';
 import * as SecureStore from 'expo-secure-store';
 
-const OFFLINE_GUEST_KEY = '@bolosya_offline_guest';
+const OFFLINE_GUEST_KEY = 'bolosya.offline.guest';
 
 interface AuthUser {
   id: string;
