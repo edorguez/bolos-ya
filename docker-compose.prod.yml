@@ -1,7 +1,9 @@
 services:
 
   caddy:
-    image: caddy:2-alpine
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
     container_name: bolos-ya-caddy
     ports:
       - "80:80"

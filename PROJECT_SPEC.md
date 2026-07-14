@@ -135,6 +135,8 @@ bolos-ya/
 │   │   └── sync.ts          # Mobile-side sync DTOs (SyncOperation, SyncResponse)
 │   └── utils/               # Currency, validation, formatting, storage, icons, tips
 ├── Caddyfile                # Reverse proxy config (Caddy, auto TLS)
+├── caddy/
+│   └── Dockerfile           # Custom Caddy image with Cloudflare DNS module
 ├── docker-compose.yml       # Local dev: server, postgres, redis, minio, auth-server
 ├── docker-compose.prod.yml  # Production: caddy, server, postgres, redis, auth-server, web
 ├── .env.example             # Template for local dev environment
