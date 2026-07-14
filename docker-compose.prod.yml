@@ -45,7 +45,7 @@ services:
       AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
       APP_ENV: production
       APP_DEBUG: false
-      APP_ALLOWED_ORIGINS: https://admin.${DOMAIN},https://api.${DOMAIN}
+      APP_ALLOWED_ORIGINS: https://${DOMAIN},https://admin.${DOMAIN},https://api.${DOMAIN}
       RESEND_API_KEY: ${RESEND_API_KEY}
       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
       RESEND_FROM_NAME: ${RESEND_FROM_NAME}
@@ -101,8 +101,8 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      CORS_ORIGINS: https://admin.${DOMAIN},https://api.${DOMAIN}
-      TRUSTED_ORIGINS: https://admin.${DOMAIN}
+      CORS_ORIGINS: https://${DOMAIN},https://admin.${DOMAIN},https://api.${DOMAIN}
+      TRUSTED_ORIGINS: https://${DOMAIN},https://admin.${DOMAIN}
       GO_BACKEND_URL: http://server:8080
     depends_on:
       postgres:
