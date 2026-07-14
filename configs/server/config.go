@@ -162,7 +162,7 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("failed to bind environment variables: %w", err)
 	}
 
-	viper.ReadInConfig()
+	_ = viper.ReadInConfig()
 
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
