@@ -661,7 +661,7 @@ Returns `SyncResponse` with per-operation results and `serverVersion` for confli
   - `api.{DOMAIN}` → `server:8080`
   - `auth.{DOMAIN}` → `auth-server:3001`
   - `admin.{DOMAIN}` → `web:80`
-- **Caddyfile** uses `{$DOMAIN}` env var for domain substitution. Caddy automatically provisions Let's Encrypt certificates for all subdomains.
+- **Caddyfile** uses `{$DOMAIN}` env var for domain substitution. Caddy automatically provisions Let's Encrypt certificates using the **Cloudflare DNS challenge** (DNS-01), configured via `CLOUDFLARE_API_TOKEN` in the environment. This avoids HTTP-01 port conflicts with Cloudflare proxy.
 - **MinIO is excluded** from production — not yet used.
 - **No database/Redis ports are exposed** to the host — all inter‑service communication happens over the internal Docker bridge network.
 - **Environment**: `APP_ENV=production`, `APP_DEBUG=false` are hardcoded in the production compose file.
@@ -687,12 +687,13 @@ Returns `SyncResponse` with per-operation results and `serverVersion` for confli
 1. Provision a VPS (Ubuntu 24.04, Docker + Compose installed).
 2. Clone the repo to `/opt/bolos-ya`.
 3. Copy `.env.production.example` to `.env` and fill in all secrets and the `DOMAIN`.
-4. Build and start all services:
+4. Generate a **Cloudflare API Token** (Profile → API Tokens → Create Token → Edit zone DNS → zone: `{$DOMAIN}`) and paste it as `CLOUDFLARE_API_TOKEN` in `.env`.
+5. Build and start all services:
    ```bash
    docker compose -f docker-compose.prod.yml --env-file .env up -d
    ```
-5. Caddy automatically provisions TLS certificates for `api.{DOMAIN}`, `auth.{DOMAIN}`, and `admin.{DOMAIN}`.
-6. Monitor with `docker compose logs -f`.
+6. Caddy automatically provisions TLS certificates for all subdomains using the **Cloudflare DNS challenge** (DNS-01 via API token). No open HTTP ports required.
+7. Monitor with `docker compose logs -f`.
 
 ---
 

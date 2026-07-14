@@ -12,6 +12,7 @@ services:
       - caddy_config:/config
     environment:
       - DOMAIN=${DOMAIN}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     depends_on:
       server:
         condition: service_started

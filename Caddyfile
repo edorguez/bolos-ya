@@ -1,5 +1,6 @@
 {
 	email admin@{$DOMAIN}
+	dns cloudflare {env.CLOUDFLARE_API_TOKEN}
 }
 
 # Landing page (public — Cloudflare handles HTTPS at edge)
@@ -23,7 +24,7 @@ auth.{$DOMAIN} {
 	}
 }
 
-# Admin dashboard + landing page (same SPA, DNS-only for auto TLS)
+# Admin dashboard + landing page
 admin.{$DOMAIN} {
 	reverse_proxy web:80
 }
