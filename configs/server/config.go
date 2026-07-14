@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -154,9 +153,8 @@ func bindEnvVars() error {
 func Load() (*Config, error) {
 	var cfg Config
 
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found (or error reading it), relying on existing environment")
-	}
+	// .env is optional — production env vars come from Docker containers
+	_ = godotenv.Load()
 
 	viper.AutomaticEnv()
 
@@ -164,9 +162,7 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("failed to bind environment variables: %w", err)
 	}
 
-	if err := viper.ReadInConfig(); err == nil {
-		log.Println("Using .env file for configuration")
-	}
+	viper.ReadInConfig()
 
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
