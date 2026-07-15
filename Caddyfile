@@ -23,8 +23,3 @@ auth.{$DOMAIN} {
 		header_up X-Forwarded-Proto {scheme}
 	}
 }
-
-# Admin dashboard + landing page
-admin.{$DOMAIN} {
-	reverse_proxy web:80
-}

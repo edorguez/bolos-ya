@@ -24,6 +24,7 @@ const (
 	// Context keys
 	CtxUserIDKey = "userID"
 	CtxUserKey   = "user"
+	CtxUserRoleKey = "userRole"
 
 	// Cart statuses
 	CartStatusActive   = "active"

@@ -45,7 +45,7 @@ app.post('/api/auth/validate-session', async (c) => {
   }
 
   const userResult = await pool.query(
-    `SELECT id, email, "isAnonymous" FROM "user" WHERE id = $1`,
+    `SELECT id, email, "isAnonymous", role FROM "user" WHERE id = $1`,
     [userId],
   )
 
@@ -59,6 +59,7 @@ app.post('/api/auth/validate-session', async (c) => {
       id: user.id,
       email: user.email,
       isAnonymous: user.isAnonymous,
+      role: user.role,
     },
   })
 })

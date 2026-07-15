@@ -42,7 +42,7 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 
-		betterAuthUserID, betterAuthEmail, isAnonymous, err := m.validateSession(c.Request.Context(), parts[1])
+		betterAuthUserID, betterAuthEmail, isAnonymous, role, err := m.validateSession(c.Request.Context(), parts[1])
 		if err != nil {
 			utils.UnauthorizedResponse(c)
 			c.Abort()
@@ -65,32 +65,33 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 
 		c.Set(constants.CtxUserIDKey, user.ID.String())
 		c.Set(constants.CtxUserKey, user)
+		c.Set(constants.CtxUserRoleKey, role)
 		c.Next()
 	}
 }
 
-func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (string, string, bool, error) {
+func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (string, string, bool, string, error) {
 	body := map[string]string{"token": token}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
-		return "", "", false, fmt.Errorf("failed to marshal request body: %w", err)
+		return "", "", false, "", fmt.Errorf("failed to marshal request body: %w", err)
 	}
 
 	url := m.betterAuthURL + "/api/auth/validate-session"
 	req, err := http.NewRequestWithContext(ctx, "POST", url, strings.NewReader(string(jsonBody)))
 	if err != nil {
-		return "", "", false, fmt.Errorf("failed to create request: %w", err)
+		return "", "", false, "", fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", "", false, fmt.Errorf("failed to call auth server: %w", err)
+		return "", "", false, "", fmt.Errorf("failed to call auth server: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", "", false, fmt.Errorf("auth server returned status %d", resp.StatusCode)
+		return "", "", false, "", fmt.Errorf("auth server returned status %d", resp.StatusCode)
 	}
 
 	var result struct {
@@ -98,17 +99,18 @@ func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (str
 			ID          string `json:"id"`
 			Email       string `json:"email"`
 			IsAnonymous bool   `json:"isAnonymous"`
+			Role        string `json:"role"`
 		} `json:"user"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", "", false, fmt.Errorf("failed to decode auth server response: %w", err)
+		return "", "", false, "", fmt.Errorf("failed to decode auth server response: %w", err)
 	}
 
 	if result.User.ID == "" {
-		return "", "", false, fmt.Errorf("empty user ID in auth server response")
+		return "", "", false, "", fmt.Errorf("empty user ID in auth server response")
 	}
 
-	return result.User.ID, result.User.Email, result.User.IsAnonymous, nil
+	return result.User.ID, result.User.Email, result.User.IsAnonymous, result.User.Role, nil
 }
 
 func GetUserIDFromContext(c *gin.Context) (string, bool) {
@@ -125,4 +127,24 @@ func GetUserFromContext(c *gin.Context) (any, bool) {
 		return nil, false
 	}
 	return user, true
+}
+
+func GetUserRoleFromContext(c *gin.Context) (string, bool) {
+	role, exists := c.Get(constants.CtxUserRoleKey)
+	if !exists {
+		return "", false
+	}
+	return role.(string), true
+}
+
+func AdminRoleMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := GetUserRoleFromContext(c)
+		if !exists || (role != "admin" && role != "staff") {
+			utils.ForbiddenResponse(c)
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
 }
