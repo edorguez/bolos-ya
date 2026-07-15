@@ -114,7 +114,7 @@ export const footerContent = {
   tagline: 'Impulsando el comercio venezolano.',
   year: 2024,
   links: [
-    { label: 'Privacidad', href: '#' },
+    { label: 'Privacidad', href: '/privacy' },
     { label: 'Seguridad', href: '#' },
     { label: 'Contacto', href: '#' },
   ],

@@ -1,0 +1,26 @@
+{
+  "cli": {
+    "version": ">= 15.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_BETTER_AUTH_URL": "https://auth.edezco.com/api/auth",
+        "EXPO_PUBLIC_GO_BACKEND_URL": "https://api.edezco.com/api/v1"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

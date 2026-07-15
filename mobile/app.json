@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Bolos Ya",
+    "slug": "bolos-ya",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,7 +23,7 @@
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera for OCR scanning.",
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photo library for OCR scanning."
       },
-      "bundleIdentifier": "com.anonymous.mobile"
+      "bundleIdentifier": "com.edezco.bolosya"
     },
     "android": {
       "adaptiveIcon": {
@@ -37,13 +37,9 @@
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO",
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.anonymous.mobile"
+      "package": "com.edezco.bolosya"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -87,6 +83,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "root": "./app"
+      },
+      "eas": {
+        "projectId": "af409113-dc59-4e2e-9801-8f901072bb6c"
+      }
     }
   }
 }
