@@ -57,13 +57,13 @@ func (r *paymentRepository) FindByID(ctx context.Context, id uuid.UUID) (*models
 }
 
 var sortFieldMap = map[string]string{
-	"paidAt":         "payments.paid_at",
-	"email":          "users.email",
-	"numberOfMonths": "payments.number_of_months",
-	"amountBs":       "payments.amount_bs",
+	"paidAt":          "payments.paid_at",
+	"email":           "users.email",
+	"numberOfMonths":  "payments.number_of_months",
+	"amountBs":        "payments.amount_bs",
 	"referenceNumber": "payments.reference_number",
-	"status":         "payment_statuses.name",
-	"createdAt":      "payments.created_at",
+	"status":          "payment_statuses.name",
+	"createdAt":       "payments.created_at",
 }
 
 func (r *paymentRepository) FindAllPaginated(ctx context.Context, page, pageSize int, sortBy, sortDir string) ([]*models.Payment, int64, error) {
