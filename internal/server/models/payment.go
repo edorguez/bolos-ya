@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/edorguez/bolos-ya/pkg/models"
+	"github.com/google/uuid"
 )
 
 type PaymentStatus struct {

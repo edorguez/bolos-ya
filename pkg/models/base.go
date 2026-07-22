@@ -9,7 +9,7 @@ import (
 
 // BaseModel contains common fields for all database models
 type BaseModel struct {
-	ID        uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -30,7 +30,6 @@ func (m *BaseModel) BeforeUpdate(tx *gorm.DB) error {
 	m.UpdatedAt = time.Now()
 	return nil
 }
-
 
 // IsZero checks if the model has zero ID (not persisted)
 func (m *BaseModel) IsZero() bool {
