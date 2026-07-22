@@ -375,8 +375,8 @@ func (s *syncService) handleCartInsert(ctx context.Context, userID uuid.UUID, op
 	}
 
 	return map[string]any{
-		"id":             cart.ID.String(),
-		"supermarketId":  supermarketID.String(),
+		"id":              cart.ID.String(),
+		"supermarketId":   supermarketID.String(),
 		"supermarketName": "",
 	}, nil
 }
@@ -418,12 +418,12 @@ func (s *syncService) handleCartUpdate(ctx context.Context, userID uuid.UUID, op
 	existing, err := s.cartRepo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrNotFound) {
-				return nil, fmt.Errorf("carrito no encontrado")
-			}
-			return nil, fmt.Errorf("error al buscar carrito: %w", err)
+			return nil, fmt.Errorf("carrito no encontrado")
 		}
+		return nil, fmt.Errorf("error al buscar carrito: %w", err)
+	}
 
-		if existing.UserID != userID {
+	if existing.UserID != userID {
 		return nil, fmt.Errorf("no autorizado para modificar este carrito")
 	}
 

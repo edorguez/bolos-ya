@@ -159,3 +159,4 @@ func (h *AuthHandler) handleError(c *gin.Context, err error) {
 		utils.InternalErrorResponse(c)
 	}
 }
+
