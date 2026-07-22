@@ -22,8 +22,8 @@ const (
 	UserProviderHeader = "X-Auth-Provider"
 
 	// Context keys
-	CtxUserIDKey = "userID"
-	CtxUserKey   = "user"
+	CtxUserIDKey   = "userID"
+	CtxUserKey     = "user"
 	CtxUserRoleKey = "userRole"
 
 	// Cart statuses

@@ -40,17 +40,17 @@ type UpdateProductQuantityRequest struct {
 }
 
 type CartResponse struct {
-	ID               string  `json:"id"`
-	SupermarketID    string  `json:"supermarketId"`
-	SupermarketName  string  `json:"supermarketName"`
-	UserID           string  `json:"userId"`
-	IsActive         bool    `json:"isActive"`
-	BudgetBs         int64   `json:"budgetBs"`
-	BudgetUsd        int64   `json:"budgetUsd"`
-	TotalEstimatedBs *int64  `json:"totalEstimatedBs"`
+	ID                string `json:"id"`
+	SupermarketID     string `json:"supermarketId"`
+	SupermarketName   string `json:"supermarketName"`
+	UserID            string `json:"userId"`
+	IsActive          bool   `json:"isActive"`
+	BudgetBs          int64  `json:"budgetBs"`
+	BudgetUsd         int64  `json:"budgetUsd"`
+	TotalEstimatedBs  *int64 `json:"totalEstimatedBs"`
 	TotalEstimatedUsd *int64 `json:"totalEstimatedUsd"`
-	CreatedAt        string  `json:"createdAt"`
-	UpdatedAt        string  `json:"updatedAt"`
+	CreatedAt         string `json:"createdAt"`
+	UpdatedAt         string `json:"updatedAt"`
 }
 
 type CartProductResponse struct {
@@ -82,16 +82,16 @@ type CartProductDetailResponse struct {
 }
 
 type CartDetailResponse struct {
-	ID               string                      `json:"id"`
-	SupermarketID    string                      `json:"supermarketId"`
-	SupermarketName  string                      `json:"supermarketName"`
-	UserID           string                      `json:"userId"`
-	IsActive         bool                        `json:"isActive"`
-	BudgetBs         int64                       `json:"budgetBs"`
-	BudgetUsd        int64                       `json:"budgetUsd"`
-	TotalEstimatedBs *int64                      `json:"totalEstimatedBs"`
-	TotalEstimatedUsd *int64                     `json:"totalEstimatedUsd"`
-	CreatedAt        string                      `json:"createdAt"`
-	UpdatedAt        string                      `json:"updatedAt"`
-	Products         []CartProductDetailResponse `json:"products"`
+	ID                string                      `json:"id"`
+	SupermarketID     string                      `json:"supermarketId"`
+	SupermarketName   string                      `json:"supermarketName"`
+	UserID            string                      `json:"userId"`
+	IsActive          bool                        `json:"isActive"`
+	BudgetBs          int64                       `json:"budgetBs"`
+	BudgetUsd         int64                       `json:"budgetUsd"`
+	TotalEstimatedBs  *int64                      `json:"totalEstimatedBs"`
+	TotalEstimatedUsd *int64                      `json:"totalEstimatedUsd"`
+	CreatedAt         string                      `json:"createdAt"`
+	UpdatedAt         string                      `json:"updatedAt"`
+	Products          []CartProductDetailResponse `json:"products"`
 }

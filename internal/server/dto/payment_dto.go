@@ -19,12 +19,12 @@ type UpdatePaymentRequest struct {
 }
 
 type PaymentUserResponse struct {
-	ID            string  `json:"id"`
-	Email         string  `json:"email"`
-	AuthProvider  string  `json:"authProvider"`
-	IsPremium     bool    `json:"isPremium"`
-	IsAnonymous   bool    `json:"isAnonymous"`
-	PremiumUntil  *string `json:"premiumUntil"`
+	ID           string  `json:"id"`
+	Email        string  `json:"email"`
+	AuthProvider string  `json:"authProvider"`
+	IsPremium    bool    `json:"isPremium"`
+	IsAnonymous  bool    `json:"isAnonymous"`
+	PremiumUntil *string `json:"premiumUntil"`
 }
 
 type PaymentStatusResponse struct {
@@ -39,26 +39,26 @@ type RejectionReasonResponse struct {
 }
 
 type PaymentResponse struct {
-	ID                string                    `json:"id"`
-	UserID            string                    `json:"userId"`
-	NumberOfMonths    int                       `json:"numberOfMonths"`
-	ReferenceNumber   string                    `json:"referenceNumber"`
-	BankName          string                    `json:"bankName"`
-	AmountBs          int64                     `json:"amountBs"`
-	AmountUsd         int64                     `json:"amountUsd"`
-	PriceBcv          int64                     `json:"priceBcv"`
-	Identification    string                    `json:"identification"`
-	IsDiscount        bool                      `json:"isDiscount"`
-	PaidAt            string                    `json:"paidAt"`
-	StatusID          string                    `json:"statusId"`
-	RejectionReasonID *string                   `json:"rejectionReasonId,omitempty"`
-	RejectionMessage  *string                   `json:"rejectionMessage,omitempty"`
-	ApprovedAt        *string                   `json:"approvedAt,omitempty"`
-	RejectedAt        *string                   `json:"rejectedAt,omitempty"`
-	CreatedAt         string                    `json:"createdAt"`
-	UpdatedAt         string                    `json:"updatedAt"`
-	DeletedAt         *string                   `json:"deletedAt,omitempty"`
-	User              PaymentUserResponse       `json:"user"`
-	PaymentStatus     *PaymentStatusResponse    `json:"paymentStatus"`
-	RejectionReason   *RejectionReasonResponse  `json:"rejectionReason,omitempty"`
+	ID                string                   `json:"id"`
+	UserID            string                   `json:"userId"`
+	NumberOfMonths    int                      `json:"numberOfMonths"`
+	ReferenceNumber   string                   `json:"referenceNumber"`
+	BankName          string                   `json:"bankName"`
+	AmountBs          int64                    `json:"amountBs"`
+	AmountUsd         int64                    `json:"amountUsd"`
+	PriceBcv          int64                    `json:"priceBcv"`
+	Identification    string                   `json:"identification"`
+	IsDiscount        bool                     `json:"isDiscount"`
+	PaidAt            string                   `json:"paidAt"`
+	StatusID          string                   `json:"statusId"`
+	RejectionReasonID *string                  `json:"rejectionReasonId,omitempty"`
+	RejectionMessage  *string                  `json:"rejectionMessage,omitempty"`
+	ApprovedAt        *string                  `json:"approvedAt,omitempty"`
+	RejectedAt        *string                  `json:"rejectedAt,omitempty"`
+	CreatedAt         string                   `json:"createdAt"`
+	UpdatedAt         string                   `json:"updatedAt"`
+	DeletedAt         *string                  `json:"deletedAt,omitempty"`
+	User              PaymentUserResponse      `json:"user"`
+	PaymentStatus     *PaymentStatusResponse   `json:"paymentStatus"`
+	RejectionReason   *RejectionReasonResponse `json:"rejectionReason,omitempty"`
 }
