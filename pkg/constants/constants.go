@@ -30,4 +30,7 @@ const (
 	CartStatusActive   = "active"
 	CartStatusArchived = "archived"
 	CartStatusDeleted  = "deleted"
+
+	// TimeFormat is the RFC3339 time format used across the API
+	TimeFormat = "2006-01-02T15:04:05Z07:00"
 )

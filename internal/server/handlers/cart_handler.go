@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -92,8 +92,6 @@ func (h *CartHandler) AddProduct(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("%+v\n", req)
-
 	userID, ok := middleware.GetUserIDFromContext(c)
 	if !ok {
 		utils.UnauthorizedResponse(c)
@@ -125,7 +123,7 @@ func (h *CartHandler) AddProduct(c *gin.Context) {
 		req.ImageUrl,
 	)
 
-	cartProduct, err := h.cartService.AddProduct(c.Request.Context(), product, cartID, req.Quantity, req.IsManualEntry)
+	cartProduct, err := h.cartService.AddProduct(c.Request.Context(), userUUID, product, cartID, req.Quantity, req.IsManualEntry)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -166,6 +164,18 @@ func (h *CartHandler) UpdateCartProduct(c *gin.Context) {
 		return
 	}
 
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		return
+	}
+
 	product := &models.Product{
 		Name:           req.Name,
 		Barcode:        req.Barcode,
@@ -176,7 +186,7 @@ func (h *CartHandler) UpdateCartProduct(c *gin.Context) {
 		ImageUrl:       req.ImageUrl,
 	}
 
-	cartProduct, err := h.cartService.UpdateCartProduct(c.Request.Context(), cartProductID, product, cartID, req.Quantity)
+	cartProduct, err := h.cartService.UpdateCartProduct(c.Request.Context(), userUUID, cartProductID, product, cartID, req.Quantity)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -205,8 +215,6 @@ func (h *CartHandler) UpdateProductQuantity(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("%+v", req)
-
 	cartProductID, err := uuid.Parse(req.CartProductID)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "ID de producto en carrito inválido")
@@ -219,13 +227,25 @@ func (h *CartHandler) UpdateProductQuantity(c *gin.Context) {
 		return
 	}
 
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		return
+	}
+
 	cartProduct := &models.CartProduct{
 		CartID:   cartID,
 		Quantity: req.Quantity,
 	}
 	cartProduct.ID = cartProductID
 
-	result, err := h.cartService.UpdateProductQuantity(c.Request.Context(), cartProduct)
+	result, err := h.cartService.UpdateProductQuantity(c.Request.Context(), userUUID, cartProduct)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -248,7 +268,19 @@ func (h *CartHandler) RemoveProduct(c *gin.Context) {
 		return
 	}
 
-	if err := h.cartService.RemoveProduct(c.Request.Context(), cartProductID); err != nil {
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		return
+	}
+
+	if err := h.cartService.RemoveProduct(c.Request.Context(), userUUID, cartProductID); err != nil {
 		h.handleError(c, err)
 		return
 	}
@@ -314,7 +346,19 @@ func (h *CartHandler) GetCartDetail(c *gin.Context) {
 		return
 	}
 
-	cart, products, err := h.cartService.GetCartDetail(c.Request.Context(), cartID)
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		return
+	}
+
+	cart, products, err := h.cartService.GetCartDetail(c.Request.Context(), userUUID, cartID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -367,7 +411,19 @@ func (h *CartHandler) CheckoutCart(c *gin.Context) {
 		return
 	}
 
-	cart, err := h.cartService.CheckoutCart(c.Request.Context(), cartID)
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, "ID de usuario inválido")
+		return
+	}
+
+	cart, err := h.cartService.CheckoutCart(c.Request.Context(), userUUID, cartID)
 	if err != nil {
 		h.handleError(c, err)
 		return
@@ -387,14 +443,15 @@ func (h *CartHandler) CheckoutCart(c *gin.Context) {
 }
 
 func (h *CartHandler) handleError(c *gin.Context, err error) {
-	fmt.Printf("Cart handler error: %v\n", err)
-	switch err {
-	case apperrors.ErrConflict:
+	switch {
+	case errors.Is(err, apperrors.ErrConflict):
 		utils.ErrorResponse(c, http.StatusConflict, "conflicto en el carrito")
-	case apperrors.ErrNotFound:
+	case errors.Is(err, apperrors.ErrNotFound):
 		utils.NotFoundResponse(c, "recurso")
-	case apperrors.ErrInvalidInput:
+	case errors.Is(err, apperrors.ErrInvalidInput):
 		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	case errors.Is(err, apperrors.ErrForbidden):
+		utils.ForbiddenResponse(c)
 	default:
 		utils.InternalErrorResponse(c)
 	}

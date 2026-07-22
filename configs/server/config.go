@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -154,7 +155,9 @@ func Load() (*Config, error) {
 	var cfg Config
 
 	// .env is optional — production env vars come from Docker containers
-	_ = godotenv.Load()
+	if err := godotenv.Load(); err != nil && !os.IsNotExist(err) {
+		return nil, fmt.Errorf("failed to load .env file: %w", err)
+	}
 
 	viper.AutomaticEnv()
 

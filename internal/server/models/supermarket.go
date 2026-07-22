@@ -11,7 +11,7 @@ type Supermarket struct {
 	Name     string    `gorm:"type:varchar(255);not null"`
 	IsCustom bool      `gorm:"default:false"`
 	ImageUrl *string   `gorm:"type:varchar(500)"`
-	UserID   uuid.UUID `gorm:"type:uuid:not null"`
+	UserID   uuid.UUID `gorm:"type:uuid;not null"`
 }
 
 // NewSupermarket creates a new Supermarket with default values

@@ -87,9 +87,6 @@ export function LoginPage() {
                   {loginContent.submitIcon}
                 </span>
               </button>
-              <button className={styles.troubleBtn} type="button">
-                {loginContent.troubleText}
-              </button>
             </div>
           </form>
         </div>

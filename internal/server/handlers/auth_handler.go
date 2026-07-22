@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -147,12 +148,12 @@ func (h *AuthHandler) MigrateUserData(c *gin.Context) {
 }
 
 func (h *AuthHandler) handleError(c *gin.Context, err error) {
-	switch err {
-	case apperrors.ErrConflict:
+	switch {
+	case errors.Is(err, apperrors.ErrConflict):
 		utils.ErrorResponse(c, http.StatusConflict, "el usuario ya existe")
-	case apperrors.ErrUnauthorized:
+	case errors.Is(err, apperrors.ErrUnauthorized):
 		utils.UnauthorizedResponse(c)
-	case apperrors.ErrNotFound:
+	case errors.Is(err, apperrors.ErrNotFound):
 		utils.NotFoundResponse(c, "usuario")
 	default:
 		utils.InternalErrorResponse(c)

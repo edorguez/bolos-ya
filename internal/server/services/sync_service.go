@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -394,7 +395,7 @@ func (s *syncService) handleCartUpdate(ctx context.Context, userID uuid.UUID, op
 	if checkout, ok := op.Payload["checkout"].(bool); ok && checkout {
 		cart, err := s.cartRepo.FindByID(ctx, id)
 		if err != nil {
-			if err == apperrors.ErrNotFound {
+			if errors.Is(err, apperrors.ErrNotFound) {
 				return nil, fmt.Errorf("carrito no encontrado")
 			}
 			return nil, fmt.Errorf("error al buscar carrito: %w", err)
@@ -416,13 +417,13 @@ func (s *syncService) handleCartUpdate(ctx context.Context, userID uuid.UUID, op
 
 	existing, err := s.cartRepo.FindByID(ctx, id)
 	if err != nil {
-		if err == apperrors.ErrNotFound {
-			return nil, fmt.Errorf("carrito no encontrado")
+		if errors.Is(err, apperrors.ErrNotFound) {
+				return nil, fmt.Errorf("carrito no encontrado")
+			}
+			return nil, fmt.Errorf("error al buscar carrito: %w", err)
 		}
-		return nil, fmt.Errorf("error al buscar carrito: %w", err)
-	}
 
-	if existing.UserID != userID {
+		if existing.UserID != userID {
 		return nil, fmt.Errorf("no autorizado para modificar este carrito")
 	}
 
@@ -573,7 +574,7 @@ func (s *syncService) handleCartProductUpdate(ctx context.Context, userID uuid.U
 
 	existing, err := s.cartProductRepo.FindByID(ctx, id)
 	if err != nil {
-		if err == apperrors.ErrNotFound {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			return nil, fmt.Errorf("producto de carrito no encontrado")
 		}
 		return nil, fmt.Errorf("error al buscar producto: %w", err)

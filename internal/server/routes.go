@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	goredis "github.com/redis/go-redis/v9"
 
 	"github.com/edorguez/bolos-ya/internal/server/handlers"
 	internalmiddleware "github.com/edorguez/bolos-ya/internal/server/middleware"
@@ -24,6 +25,7 @@ func SetupRoutes(
 	bcvRateService services.BCVRateService,
 	betterAuthURL string,
 	log *logger.Logger,
+	redisClient goredis.Cmdable,
 ) *gin.Engine {
 	router := gin.New()
 
@@ -43,7 +45,7 @@ func SetupRoutes(
 	supermarketHandler := handlers.NewSupermarketHandler(supermarketService)
 	bcvRateHandler := handlers.NewBCVRateHandler(bcvRateService)
 
-	authMiddleware := internalmiddleware.NewAuthMiddleware(authService, betterAuthURL)
+	authMiddleware := internalmiddleware.NewAuthMiddleware(authService, betterAuthURL, redisClient)
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

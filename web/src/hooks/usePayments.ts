@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useEffect } from 'react'
+import { useReducer, useCallback, useEffect, useRef } from 'react'
 import { getAllPayments } from '../services/paymentService'
 import type { PaymentResponse } from '../types/payment'
 
@@ -66,6 +66,8 @@ interface UsePaymentsResult {
 
 export function usePayments(token?: string | null, userId?: string | null): UsePaymentsResult {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const stateRef = useRef(state)
+  useEffect(() => { stateRef.current = state }, [state])
 
   const fetch = useCallback(async (p: number, ps: number, sb: string, sd: 'asc' | 'desc') => {
     if (!token || !userId) return
@@ -97,8 +99,9 @@ export function usePayments(token?: string | null, userId?: string | null): UseP
   }, [])
 
   const refetch = useCallback(() => {
-    fetch(state.page, state.pageSize, state.sortBy, state.sortDir)
-  }, [state.page, state.pageSize, state.sortBy, state.sortDir, fetch])
+    const s = stateRef.current
+    fetch(s.page, s.pageSize, s.sortBy, s.sortDir)
+  }, [fetch])
 
   return {
     payments: state.payments,

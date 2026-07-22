@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	redisv8 "github.com/go-redis/redis/v8"
+	goredis "github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
 	serverconfig "github.com/edorguez/bolos-ya/configs/server"
@@ -19,7 +19,7 @@ import (
 	"github.com/edorguez/bolos-ya/internal/server/repository"
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	"github.com/edorguez/bolos-ya/pkg/database/postgresql"
-	"github.com/edorguez/bolos-ya/pkg/database/redis"
+	pkgredis "github.com/edorguez/bolos-ya/pkg/database/redis"
 	"github.com/edorguez/bolos-ya/pkg/logger"
 )
 
@@ -40,9 +40,9 @@ func main() {
 		log.Fatal("Failed to connect to PostgreSQL", zap.Error(err))
 	}
 
-	var redisClient *redisv8.Client
+	var redisClient goredis.UniversalClient
 	if cfg.Redis.URL != "" {
-		redisClient, err = redis.Connect(redis.Config{
+		redisClient, err = pkgredis.Connect(pkgredis.Config{
 			URL:      cfg.Redis.URL,
 			Password: cfg.Redis.Password,
 			DB:       cfg.Redis.DB,
@@ -50,7 +50,7 @@ func main() {
 		if err != nil {
 			log.Fatal("Failed to connect to Redis", zap.Error(err))
 		}
-		defer redis.Close(redisClient)
+		defer pkgredis.Close(redisClient)
 	}
 
 	userRepo := repository.NewUserRepository(db)
@@ -91,6 +91,7 @@ func main() {
 		bcvRateService,
 		cfg.Auth.BetterAuthURL,
 		log,
+		redisClient,
 	)
 
 	addr := cfg.Server.Host + ":" + strconv.Itoa(cfg.Server.Port)

@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 
@@ -13,14 +14,13 @@ import (
 // CartService defines shopping cart operations
 type CartService interface {
 	CreateCart(ctx context.Context, cart *models.Cart, customSupermarketName *string) (*models.Cart, error)
-	AddProduct(ctx context.Context, product *models.Product, cartID uuid.UUID, quantity int, isManualEntry bool) (*models.CartProduct, error)
-	UpdateCartProduct(ctx context.Context, cartProductID uuid.UUID, product *models.Product, cartID uuid.UUID, quantity int) (*models.CartProduct, error)
-	UpdateProductQuantity(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error)
-	RemoveProduct(ctx context.Context, cartProductID uuid.UUID) error
-	GetCartProducts(ctx context.Context, cartID uuid.UUID) ([]*models.CartProduct, error)
+	AddProduct(ctx context.Context, userID uuid.UUID, product *models.Product, cartID uuid.UUID, quantity int, isManualEntry bool) (*models.CartProduct, error)
+	UpdateCartProduct(ctx context.Context, userID uuid.UUID, cartProductID uuid.UUID, product *models.Product, cartID uuid.UUID, quantity int) (*models.CartProduct, error)
+	UpdateProductQuantity(ctx context.Context, userID uuid.UUID, cartProduct *models.CartProduct) (*models.CartProduct, error)
+	RemoveProduct(ctx context.Context, userID uuid.UUID, cartProductID uuid.UUID) error
 	GetCartsByUser(ctx context.Context, userID uuid.UUID, limit int) ([]*models.Cart, error)
-	GetCartDetail(ctx context.Context, cartID uuid.UUID) (*models.Cart, []*repository.CartProductDetail, error)
-	CheckoutCart(ctx context.Context, cartID uuid.UUID) (*models.Cart, error)
+	GetCartDetail(ctx context.Context, userID uuid.UUID, cartID uuid.UUID) (*models.Cart, []*repository.CartProductDetail, error)
+	CheckoutCart(ctx context.Context, userID uuid.UUID, cartID uuid.UUID) (*models.Cart, error)
 }
 
 type cartService struct {
@@ -48,7 +48,7 @@ func NewCartService(
 func (s *cartService) CreateCart(ctx context.Context, cart *models.Cart, customSupermarketName *string) (*models.Cart, error) {
 	if cart.SupermarketID == uuid.Nil && customSupermarketName != nil {
 		existing, err := s.supermarketRepo.FindByNameAndUserID(ctx, *customSupermarketName, cart.UserID)
-		if err != nil && err != apperrors.ErrNotFound {
+		if err != nil && !errors.Is(err, apperrors.ErrNotFound) {
 			return nil, err
 		}
 		if existing != nil {
@@ -68,9 +68,20 @@ func (s *cartService) CreateCart(ctx context.Context, cart *models.Cart, customS
 	return cart, nil
 }
 
+func (s *cartService) requireCartOwnership(ctx context.Context, cartID, userID uuid.UUID) (*models.Cart, error) {
+	cart, err := s.cartRepo.FindByID(ctx, cartID)
+	if err != nil {
+		return nil, err
+	}
+	if cart.UserID != userID {
+		return nil, apperrors.ErrForbidden
+	}
+	return cart, nil
+}
+
 // AddProduct creates a product and adds it to a shopping cart
-func (s *cartService) AddProduct(ctx context.Context, product *models.Product, cartID uuid.UUID, quantity int, isManualEntry bool) (*models.CartProduct, error) {
-	_, err := s.cartRepo.FindByID(ctx, cartID)
+func (s *cartService) AddProduct(ctx context.Context, userID uuid.UUID, product *models.Product, cartID uuid.UUID, quantity int, isManualEntry bool) (*models.CartProduct, error) {
+	cart, err := s.requireCartOwnership(ctx, cartID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -84,11 +95,6 @@ func (s *cartService) AddProduct(ctx context.Context, product *models.Product, c
 		return nil, err
 	}
 
-	cart, err := s.cartRepo.FindByID(ctx, cartID)
-	if err != nil {
-		return cartProduct, err
-	}
-
 	if err := s.updateCartTotals(ctx, cart); err != nil {
 		return cartProduct, err
 	}
@@ -97,7 +103,12 @@ func (s *cartService) AddProduct(ctx context.Context, product *models.Product, c
 }
 
 // UpdateCartProduct updates a cart product and its associated product
-func (s *cartService) UpdateCartProduct(ctx context.Context, cartProductID uuid.UUID, product *models.Product, cartID uuid.UUID, quantity int) (*models.CartProduct, error) {
+func (s *cartService) UpdateCartProduct(ctx context.Context, userID uuid.UUID, cartProductID uuid.UUID, product *models.Product, cartID uuid.UUID, quantity int) (*models.CartProduct, error) {
+	cart, err := s.requireCartOwnership(ctx, cartID, userID)
+	if err != nil {
+		return nil, err
+	}
+
 	cartProduct, err := s.cartProductRepo.FindByID(ctx, cartProductID)
 	if err != nil {
 		return nil, err
@@ -125,11 +136,6 @@ func (s *cartService) UpdateCartProduct(ctx context.Context, cartProductID uuid.
 		return nil, err
 	}
 
-	cart, err := s.cartRepo.FindByID(ctx, cartID)
-	if err != nil {
-		return cartProduct, err
-	}
-
 	if err := s.updateCartTotals(ctx, cart); err != nil {
 		return cartProduct, err
 	}
@@ -138,7 +144,7 @@ func (s *cartService) UpdateCartProduct(ctx context.Context, cartProductID uuid.
 }
 
 // UpdateProductQuantity updates the quantity of a cart product
-func (s *cartService) UpdateProductQuantity(ctx context.Context, cartProduct *models.CartProduct) (*models.CartProduct, error) {
+func (s *cartService) UpdateProductQuantity(ctx context.Context, userID uuid.UUID, cartProduct *models.CartProduct) (*models.CartProduct, error) {
 	if cartProduct.Quantity < 1 || cartProduct.Quantity > 9999 {
 		return nil, apperrors.ErrInvalidInput
 	}
@@ -148,7 +154,7 @@ func (s *cartService) UpdateProductQuantity(ctx context.Context, cartProduct *mo
 		return nil, err
 	}
 
-	cart, err := s.cartRepo.FindByID(ctx, existing.CartID)
+	cart, err := s.requireCartOwnership(ctx, existing.CartID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +172,7 @@ func (s *cartService) UpdateProductQuantity(ctx context.Context, cartProduct *mo
 }
 
 // RemoveProduct removes a product from a cart
-func (s *cartService) RemoveProduct(ctx context.Context, cartProductID uuid.UUID) error {
+func (s *cartService) RemoveProduct(ctx context.Context, userID uuid.UUID, cartProductID uuid.UUID) error {
 	cartProduct, err := s.cartProductRepo.FindByID(ctx, cartProductID)
 	if err != nil {
 		return err
@@ -175,6 +181,10 @@ func (s *cartService) RemoveProduct(ctx context.Context, cartProductID uuid.UUID
 	cart, err := s.cartRepo.FindByID(ctx, cartProduct.CartID)
 	if err != nil {
 		return err
+	}
+
+	if cart.UserID != userID {
+		return apperrors.ErrForbidden
 	}
 
 	if err := s.cartProductRepo.Delete(ctx, cartProductID); err != nil {
@@ -194,8 +204,8 @@ func (s *cartService) GetCartsByUser(ctx context.Context, userID uuid.UUID, limi
 }
 
 // GetCartDetail retrieves a cart with its products and product details
-func (s *cartService) GetCartDetail(ctx context.Context, cartID uuid.UUID) (*models.Cart, []*repository.CartProductDetail, error) {
-	cart, err := s.cartRepo.FindByID(ctx, cartID)
+func (s *cartService) GetCartDetail(ctx context.Context, userID, cartID uuid.UUID) (*models.Cart, []*repository.CartProductDetail, error) {
+	cart, err := s.requireCartOwnership(ctx, cartID, userID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -206,16 +216,6 @@ func (s *cartService) GetCartDetail(ctx context.Context, cartID uuid.UUID) (*mod
 	}
 
 	return cart, products, nil
-}
-
-// GetCartProducts retrieves all products in a cart
-func (s *cartService) GetCartProducts(ctx context.Context, cartID uuid.UUID) ([]*models.CartProduct, error) {
-	cart, err := s.cartRepo.FindByID(ctx, cartID)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.cartProductRepo.FindByCartID(ctx, cart.ID)
 }
 
 // updateCartTotals recalculates and updates the cart's total estimated costs
@@ -256,8 +256,8 @@ func (s *cartService) updateCartTotals(ctx context.Context, cart *models.Cart) e
 }
 
 // CheckoutCart marks a cart as completed
-func (s *cartService) CheckoutCart(ctx context.Context, cartID uuid.UUID) (*models.Cart, error) {
-	cart, err := s.cartRepo.FindByID(ctx, cartID)
+func (s *cartService) CheckoutCart(ctx context.Context, userID, cartID uuid.UUID) (*models.Cart, error) {
+	cart, err := s.requireCartOwnership(ctx, cartID, userID)
 	if err != nil {
 		return nil, err
 	}

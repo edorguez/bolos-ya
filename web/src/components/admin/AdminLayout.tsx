@@ -14,7 +14,19 @@ export function AdminLayout() {
   const handleClose = useCallback(() => setSidebarOpen(false), [])
 
   if (loading) {
-    return null
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        color: 'var(--color-ash)',
+        fontFamily: "'Inter', sans-serif",
+        fontSize: '0.875rem',
+      }}>
+        Verificando sesión...
+      </div>
+    )
   }
 
   if (!isAuthenticated) {

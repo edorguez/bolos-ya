@@ -16,7 +16,6 @@ import (
 type PaymentRepository interface {
 	Create(ctx context.Context, payment *models.Payment) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Payment, error)
-	FindAll(ctx context.Context) ([]*models.Payment, error)
 	FindAllPaginated(ctx context.Context, page, pageSize int, sortBy, sortDir string) ([]*models.Payment, int64, error)
 	FindByUserID(ctx context.Context, userID uuid.UUID) ([]*models.Payment, error)
 	FindByUserIDAndStatus(ctx context.Context, userID uuid.UUID, statusID uuid.UUID) ([]*models.Payment, error)
@@ -55,26 +54,6 @@ func (r *paymentRepository) FindByID(ctx context.Context, id uuid.UUID) (*models
 		return nil, err
 	}
 	return &payment, nil
-}
-
-func (r *paymentRepository) FindAll(ctx context.Context) ([]*models.Payment, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-	var payments []models.Payment
-	if err := r.db.WithContext(ctx).
-		Preload("User").
-		Preload("PaymentStatus").
-		Preload("RejectionReason").
-		Where("deleted_at IS NULL").
-		Order("created_at DESC").
-		Find(&payments).Error; err != nil {
-		return nil, err
-	}
-	result := make([]*models.Payment, len(payments))
-	for i := range payments {
-		result[i] = &payments[i]
-	}
-	return result, nil
 }
 
 var sortFieldMap = map[string]string{

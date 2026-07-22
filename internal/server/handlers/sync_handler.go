@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -52,8 +53,8 @@ func (h *SyncHandler) ProcessSync(c *gin.Context) {
 }
 
 func (h *SyncHandler) handleError(c *gin.Context, err error) {
-	switch err {
-	case apperrors.ErrNotFound:
+	switch {
+	case errors.Is(err, apperrors.ErrNotFound):
 		utils.NotFoundResponse(c, "usuario")
 	default:
 		utils.InternalErrorResponse(c)

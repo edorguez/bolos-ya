@@ -14,7 +14,6 @@ import (
 type SupermarketRepository interface {
 	Create(ctx context.Context, supermarket *models.Supermarket) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Supermarket, error)
-	FindByName(ctx context.Context, name string) ([]*models.Supermarket, error)
 	FindByNameAndUserID(ctx context.Context, name string, userID uuid.UUID) (*models.Supermarket, error)
 	FindAll(ctx context.Context, userID uuid.UUID) ([]*models.Supermarket, error)
 	Update(ctx context.Context, supermarket *models.Supermarket) error
@@ -51,23 +50,6 @@ func (r *supermarketRepository) FindByID(ctx context.Context, id uuid.UUID) (*mo
 	}
 
 	return &supermarket, nil
-}
-
-// FindByName retrieves supermarkets by name (partial match)
-func (r *supermarketRepository) FindByName(ctx context.Context, name string) ([]*models.Supermarket, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	var supermarketList []models.Supermarket
-	if err := r.db.WithContext(ctx).Where("name ILIKE ?", "%"+name+"%").Find(&supermarketList).Error; err != nil {
-		return nil, err
-	}
-
-	result := make([]*models.Supermarket, len(supermarketList))
-	for i, supermarket := range supermarketList {
-		result[i] = &supermarket
-	}
-	return result, nil
 }
 
 // FindByNameAndUserID retrieves a supermarket by exact name and userID

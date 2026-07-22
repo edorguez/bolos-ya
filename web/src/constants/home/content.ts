@@ -112,7 +112,7 @@ export const ctaContent = {
 export const footerContent = {
   brand: 'Bolos Ya',
   tagline: 'Impulsando el comercio venezolano.',
-  year: 2024,
+  year: new Date().getFullYear(),
   links: [
     { label: 'Privacidad', href: '/privacy' },
     { label: 'Seguridad', href: '#' },

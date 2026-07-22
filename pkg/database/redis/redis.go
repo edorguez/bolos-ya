@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	goredis "github.com/redis/go-redis/v9"
 )
 
 // Config holds Redis connection configuration
@@ -16,18 +16,18 @@ type Config struct {
 }
 
 // Connect establishes a connection to Redis
-func Connect(cfg Config) (*redis.Client, error) {
-	opts, err := redis.ParseURL(cfg.URL)
+func Connect(cfg Config) (goredis.UniversalClient, error) {
+	opts, err := goredis.ParseURL(cfg.URL)
 	if err != nil {
 		// If URL parsing fails, try manual configuration
-		opts = &redis.Options{
+		opts = &goredis.Options{
 			Addr:     cfg.URL,
 			Password: cfg.Password,
 			DB:       cfg.DB,
 		}
 	}
 
-	client := redis.NewClient(opts)
+	client := goredis.NewClient(opts)
 
 	// Test connection
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -41,7 +41,7 @@ func Connect(cfg Config) (*redis.Client, error) {
 }
 
 // Close gracefully closes the Redis connection
-func Close(client *redis.Client) error {
+func Close(client goredis.UniversalClient) error {
 	if client == nil {
 		return nil
 	}

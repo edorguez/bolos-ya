@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -29,13 +29,7 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
   const [message, setMessage] = useState('')
   const [errors, setErrors] = useState<{ reason?: string; message?: string }>({})
 
-  useEffect(() => {
-    if (open) {
-      setReasonId('')
-      setMessage('')
-      setErrors({})
-    }
-  }, [open])
+  // Reset form when modal opens via key prop on Dialog (see key={open ? 'open' : 'closed'})
 
   function handleReasonChange(e: SelectChangeEvent<string>) {
     setReasonId(e.target.value)
@@ -68,7 +62,7 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+    <Dialog key={open ? 'open' : 'closed'} open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ position: 'relative' }}>
         {paymentModalContent.rejectTitle}
         <IconButton

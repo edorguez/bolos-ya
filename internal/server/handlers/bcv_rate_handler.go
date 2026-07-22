@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -23,7 +25,7 @@ func NewBCVRateHandler(bcvRateService services.BCVRateService) *BCVRateHandler {
 func (h *BCVRateHandler) GetLatestRate(c *gin.Context) {
 	rate, err := h.bcvRateService.GetLatestRate(c.Request.Context())
 	if err != nil {
-		if err == apperrors.ErrNotFound {
+		if errors.Is(err, apperrors.ErrNotFound) {
 			utils.NotFoundResponse(c, "BCV rate")
 			return
 		}
@@ -38,7 +40,7 @@ func toBCVRateResponse(rate *models.BCVRate) dto.BCVRateResponse {
 		ID:        rate.ID.String(),
 		UsdRate:   rate.UsdRate,
 		EurRate:   rate.EurRate,
-		CreatedAt: rate.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt: rate.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		CreatedAt: rate.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: rate.UpdatedAt.Format(time.RFC3339),
 	}
 }

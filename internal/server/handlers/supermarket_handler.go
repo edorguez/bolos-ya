@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -98,8 +100,8 @@ func (h *SupermarketHandler) GetAllSupermarkets(c *gin.Context) {
 }
 
 func (h *SupermarketHandler) handleError(c *gin.Context, err error) {
-	switch err {
-	case apperrors.ErrNotFound:
+	switch {
+	case errors.Is(err, apperrors.ErrNotFound):
 		utils.NotFoundResponse(c, "supermercado")
 	default:
 		utils.InternalErrorResponse(c)
@@ -109,7 +111,7 @@ func (h *SupermarketHandler) handleError(c *gin.Context, err error) {
 func toSupermarketResponse(s *models.Supermarket) dto.SupermarketResponse {
 	var deletedAt *string
 	if s.DeletedAt.Valid {
-		formatted := s.DeletedAt.Time.Format("2006-01-02T15:04:05Z07:00")
+		formatted := s.DeletedAt.Time.Format(time.RFC3339)
 		deletedAt = &formatted
 	}
 
@@ -125,8 +127,8 @@ func toSupermarketResponse(s *models.Supermarket) dto.SupermarketResponse {
 		IsCustom:  s.IsCustom,
 		ImageUrl:  s.ImageUrl,
 		UserID:    userID,
-		CreatedAt: s.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt: s.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		CreatedAt: s.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: s.UpdatedAt.Format(time.RFC3339),
 		DeletedAt: deletedAt,
 	}
 }

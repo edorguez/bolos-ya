@@ -19,7 +19,6 @@ import (
 type PaymentService interface {
 	CreatePayment(ctx context.Context, payment *models.Payment) (*models.Payment, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Payment, error)
-	FindAll(ctx context.Context) ([]*models.Payment, error)
 	FindAllPaginated(ctx context.Context, page, pageSize int, sortBy, sortDir string) ([]*models.Payment, int64, error)
 	FindByUserID(ctx context.Context, userID uuid.UUID) ([]*models.Payment, error)
 	FindByUserIDAndStatus(ctx context.Context, userID uuid.UUID, statusID uuid.UUID) ([]*models.Payment, error)
@@ -67,10 +66,6 @@ func (s *paymentService) CreatePayment(ctx context.Context, payment *models.Paym
 
 func (s *paymentService) FindByID(ctx context.Context, id uuid.UUID) (*models.Payment, error) {
 	return s.paymentRepo.FindByID(ctx, id)
-}
-
-func (s *paymentService) FindAll(ctx context.Context) ([]*models.Payment, error) {
-	return s.paymentRepo.FindAll(ctx)
 }
 
 func (s *paymentService) FindAllPaginated(ctx context.Context, page, pageSize int, sortBy, sortDir string) ([]*models.Payment, int64, error) {

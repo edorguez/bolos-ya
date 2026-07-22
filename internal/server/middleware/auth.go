@@ -2,27 +2,34 @@ package middleware
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	goredis "github.com/redis/go-redis/v9"
 
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	"github.com/edorguez/bolos-ya/pkg/constants"
 	"github.com/edorguez/bolos-ya/pkg/utils"
 )
 
+const sessionCacheTTL = 15 * time.Minute
+
 type AuthMiddleware struct {
-	authService    services.AuthService
-	betterAuthURL  string
+	authService   services.AuthService
+	betterAuthURL string
+	redisClient   goredis.Cmdable
 }
 
-func NewAuthMiddleware(authService services.AuthService, betterAuthURL string) *AuthMiddleware {
+func NewAuthMiddleware(authService services.AuthService, betterAuthURL string, redisClient goredis.Cmdable) *AuthMiddleware {
 	return &AuthMiddleware{
 		authService:   authService,
 		betterAuthURL: betterAuthURL,
+		redisClient:   redisClient,
 	}
 }
 
@@ -70,7 +77,33 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 	}
 }
 
+func sessionCacheKey(token string) string {
+	h := sha256.Sum256([]byte(token))
+	return fmt.Sprintf("session:%x", h[:16])
+}
+
+type sessionCacheData struct {
+	User struct {
+		ID          string `json:"id"`
+		Email       string `json:"email"`
+		IsAnonymous bool   `json:"isAnonymous"`
+		Role        string `json:"role"`
+	} `json:"user"`
+}
+
 func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (string, string, bool, string, error) {
+	if m.redisClient != nil {
+		cacheKey := sessionCacheKey(token)
+		cached, err := m.redisClient.Get(ctx, cacheKey).Result()
+		if err == nil {
+			var cachedResult sessionCacheData
+			if json.Unmarshal([]byte(cached), &cachedResult) == nil && cachedResult.User.ID != "" {
+				m.redisClient.Expire(ctx, cacheKey, sessionCacheTTL)
+				return cachedResult.User.ID, cachedResult.User.Email, cachedResult.User.IsAnonymous, cachedResult.User.Role, nil
+			}
+		}
+	}
+
 	body := map[string]string{"token": token}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
@@ -94,20 +127,20 @@ func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (str
 		return "", "", false, "", fmt.Errorf("auth server returned status %d", resp.StatusCode)
 	}
 
-	var result struct {
-		User struct {
-			ID          string `json:"id"`
-			Email       string `json:"email"`
-			IsAnonymous bool   `json:"isAnonymous"`
-			Role        string `json:"role"`
-		} `json:"user"`
-	}
+	var result sessionCacheData
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return "", "", false, "", fmt.Errorf("failed to decode auth server response: %w", err)
 	}
 
 	if result.User.ID == "" {
 		return "", "", false, "", fmt.Errorf("empty user ID in auth server response")
+	}
+
+	if m.redisClient != nil {
+		cacheKey := sessionCacheKey(token)
+		if data, err := json.Marshal(result); err == nil {
+			m.redisClient.Set(ctx, cacheKey, data, sessionCacheTTL)
+		}
 	}
 
 	return result.User.ID, result.User.Email, result.User.IsAnonymous, result.User.Role, nil

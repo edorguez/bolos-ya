@@ -170,22 +170,3 @@
     cursor: not-allowed;
   }
 }
-
-.troubleBtn {
-  width: 100%;
-  border-radius: var(--radius-buttonspill);
-  background: transparent;
-  color: var(--color-graphite);
-  padding: 0px 14px;
-  height: 48px;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
-
-  &:hover {
-    background: var(--color-stone-surface);
-  }
-}

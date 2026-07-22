@@ -12,34 +12,27 @@ import {
 import { toast } from 'sonner'
 import { usePayments } from '../../../hooks/usePayments'
 import { paymentsContent, PAYMENT_COLUMNS } from '../../../constants/admin/content'
-import type { PaymentResponse } from '../../../types/payment'
+import { APPROVED_STATUS_ID, REJECTED_STATUS_ID } from '../../../constants/admin/paymentStatus'
+import type { PaymentResponse, RejectionReason } from '../../../types/payment'
 import { updatePaymentStatus, getRejectionReasons } from '../../../services/paymentService'
 import { useAuth } from '../../../hooks/auth/useAuth'
+import { formatAmount } from '../../../utils/format'
 import { PaymentStatusBadge } from './PaymentStatusBadge'
 import { PaymentDetailModal } from './PaymentDetailModal'
 import { ApproveConfirmModal } from './ApproveConfirmModal'
 import { RejectReasonModal } from './RejectReasonModal'
-import type { RejectionReason } from '../../../types/payment'
 import styles from './PaymentsPage.module.scss'
 
 const cellSx = {
   whiteSpace: 'nowrap' as const,
 }
 
-const idCellSx = {
+const highlightCellSx = {
+  ...cellSx,
   fontWeight: 600,
   fontSize: '0.8rem',
   color: 'var(--color-charcoal-primary)',
 }
-
-const amountCellSx = {
-  fontWeight: 600,
-  fontSize: '0.8rem',
-  color: 'var(--color-charcoal-primary)',
-}
-
-const APPROVED_ID = 'a2222222-2222-4a22-9a22-222222222222'
-const REJECTED_ID = 'a3333333-3333-4a33-9a33-333333333333'
 
 function formatDate(iso: string): string {
   const d = new Date(iso)
@@ -49,8 +42,6 @@ function formatDate(iso: string): string {
     year: 'numeric',
   }).replace('.', '')
 }
-
-import { formatAmount } from '../../../utils/format'
 
 function monthsLabel(n: number): string {
   return `${n} ${n === 1 ? 'mes' : 'meses'}`
@@ -117,7 +108,7 @@ export function PaymentsPage() {
   const handleConfirmApprove = useCallback(async () => {
     if (!token || !adminUserId || !selectedPayment) return
     try {
-      await updatePaymentStatus(token, adminUserId, selectedPayment.id, { statusId: APPROVED_ID })
+      await updatePaymentStatus(token, adminUserId, selectedPayment.id, { statusId: APPROVED_STATUS_ID })
       toast.success('Pago aprobado exitosamente')
       setModalView(null)
       setSelectedPayment(null)
@@ -131,7 +122,7 @@ export function PaymentsPage() {
     if (!token || !adminUserId || !selectedPayment) return
     try {
       await updatePaymentStatus(token, adminUserId, selectedPayment.id, {
-        statusId: REJECTED_ID,
+        statusId: REJECTED_STATUS_ID,
         rejectionReasonId: reasonId,
         rejectionMessage: message || null,
       })
@@ -161,9 +152,6 @@ export function PaymentsPage() {
           <h2 className={styles.title}>{paymentsContent.title}</h2>
           <p className={styles.description}>{paymentsContent.description}</p>
         </div>
-        <button className={styles.exportBtn}>
-          {paymentsContent.exportLabel}
-        </button>
       </header>
 
       <div className={styles.tableWrap}>
@@ -210,11 +198,11 @@ export function PaymentsPage() {
                 ) : (
                   payments.map((row: PaymentResponse) => (
                     <TableRow key={row.id}>
-                      <TableCell sx={idCellSx}>{row.id.slice(0, 8)}</TableCell>
+                      <TableCell sx={highlightCellSx}>{row.id.slice(0, 8)}</TableCell>
                       <TableCell sx={cellSx}>{formatDate(row.paidAt)}</TableCell>
                       <TableCell sx={cellSx}>{monthsLabel(row.numberOfMonths)}</TableCell>
                       <TableCell sx={cellSx}>{row.user.email}</TableCell>
-                      <TableCell sx={amountCellSx}>{formatAmount(row.amountBs)}</TableCell>
+                      <TableCell sx={highlightCellSx}>{formatAmount(row.amountBs)}</TableCell>
                       <TableCell sx={cellSx}>{row.referenceNumber}</TableCell>
                       <TableCell sx={cellSx}>
                         <PaymentStatusBadge paymentStatus={row.paymentStatus} />
@@ -259,14 +247,14 @@ export function PaymentsPage() {
 
       <ApproveConfirmModal
         open={modalView === 'approve'}
-        onClose={() => setModalView('detail')}
+        onClose={closeAll}
         onConfirm={handleConfirmApprove}
       />
 
       <RejectReasonModal
         open={modalView === 'reject'}
         reasons={rejectionReasons}
-        onClose={() => setModalView('detail')}
+        onClose={closeAll}
         onConfirm={handleConfirmReject}
       />
     </div>

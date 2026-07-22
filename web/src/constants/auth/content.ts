@@ -8,6 +8,5 @@ export const loginContent = {
   passwordIcon: 'lock',
   submitText: 'Ingresar',
   submitIcon: 'arrow_forward',
-  troubleText: 'Problemas para ingresar?',
   adminIcon: 'admin_panel_settings',
 }

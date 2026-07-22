@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -185,8 +186,8 @@ func (h *PaymentHandler) DeletePayment(c *gin.Context) {
 }
 
 func (h *PaymentHandler) handleError(c *gin.Context, err error) {
-	switch err {
-	case apperrors.ErrNotFound:
+	switch {
+	case errors.Is(err, apperrors.ErrNotFound):
 		utils.NotFoundResponse(c, "pago")
 	default:
 		utils.InternalErrorResponse(c)

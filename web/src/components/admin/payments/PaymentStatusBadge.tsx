@@ -1,13 +1,10 @@
 import type { PaymentStatus } from '../../../types/payment'
-
-const PENDING_ID = 'a1111111-1111-4a11-9a11-111111111111'
-const APPROVED_ID = 'a2222222-2222-4a22-9a22-222222222222'
-const REJECTED_ID = 'a3333333-3333-4a33-9a33-333333333333'
+import { PENDING_STATUS_ID, APPROVED_STATUS_ID, REJECTED_STATUS_ID } from '../../../constants/admin/paymentStatus'
 
 const config: Record<string, { color: string; bg: string; label: string }> = {
-  [PENDING_ID]: { color: '#92400e', bg: '#fef3c7', label: 'Pendiente' },
-  [APPROVED_ID]: { color: '#166534', bg: '#dcfce7', label: 'Aprobado' },
-  [REJECTED_ID]: { color: '#991b1b', bg: '#fee2e2', label: 'Rechazado' },
+  [PENDING_STATUS_ID]: { color: '#92400e', bg: '#fef3c7', label: 'Pendiente' },
+  [APPROVED_STATUS_ID]: { color: '#166534', bg: '#dcfce7', label: 'Aprobado' },
+  [REJECTED_STATUS_ID]: { color: '#991b1b', bg: '#fee2e2', label: 'Rechazado' },
 }
 
 export function PaymentStatusBadge({ paymentStatus }: { paymentStatus: PaymentStatus }) {

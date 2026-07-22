@@ -157,7 +157,11 @@ CREATE TABLE payments (
 -- Indexes
 CREATE INDEX idx_supermarkets_user ON supermarkets(user_id);
 CREATE INDEX idx_carts_user_active ON carts(user_id, is_active);
+CREATE INDEX idx_carts_user_created ON carts(user_id, created_at DESC);
 CREATE INDEX idx_cart_products_product ON cart_products(product_id);
+CREATE INDEX idx_cart_products_cart ON cart_products(cart_id);
+CREATE INDEX idx_products_supermarket_user ON products(supermarket_id, user_id);
+CREATE INDEX idx_payments_user_status ON payments(user_id, status_id);
 
 -- BCV rates table
 CREATE TABLE bcv_rates (

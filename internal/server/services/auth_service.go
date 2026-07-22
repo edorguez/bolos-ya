@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -46,7 +47,7 @@ func NewAuthService(userRepo repository.UserRepository, emailSvc email.Service, 
 func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string, isAnonymous bool) (*models.User, error) {
 	user, err := s.userRepo.FindByBetterAuthUserID(ctx, betterAuthUserID)
 	if err != nil {
-		if err != apperrors.ErrNotFound {
+		if !errors.Is(err, apperrors.ErrNotFound) {
 			return nil, err
 		}
 
@@ -93,14 +94,15 @@ func (s *authService) sendWelcomeEmail(user *models.User) {
 		return
 	}
 
-	userName := strings.Split(user.Email, "@")[0]
+	email := user.Email
+	userName := strings.Split(email, "@")[0]
 
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		if err := s.emailSvc.SendWelcome(ctx, user.Email, userName); err != nil {
-			s.log.Error("failed to send welcome email", zap.Error(err), zap.String("email", user.Email))
+		if err := s.emailSvc.SendWelcome(ctx, email, userName); err != nil {
+			s.log.Error("failed to send welcome email", zap.Error(err), zap.String("email", email))
 		}
 	}()
 }
@@ -108,7 +110,7 @@ func (s *authService) sendWelcomeEmail(user *models.User) {
 func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string, isAnonymous bool) (*models.User, error) {
 	user, err := s.userRepo.FindByBetterAuthUserID(ctx, userID)
 	if err != nil {
-		if err != apperrors.ErrNotFound {
+		if !errors.Is(err, apperrors.ErrNotFound) {
 			return nil, err
 		}
 

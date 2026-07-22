@@ -10,7 +10,6 @@ export const sidebarContent = {
 export const paymentsContent = {
   title: 'Historial de Pagos',
   description: 'Gestione transacciones y liquidaciones recientes.',
-  exportLabel: 'Exportar Reporte',
 }
 
 export const PAYMENT_COLUMNS = [
