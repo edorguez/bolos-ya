@@ -1,6 +1,6 @@
 import { apiGet } from './api';
 import { supermarketRepository } from '../lib/local/repositories/supermarketRepository';
-import type { ApiSupermarketResponse } from '../types';
+import type { ApiSupermarketResponse, ApiResponse } from '../types';
 import { getIconByIndex } from '../utils/iconUtils';
 
 export interface SupermarketOption {
@@ -8,11 +8,6 @@ export interface SupermarketOption {
   name: string;
   icon: string;
   selected: boolean;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
 }
 
 export async function getAllSupermarkets(userId?: string): Promise<SupermarketOption[]> {

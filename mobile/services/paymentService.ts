@@ -1,4 +1,6 @@
 import { apiGet, apiPost } from './api';
+import { toCents } from '../utils/priceUtils';
+import type { ApiResponse } from '../types';
 
 export const PENDING_STATUS_ID = 'a1111111-1111-4a11-9a11-111111111111';
 
@@ -59,11 +61,6 @@ export interface PaymentResponse {
   rejectionReason?: RejectionReason | null;
 }
 
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-}
-
 export async function createPayment(
   params: CreatePaymentParams,
   userId?: string
@@ -72,9 +69,9 @@ export async function createPayment(
     numberOfMonths: params.numberOfMonths,
     referenceNumber: params.referenceNumber,
     bankName: params.bankName,
-    amountBs: params.amountBs,
-    amountUsd: params.amountUsd,
-    priceBcv: params.priceBcv,
+    amountBs: toCents(params.amountBs),
+    amountUsd: toCents(params.amountUsd),
+    priceBcv: toCents(params.priceBcv),
     identification: params.identification,
     isDiscount: params.isDiscount,
     paidAt: params.paidAt,

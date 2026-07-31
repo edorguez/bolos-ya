@@ -15,7 +15,7 @@ const defaultState: NetworkState = {
 
 export function useNetwork() {
   const [networkState, setNetworkState] = useState<NetworkState>(defaultState);
-  const [previousConnected, setPreviousConnected] = useState(true);
+  const previousConnectedRef = useRef(true);
   const listenersRef = useRef<Array<() => void>>([]);
 
   const checkNetwork = useCallback(async () => {
@@ -28,10 +28,13 @@ export function useNetwork() {
         type: state.type ?? Network.NetworkStateType.UNKNOWN,
       };
 
-      setNetworkState(prev => {
-        setPreviousConnected(prev.isConnected);
-        return newState;
-      });
+      setNetworkState(newState);
+
+      if (newState.isConnected && !previousConnectedRef.current) {
+        listenersRef.current.forEach(cb => cb());
+      }
+
+      previousConnectedRef.current = newState.isConnected;
     } catch {
       setNetworkState(defaultState);
     }
@@ -44,31 +47,19 @@ export function useNetwork() {
 
     return () => {
       clearInterval(interval);
-      listenersRef.current.forEach(unsub => unsub());
     };
   }, [checkNetwork]);
 
-  const onReconnect = useCallback(
-    (callback: () => void) => {
-      if (networkState.isConnected && !previousConnected) {
-        callback();
-      }
-    },
-    [networkState.isConnected, previousConnected]
-  );
-
   const subscribeToReconnect = useCallback((callback: () => void) => {
-    const handler = () => callback();
-    listenersRef.current.push(handler);
+    listenersRef.current.push(callback);
     return () => {
-      listenersRef.current = listenersRef.current.filter(h => h !== handler);
+      listenersRef.current = listenersRef.current.filter(h => h !== callback);
     };
   }, []);
 
   return {
     ...networkState,
     checkNetwork,
-    onReconnect,
     subscribeToReconnect,
   };
 }

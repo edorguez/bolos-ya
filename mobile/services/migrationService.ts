@@ -6,8 +6,9 @@ import type { SyncOperation, SyncResponse } from '../types/sync';
 
 export const migrationService = {
   async migrateGuestData(
-    oldUserId: string | undefined,
-    newUserId: string
+    oldUserId: string,
+    newUserId: string,
+    options?: { email?: string; authProvider?: string }
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const localCarts = await cartRepository.getAll(oldUserId);
@@ -57,6 +58,10 @@ export const migrationService = {
       }
 
       const response = await apiPost<SyncResponse>('/auth/internal/migrate-user-data', newUserId, {
+        fromBetterAuthUserId: oldUserId,
+        toBetterAuthUserId: newUserId,
+        email: options?.email ?? '',
+        authProvider: options?.authProvider ?? 'email',
         operations,
       });
 

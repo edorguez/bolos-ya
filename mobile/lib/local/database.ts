@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 
 let db: SQLite.SQLiteDatabase | null = null;
+let initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 const DB_NAME = 'bolosya_offline.db';
 
@@ -84,12 +85,43 @@ const MIGRATIONS = [
   },
 ];
 
-export async function getDb(): Promise<SQLite.SQLiteDatabase> {
-  if (db) return db;
+async function openAndMigrate(): Promise<SQLite.SQLiteDatabase> {
+  const database = await SQLite.openDatabaseAsync(DB_NAME);
+  await runMigrations(database);
+  return database;
+}
 
-  db = await SQLite.openDatabaseAsync(DB_NAME);
-  await runMigrations(db);
-  return db;
+async function verifyConnection(database: SQLite.SQLiteDatabase): Promise<boolean> {
+  try {
+    await database.getFirstAsync('SELECT 1');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function getDb(): Promise<SQLite.SQLiteDatabase> {
+  if (db) {
+    const ok = await verifyConnection(db);
+    if (ok) return db;
+    await db.closeAsync().catch(() => {});
+    db = null;
+    initPromise = null;
+  }
+
+  if (!initPromise) {
+    initPromise = openAndMigrate()
+      .then(d => {
+        db = d;
+        return d;
+      })
+      .catch(err => {
+        initPromise = null;
+        throw err;
+      });
+  }
+
+  return initPromise;
 }
 
 async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
@@ -111,6 +143,7 @@ export async function closeDb(): Promise<void> {
   if (db) {
     await db.closeAsync();
     db = null;
+    initPromise = null;
   }
 }
 

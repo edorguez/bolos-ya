@@ -23,9 +23,9 @@ export interface Cart {
   totalUsd: number;
   budgetBs: number;
   budgetUsd: number;
-  createdAt: Date;
+  createdAt: string;
   completed?: boolean;
-  completedAt?: Date;
+  completedAt?: string;
 }
 
 interface CartState {
@@ -67,7 +67,7 @@ export const useCartStore = create<CartState>()(
             ...state.carts,
             {
               ...cart,
-              createdAt: new Date(),
+              createdAt: new Date().toISOString(),
             },
           ],
         })),
@@ -170,18 +170,35 @@ export const useCartStore = create<CartState>()(
       completeCart: id =>
         set(state => ({
           carts: state.carts.map(cart =>
-            cart.id === id ? { ...cart, completed: true, completedAt: new Date() } : cart
+            cart.id === id
+              ? { ...cart, completed: true, completedAt: new Date().toISOString() }
+              : cart
           ),
         })),
     }),
     {
       name: '@bolosya_cart_store',
+      version: 1,
       storage,
       partialize: state => ({
         carts: state.carts,
         activeCartId: state.activeCartId,
         lastSyncedAt: state.lastSyncedAt,
       }),
+      migrate: (persisted: unknown) => {
+        const state = persisted as Record<string, unknown>;
+        if (state.carts && Array.isArray(state.carts)) {
+          for (const cart of state.carts as Array<Record<string, unknown>>) {
+            if (cart.createdAt instanceof Date) {
+              cart.createdAt = (cart.createdAt as Date).toISOString();
+            }
+            if (cart.completedAt instanceof Date) {
+              cart.completedAt = (cart.completedAt as Date).toISOString();
+            }
+          }
+        }
+        return persisted as CartState;
+      },
     }
   )
 );

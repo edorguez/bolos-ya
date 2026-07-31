@@ -161,17 +161,15 @@ export default function PagoMovilScreen() {
 
     const [day, month, year] = paymentDate.split('/');
     const paidAt = new Date(+year, +month - 1, +day).toISOString();
-    const bcvRateCents = bcvRate ? Math.round(bcvRate.usdRate * 100) : 0;
-
     try {
       await createPayment(
         {
           numberOfMonths: monthsMap[billing] || 1,
           referenceNumber: referenceNumber.trim(),
           bankName: userBank,
-          amountBs: Math.round(amountBs * 100),
-          amountUsd: Math.round(usdValue * 100),
-          priceBcv: bcvRateCents,
+          amountBs,
+          amountUsd: usdValue,
+          priceBcv: bcvRate?.usdRate ?? 0,
           identification: `${ciPrefix}${userCI.trim()}`,
           isDiscount: false,
           paidAt,

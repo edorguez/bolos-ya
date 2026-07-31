@@ -1,13 +1,28 @@
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native';
 import { useAppTheme } from '../styles/theme';
 import { useBCV } from '../store/bcvStore';
+import { syncService } from '../services/syncService';
+import { useNetwork } from '../hooks/useNetwork';
 import '../styles/unistylesConfigured';
 
 export default function RootLayout() {
   const theme = useAppTheme();
   useBCV();
+  const { subscribeToReconnect } = useNetwork();
+
+  useEffect(() => {
+    syncService.syncAll();
+  }, []);
+
+  useEffect(() => {
+    const unsub = subscribeToReconnect(() => {
+      syncService.syncAll();
+    });
+    return unsub;
+  }, [subscribeToReconnect]);
 
   const styles = StyleSheet.create({
     container: {

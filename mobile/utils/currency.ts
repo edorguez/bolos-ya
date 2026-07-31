@@ -53,6 +53,7 @@ export async function setExchangeRate(rate: number): Promise<void> {
  */
 export async function convertBsToUsd(bsAmount: number): Promise<number> {
   const rate = await getExchangeRate();
+  if (rate <= 0) return bsAmount;
   return bsAmount / rate;
 }
 
@@ -61,6 +62,7 @@ export async function convertBsToUsd(bsAmount: number): Promise<number> {
  */
 export async function convertUsdToBs(usdAmount: number): Promise<number> {
   const rate = await getExchangeRate();
+  if (rate <= 0) return 0;
   return usdAmount * rate;
 }
 

@@ -1,14 +1,19 @@
+import { memo, useCallback } from 'react';
 import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
-import { CartProduct } from '../../store/cartStore';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 interface ProductCardProps {
-  product: CartProduct;
+  id: string;
+  name: string;
+  priceBs: number;
+  priceUsd: number;
+  quantity: number;
+  productImageUrl?: string;
   cartId: string;
-  onMenuPress: () => void;
-  onQuantityChange?: (productId: string, newQuantity: number) => Promise<void>;
+  onMenuPress: (productId: string) => void;
+  onQuantityChange?: (productId: string, newQuantity: number) => void;
 }
 
 const stylesheet = StyleSheet.create(theme => ({
@@ -117,19 +122,32 @@ const stylesheet = StyleSheet.create(theme => ({
   },
 }));
 
-export function ProductCard({ product, onMenuPress, onQuantityChange }: ProductCardProps) {
+function ProductCardComponent({
+  id,
+  name,
+  priceBs,
+  priceUsd,
+  quantity,
+  cartId: _cartId,
+  onMenuPress,
+  onQuantityChange,
+}: ProductCardProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
 
-  const handleDecrease = () => {
-    if (product.quantity <= 1 || !onQuantityChange) return;
-    onQuantityChange(product.id, product.quantity - 1);
-  };
+  const handleDecrease = useCallback(() => {
+    if (quantity <= 1 || !onQuantityChange) return;
+    onQuantityChange(id, quantity - 1);
+  }, [id, quantity, onQuantityChange]);
 
-  const handleIncrease = () => {
-    if (product.quantity >= 9999 || !onQuantityChange) return;
-    onQuantityChange(product.id, product.quantity + 1);
-  };
+  const handleIncrease = useCallback(() => {
+    if (quantity >= 9999 || !onQuantityChange) return;
+    onQuantityChange(id, quantity + 1);
+  }, [id, quantity, onQuantityChange]);
+
+  const handleMenu = useCallback(() => {
+    onMenuPress(id);
+  }, [id, onMenuPress]);
 
   return (
     <View style={styles.card as ViewStyle}>
@@ -139,7 +157,7 @@ export function ProductCard({ product, onMenuPress, onQuantityChange }: ProductC
       <View style={styles.content as ViewStyle}>
         <View style={styles.header as ViewStyle}>
           <View style={styles.leftColumn as ViewStyle}>
-            <Text style={styles.title as TextStyle}>{product.name}</Text>
+            <Text style={styles.title as TextStyle}>{name}</Text>
             <View style={styles.quantityRow as ViewStyle}>
               <View style={styles.quantityControls as ViewStyle}>
                 <Pressable
@@ -151,7 +169,7 @@ export function ProductCard({ product, onMenuPress, onQuantityChange }: ProductC
                 >
                   <MaterialIcons name="remove" size={16} color={theme.colors.emberOrange} />
                 </Pressable>
-                <Text style={styles.quantityText as TextStyle}>{product.quantity}</Text>
+                <Text style={styles.quantityText as TextStyle}>{quantity}</Text>
                 <Pressable
                   onPress={handleIncrease}
                   style={({ pressed }) => [
@@ -166,17 +184,17 @@ export function ProductCard({ product, onMenuPress, onQuantityChange }: ProductC
           </View>
           <View style={styles.rightColumn as ViewStyle}>
             <Pressable
-              onPress={onMenuPress}
+              onPress={handleMenu}
               style={({ pressed }) => [styles.menuButton as ViewStyle, pressed && { opacity: 0.7 }]}
             >
               <MaterialIcons name="more-horiz" size={20} color={theme.colors.onSurfaceVariant} />
             </Pressable>
             <View style={styles.priceColumn as ViewStyle}>
               <Text style={styles.priceBs as TextStyle}>
-                Bs. {product.priceBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+                Bs. {priceBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
               </Text>
               <Text style={styles.priceUsd as TextStyle}>
-                $ {product.priceUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+                $ {priceUsd.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
               </Text>
             </View>
           </View>
@@ -185,3 +203,5 @@ export function ProductCard({ product, onMenuPress, onQuantityChange }: ProductC
     </View>
   );
 }
+
+export const ProductCard = memo(ProductCardComponent);

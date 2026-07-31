@@ -123,9 +123,7 @@ export interface BCVRateResponse {
   updatedAt: string;
 }
 
-export interface SyncOperation {
-  table: string;
-  action: 'INSERT' | 'UPDATE' | 'DELETE';
-  payload: Record<string, unknown>;
-  timestamp: number;
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
 }

@@ -11,7 +11,7 @@ import { BottomSheetModal } from '../../components/shared/BottomSheetModal';
 import { ActionSheetModal } from '../../components/shared/ActionSheetModal';
 import { Toast } from '../../components/shared/Toast';
 import { ProductForm } from '../../components/cart/ProductForm';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import {
   getCartDetail,
@@ -22,7 +22,6 @@ import {
   checkoutCart,
 } from '../../services/cartService';
 import { useAuth } from '../../store/authStore';
-import { syncService } from '../../services/syncService';
 import type { ApiCartDetailResponse } from '../../types';
 
 export default function CartDetailScreen() {
@@ -49,15 +48,9 @@ export default function CartDetailScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<CartProduct | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [pendingSyncCount, setPendingSyncCount] = useState(0);
 
   useEffect(() => {
     setActiveCart(id);
-    const interval = setInterval(async () => {
-      const count = await syncService.getPendingCount();
-      setPendingSyncCount(count);
-    }, 5000);
-    return () => clearInterval(interval);
   }, [id, setActiveCart]);
 
   useEffect(() => {
@@ -108,6 +101,8 @@ export default function CartDetailScreen() {
   }) => {
     if (!cart || !user?.id) return;
 
+    setShowAddProduct(false);
+
     setIsSubmitting(true);
     try {
       const result = await addCartProduct(
@@ -134,8 +129,6 @@ export default function CartDetailScreen() {
         supermarket: product.supermarket,
         productImageUrl: result.imageUrl || undefined,
       });
-
-      setShowAddProduct(false);
     } catch (err) {
       setToast(err instanceof Error ? err.message : 'Error al agregar producto');
     } finally {
@@ -185,30 +178,41 @@ export default function CartDetailScreen() {
     }
   };
 
-  const handleQuantityChange = async (productId: string, newQuantity: number) => {
-    if (!cart || !user?.id) return;
+  const cartRef = useRef<Cart | null>(null);
+  const userRef = useRef(user);
 
-    setIsSubmitting(true);
-    try {
-      const result = await updateCartProductQuantity(
-        productId,
-        {
-          cartProductId: productId,
-          cartId: cart.id,
-          quantity: newQuantity,
-        },
-        user.id
-      );
+  const syncDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-      updateProductQuantity(cart.id, productId, result.quantity);
-    } catch (err) {
-      setToast(err instanceof Error ? err.message : 'Error al actualizar cantidad');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const handleQuantityChange = useCallback((productId: string, newQuantity: number) => {
+    const c = cartRef.current;
+    const u = userRef.current;
+    if (!c || !u) return;
+
+    updateProductQuantity(c.id, productId, newQuantity);
+
+    if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+    syncDebounceRef.current = setTimeout(async () => {
+      try {
+        await updateCartProductQuantity(
+          productId,
+          { cartProductId: productId, cartId: c.id, quantity: newQuantity },
+          u.id
+        );
+      } catch {
+        // silent — already committed locally
+      }
+    }, 800);
+  }, []);
+
+  const handleMenuPress = useCallback((productId: string) => {
+    const product = cartRef.current?.products.find(p => p.id === productId) ?? null;
+    setSelectedProduct(product);
+    setShowActionSheet(true);
+  }, []);
 
   const cart = carts.find((c: Cart) => c.id === id);
+  cartRef.current = cart ?? null;
+  userRef.current = user;
 
   if (!cart) {
     if (isLoadingFromApi) {
@@ -263,18 +267,6 @@ export default function CartDetailScreen() {
           budgetBs={budgetBs}
           budgetUsd={budgetUsd}
         />
-        {pendingSyncCount > 0 && (
-          <Text
-            style={{
-              fontSize: 10,
-              color: theme.colors.emberOrange,
-              textAlign: 'center',
-              marginTop: 4,
-            }}
-          >
-            {pendingSyncCount} cambio(s) pendiente(s) de sincronizar
-          </Text>
-        )}
       </View>
 
       <ScrollView
@@ -288,12 +280,14 @@ export default function CartDetailScreen() {
             cart.products.map((product: CartProduct) => (
               <ProductCard
                 key={product.id}
-                product={product}
+                id={product.id}
+                name={product.name}
+                priceBs={product.priceBs}
+                priceUsd={product.priceUsd}
+                quantity={product.quantity}
+                productImageUrl={product.productImageUrl}
                 cartId={cart.id}
-                onMenuPress={() => {
-                  setSelectedProduct(product);
-                  setShowActionSheet(true);
-                }}
+                onMenuPress={handleMenuPress}
                 onQuantityChange={handleQuantityChange}
               />
             ))
@@ -334,7 +328,7 @@ export default function CartDetailScreen() {
           <Pressable
             style={({ pressed }) => [
               styles.buttonCircleComplete,
-              pressed && { transform: [{ translateX: '-50%' }, { scale: 0.9 }] },
+              pressed && { backgroundColor: '#80e5a6' },
             ]}
             onPress={() => setShowCompleteCartSheet(true)}
             accessibilityRole="button"

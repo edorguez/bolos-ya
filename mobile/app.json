@@ -12,11 +12,7 @@
       "backgroundColor": "#ffffff"
     },
     "scheme": "bolosya",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
+    "platforms": ["ios", "android", "web"],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -73,7 +69,8 @@
             "deploymentTarget": "18.6"
           },
           "android": {
-            "compileSdkVersion": 36
+            "compileSdkVersion": 36,
+            "buildConfig": true
           }
         }
       ],

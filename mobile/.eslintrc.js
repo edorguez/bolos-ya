@@ -26,6 +26,7 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+
     'react/prop-types': 'off',
   },
   ignorePatterns: ['node_modules/', 'dist/', 'build/', '*.config.js'],

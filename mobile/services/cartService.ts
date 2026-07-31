@@ -3,7 +3,12 @@ import { cartRepository } from '../lib/local/repositories/cartRepository';
 import { cartProductRepository } from '../lib/local/repositories/cartProductRepository';
 import { syncService } from './syncService';
 import { generateLocalId } from '../lib/local/database';
-import type { ApiCartDetailResponse, ApiCartResponse, ApiCartProductResponse } from '../types';
+import type {
+  ApiCartDetailResponse,
+  ApiCartResponse,
+  ApiCartProductResponse,
+  ApiResponse,
+} from '../types';
 import { toCents, fromCents, transformPrices } from '../utils/priceUtils';
 
 export interface CreateCartParams {
@@ -70,11 +75,6 @@ export interface CartProductResponse {
   isManualEntry: boolean;
   createdAt: string;
   updatedAt: string;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
 }
 
 function transformCartDetail(response: ApiCartDetailResponse): ApiCartDetailResponse {
@@ -215,7 +215,7 @@ export async function addCartProduct(
     quantity: params.quantity,
     isManualEntry: params.isManualEntry ?? true,
     imageUrl: params.imageUrl,
-    supermarket: params.cartId,
+    supermarket: params.supermarketId,
   });
 
   await syncService.enqueueAndSync(

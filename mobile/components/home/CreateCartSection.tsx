@@ -236,36 +236,7 @@ export function CreateCartSection({ userId, onCartCreated }: CreateCartSectionPr
       const updatedMarkets = await getAllSupermarkets(userId);
       setSupermarkets(updatedMarkets);
     } catch {
-      const result = await createCart(
-        {
-          supermarketId: finalSupermarketId,
-          newSupermarket: finalSupermarketId ? undefined : { name: finalName || '' },
-          budgetBs: finalBs,
-          budgetUsd: finalUsd,
-        },
-        userId
-      );
-
-      const cartName = `${finalName || "Plaza's"} - ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`;
-
-      addCart({
-        id: result.id,
-        name: cartName,
-        supermarket: finalName || "Plaza's",
-        supermarketId: result.supermarketId,
-        products: [],
-        totalBs: 0,
-        totalUsd: 0,
-        budgetBs: result.budgetBs,
-        budgetUsd: result.budgetUsd,
-      });
-      setActiveCart(result.id);
-      setBudgetBs(0);
-      setBudgetUsd(0);
-      setCustomMarketName('');
-      setShowCustomMarket(false);
-      setFieldErrors({});
-      onCartCreated(result.id);
+      console.error('Error al crear el carrito');
     } finally {
       setIsSubmitting(false);
     }

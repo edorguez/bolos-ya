@@ -1,10 +1,16 @@
 import { apiGet } from './api';
 import { cartRepository } from '../lib/local/repositories/cartRepository';
-import type { ApiCartResponse } from '../types';
+import type { ApiCartResponse, ApiResponse } from '../types';
+import { fromCents } from '../utils/priceUtils';
 
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
+function transformCartResponse(cart: ApiCartResponse): ApiCartResponse {
+  return {
+    ...cart,
+    budgetBs: fromCents(cart.budgetBs),
+    budgetUsd: fromCents(cart.budgetUsd),
+    totalEstimatedBs: cart.totalEstimatedBs !== null ? fromCents(cart.totalEstimatedBs) : null,
+    totalEstimatedUsd: cart.totalEstimatedUsd !== null ? fromCents(cart.totalEstimatedUsd) : null,
+  };
 }
 
 export async function getCarts(userId?: string, limit?: number): Promise<ApiCartResponse[]> {
@@ -17,7 +23,9 @@ export async function getCarts(userId?: string, limit?: number): Promise<ApiCart
     const response = await apiGet<ApiResponse<ApiCartResponse[]>>(path, userId);
 
     if (response.success && Array.isArray(response.data)) {
-      for (const cart of response.data) {
+      const transformed = response.data.map(transformCartResponse);
+
+      for (const cart of transformed) {
         await cartRepository.upsert({
           id: cart.id,
           supermarketId: cart.supermarketId,
@@ -28,7 +36,8 @@ export async function getCarts(userId?: string, limit?: number): Promise<ApiCart
           budgetUsd: cart.budgetUsd,
         });
       }
-      return response.data;
+
+      return transformed;
     }
 
     throw new Error('Error al obtener el historial');

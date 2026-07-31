@@ -1,5 +1,13 @@
 import { Platform } from 'react-native';
 
+function requireEnvVar(key: string): string {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  return value;
+}
+
 function getDevHost(): string {
   if (Platform.OS === 'ios') {
     return 'localhost';
@@ -9,14 +17,14 @@ function getDevHost(): string {
 
 export function getAuthBaseUrl(): string {
   if (!__DEV__) {
-    return process.env.EXPO_PUBLIC_BETTER_AUTH_URL!;
+    return requireEnvVar('EXPO_PUBLIC_BETTER_AUTH_URL');
   }
   return `http://${getDevHost()}:3001/api/auth`;
 }
 
 export function getGoBackendUrl(): string {
   if (!__DEV__) {
-    return process.env.EXPO_PUBLIC_GO_BACKEND_URL!;
+    return requireEnvVar('EXPO_PUBLIC_GO_BACKEND_URL');
   }
   return `http://${getDevHost()}:8080/api/v1`;
 }

@@ -1,5 +1,3 @@
-import { useColorScheme } from 'react-native';
-
 const lightColors = {
   warmCanvas: '#fbfaf9',
   stoneSurface: '#f2f0ed',
@@ -48,60 +46,6 @@ const lightColors = {
   success: '#00ca48',
 };
 
-const darkColors = {
-  warmCanvas: '#1a1817',
-  stoneSurface: '#373533',
-  parchmentCard: '#2e2c2a',
-  graphite: '#c8c6c3',
-  charcoalPrimary: '#d4d2cf',
-  midnight: '#e8e6e3',
-  obsidian: '#f0eeeb',
-  ash: '#a09e9b',
-  fog: '#555351',
-  smoke: '#777573',
-  pepper: '#d8d6d3',
-  emberOrange: '#ff5722',
-  meadowGreen: '#00d960',
-  skyBlue: '#4da6ff',
-  sunburstYellow: '#ffcc44',
-  deepAmber: '#e8a300',
-  oceanBlue: '#4da6ff',
-  iceBlue: '#8dd4ff',
-  spearmint: '#00d960',
-  flamingo: '#ff70c0',
-  violetPop: '#b87aff',
-  coralRed: '#ff4757',
-  validGreen: '#00d960',
-  white: '#ffffff',
-  black: '#000000',
-
-  background: '#1a1817',
-  surface: '#1a1817',
-  surfaceContainerLowest: '#252322',
-  surfaceContainerLow: '#2e2c2a',
-  surfaceContainer: '#373533',
-  surfaceContainerHigh: '#403d3b',
-  surfaceContainerHighest: '#555351',
-  primary: '#e8e6e3',
-  primaryContainer: '#343231',
-  primaryLight: '#ff5722',
-  secondary: '#ff5722',
-  secondaryContainer: '#343231',
-  tertiary: '#00d960',
-  tertiaryContainer: '#ffcc44',
-  text: '#c8c6c3',
-  textSecondary: '#a09e9b',
-  onSurface: '#c8c6c3',
-  onSurfaceVariant: '#a09e9b',
-  outline: '#555351',
-  outlineVariant: '#373533',
-  border: '#373533',
-  error: '#ff4757',
-  errorContainer: '#ff4757',
-  warning: '#ffcc44',
-  success: '#00d960',
-};
-
 const sharedSpacing = {
   xxs: 4,
   xs: 8,
@@ -128,7 +72,7 @@ const sharedTypography = {
     regular: '400' as const,
     medium: '500' as const,
     semibold: '600' as const,
-    bold: '600' as const,
+    bold: '700' as const,
   },
   fontFamily: {
     inter: 'Inter',
@@ -154,23 +98,15 @@ const sharedBorderRadius = {
   button: 32,
 } as const;
 
-export const lightTheme = {
+export const theme = {
   colors: lightColors,
   spacing: sharedSpacing,
   typography: sharedTypography,
   borderRadius: sharedBorderRadius,
 } as const;
 
-export const darkTheme = {
-  colors: darkColors,
-  spacing: sharedSpacing,
-  typography: sharedTypography,
-  borderRadius: sharedBorderRadius,
-} as const;
+export type AppTheme = typeof theme;
 
-export type AppTheme = typeof lightTheme | typeof darkTheme;
-
-export function useAppTheme() {
-  const colorScheme = useColorScheme();
-  return colorScheme === 'dark' ? darkTheme : lightTheme;
+export function useAppTheme(): AppTheme {
+  return theme;
 }

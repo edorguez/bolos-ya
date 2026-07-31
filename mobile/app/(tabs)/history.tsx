@@ -9,7 +9,6 @@ import { HistoryCard } from '../../components/history/HistoryCard';
 import { useAppTheme } from '../../styles/theme';
 import { useAuth } from '../../store/authStore';
 import { getCarts } from '../../services/historyService';
-import { syncService } from '../../services/syncService';
 import { getCartIcon, getCartColorKey } from '../../utils/iconUtils';
 import { formatDate } from '../../utils/dateUtils';
 import type { ApiCartResponse } from '../../types';
@@ -42,8 +41,6 @@ export default function HistoryTab() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOfflineData, setIsOfflineData] = useState(false);
-  const [pendingSyncCount, setPendingSyncCount] = useState(0);
-
   const fetchCarts = useCallback(async () => {
     if (!user?.id && !user?.userId) {
       setIsLoading(false);
@@ -77,14 +74,6 @@ export default function HistoryTab() {
     }, [isAuthLoading, fetchCarts])
   );
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const count = await syncService.getPendingCount();
-      setPendingSyncCount(count);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   const handleRefresh = useCallback(async () => {
     setIsLoading(true);
     await fetchCarts();
@@ -104,19 +93,6 @@ export default function HistoryTab() {
           title="Historial de Compras"
           subtitle="Revisa tus gastos pasados y optimiza tu presupuesto."
         />
-
-        {pendingSyncCount > 0 && (
-          <Text
-            style={{
-              fontSize: 10,
-              color: theme.colors.emberOrange,
-              textAlign: 'center',
-              marginBottom: 8,
-            }}
-          >
-            {pendingSyncCount} cambio(s) pendiente(s) de sincronizar
-          </Text>
-        )}
 
         {isOfflineData && (
           <Text
