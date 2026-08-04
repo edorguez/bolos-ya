@@ -7,7 +7,7 @@ import {
   type TextStyle,
   LayoutAnimation,
 } from 'react-native';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAppTheme } from '../../styles/theme';
 import { AmountInput } from '../shared/AmountInput';
 import { Button } from '../Button';
@@ -38,12 +38,12 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
   const theme = useAppTheme();
   const { rate: exchangeRate } = useBCV();
   const EXCHANGE_RATE = exchangeRate?.usdRate ?? 0;
-  const styles = createProductFormStyles(theme);
+  const styles = useMemo(() => createProductFormStyles(theme), [theme]);
 
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState(1);
-  const [bsPrice, setBsPrice] = useState(0);
-  const [usdPrice, setUsdPrice] = useState(0);
+  const [bsPrice, setBsPrice] = useState<number | null>(null);
+  const [usdPrice, setUsdPrice] = useState<number | null>(null);
   const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -67,18 +67,6 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
     prevTopCurrency.current = topCurrency;
   }, [topCurrency]);
 
-  useEffect(() => {
-    if (bsEditable) {
-      setUsdPrice(bsPrice / EXCHANGE_RATE);
-    }
-  }, [bsPrice, bsEditable, EXCHANGE_RATE]);
-
-  useEffect(() => {
-    if (!bsEditable) {
-      setBsPrice(usdPrice * EXCHANGE_RATE);
-    }
-  }, [usdPrice, bsEditable, EXCHANGE_RATE]);
-
   // Initialize form with initialData
   useEffect(() => {
     if (initialData) {
@@ -91,15 +79,32 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
     }
   }, [initialData]);
 
-  const handleBsPriceChange = (value: number | null) => {
-    setBsPrice(value ?? 0);
-    setErrors(prev => ({ ...prev, bsPrice: '' }));
+  const clearFieldError = (field: string) => {
+    setErrors(prev => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
   };
 
-  const handleUsdPriceChange = (value: number | null) => {
-    setUsdPrice(value ?? 0);
-    setErrors(prev => ({ ...prev, usdPrice: '' }));
-  };
+  const handleBsPriceChange = useCallback(
+    (value: number | null) => {
+      setBsPrice(value);
+      setUsdPrice(value != null && EXCHANGE_RATE > 0 ? value / EXCHANGE_RATE : null);
+      clearFieldError('bsPrice');
+    },
+    [EXCHANGE_RATE]
+  );
+
+  const handleUsdPriceChange = useCallback(
+    (value: number | null) => {
+      setUsdPrice(value);
+      setBsPrice(value != null && EXCHANGE_RATE > 0 ? value * EXCHANGE_RATE : null);
+      clearFieldError('usdPrice');
+    },
+    [EXCHANGE_RATE]
+  );
 
   const toggleEditableCurrency = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -131,8 +136,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
       newErrors.name = 'El nombre no puede exceder 100 caracteres';
     }
 
-    const bsValue = bsPrice;
-    const usdValue = usdPrice;
+    const bsValue = bsPrice ?? 0;
+    const usdValue = usdPrice ?? 0;
 
     if (bsValue <= 0 && usdValue <= 0) {
       newErrors.price = 'Ingresa un precio en Bs. o USD';
@@ -151,8 +156,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
       return;
     }
 
-    const bsValue = bsPrice;
-    const usdValue = usdPrice;
+    const bsValue = bsPrice ?? 0;
+    const usdValue = usdPrice ?? 0;
 
     let finalBs = bsValue;
     let finalUsd = usdValue;
@@ -175,8 +180,8 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
     // Reset form
     setName('');
     setQuantity(1);
-    setBsPrice(0);
-    setUsdPrice(0);
+    setBsPrice(null);
+    setUsdPrice(null);
     setTopCurrency('BS');
     setErrors({});
   };

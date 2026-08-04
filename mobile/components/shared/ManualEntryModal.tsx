@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -30,14 +30,14 @@ interface ManualEntryModalProps {
 
 export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryModalProps) {
   const theme = useAppTheme();
-  const styles = createManualEntryModalStyles(theme);
+  const styles = useMemo(() => createManualEntryModalStyles(theme), [theme]);
   const { rate: exchangeRate } = useBCV();
   const EXCHANGE_RATE = exchangeRate?.usdRate ?? 55;
 
   const [name, setName] = useState('');
   const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS');
-  const [bsAmount, setBsAmount] = useState(0);
-  const [usdAmount, setUsdAmount] = useState(0);
+  const [bsAmount, setBsAmount] = useState<number | null>(null);
+  const [usdAmount, setUsdAmount] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
 
@@ -48,25 +48,21 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
 
   const isBsEditable = topCurrency === 'BS';
 
-  const handleBsChange = (value: number | null) => {
-    const bsVal = value ?? 0;
-    setBsAmount(bsVal);
-    if (bsVal > 0) {
-      setUsdAmount(bsVal / EXCHANGE_RATE);
-    } else {
-      setUsdAmount(0);
-    }
-  };
+  const handleBsChange = useCallback(
+    (value: number | null) => {
+      setBsAmount(value);
+      setUsdAmount(value != null && value > 0 ? value / EXCHANGE_RATE : null);
+    },
+    [EXCHANGE_RATE]
+  );
 
-  const handleUsdChange = (value: number | null) => {
-    const usdVal = value ?? 0;
-    setUsdAmount(usdVal);
-    if (usdVal > 0) {
-      setBsAmount(usdVal * EXCHANGE_RATE);
-    } else {
-      setBsAmount(0);
-    }
-  };
+  const handleUsdChange = useCallback(
+    (value: number | null) => {
+      setUsdAmount(value);
+      setBsAmount(value != null && value > 0 ? value * EXCHANGE_RATE : null);
+    },
+    [EXCHANGE_RATE]
+  );
 
   const handleSubmit = () => {
     setError(null);
@@ -81,8 +77,8 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
       return;
     }
 
-    const priceBs = isBsEditable ? bsAmount : usdAmount * EXCHANGE_RATE;
-    const priceUsd = isBsEditable ? bsAmount / EXCHANGE_RATE : usdAmount;
+    const priceBs = isBsEditable ? (bsAmount ?? 0) : (usdAmount ?? 0) * EXCHANGE_RATE;
+    const priceUsd = isBsEditable ? (bsAmount ?? 0) / EXCHANGE_RATE : (usdAmount ?? 0);
 
     if (priceBs <= 0 && priceUsd <= 0) {
       setError('Ingresa un precio válido');
@@ -121,8 +117,8 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
     if (isVisible) {
       setName('');
       setTopCurrency('BS');
-      setBsAmount(0);
-      setUsdAmount(0);
+      setBsAmount(null);
+      setUsdAmount(null);
       setError(null);
       setQuantity(1);
     }

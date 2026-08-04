@@ -6,6 +6,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
+import { useMemo } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { AmountInput } from '../shared/AmountInput';
 import { useAppTheme } from '../../styles/theme';
@@ -13,8 +14,8 @@ import { createHomeStyles } from '../../styles/homeStyles';
 
 interface BudgetFieldsProps {
   topCurrency: 'BS' | 'USD';
-  budgetBs: number;
-  budgetUsd: number;
+  budgetBs: number | null;
+  budgetUsd: number | null;
   fieldErrors: Record<string, string>;
   onBsChange: (value: number | null) => void;
   onUsdChange: (value: number | null) => void;
@@ -31,7 +32,7 @@ export function BudgetFields({
   onToggleCurrency,
 }: BudgetFieldsProps) {
   const theme = useAppTheme();
-  const styles = createHomeStyles(theme);
+  const styles = useMemo(() => createHomeStyles(theme), [theme]);
 
   const handleToggle = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);

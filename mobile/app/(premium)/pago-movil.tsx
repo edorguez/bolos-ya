@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -93,7 +93,7 @@ export default function PagoMovilScreen() {
   const [userBank, setUserBank] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [amountBs, setAmountBs] = useState(0);
+  const amountBsRef = useRef<number | null>(null);
   const [referenceNumber, setReferenceNumber] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<string | null>(null);
@@ -145,7 +145,7 @@ export default function PagoMovilScreen() {
     if (!ciPrefix || !userCI.trim()) errors.ci = 'required';
     if (!userBank) errors.bank = 'required';
     if (!paymentDate) errors.date = 'required';
-    if (!amountBs || amountBs <= 0) errors.amount = 'required';
+    if (!amountBsRef.current || amountBsRef.current <= 0) errors.amount = 'required';
     if (!referenceNumber.trim()) errors.reference = 'required';
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) {
@@ -167,7 +167,7 @@ export default function PagoMovilScreen() {
           numberOfMonths: monthsMap[billing] || 1,
           referenceNumber: referenceNumber.trim(),
           bankName: userBank,
-          amountBs,
+          amountBs: amountBsRef.current ?? 0,
           amountUsd: usdValue,
           priceBcv: bcvRate?.usdRate ?? 0,
           identification: `${ciPrefix}${userCI.trim()}`,
@@ -182,196 +182,200 @@ export default function PagoMovilScreen() {
     }
   };
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    scrollContent: {
-      padding: theme.spacing.lg,
-      gap: theme.spacing.md,
-      paddingBottom: 180,
-    },
-    summaryCard: {
-      backgroundColor: theme.colors.surfaceContainerLowest,
-      borderRadius: theme.borderRadius.md,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-      padding: theme.spacing.md,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    summaryLeft: {
-      gap: 2,
-    },
-    summaryPlan: {
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.midnight,
-    },
-    summaryRate: {
-      fontSize: theme.typography.fontSize.xs,
-      fontWeight: theme.typography.fontWeight.regular,
-      color: theme.colors.ash,
-    },
-    summaryRight: {
-      alignItems: 'flex-end',
-      gap: 2,
-    },
-    summaryUsd: {
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.midnight,
-    },
-    summaryBs: {
-      fontSize: theme.typography.fontSize.xs,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.meadowGreen,
-    },
-    card: {
-      backgroundColor: theme.colors.surfaceContainerLowest,
-      borderRadius: 24,
-      borderCurve: 'continuous',
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-      padding: theme.spacing.xl,
-      gap: theme.spacing.md,
-    },
-    sectionLabel: {
-      fontSize: theme.typography.fontSize.xs,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.onSurfaceVariant,
-      textTransform: 'uppercase',
-      letterSpacing: 1,
-    },
-    infoHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-      marginBottom: theme.spacing.xs,
-    },
-    infoTitle: {
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.midnight,
-    },
-    infoRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    infoLabel: {
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.medium,
-      color: theme.colors.ash,
-    },
-    infoValue: {
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.midnight,
-    },
-    infoAmountRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginTop: theme.spacing.xs,
-      paddingTop: theme.spacing.sm,
-      borderTopWidth: 1,
-      borderTopColor: theme.colors.stoneSurface,
-    },
-    infoAmountLabel: {
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.midnight,
-    },
-    infoAmountValue: {
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.bold,
-      color: theme.colors.midnight,
-    },
-    inputGroup: {
-      gap: theme.spacing.sm,
-    },
-    label: {
-      fontSize: theme.typography.fontSize.xs,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.onSurfaceVariant,
-      textTransform: 'uppercase',
-      letterSpacing: 1,
-      marginLeft: theme.spacing.sm,
-    },
-    textInput: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.sm,
-      fontSize: theme.typography.fontSize.sm,
-      color: theme.colors.text,
-    },
-    inputError: {
-      borderColor: theme.colors.error,
-    },
-    dateInput: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.sm,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    noteContainer: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: theme.spacing.sm,
-      backgroundColor: theme.colors.surfaceContainerLowest,
-      borderRadius: 24,
-      borderCurve: 'continuous',
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-      padding: theme.spacing.md,
-    },
-    noteText: {
-      flex: 1,
-      fontSize: theme.typography.fontSize.xs,
-      fontWeight: theme.typography.fontWeight.medium,
-      color: theme.colors.ash,
-      lineHeight: 18,
-    },
-    noteTextBold: {
-      color: theme.colors.black,
-      fontWeight: theme.typography.fontWeight.bold,
-    },
-    footer: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: theme.colors.surfaceContainerLowest,
-      borderTopWidth: 1,
-      borderTopColor: theme.colors.stoneSurface,
-      padding: theme.spacing.lg,
-    },
-    submitButton: {
-      backgroundColor: theme.colors.midnight,
-      borderRadius: theme.borderRadius.button,
-      paddingVertical: theme.spacing.md,
-      alignItems: 'center',
-    },
-    submitButtonPressed: {
-      opacity: 0.8,
-    },
-    submitText: {
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.white,
-    },
-  });
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: theme.colors.background,
+        },
+        scrollContent: {
+          padding: theme.spacing.lg,
+          gap: theme.spacing.md,
+          paddingBottom: 180,
+        },
+        summaryCard: {
+          backgroundColor: theme.colors.surfaceContainerLowest,
+          borderRadius: theme.borderRadius.md,
+          borderWidth: 1,
+          borderColor: theme.colors.stoneSurface,
+          padding: theme.spacing.md,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        },
+        summaryLeft: {
+          gap: 2,
+        },
+        summaryPlan: {
+          fontSize: theme.typography.fontSize.sm,
+          fontWeight: theme.typography.fontWeight.semibold,
+          color: theme.colors.midnight,
+        },
+        summaryRate: {
+          fontSize: theme.typography.fontSize.xs,
+          fontWeight: theme.typography.fontWeight.regular,
+          color: theme.colors.ash,
+        },
+        summaryRight: {
+          alignItems: 'flex-end',
+          gap: 2,
+        },
+        summaryUsd: {
+          fontSize: theme.typography.fontSize.sm,
+          fontWeight: theme.typography.fontWeight.semibold,
+          color: theme.colors.midnight,
+        },
+        summaryBs: {
+          fontSize: theme.typography.fontSize.xs,
+          fontWeight: theme.typography.fontWeight.semibold,
+          color: theme.colors.meadowGreen,
+        },
+        card: {
+          backgroundColor: theme.colors.surfaceContainerLowest,
+          borderRadius: 24,
+          borderCurve: 'continuous',
+          borderWidth: 1,
+          borderColor: theme.colors.stoneSurface,
+          padding: theme.spacing.xl,
+          gap: theme.spacing.md,
+        },
+        sectionLabel: {
+          fontSize: theme.typography.fontSize.xs,
+          fontWeight: theme.typography.fontWeight.semibold,
+          color: theme.colors.onSurfaceVariant,
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+        },
+        infoHeader: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing.sm,
+          marginBottom: theme.spacing.xs,
+        },
+        infoTitle: {
+          fontSize: theme.typography.fontSize.sm,
+          fontWeight: theme.typography.fontWeight.semibold,
+          color: theme.colors.midnight,
+        },
+        infoRow: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        },
+        infoLabel: {
+          fontSize: theme.typography.fontSize.sm,
+          fontWeight: theme.typography.fontWeight.medium,
+          color: theme.colors.ash,
+        },
+        infoValue: {
+          fontSize: theme.typography.fontSize.sm,
+          fontWeight: theme.typography.fontWeight.semibold,
+          color: theme.colors.midnight,
+        },
+        infoAmountRow: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: theme.spacing.xs,
+          paddingTop: theme.spacing.sm,
+          borderTopWidth: 1,
+          borderTopColor: theme.colors.stoneSurface,
+        },
+        infoAmountLabel: {
+          fontSize: theme.typography.fontSize.sm,
+          fontWeight: theme.typography.fontWeight.semibold,
+          color: theme.colors.midnight,
+        },
+        infoAmountValue: {
+          fontSize: theme.typography.fontSize.sm,
+          fontWeight: theme.typography.fontWeight.bold,
+          color: theme.colors.midnight,
+        },
+        inputGroup: {
+          gap: theme.spacing.sm,
+        },
+        label: {
+          fontSize: theme.typography.fontSize.xs,
+          fontWeight: theme.typography.fontWeight.semibold,
+          color: theme.colors.onSurfaceVariant,
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+          marginLeft: theme.spacing.sm,
+        },
+        textInput: {
+          backgroundColor: theme.colors.surfaceContainerLow,
+          borderWidth: 1,
+          borderColor: theme.colors.stoneSurface,
+          borderRadius: theme.borderRadius.md,
+          paddingHorizontal: theme.spacing.sm,
+          paddingVertical: theme.spacing.sm,
+          fontSize: theme.typography.fontSize.sm,
+          color: theme.colors.text,
+        },
+        inputError: {
+          borderColor: theme.colors.error,
+        },
+        dateInput: {
+          backgroundColor: theme.colors.surfaceContainerLow,
+          borderWidth: 1,
+          borderColor: theme.colors.stoneSurface,
+          borderRadius: theme.borderRadius.md,
+          paddingHorizontal: theme.spacing.sm,
+          paddingVertical: theme.spacing.sm,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        },
+        noteContainer: {
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          gap: theme.spacing.sm,
+          backgroundColor: theme.colors.surfaceContainerLowest,
+          borderRadius: 24,
+          borderCurve: 'continuous',
+          borderWidth: 1,
+          borderColor: theme.colors.stoneSurface,
+          padding: theme.spacing.md,
+        },
+        noteText: {
+          flex: 1,
+          fontSize: theme.typography.fontSize.xs,
+          fontWeight: theme.typography.fontWeight.medium,
+          color: theme.colors.ash,
+          lineHeight: 18,
+        },
+        noteTextBold: {
+          color: theme.colors.black,
+          fontWeight: theme.typography.fontWeight.bold,
+        },
+        footer: {
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: theme.colors.surfaceContainerLowest,
+          borderTopWidth: 1,
+          borderTopColor: theme.colors.stoneSurface,
+          padding: theme.spacing.lg,
+        },
+        submitButton: {
+          backgroundColor: theme.colors.midnight,
+          borderRadius: theme.borderRadius.button,
+          paddingVertical: theme.spacing.md,
+          alignItems: 'center',
+        },
+        submitButtonPressed: {
+          opacity: 0.8,
+        },
+        submitText: {
+          fontSize: theme.typography.fontSize.sm,
+          fontWeight: theme.typography.fontWeight.semibold,
+          color: theme.colors.white,
+        },
+      }),
+    [theme]
+  );
 
   return (
     <View style={styles.container}>
@@ -499,9 +503,9 @@ export default function PagoMovilScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Monto en Bs *</Text>
             <AmountInput
-              value={amountBs}
+              value={amountBsRef.current}
               onValueChange={val => {
-                setAmountBs(val ?? 0);
+                amountBsRef.current = val;
                 clearFieldError('amount');
               }}
               placeholder="0,00"
