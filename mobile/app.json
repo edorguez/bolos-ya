@@ -70,7 +70,8 @@
           },
           "android": {
             "compileSdkVersion": 36,
-            "buildConfig": true
+            "buildConfig": true,
+            "abiFilters": ["arm64-v8a"]
           }
         }
       ],

@@ -1,12 +1,9 @@
 import { Platform } from 'react-native';
 
-function requireEnvVar(key: string): string {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${key}`);
-  }
-  return value;
-}
+// Production fallbacks so release builds never crash on missing env vars.
+// Override at build time via EXPO_PUBLIC_BETTER_AUTH_URL / EXPO_PUBLIC_GO_BACKEND_URL.
+const DEFAULT_AUTH_URL = 'https://auth.edezco.com/api/auth';
+const DEFAULT_BACKEND_URL = 'https://api.edezco.com/api/v1';
 
 function getDevHost(): string {
   if (Platform.OS === 'ios') {
@@ -17,14 +14,14 @@ function getDevHost(): string {
 
 export function getAuthBaseUrl(): string {
   if (!__DEV__) {
-    return requireEnvVar('EXPO_PUBLIC_BETTER_AUTH_URL');
+    return process.env.EXPO_PUBLIC_BETTER_AUTH_URL || DEFAULT_AUTH_URL;
   }
   return `http://${getDevHost()}:3001/api/auth`;
 }
 
 export function getGoBackendUrl(): string {
   if (!__DEV__) {
-    return requireEnvVar('EXPO_PUBLIC_GO_BACKEND_URL');
+    return process.env.EXPO_PUBLIC_GO_BACKEND_URL || DEFAULT_BACKEND_URL;
   }
   return `http://${getDevHost()}:8080/api/v1`;
 }

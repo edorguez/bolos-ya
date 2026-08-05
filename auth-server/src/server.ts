@@ -136,7 +136,21 @@ app.get('/api/auth/expo-authorization-proxy', async (c) => {
 })
 
 app.all('/api/auth/*', async (c) => {
-  return auth.handler(c.req.raw)
+  const req = c.req.raw
+
+  // better-auth/better-call throws "Unexpected end of JSON input" on POSTs
+  // with Content-Type: application/json but an empty body (e.g. anonymous
+  // sign-in, sign-out). Normalize those to an empty JSON object.
+  if (req.method === 'POST' && (req.headers.get('content-type') || '').includes('application/json')) {
+    const rawBody = await req.clone().text()
+    if (!rawBody.trim()) {
+      const headers = new Headers(req.headers)
+      headers.delete('content-length')
+      return auth.handler(new Request(req.url, { method: req.method, headers, body: '{}' }))
+    }
+  }
+
+  return auth.handler(req)
 })
 
 app.get('/health', (c) => c.text('OK'))
