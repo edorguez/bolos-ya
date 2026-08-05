@@ -14,24 +14,23 @@ async function getSessionToken(): Promise<string | null> {
   if (sessionTokenPromise) return sessionTokenPromise;
 
   sessionTokenPromise = (async () => {
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const raw = await SecureStore.getItemAsync(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          const token = parsed['better-auth.session_token']?.value;
-          if (token) {
-            cachedSessionToken = token;
-            return token;
-          }
+    try {
+      const raw = await SecureStore.getItemAsync(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const token = parsed['better-auth.session_token']?.value;
+        if (token) {
+          cachedSessionToken = token;
+          return token;
         }
-      } catch {
-        // Proceed without session JWT
       }
-      if (attempt < 2) await new Promise(r => setTimeout(r, 50));
+    } catch {
+      // Proceed without session JWT
     }
     return null;
-  })();
+  })().finally(() => {
+    sessionTokenPromise = null;
+  });
 
   return sessionTokenPromise;
 }

@@ -79,7 +79,7 @@ export const syncService = {
     try {
       const network = await import('expo-network');
       const state = await network.getNetworkStateAsync();
-      if (state.isConnected && state.isInternetReachable) {
+      if (state.isConnected && state.isInternetReachable !== false) {
         await this.syncAll(userId);
       }
     } catch {

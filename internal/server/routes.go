@@ -38,7 +38,7 @@ func SetupRoutes(
 
 	authHandler := handlers.NewAuthHandler(authService, syncService)
 	cartHandler := handlers.NewCartHandler(cartService)
-	syncHandler := handlers.NewSyncHandler(syncService)
+	syncHandler := handlers.NewSyncHandler(syncService, log)
 	paymentHandler := handlers.NewPaymentHandler(paymentService)
 	rejectionReasonHandler := handlers.NewRejectionReasonHandler(rejectionReasonService)
 	paymentStatusHandler := handlers.NewPaymentStatusHandler(paymentStatusService)

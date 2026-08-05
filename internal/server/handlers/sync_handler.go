@@ -6,21 +6,25 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 
 	"github.com/edorguez/bolos-ya/internal/server/dto"
 	"github.com/edorguez/bolos-ya/internal/server/middleware"
 	"github.com/edorguez/bolos-ya/internal/server/services"
 	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
+	"github.com/edorguez/bolos-ya/pkg/logger"
 	"github.com/edorguez/bolos-ya/pkg/utils"
 )
 
 type SyncHandler struct {
 	syncService services.SyncService
+	log         *logger.Logger
 }
 
-func NewSyncHandler(syncService services.SyncService) *SyncHandler {
+func NewSyncHandler(syncService services.SyncService, log *logger.Logger) *SyncHandler {
 	return &SyncHandler{
 		syncService: syncService,
+		log:         log,
 	}
 }
 
@@ -43,10 +47,28 @@ func (h *SyncHandler) ProcessSync(c *gin.Context) {
 		return
 	}
 
+	h.log.Info("sync request received", zap.Int("operations", len(req.Operations)))
+
 	resp, err := h.syncService.ProcessSync(c.Request.Context(), userID, req.Operations)
 	if err != nil {
 		h.handleError(c, err)
 		return
+	}
+
+	for i, r := range resp.Results {
+		table := ""
+		action := ""
+		if i < len(req.Operations) {
+			table = string(req.Operations[i].Table)
+			action = string(req.Operations[i].Action)
+		}
+		h.log.Info("sync op result",
+			zap.String("table", table),
+			zap.String("action", action),
+			zap.String("localId", r.LocalID),
+			zap.Bool("success", r.Success),
+			zap.String("error", r.Error),
+		)
 	}
 
 	utils.SuccessResponse(c, resp)
