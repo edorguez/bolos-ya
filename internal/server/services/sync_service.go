@@ -70,6 +70,8 @@ func (s *syncService) ProcessSync(ctx context.Context, userID uuid.UUID, operati
 			serverVersion, err = s.processCartProductOperation(ctx, userID, op)
 		default:
 			result.Error = "tabla desconocida"
+			results[i] = result
+			continue
 		}
 
 		if err != nil {

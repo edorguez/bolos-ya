@@ -15,6 +15,11 @@ export interface SyncQueueItem {
   retryCount: number;
 }
 
+// expo-sqlite returns rows keyed by the snake_case column names, but the
+// SyncQueueItem interface uses camelCase. Alias the columns so consumers get
+// the expected fields.
+const SYNC_QUEUE_COLUMNS = `id, table_name AS tableName, action, local_id AS localId, payload, status, error, created_at AS createdAt, retry_count AS retryCount`;
+
 export const syncQueue = {
   async enqueue(
     table: SyncTable,
@@ -34,7 +39,7 @@ export const syncQueue = {
   async getPending(limit: number = 50): Promise<SyncQueueItem[]> {
     const database = await getDb();
     return database.getAllAsync<SyncQueueItem>(
-      `SELECT * FROM sync_queue WHERE status IN ('pending', 'failed') ORDER BY id ASC LIMIT ?`,
+      `SELECT ${SYNC_QUEUE_COLUMNS} FROM sync_queue WHERE status IN ('pending', 'failed') ORDER BY id ASC LIMIT ?`,
       [limit]
     );
   },
@@ -52,7 +57,7 @@ export const syncQueue = {
   async markFailed(id: number, error: string): Promise<void> {
     const database = await getDb();
     const item = await database.getFirstAsync<SyncQueueItem>(
-      'SELECT * FROM sync_queue WHERE id = ?',
+      `SELECT ${SYNC_QUEUE_COLUMNS} FROM sync_queue WHERE id = ?`,
       [id]
     );
     const retryCount = (item?.retryCount ?? 0) + 1;

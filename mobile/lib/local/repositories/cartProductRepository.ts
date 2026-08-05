@@ -1,11 +1,11 @@
 import { getDb, generateLocalId } from '../database';
-import type { LocalCartProduct } from './cartRepository';
+import { CART_PRODUCT_COLUMNS, type LocalCartProduct } from './cartRepository';
 
 export const cartProductRepository = {
   async getByCartId(cartId: string): Promise<LocalCartProduct[]> {
     const database = await getDb();
     const rows = await database.getAllAsync<LocalCartProduct>(
-      'SELECT * FROM cart_products WHERE cart_id = ? AND deleted_at IS NULL ORDER BY created_at ASC',
+      `SELECT ${CART_PRODUCT_COLUMNS} FROM cart_products WHERE cart_id = ? AND deleted_at IS NULL ORDER BY created_at ASC`,
       [cartId]
     );
     return rows.map(r => ({
@@ -31,7 +31,7 @@ export const cartProductRepository = {
     const now = new Date().toISOString();
 
     const existing = await database.getFirstAsync<LocalCartProduct>(
-      'SELECT * FROM cart_products WHERE id = ?',
+      `SELECT ${CART_PRODUCT_COLUMNS} FROM cart_products WHERE id = ?`,
       [id]
     );
 
@@ -76,7 +76,7 @@ export const cartProductRepository = {
     }
 
     const saved = await database.getFirstAsync<LocalCartProduct>(
-      'SELECT * FROM cart_products WHERE id = ?',
+      `SELECT ${CART_PRODUCT_COLUMNS} FROM cart_products WHERE id = ?`,
       [id]
     );
 

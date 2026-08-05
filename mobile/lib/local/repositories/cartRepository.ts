@@ -35,11 +35,17 @@ export interface LocalCartProduct {
   updatedAt: string;
 }
 
+// expo-sqlite returns rows keyed by snake_case column names; alias them so the
+// camelCase interface fields are populated.
+const CART_COLUMNS = `id, supermarket_id AS supermarketId, supermarket_name AS supermarketName, user_id AS userId, is_active AS isActive, budget_bs AS budgetBs, budget_usd AS budgetUsd, total_estimated_bs AS totalEstimatedBs, total_estimated_usd AS totalEstimatedUsd, created_at AS createdAt, updated_at AS updatedAt, deleted_at AS deletedAt, synced_at AS syncedAt`;
+
+export const CART_PRODUCT_COLUMNS = `id, cart_id AS cartId, product_id AS productId, name, price_bs AS priceBs, price_usd AS priceUsd, quantity, is_manual_entry AS isManualEntry, image_url AS imageUrl, supermarket, created_at AS createdAt, updated_at AS updatedAt, deleted_at AS deletedAt`;
+
 export const cartRepository = {
   async getAll(userId?: string): Promise<LocalCart[]> {
     const database = await getDb();
     const rows = await database.getAllAsync<LocalCart>(
-      `SELECT * FROM carts WHERE deleted_at IS NULL ${
+      `SELECT ${CART_COLUMNS} FROM carts WHERE deleted_at IS NULL ${
         userId ? 'AND user_id = ?' : ''
       } ORDER BY created_at DESC`,
       userId ? [userId] : []
@@ -53,13 +59,13 @@ export const cartRepository = {
   async getById(id: string): Promise<LocalCartWithProducts | null> {
     const database = await getDb();
     const cart = await database.getFirstAsync<LocalCart>(
-      'SELECT * FROM carts WHERE id = ? AND deleted_at IS NULL',
+      `SELECT ${CART_COLUMNS} FROM carts WHERE id = ? AND deleted_at IS NULL`,
       [id]
     );
     if (!cart) return null;
 
     const products = await database.getAllAsync<LocalCartProduct>(
-      'SELECT * FROM cart_products WHERE cart_id = ? AND deleted_at IS NULL ORDER BY created_at ASC',
+      `SELECT ${CART_PRODUCT_COLUMNS} FROM cart_products WHERE cart_id = ? AND deleted_at IS NULL ORDER BY created_at ASC`,
       [id]
     );
 
@@ -86,9 +92,10 @@ export const cartRepository = {
     const id = cart.id || generateLocalId();
     const now = new Date().toISOString();
 
-    const existing = await database.getFirstAsync<LocalCart>('SELECT * FROM carts WHERE id = ?', [
-      id,
-    ]);
+    const existing = await database.getFirstAsync<LocalCart>(
+      `SELECT ${CART_COLUMNS} FROM carts WHERE id = ?`,
+      [id]
+    );
 
     if (existing) {
       await database.runAsync(
@@ -196,7 +203,7 @@ export const cartRepository = {
   async getActive(userId?: string): Promise<LocalCart[]> {
     const database = await getDb();
     const rows = await database.getAllAsync<LocalCart>(
-      `SELECT * FROM carts WHERE is_active = 1 AND deleted_at IS NULL ${
+      `SELECT ${CART_COLUMNS} FROM carts WHERE is_active = 1 AND deleted_at IS NULL ${
         userId ? 'AND user_id = ?' : ''
       } ORDER BY created_at DESC`,
       userId ? [userId] : []

@@ -10,11 +10,15 @@ export interface LocalSupermarket {
   updatedAt: string;
 }
 
+// expo-sqlite returns rows keyed by snake_case column names; alias them so the
+// camelCase interface fields are populated.
+const SUPERMARKET_COLUMNS = `id, name, is_custom AS isCustom, image_url AS imageUrl, user_id AS userId, created_at AS createdAt, updated_at AS updatedAt, deleted_at AS deletedAt`;
+
 export const supermarketRepository = {
   async getAll(): Promise<LocalSupermarket[]> {
     const database = await getDb();
     const rows = await database.getAllAsync<LocalSupermarket>(
-      'SELECT * FROM supermarkets WHERE deleted_at IS NULL ORDER BY is_custom ASC, name ASC'
+      `SELECT ${SUPERMARKET_COLUMNS} FROM supermarkets WHERE deleted_at IS NULL ORDER BY is_custom ASC, name ASC`
     );
     return rows.map(r => ({
       ...r,
@@ -25,7 +29,7 @@ export const supermarketRepository = {
   async getById(id: string): Promise<LocalSupermarket | null> {
     const database = await getDb();
     const row = await database.getFirstAsync<LocalSupermarket>(
-      'SELECT * FROM supermarkets WHERE id = ? AND deleted_at IS NULL',
+      `SELECT ${SUPERMARKET_COLUMNS} FROM supermarkets WHERE id = ? AND deleted_at IS NULL`,
       [id]
     );
     if (!row) return null;
@@ -43,7 +47,7 @@ export const supermarketRepository = {
     const now = new Date().toISOString();
 
     const existing = await database.getFirstAsync<LocalSupermarket>(
-      'SELECT * FROM supermarkets WHERE id = ?',
+      `SELECT ${SUPERMARKET_COLUMNS} FROM supermarkets WHERE id = ?`,
       [supermarket.id]
     );
 
@@ -83,7 +87,7 @@ export const supermarketRepository = {
 
     for (const s of supermarkets) {
       const existing = await database.getFirstAsync<LocalSupermarket>(
-        'SELECT * FROM supermarkets WHERE id = ?',
+        `SELECT ${SUPERMARKET_COLUMNS} FROM supermarkets WHERE id = ?`,
         [s.id]
       );
 
