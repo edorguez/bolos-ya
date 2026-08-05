@@ -319,42 +319,9 @@ func (s *syncService) processCartOperation(ctx context.Context, userID uuid.UUID
 }
 
 func (s *syncService) handleCartInsert(ctx context.Context, userID uuid.UUID, op dto.SyncOperation) (map[string]any, error) {
-	var supermarketID uuid.UUID
-
-	if supermarketIDStr, ok := op.Payload["supermarketId"].(string); ok && supermarketIDStr != "" {
-		var err error
-		supermarketID, err = uuid.Parse(supermarketIDStr)
-		if err != nil {
-			return nil, fmt.Errorf("ID de supermercado inválido")
-		}
-
-		_, err = s.supermarketRepo.FindByID(ctx, supermarketID)
-		if err != nil {
-			supermarketID = uuid.New()
-			customSupermarket := models.NewSupermarket(
-				"Supermercado",
-				true,
-				nil,
-				userID,
-			)
-			customSupermarket.ID = supermarketID
-			if err := s.supermarketRepo.Create(ctx, customSupermarket); err != nil {
-				return nil, fmt.Errorf("error al crear supermercado temporal: %w", err)
-			}
-		}
-	} else if newSupermarket, ok := op.Payload["newSupermarket"].(map[string]any); ok {
-		name, _ := newSupermarket["name"].(string)
-		if name == "" {
-			name = "Supermercado"
-		}
-		supermarketID = uuid.New()
-		customSupermarket := models.NewSupermarket(name, true, nil, userID)
-		customSupermarket.ID = supermarketID
-		if err := s.supermarketRepo.Create(ctx, customSupermarket); err != nil {
-			return nil, fmt.Errorf("error al crear supermercado: %w", err)
-		}
-	} else {
-		return nil, fmt.Errorf("ID de supermercado requerido")
+	supermarketID, err := s.resolveSupermarketID(ctx, userID, op)
+	if err != nil {
+		return nil, err
 	}
 
 	budgetBs := int64(0)
@@ -379,6 +346,35 @@ func (s *syncService) handleCartInsert(ctx context.Context, userID uuid.UUID, op
 		"supermarketId":   supermarketID.String(),
 		"supermarketName": "",
 	}, nil
+}
+
+// resolveSupermarketID resolves the supermarket referenced by a sync operation.
+// Missing, invalid (e.g. client-side "local_..." ids), or unknown references
+// fall back to creating a custom supermarket so a cart sync never fails.
+func (s *syncService) resolveSupermarketID(ctx context.Context, userID uuid.UUID, op dto.SyncOperation) (uuid.UUID, error) {
+	if supermarketIDStr, ok := op.Payload["supermarketId"].(string); ok && supermarketIDStr != "" {
+		if id, err := uuid.Parse(supermarketIDStr); err == nil {
+			if _, findErr := s.supermarketRepo.FindByID(ctx, id); findErr == nil {
+				return id, nil
+			}
+		}
+	}
+
+	name := "Supermercado"
+	if newSupermarket, ok := op.Payload["newSupermarket"].(map[string]any); ok {
+		if n, ok := newSupermarket["name"].(string); ok && n != "" {
+			name = n
+		}
+	}
+
+	id := uuid.New()
+	customSupermarket := models.NewSupermarket(name, true, nil, userID)
+	customSupermarket.ID = id
+	if err := s.supermarketRepo.Create(ctx, customSupermarket); err != nil {
+		return uuid.Nil, fmt.Errorf("error al crear supermercado: %w", err)
+	}
+
+	return id, nil
 }
 
 func (s *syncService) handleCartUpdate(ctx context.Context, userID uuid.UUID, op dto.SyncOperation) (map[string]any, error) {

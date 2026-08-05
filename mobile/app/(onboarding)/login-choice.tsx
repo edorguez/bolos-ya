@@ -14,12 +14,24 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import * as Network from 'expo-network';
 import * as SecureStore from 'expo-secure-store';
+import { getStoredSessionToken } from '../../services/api';
 
 const { width, height } = Dimensions.get('window');
 const isLargeScreen = height > 800;
 const isExtraLargeScreen = height > 900;
 
 const OFFLINE_GUEST_KEY = 'bolosya.offline.guest';
+
+async function waitForSessionToken(timeoutMs = 5000): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if ((await getStoredSessionToken()) !== null) {
+      return true;
+    }
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  return false;
+}
 
 export default function LoginChoiceScreen() {
   const router = useRouter();
@@ -33,6 +45,7 @@ export default function LoginChoiceScreen() {
       const networkState = await Network.getNetworkStateAsync();
       if (networkState.isConnected) {
         await signIn.anonymous();
+        await waitForSessionToken();
         router.replace('/(tabs)');
       } else {
         await SecureStore.setItemAsync(

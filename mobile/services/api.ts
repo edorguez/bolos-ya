@@ -41,6 +41,10 @@ export function clearSessionTokenCache(): void {
   sessionTokenPromise = null;
 }
 
+export async function getStoredSessionToken(): Promise<string | null> {
+  return getSessionToken();
+}
+
 async function buildHeaders(userId?: string): Promise<Record<string, string>> {
   const sessionToken = await getSessionToken();
 
