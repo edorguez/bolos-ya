@@ -11,6 +11,7 @@ type Cart struct {
 	models.BaseModel
 	SupermarketID     uuid.UUID    `gorm:"type:uuid;not null"`
 	UserID            uuid.UUID    `gorm:"type:uuid;not null"`
+	LocalID           string       `gorm:"column:local_id;type:text;index"`
 	IsActive          bool         `gorm:"not null;default:true"`
 	BudgetBs          int64        `gorm:"type:bigint;not null;default:0"`
 	BudgetUsd         int64        `gorm:"type:bigint;not null;default:0"`

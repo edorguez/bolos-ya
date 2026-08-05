@@ -2,6 +2,8 @@ import { apiPost } from './api';
 import { syncQueue } from '../lib/local/syncQueue';
 import { cartRepository } from '../lib/local/repositories/cartRepository';
 import { supermarketRepository } from '../lib/local/repositories/supermarketRepository';
+import { useCartStore } from '../store/cartStore';
+import type { ApiResponse } from '../types';
 import type { SyncOperation, SyncResponse } from '../types/sync';
 
 let isSyncing = false;
@@ -35,11 +37,13 @@ export const syncService = {
       let failed = 0;
 
       try {
-        const response = await apiPost<SyncResponse>('/sync', userId, { operations });
+        const response = await apiPost<ApiResponse<SyncResponse>>('/sync', userId, { operations });
+        const results = response.data?.results ?? [];
 
-        for (let i = 0; i < response.results.length; i++) {
-          const result = response.results[i];
+        for (let i = 0; i < results.length; i++) {
+          const result = results[i];
           const item = pending[i];
+          if (!item) continue;
 
           if (result.success) {
             await syncQueue.markCompleted(item.id);
@@ -53,6 +57,13 @@ export const syncService = {
             await syncQueue.markFailed(item.id, result.error || 'Unknown error');
             failed++;
           }
+        }
+
+        // Defensive: if the server returned fewer results than ops sent, fail the
+        // remaining ops so they are retried instead of being dropped.
+        for (let i = results.length; i < pending.length; i++) {
+          await syncQueue.markFailed(pending[i].id, 'no result from server');
+          failed++;
         }
       } catch {
         for (const item of pending) {
@@ -101,12 +112,26 @@ async function handleServerVersion(
   serverVersion: Record<string, unknown>
 ): Promise<void> {
   const serverId = serverVersion.id as string;
+  if (!serverId) return;
 
   if (item.tableName === 'carts' && item.action === 'INSERT') {
     await cartRepository.replaceId(item.localId, serverId);
+    reconcileCartId(item.localId, serverId);
   }
 
   if (item.tableName === 'supermarkets' && item.action === 'INSERT') {
     await supermarketRepository.replaceId(item.localId, serverId);
+  }
+}
+
+// After a cart is synced, the server assigns its own id. Reconcile the zustand
+// store (and active cart) so subsequent product ops target the server cart.
+function reconcileCartId(localId: string, serverId: string): void {
+  const { carts, activeCartId, updateCart, setActiveCart } = useCartStore.getState();
+  if (carts.some(cart => cart.id === localId)) {
+    updateCart(localId, { id: serverId });
+    if (activeCartId === localId) {
+      setActiveCart(serverId);
+    }
   }
 }

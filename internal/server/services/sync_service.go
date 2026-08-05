@@ -321,6 +321,19 @@ func (s *syncService) processCartOperation(ctx context.Context, userID uuid.UUID
 }
 
 func (s *syncService) handleCartInsert(ctx context.Context, userID uuid.UUID, op dto.SyncOperation) (map[string]any, error) {
+	// Idempotency: if a cart with this client-side local id already exists for
+	// the user, return it instead of inserting a duplicate (sync ops can be
+	// re-sent when a response is lost).
+	if op.LocalID != "" {
+		if existing, err := s.cartRepo.FindByLocalID(ctx, userID, op.LocalID); err == nil {
+			return map[string]any{
+				"id":              existing.ID.String(),
+				"supermarketId":   existing.SupermarketID.String(),
+				"supermarketName": "",
+			}, nil
+		}
+	}
+
 	supermarketID, err := s.resolveSupermarketID(ctx, userID, op)
 	if err != nil {
 		return nil, err
@@ -338,6 +351,7 @@ func (s *syncService) handleCartInsert(ctx context.Context, userID uuid.UUID, op
 
 	cart := models.NewCart(userID, supermarketID, true, budgetBs, budgetUsd)
 	cart.ID = uuid.New()
+	cart.LocalID = op.LocalID
 
 	if err := s.cartRepo.Create(ctx, cart); err != nil {
 		return nil, fmt.Errorf("error al crear carrito: %w", err)
@@ -477,7 +491,13 @@ func (s *syncService) handleCartProductInsert(ctx context.Context, userID uuid.U
 
 	cartID, err := uuid.Parse(cartIDStr)
 	if err != nil {
-		return nil, fmt.Errorf("ID de carrito inválido")
+		// The client may still reference a cart by its local id (e.g. "local_...").
+		// Resolve it to the server cart before it was synced.
+		resolved, findErr := s.cartRepo.FindByLocalID(ctx, userID, cartIDStr)
+		if findErr != nil {
+			return nil, fmt.Errorf("ID de carrito inválido")
+		}
+		cartID = resolved.ID
 	}
 
 	name, ok := op.Payload["name"].(string)
@@ -544,6 +564,7 @@ func (s *syncService) handleCartProductInsert(ctx context.Context, userID uuid.U
 
 	cartProduct := models.NewCartProduct(cartID, product.ID, 1, isManualEntry)
 	cartProduct.ID = uuid.New()
+	cartProduct.LocalID = op.LocalID
 
 	if qty, ok := op.Payload["quantity"].(float64); ok {
 		cartProduct.Quantity = int(qty)

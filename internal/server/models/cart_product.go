@@ -11,6 +11,7 @@ type CartProduct struct {
 	models.BaseModel
 	CartID        uuid.UUID `gorm:"type:uuid;not null"`
 	ProductID     uuid.UUID `gorm:"type:uuid;not null"`
+	LocalID       string    `gorm:"column:local_id;type:text;index"`
 	Quantity      int       `gorm:"not null;default:1"`
 	IsManualEntry bool      `gorm:"not null;default:false"`
 }

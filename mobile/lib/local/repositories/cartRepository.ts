@@ -235,6 +235,10 @@ export const cartRepository = {
       newId,
       oldId,
     ]);
-    await database.runAsync('DELETE FROM carts WHERE id = ?', [oldId]);
+    await database.runAsync('UPDATE carts SET id = ?, updated_at = ? WHERE id = ?', [
+      newId,
+      new Date().toISOString(),
+      oldId,
+    ]);
   },
 };

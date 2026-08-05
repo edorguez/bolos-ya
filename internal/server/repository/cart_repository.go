@@ -14,6 +14,7 @@ import (
 type CartRepository interface {
 	Create(ctx context.Context, cart *models.Cart) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Cart, error)
+	FindByLocalID(ctx context.Context, userID uuid.UUID, localID string) (*models.Cart, error)
 	FindByUserID(ctx context.Context, userID uuid.UUID, limit int) ([]*models.Cart, error)
 	Update(ctx context.Context, cart *models.Cart) error
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -42,6 +43,26 @@ func (r *cartRepository) FindByID(ctx context.Context, id uuid.UUID) (*models.Ca
 
 	var cart models.Cart
 	if err := r.db.WithContext(ctx).Preload("Supermarket").First(&cart, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return &cart, nil
+}
+
+// FindByLocalID retrieves a non-deleted cart by its client-side local ID for a
+// given user. Used to make sync operations idempotent and to resolve local
+// cart references (e.g. "local_...") sent by mobile clients.
+func (r *cartRepository) FindByLocalID(ctx context.Context, userID uuid.UUID, localID string) (*models.Cart, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var cart models.Cart
+	if err := r.db.WithContext(ctx).
+		Preload("Supermarket").
+		First(&cart, "user_id = ? AND local_id = ? AND deleted_at IS NULL", userID, localID).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.ErrNotFound
 		}

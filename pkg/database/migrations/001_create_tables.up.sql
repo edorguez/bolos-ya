@@ -100,6 +100,7 @@ CREATE TABLE carts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     supermarket_id UUID NOT NULL REFERENCES supermarkets(id),
     user_id UUID NOT NULL REFERENCES users(id),
+    local_id TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     budget_bs BIGINT NOT NULL DEFAULT 0, -- stored in cents
     budget_usd BIGINT NOT NULL DEFAULT 0, -- stored in cents
@@ -114,12 +115,16 @@ CREATE TABLE cart_products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     cart_id UUID NOT NULL REFERENCES carts(id),
     product_id UUID NOT NULL REFERENCES products(id),
+    local_id TEXT,
     quantity INTEGER NOT NULL DEFAULT 1,
     is_manual_entry BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
+
+CREATE INDEX idx_carts_user_local_id ON carts(user_id, local_id);
+CREATE INDEX idx_cart_products_cart_local_id ON cart_products(cart_id, local_id);
 
 CREATE TABLE payment_statuses (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
