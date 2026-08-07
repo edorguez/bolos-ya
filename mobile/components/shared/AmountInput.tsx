@@ -4,13 +4,15 @@ import {
   Text,
   Pressable,
   TextInput,
-  StyleSheet,
+  StyleSheet as RNStyleSheet,
   type TextStyle,
   type ViewStyle,
   type StyleProp,
 } from 'react-native';
 import { formatNumber } from 'react-native-currency-input';
+import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
+import { createInputStyles } from '../../styles/inputs';
 
 interface AmountInputProps {
   value: number | null;
@@ -36,17 +38,37 @@ const parseAmount = (raw: string): number | null => {
   return Number(digits) / 10 ** PRECISION;
 };
 
+const stylesheet = StyleSheet.create(theme => {
+  const inputStyles = createInputStyles(theme);
+  return {
+    shell: {
+      ...inputStyles.base,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+    },
+    shellError: inputStyles.error,
+    shellFocused: inputStyles.focused,
+    shellReadOnly: {
+      backgroundColor: theme.colors.stoneSurface,
+      color: theme.colors.onSurfaceVariant,
+    },
+  };
+});
+
 export const AmountInput = memo(
   forwardRef<TextInput, AmountInputProps>(function AmountInput(
     { value, onValueChange, placeholder, error, editable = true, style, maxValue = MAX_DEFAULT },
     _ref
   ) {
     const theme = useAppTheme();
+    const styles = stylesheet(theme);
     const inputRef = useRef<TextInput>(null);
     const onValueChangeRef = useRef(onValueChange);
     onValueChangeRef.current = onValueChange;
 
     const focusedRef = useRef(false);
+    const [isFocused, setIsFocused] = useState(false);
     const [text, setText] = useState(() => formatAmount(value));
     const [syncKey, setSyncKey] = useState(0);
 
@@ -72,32 +94,17 @@ export const AmountInput = memo(
       }
     }, [editable]);
 
-    const flatStyle = (StyleSheet.flatten(style) as TextStyle) || {};
-    const textStyle: TextStyle = {
-      fontSize: flatStyle?.fontSize,
-      color: flatStyle?.color,
-      fontWeight: flatStyle?.fontWeight,
-      letterSpacing: flatStyle?.letterSpacing,
-      textAlign: 'right',
-    };
+    const flatStyle = (RNStyleSheet.flatten(style) as TextStyle) || {};
 
     return (
       <Pressable onPress={handlePress} style={{ flex: 1 }}>
         <View
           style={[
-            {
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              backgroundColor: theme.colors.surfaceContainerLow,
-              borderWidth: 1,
-              borderColor: error ? theme.colors.error : theme.colors.stoneSurface,
-              borderRadius: theme.borderRadius.md,
-              paddingHorizontal: theme.spacing.sm,
-              paddingVertical: theme.spacing.sm,
-            },
+            styles.shell as ViewStyle,
+            error && (styles.shellError as ViewStyle),
+            isFocused && !error && (styles.shellFocused as ViewStyle),
+            !editable && (styles.shellReadOnly as ViewStyle),
             flatStyle as ViewStyle,
-            error && { borderColor: theme.colors.error },
           ]}
         >
           <TextInput
@@ -108,16 +115,27 @@ export const AmountInput = memo(
             onChangeText={handleChangeText}
             onFocus={() => {
               focusedRef.current = true;
+              setIsFocused(true);
             }}
             onBlur={() => {
               focusedRef.current = false;
+              setIsFocused(false);
             }}
             editable={editable}
             caretHidden
             importantForAutofill="no"
             style={{ position: 'absolute', width: 1, height: 1, opacity: 0 }}
           />
-          <Text style={[textStyle, !value && { color: theme.colors.ash }]}>
+          <Text
+            style={[
+              {
+                fontSize: theme.typography.fontSize.sm,
+                color: editable ? theme.colors.text : theme.colors.onSurfaceVariant,
+                textAlign: 'right',
+              },
+              !value && { color: theme.colors.ash },
+            ]}
+          >
             {text || placeholder || '0,00'}
           </Text>
         </View>

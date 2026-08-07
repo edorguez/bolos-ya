@@ -1,13 +1,23 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
+import { createButtonStyles } from '../../styles/buttons';
+import { useScaleIn, useFadeSlideIn, useHeartbeat } from '../../hooks/animations';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function PaymentPendingScreen() {
   const router = useRouter();
   const theme = useAppTheme();
+  const buttonStyles = createButtonStyles(theme);
   const insets = useSafeAreaInsets();
+
+  const iconEnter = useScaleIn({ delay: 150 });
+  const heartbeat = useHeartbeat();
+  const titleEnter = useFadeSlideIn({ delay: 300, distance: 12 });
+  const subtitleEnter = useFadeSlideIn({ delay: 420, distance: 12 });
+  const buttonEnter = useFadeSlideIn({ delay: 540, distance: 12 });
 
   const styles = StyleSheet.create({
     container: {
@@ -43,10 +53,10 @@ export default function PaymentPendingScreen() {
       paddingHorizontal: theme.spacing.md,
     },
     button: {
+      ...buttonStyles.base,
       backgroundColor: theme.colors.midnight,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.xxl,
-      borderRadius: theme.borderRadius.button,
       width: '100%',
       maxWidth: 300,
       alignItems: 'center',
@@ -60,20 +70,24 @@ export default function PaymentPendingScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.iconContainer}>
-        <MaterialIcons name="hourglass-empty" size={64} color={theme.colors.sunburstYellow} />
-      </View>
-      <Text style={styles.title}>Pago en revisión</Text>
-      <Text style={styles.subtitle}>
+      <Animated.View style={iconEnter}>
+        <Animated.View style={[styles.iconContainer, heartbeat]}>
+          <MaterialIcons name="hourglass-empty" size={64} color={theme.colors.sunburstYellow} />
+        </Animated.View>
+      </Animated.View>
+      <Animated.Text style={[styles.title, titleEnter]}>Pago en revisión</Animated.Text>
+      <Animated.Text style={[styles.subtitle, subtitleEnter]}>
         Tienes un pago pendiente de confirmación. Nuestro equipo revisará tu pago y activará tu
         membresía. Mientras tanto, puedes seguir disfrutando de la app.
-      </Text>
-      <Pressable
-        style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
-        onPress={() => router.replace('/(tabs)')}
-      >
-        <Text style={styles.buttonText}>Ir al Inicio</Text>
-      </Pressable>
+      </Animated.Text>
+      <Animated.View style={buttonEnter}>
+        <Pressable
+          style={({ pressed }) => [styles.button, pressed && buttonStyles.pressed]}
+          onPress={() => router.replace('/(tabs)')}
+        >
+          <Text style={styles.buttonText}>Ir al Inicio</Text>
+        </Pressable>
+      </Animated.View>
     </View>
   );
 }

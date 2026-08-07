@@ -1,10 +1,14 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { AppTheme } from './theme';
+import { createButtonStyles } from './buttons';
+import { createInputStyles } from './inputs';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MODAL_WIDTH = Math.min(SCREEN_WIDTH * 0.9, 400);
 
 export function createManualEntryModalStyles(theme: AppTheme) {
+  const buttonStyles = createButtonStyles(theme);
+  const inputStyles = createInputStyles(theme);
   return StyleSheet.create({
     modalContainer: {
       flex: 1,
@@ -41,16 +45,6 @@ export function createManualEntryModalStyles(theme: AppTheme) {
       letterSpacing: 1,
       marginLeft: theme.spacing.xs,
     },
-    textInput: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.sm,
-      fontSize: theme.typography.fontSize.sm,
-      color: theme.colors.text,
-    },
     priceRow: {
       flexDirection: 'row',
       gap: theme.spacing.sm,
@@ -59,17 +53,6 @@ export function createManualEntryModalStyles(theme: AppTheme) {
     priceInputWrapper: {
       flex: 1,
       position: 'relative',
-    },
-    priceInput: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.sm,
-      fontSize: theme.typography.fontSize.sm,
-      color: theme.colors.text,
-      textAlign: 'right',
     },
     currencyToggle: {
       paddingHorizontal: theme.spacing.sm,
@@ -95,42 +78,20 @@ export function createManualEntryModalStyles(theme: AppTheme) {
       fontSize: theme.typography.fontSize.xs,
       textAlign: 'center',
     },
-    quantitySection: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.sm,
-    },
-    quantityControls: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      gap: theme.spacing.lg,
-      backgroundColor: theme.colors.surfaceContainerLowest,
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.xs,
-    },
-    quantityButton: {
-      width: 30,
-      height: 30,
-      borderRadius: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    quantityNumber: {
-      fontSize: theme.typography.fontSize.xs,
-      fontWeight: theme.typography.fontWeight.semibold,
-      minWidth: 32,
-      textAlign: 'center',
-      color: theme.colors.onSurface,
-    },
+    quantitySection: inputStyles.quantitySection,
+    quantityControls: inputStyles.quantityControls,
+    quantityButton: inputStyles.quantityButton,
+    quantityButtonPressedDecrement: inputStyles.quantityButtonPressedDecrement,
+    quantityButtonPressedIncrement: inputStyles.quantityButtonPressedIncrement,
+    quantityNumber: inputStyles.quantityNumber,
     actionRow: {
       flexDirection: 'row',
       gap: theme.spacing.xxs,
     },
     cancelButton: {
+      ...buttonStyles.base,
       flex: 1,
       paddingVertical: theme.spacing.md,
-      borderRadius: theme.borderRadius.button,
       borderWidth: 1,
       borderColor: theme.colors.stoneSurface,
       alignItems: 'center',
@@ -142,9 +103,9 @@ export function createManualEntryModalStyles(theme: AppTheme) {
       color: theme.colors.onSurfaceVariant,
     },
     addButton: {
+      ...buttonStyles.base,
       flex: 1,
       backgroundColor: theme.colors.midnight,
-      borderRadius: theme.borderRadius.button,
       paddingVertical: theme.spacing.md,
       flexDirection: 'row',
       alignItems: 'center',

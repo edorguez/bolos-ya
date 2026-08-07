@@ -10,6 +10,7 @@ import {
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAppTheme } from '../../styles/theme';
 import { AmountInput } from '../shared/AmountInput';
+import { Input } from '../shared/Input';
 import { Button } from '../Button';
 import { MaterialIcons } from '@expo/vector-icons';
 import { createProductFormStyles } from '../../styles/productFormStyles';
@@ -212,19 +213,18 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
 
       {/* Product Name Input */}
       <View style={styles.inputGroup as ViewStyle}>
-        <Text style={styles.label as TextStyle}>Nombre del Producto</Text>
-        <TextInput
-          style={styles.textInput as TextStyle}
+        <Input
+          label="Nombre del Producto"
           placeholder="Ej. Harina Pan"
-          placeholderTextColor={theme.colors.onSurfaceVariant}
           value={name}
           onChangeText={text => {
             setName(text);
             setErrors(prev => ({ ...prev, name: '' }));
           }}
           maxLength={100}
+          error={!!errors.name}
+          errorText={errors.name || undefined}
         />
-        {errors.name && <Text style={styles.errorText as TextStyle}>{errors.name}</Text>}
       </View>
 
       {/* Quantity Section */}
@@ -236,7 +236,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               style={({ pressed }) => [
                 styles.quantityButton as ViewStyle,
                 { backgroundColor: theme.colors.surfaceContainerHigh },
-                pressed && { opacity: 0.8 },
+                pressed && (styles.quantityButtonPressedDecrement as ViewStyle),
               ]}
               onPress={decrementQuantity}
             >
@@ -247,7 +247,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               style={({ pressed }) => [
                 styles.quantityButton as ViewStyle,
                 { backgroundColor: theme.colors.primary },
-                pressed && { opacity: 0.8 },
+                pressed && (styles.quantityButtonPressedIncrement as ViewStyle),
               ]}
               onPress={incrementQuantity}
             >
@@ -270,7 +270,6 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
                   value={bsPrice}
                   onValueChange={handleBsPriceChange}
                   placeholder="0,00"
-                  style={styles.priceInput as ViewStyle}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>
               </View>
@@ -306,13 +305,6 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
                   onValueChange={() => {}}
                   placeholder="0,00"
                   editable={false}
-                  style={[
-                    styles.priceInput as ViewStyle,
-                    {
-                      color: theme.colors.onSurfaceVariant,
-                      backgroundColor: theme.colors.stoneSurface,
-                    } as ViewStyle,
-                  ]}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>$</Text>
               </View>
@@ -332,7 +324,6 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
                   value={usdPrice}
                   onValueChange={handleUsdPriceChange}
                   placeholder="0,00"
-                  style={styles.priceInput as ViewStyle}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>$</Text>
               </View>
@@ -368,13 +359,6 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
                   onValueChange={() => {}}
                   placeholder="0,00"
                   editable={false}
-                  style={[
-                    styles.priceInput as ViewStyle,
-                    {
-                      color: theme.colors.onSurfaceVariant,
-                      backgroundColor: theme.colors.stoneSurface,
-                    } as ViewStyle,
-                  ]}
                 />
                 <Text style={styles.currencySymbol as TextStyle}>Bs.</Text>
               </View>

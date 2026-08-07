@@ -1,6 +1,9 @@
 import { View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
+import { createButtonStyles } from '../../styles/buttons';
+import { useFloat, useFadeSlideIn } from '../../hooks/animations';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
@@ -8,10 +11,18 @@ const { width } = Dimensions.get('window');
 export default function WelcomeScreen() {
   const router = useRouter();
   const theme = useAppTheme();
+  const buttonStyles = createButtonStyles(theme);
 
   const handleNext = () => {
     router.push('/(onboarding)/login-choice');
   };
+
+  const cartFloat = useFloat({ distance: 8, duration: 2600 });
+  const bubble1Float = useFloat({ distance: 6, duration: 3000 });
+  const bubble2Float = useFloat({ distance: 6, duration: 3400 });
+  const titleEnter = useFadeSlideIn({ delay: 150, distance: 20 });
+  const descriptionEnter = useFadeSlideIn({ delay: 260, distance: 16 });
+  const buttonEnter = useFadeSlideIn({ delay: 380, distance: 16 });
 
   const styles = StyleSheet.create({
     container: {
@@ -125,8 +136,8 @@ export default function WelcomeScreen() {
       gap: theme.spacing.xl,
     },
     nextButton: {
+      ...buttonStyles.base,
       backgroundColor: theme.colors.midnight,
-      borderRadius: theme.borderRadius.button,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       flexDirection: 'row',
@@ -147,36 +158,40 @@ export default function WelcomeScreen() {
         <View style={styles.illustrationContainer}>
           <View style={styles.blobBackground} />
           <View style={styles.illustration}>
-            <View style={styles.circle}>
+            <Animated.View style={[styles.circle, cartFloat]}>
               <MaterialIcons name="shopping-cart" size={96} color={theme.colors.emberOrange} />
-            </View>
-            <View style={styles.priceBubble1}>
+            </Animated.View>
+            <Animated.View style={[styles.priceBubble1, bubble1Float]}>
               <Text style={styles.priceTextBuble1}>$ 12.50</Text>
-            </View>
-            <View style={styles.priceBubble2}>
+            </Animated.View>
+            <Animated.View style={[styles.priceBubble2, bubble2Float]}>
               <Text style={styles.priceTextBuble2}>Bs. 450</Text>
-            </View>
+            </Animated.View>
           </View>
         </View>
 
-        <View style={styles.content}>
+        <Animated.View style={titleEnter}>
           <Text style={styles.title}>Calcula sobre la marcha</Text>
+        </Animated.View>
+        <Animated.View style={descriptionEnter}>
           <Text style={styles.description}>
             Olvídate del miedo en la cola del mercado. Registra tus productos en tiempo real y mira
             el total exacto tanto en <Text style={styles.boldText}>Bolívares</Text> como en{' '}
             <Text style={styles.boldText}>Dólares</Text>.
           </Text>
-        </View>
+        </Animated.View>
       </View>
 
       <View style={styles.footer}>
-        <Pressable
-          onPress={handleNext}
-          style={({ pressed }) => [styles.nextButton, pressed && { opacity: 0.8 }]}
-        >
-          <Text style={styles.nextButtonText}>Siguiente</Text>
-          <MaterialIcons name="arrow-forward" size={24} color={theme.colors.white} />
-        </Pressable>
+        <Animated.View style={buttonEnter}>
+          <Pressable
+            onPress={handleNext}
+            style={({ pressed }) => [styles.nextButton, pressed && buttonStyles.pressed]}
+          >
+            <Text style={styles.nextButtonText}>Siguiente</Text>
+            <MaterialIcons name="arrow-forward" size={24} color={theme.colors.white} />
+          </Pressable>
+        </Animated.View>
       </View>
     </View>
   );

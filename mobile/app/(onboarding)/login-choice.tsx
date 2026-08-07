@@ -9,12 +9,15 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
+import { createButtonStyles } from '../../styles/buttons';
+import { useFloat, useFadeSlideIn } from '../../hooks/animations';
 import { signIn } from '../../lib/auth-client';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import * as Network from 'expo-network';
 import * as SecureStore from 'expo-secure-store';
 import { getStoredSessionToken, clearSessionTokenCache } from '../../services/api';
+import Animated from 'react-native-reanimated';
 
 const { width, height } = Dimensions.get('window');
 const isLargeScreen = height > 800;
@@ -36,6 +39,7 @@ async function waitForSessionToken(timeoutMs = 5000): Promise<boolean> {
 export default function LoginChoiceScreen() {
   const router = useRouter();
   const theme = useAppTheme();
+  const buttonStyles = createButtonStyles(theme);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [, setToast] = useState<string | null>(null);
 
@@ -94,6 +98,12 @@ export default function LoginChoiceScreen() {
       ? theme.typography.fontSize.xl
       : theme.typography.fontSize.lg;
   const titleLineHeight = titleFontSize * 1.2;
+
+  const mockupFloat = useFloat({ distance: 10, duration: 3200 });
+  const badge1Float = useFloat({ distance: 6, duration: 3600 });
+  const badge2Float = useFloat({ distance: 6, duration: 3000 });
+  const headlineEnter = useFadeSlideIn({ delay: 150, distance: 16 });
+  const actionsEnter = useFadeSlideIn({ delay: 280, distance: 16 });
 
   const styles = StyleSheet.create({
     container: {
@@ -300,6 +310,7 @@ export default function LoginChoiceScreen() {
       gap: actionsGap,
     },
     googleButton: {
+      ...buttonStyles.base,
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
@@ -308,7 +319,6 @@ export default function LoginChoiceScreen() {
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: theme.borderRadius.button,
     },
     googleButtonText: {
       fontSize: theme.typography.fontSize.sm,
@@ -316,6 +326,7 @@ export default function LoginChoiceScreen() {
       color: theme.colors.text,
     },
     emailButton: {
+      ...buttonStyles.base,
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
@@ -324,7 +335,6 @@ export default function LoginChoiceScreen() {
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       backgroundColor: theme.colors.midnight,
-      borderRadius: theme.borderRadius.button,
     },
     emailButtonText: {
       fontSize: theme.typography.fontSize.sm,
@@ -332,6 +342,7 @@ export default function LoginChoiceScreen() {
       color: theme.colors.white,
     },
     registerButton: {
+      ...buttonStyles.base,
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
@@ -340,7 +351,6 @@ export default function LoginChoiceScreen() {
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       backgroundColor: 'transparent',
-      borderRadius: theme.borderRadius.button,
       borderWidth: 1,
       borderColor: theme.colors.graphite,
     },
@@ -368,13 +378,13 @@ export default function LoginChoiceScreen() {
       textTransform: 'uppercase',
     },
     guestButton: {
+      ...buttonStyles.base,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       gap: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       backgroundColor: 'transparent',
-      borderRadius: theme.borderRadius.button,
     },
     guestButtonText: {
       fontSize: theme.typography.fontSize.sm,
@@ -406,143 +416,139 @@ export default function LoginChoiceScreen() {
           <View style={styles.blob2} />
           <View style={styles.blob3} />
 
-          <View style={styles.phoneMockup}>
-            <View style={styles.phoneScreen}>
-              <View style={styles.phoneHeader}>
-                <View style={styles.phoneSignal} />
-                <View style={styles.phoneDots}>
-                  <View style={styles.phoneDot} />
-                  <View style={[styles.phoneDot, styles.phoneDotSecondary]} />
-                </View>
-              </View>
-              <View style={styles.phoneContent}>
-                <View style={styles.phoneLine} />
-                <View style={styles.phoneItem}>
-                  <View style={styles.phoneItemIcon}>
-                    <MaterialIcons name="check" size={14} color={theme.colors.midnight} />
+          <Animated.View style={mockupFloat}>
+            <View style={styles.phoneMockup}>
+              <View style={styles.phoneScreen}>
+                <View style={styles.phoneHeader}>
+                  <View style={styles.phoneSignal} />
+                  <View style={styles.phoneDots}>
+                    <View style={styles.phoneDot} />
+                    <View style={[styles.phoneDot, styles.phoneDotSecondary]} />
                   </View>
-                  <View style={[styles.phoneItemLine, { width: 96 }]} />
                 </View>
-                <View style={styles.phoneItem}>
-                  <View
-                    style={[styles.phoneItemIcon, { backgroundColor: `${theme.colors.skyBlue}20` }]}
-                  />
-                  <View style={[styles.phoneItemLine, { width: 128 }]} />
-                </View>
-                <View style={styles.phoneItem}>
-                  <View
-                    style={[
-                      styles.phoneItemIcon,
-                      { backgroundColor: `${theme.colors.meadowGreen}20` },
-                    ]}
-                  />
-                  <View style={[styles.phoneItemLine, { width: 80 }]} />
-                </View>
-                <View style={styles.phoneCart}>
-                  <MaterialIcons
-                    name="add-shopping-cart"
-                    size={24}
-                    color={theme.colors.emberOrange}
-                  />
+                <View style={styles.phoneContent}>
+                  <View style={styles.phoneLine} />
+                  <View style={styles.phoneItem}>
+                    <View style={styles.phoneItemIcon}>
+                      <MaterialIcons name="check" size={14} color={theme.colors.midnight} />
+                    </View>
+                    <View style={[styles.phoneItemLine, { width: 96 }]} />
+                  </View>
+                  <View style={styles.phoneItem}>
+                    <View
+                      style={[
+                        styles.phoneItemIcon,
+                        { backgroundColor: `${theme.colors.skyBlue}20` },
+                      ]}
+                    />
+                    <View style={[styles.phoneItemLine, { width: 128 }]} />
+                  </View>
+                  <View style={styles.phoneItem}>
+                    <View
+                      style={[
+                        styles.phoneItemIcon,
+                        { backgroundColor: `${theme.colors.meadowGreen}20` },
+                      ]}
+                    />
+                    <View style={[styles.phoneItemLine, { width: 80 }]} />
+                  </View>
+                  <View style={styles.phoneCart}>
+                    <MaterialIcons
+                      name="add-shopping-cart"
+                      size={24}
+                      color={theme.colors.emberOrange}
+                    />
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
+          </Animated.View>
 
-          <View style={styles.floatingBadge1}>
+          <Animated.View style={[styles.floatingBadge1, badge1Float]}>
             <View style={styles.badgeIcon}>
               <MaterialIcons name="local-mall" size={12} color={theme.colors.white} />
             </View>
             <Text style={styles.badgeText}>Lista lista!</Text>
-          </View>
+          </Animated.View>
 
-          <View style={styles.floatingBadge2}>
+          <Animated.View style={[styles.floatingBadge2, badge2Float]}>
             <Text style={styles.badgeText}>Total: $45.00</Text>
             <View style={[styles.badgeIcon, styles.badgeIconSecondary]}>
               <MaterialIcons name="payments" size={12} color={theme.colors.white} />
             </View>
-          </View>
+          </Animated.View>
         </View>
 
         <View style={styles.main}>
-          <View style={styles.headline}>
-            <Text style={styles.title}>
-              MercadoLibreta: <Text style={styles.titlePrimary}>Tu Aliado en Caja</Text>
-            </Text>
-            <Text style={styles.subtitle}>
-              Organiza tus compras, controla tu presupuesto y nunca olvides lo esencial.
-            </Text>
-          </View>
-
-          <View style={styles.actions}>
-            {/* <Pressable */}
-            {/*   onPress={handleGoogleLogin} */}
-            {/*   disabled={isGuestLoading} */}
-            {/*   style={({ pressed }) => [ */}
-            {/*     styles.googleButton, */}
-            {/*     pressed && { opacity: 0.8 }, */}
-            {/*     isGuestLoading && { opacity: 0.6 }, */}
-            {/*   ]} */}
-            {/* > */}
-            {/*   {isGoogleLoading ? ( */}
-            {/*     <ActivityIndicator size="small" color={theme.colors.text} /> */}
-            {/*   ) : ( */}
-            {/*     <GoogleIcon /> */}
-            {/*   )} */}
-            {/*   <Text style={styles.googleButtonText}>Continuar con Google</Text> */}
-            {/* </Pressable> */}
-
-            <Pressable
-              onPress={() => router.push('/(onboarding)/login')}
-              disabled={isGuestLoading}
-              style={({ pressed }) => [
-                styles.emailButton,
-                pressed && { opacity: 0.8 },
-                isGuestLoading && { opacity: 0.6 },
-              ]}
-            >
-              <MaterialIcons name="mail" size={20} color={theme.colors.white} />
-              <Text style={styles.emailButtonText}>Iniciar con Correo</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => router.push('/(onboarding)/register')}
-              disabled={isGuestLoading}
-              style={({ pressed }) => [
-                styles.registerButton,
-                pressed && { opacity: 0.8 },
-                isGuestLoading && { opacity: 0.6 },
-              ]}
-            >
-              <MaterialIcons name="person-add" size={20} color={theme.colors.graphite} />
-              <Text style={styles.registerButtonText}>Registrarse con correo</Text>
-            </Pressable>
-
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>O también</Text>
-              <View style={styles.dividerLine} />
+          <Animated.View style={headlineEnter}>
+            <View style={styles.headline}>
+              <Text style={styles.title}>
+                MercadoLibreta: <Text style={styles.titlePrimary}>Tu Aliado en Caja</Text>
+              </Text>
+              <Text style={styles.subtitle}>
+                Organiza tus compras, controla tu presupuesto y nunca olvides lo esencial.
+              </Text>
             </View>
+          </Animated.View>
 
-            <Pressable
-              onPress={handleGuestLogin}
-              disabled={isGuestLoading}
-              style={({ pressed }) => [
-                styles.guestButton,
-                pressed && { opacity: 0.8 },
-                isGuestLoading && { opacity: 0.6 },
-              ]}
-            >
-              {isGuestLoading ? (
-                <ActivityIndicator size="small" color={theme.colors.emberOrange} />
-              ) : (
-                <>
-                  <Text style={styles.guestButtonText}>Entrar como Invitado</Text>
-                  <MaterialIcons name="arrow-forward" size={20} color={theme.colors.emberOrange} />
-                </>
-              )}
-            </Pressable>
-          </View>
+          <Animated.View style={actionsEnter}>
+            <View style={styles.actions}>
+              <Pressable
+                onPress={() => router.push('/(onboarding)/login')}
+                disabled={isGuestLoading}
+                style={({ pressed }) => [
+                  styles.emailButton,
+                  pressed && buttonStyles.pressed,
+                  isGuestLoading && { opacity: 0.6 },
+                ]}
+              >
+                <MaterialIcons name="mail" size={20} color={theme.colors.white} />
+                <Text style={styles.emailButtonText}>Iniciar con Correo</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => router.push('/(onboarding)/register')}
+                disabled={isGuestLoading}
+                style={({ pressed }) => [
+                  styles.registerButton,
+                  pressed && buttonStyles.pressed,
+                  isGuestLoading && { opacity: 0.6 },
+                ]}
+              >
+                <MaterialIcons name="person-add" size={20} color={theme.colors.graphite} />
+                <Text style={styles.registerButtonText}>Registrarse con correo</Text>
+              </Pressable>
+
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>O también</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <Pressable
+                onPress={handleGuestLogin}
+                disabled={isGuestLoading}
+                style={({ pressed }) => [
+                  styles.guestButton,
+                  pressed && buttonStyles.pressed,
+                  isGuestLoading && { opacity: 0.6 },
+                ]}
+              >
+                {isGuestLoading ? (
+                  <ActivityIndicator size="small" color={theme.colors.emberOrange} />
+                ) : (
+                  <>
+                    <Text style={styles.guestButtonText}>Entrar como Invitado</Text>
+                    <MaterialIcons
+                      name="arrow-forward"
+                      size={20}
+                      color={theme.colors.emberOrange}
+                    />
+                  </>
+                )}
+              </Pressable>
+            </View>
+          </Animated.View>
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>

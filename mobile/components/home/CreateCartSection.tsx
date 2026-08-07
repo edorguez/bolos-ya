@@ -5,6 +5,8 @@ import { BudgetFields } from './BudgetFields';
 import { SupermarketSelector } from './SupermarketSelector';
 import { createHomeStyles } from '../../styles/homeStyles';
 import { useAppTheme } from '../../styles/theme';
+import { createButtonStyles } from '../../styles/buttons';
+import { Skeleton } from '../shared/Skeleton';
 import { useCartStore } from '../../store/cartStore';
 import { getAllSupermarkets } from '../../services/supermarketService';
 import { createCart } from '../../services/cartService';
@@ -21,6 +23,7 @@ interface CreateCartSectionProps {
 export function CreateCartSection({ userId, onCartCreated }: CreateCartSectionProps) {
   const theme = useAppTheme();
   const styles = useMemo(() => createHomeStyles(theme), [theme]);
+  const buttonStyles = useMemo(() => createButtonStyles(theme), [theme]);
 
   const [supermarkets, setSupermarkets] = useState<SupermarketOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -241,8 +244,10 @@ export function CreateCartSection({ userId, onCartCreated }: CreateCartSectionPr
   if (isLoading) {
     return (
       <View style={styles.section}>
-        <View style={[styles.card, { alignItems: 'center', paddingVertical: theme.spacing.xl }]}>
-          <ActivityIndicator size="small" color={theme.colors.ash} />
+        <View style={[styles.card, { gap: theme.spacing.md }]}>
+          <Skeleton height={96} radius={10} />
+          <Skeleton height={48} radius={10} />
+          <Skeleton height={48} radius={10} />
         </View>
       </View>
     );
@@ -285,7 +290,8 @@ export function CreateCartSection({ userId, onCartCreated }: CreateCartSectionPr
         <Pressable
           style={({ pressed }) => [
             styles.primaryButton,
-            pressed || isSubmitting ? { opacity: 0.8 } : undefined,
+            pressed && !isSubmitting ? buttonStyles.pressed : undefined,
+            isSubmitting ? { opacity: 0.8 } : undefined,
           ]}
           onPress={handleStartList}
           disabled={isSubmitting}

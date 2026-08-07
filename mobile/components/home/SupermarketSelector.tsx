@@ -1,6 +1,7 @@
-import { View, Text, TextInput, Animated, type TextStyle } from 'react-native';
+import { View, Text, Animated } from 'react-native';
 import { useAppTheme } from '../../styles/theme';
 import { createHomeStyles } from '../../styles/homeStyles';
+import { Input } from '../shared/Input';
 import { SupermarketCarousel } from './SupermarketCarousel';
 import type { SupermarketOption } from '../../services/supermarketService';
 
@@ -44,17 +45,14 @@ export function SupermarketSelector({
           ]}
         >
           <View style={{ gap: theme.spacing.xs }}>
-            <Text style={styles.supermarketLabel}>Nombre del Supermercado</Text>
-            <TextInput
-              style={[styles.customMarketInput, fieldErrors.customMarketName && styles.errorBorder]}
+            <Input
+              label="Nombre del Supermercado"
               placeholder="Ej. Plan Suarez"
-              placeholderTextColor={theme.colors.onSurfaceVariant}
               value={customMarketName}
               onChangeText={onCustomMarketChange}
+              error={!!fieldErrors.customMarketName}
+              errorText={fieldErrors.customMarketName || undefined}
             />
-            {fieldErrors.customMarketName ? (
-              <Text style={styles.errorText as TextStyle}>{fieldErrors.customMarketName}</Text>
-            ) : null}
           </View>
         </Animated.View>
       ) : null}

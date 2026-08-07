@@ -1,16 +1,11 @@
-import {
-  View,
-  Text,
-  Pressable,
-  type ViewStyle,
-  type TextStyle,
-  type ViewProps,
-} from 'react-native';
+import { View, Text, type ViewStyle, type TextStyle, type ViewProps } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { StatusBadge } from './StatusBadge';
 import { AmountCard } from './AmountCard';
 import { ProgressBar } from '../shared/ProgressBar';
+import { PressableScale } from '../shared/PressableScale';
 import { useAppTheme } from '../../styles/theme';
+import { createCardStyles } from '../../styles/cards';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface HistoryCardProps {
@@ -29,66 +24,66 @@ interface HistoryCardProps {
   style?: ViewProps['style'];
 }
 
-const stylesheet = StyleSheet.create(theme => ({
-  card: {
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing.md,
-  },
-  storeInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-  },
-  storeIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: theme.borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  storeDetails: {
-    gap: theme.spacing.xs,
-  },
-  storeName: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurface,
-  },
-  storeDate: {
-    fontSize: theme.typography.fontSize.xs,
-    color: theme.colors.outline,
-  },
-  amountGrid: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-  },
-  progressSection: {
-    gap: theme.spacing.xs,
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  progressLabel: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.semibold,
-  },
-  progressValue: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.semibold,
-  },
-}));
+const stylesheet = StyleSheet.create(theme => {
+  const cardStyles = createCardStyles(theme);
+  return {
+    card: {
+      ...cardStyles.base,
+      padding: theme.spacing.md,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing.md,
+    },
+    storeInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+    },
+    storeIconContainer: {
+      width: 48,
+      height: 48,
+      borderRadius: theme.borderRadius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    storeDetails: {
+      gap: theme.spacing.xs,
+    },
+    storeName: {
+      fontSize: theme.typography.fontSize.sm,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.onSurface,
+    },
+    storeDate: {
+      fontSize: theme.typography.fontSize.xs,
+      color: theme.colors.outline,
+    },
+    amountGrid: {
+      flexDirection: 'row',
+      gap: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+    },
+    progressSection: {
+      gap: theme.spacing.xs,
+    },
+    progressHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    progressLabel: {
+      fontSize: theme.typography.fontSize.xs,
+      fontWeight: theme.typography.fontWeight.semibold,
+    },
+    progressValue: {
+      fontSize: theme.typography.fontSize.xs,
+      fontWeight: theme.typography.fontWeight.semibold,
+    },
+  };
+});
 
 export function HistoryCard({
   storeName,
@@ -166,16 +161,13 @@ export function HistoryCard({
 
   if (onPress) {
     return (
-      <Pressable
+      <PressableScale
         onPress={onPress}
-        style={({ pressed }) => [
-          styles.card as ViewStyle,
-          style,
-          { transform: [{ scale: pressed ? 0.97 : 1 }] },
-        ]}
+        pressedScale={0.97}
+        style={[styles.card as ViewStyle, style]}
       >
         {content}
-      </Pressable>
+      </PressableScale>
     );
   }
 

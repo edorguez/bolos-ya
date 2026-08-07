@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
-  TextInput,
   Pressable,
   Modal,
   Animated,
@@ -11,6 +10,8 @@ import {
   type TextStyle,
 } from 'react-native';
 import { useAppTheme } from '../../styles/theme';
+import { createButtonStyles } from '../../styles/buttons';
+import { Input } from './Input';
 import { createManualEntryModalStyles } from '../../styles/manualEntryModalStyles';
 import { AmountInput } from './AmountInput';
 import { useBCV } from '../../store/bcvStore';
@@ -31,6 +32,7 @@ interface ManualEntryModalProps {
 export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryModalProps) {
   const theme = useAppTheme();
   const styles = useMemo(() => createManualEntryModalStyles(theme), [theme]);
+  const buttonStyles = useMemo(() => createButtonStyles(theme), [theme]);
   const { rate: exchangeRate } = useBCV();
   const EXCHANGE_RATE = exchangeRate?.usdRate ?? 55;
 
@@ -153,13 +155,11 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
             <Text style={styles.headerTitle as TextStyle}>Ingreso Manual</Text>
 
             <View style={styles.inputGroup as ViewStyle}>
-              <Text style={styles.label as TextStyle}>Nombre del Producto</Text>
-              <TextInput
-                style={styles.textInput as TextStyle}
+              <Input
+                label="Nombre del Producto"
                 value={name}
                 onChangeText={setName}
                 placeholder="Ej: Harina Pan"
-                placeholderTextColor={theme.colors.ash}
                 maxLength={100}
               />
             </View>
@@ -171,7 +171,7 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
                   style={({ pressed }) => [
                     styles.quantityButton as ViewStyle,
                     { backgroundColor: theme.colors.surfaceContainerHigh },
-                    pressed && { opacity: 0.8 },
+                    pressed && (styles.quantityButtonPressedDecrement as ViewStyle),
                   ]}
                   onPress={decrementQuantity}
                 >
@@ -182,7 +182,7 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
                   style={({ pressed }) => [
                     styles.quantityButton as ViewStyle,
                     { backgroundColor: theme.colors.primary },
-                    pressed && { opacity: 0.8 },
+                    pressed && (styles.quantityButtonPressedIncrement as ViewStyle),
                   ]}
                   onPress={incrementQuantity}
                 >
@@ -199,7 +199,6 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
                     value={isBsEditable ? bsAmount : usdAmount}
                     onValueChange={isBsEditable ? handleBsChange : handleUsdChange}
                     placeholder={isBsEditable ? 'Bs. 0,00' : '$ 0,00'}
-                    style={styles.priceInput as ViewStyle}
                   />
                 </View>
                 <Pressable
@@ -226,7 +225,7 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
               <Pressable
                 style={({ pressed }) => [
                   styles.cancelButton as ViewStyle,
-                  pressed && { opacity: 0.8 },
+                  pressed && buttonStyles.pressed,
                 ]}
                 onPress={onClose}
               >
@@ -235,7 +234,7 @@ export function ManualEntryModal({ isVisible, onClose, onSubmit }: ManualEntryMo
               <Pressable
                 style={({ pressed }) => [
                   styles.addButton as ViewStyle,
-                  pressed && { opacity: 0.8 },
+                  pressed && buttonStyles.pressed,
                 ]}
                 onPress={handleSubmit}
               >

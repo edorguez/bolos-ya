@@ -1,5 +1,7 @@
-import { Pressable, Text, ActivityIndicator } from 'react-native';
+import { Text, ActivityIndicator, type ViewStyle } from 'react-native';
 import { useAppTheme } from '../styles/theme';
+import { createButtonStyles } from '../styles/buttons';
+import { PressableScale } from './shared/PressableScale';
 
 interface ButtonProps {
   title: string;
@@ -21,10 +23,11 @@ export function Button({
   fullWidth = false,
 }: ButtonProps) {
   const theme = useAppTheme();
+  const buttonStyles = createButtonStyles(theme);
 
   const getButtonStyle = () => {
     const baseStyle = {
-      borderRadius: theme.borderRadius.button,
+      ...buttonStyles.base,
       alignItems: 'center' as const,
       justifyContent: 'center' as const,
       flexDirection: 'row' as const,
@@ -81,8 +84,8 @@ export function Button({
   };
 
   return (
-    <Pressable
-      style={({ pressed }) => [getButtonStyle(), pressed && { opacity: 0.8 }]}
+    <PressableScale
+      style={getButtonStyle() as ViewStyle}
       onPress={onPress}
       disabled={disabled || isLoading}
     >
@@ -94,6 +97,6 @@ export function Button({
       ) : (
         <Text style={getTextStyle()}>{title}</Text>
       )}
-    </Pressable>
+    </PressableScale>
   );
 }

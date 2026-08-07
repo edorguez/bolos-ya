@@ -1,7 +1,11 @@
 import { StyleSheet } from 'react-native';
 import { AppTheme } from './theme';
+import { createButtonStyles } from './buttons';
+import { createCardStyles } from './cards';
 
 export function createHomeStyles(theme: AppTheme) {
+  const buttonStyles = createButtonStyles(theme);
+  const cardStyles = createCardStyles(theme);
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -30,23 +34,9 @@ export function createHomeStyles(theme: AppTheme) {
       gap: theme.spacing.lg,
     },
     card: {
-      backgroundColor: theme.colors.surfaceContainerLowest,
-      borderRadius: theme.borderRadius.md,
+      ...cardStyles.base,
       padding: theme.spacing.lg,
       gap: theme.spacing.lg,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-    },
-    supermarketCarousel: {
-      flexDirection: 'row',
-      gap: theme.spacing.sm,
-      paddingBottom: theme.spacing.sm,
-      marginHorizontal: -theme.spacing.xs,
-      paddingHorizontal: theme.spacing.xs,
-    },
-    supermarketCarouselContent: {
-      flexDirection: 'row',
-      gap: theme.spacing.sm,
     },
     supermarketLabel: {
       fontSize: theme.typography.fontSize.xs,
@@ -59,22 +49,9 @@ export function createHomeStyles(theme: AppTheme) {
     customMarketContainer: {
       marginTop: theme.spacing.sm,
     },
-    customMarketInput: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.sm,
-      fontSize: theme.typography.fontSize.sm,
-      color: theme.colors.text,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-    },
     errorText: {
       color: theme.colors.error,
       fontSize: theme.typography.fontSize.xs,
-    },
-    errorBorder: {
-      borderColor: theme.colors.error,
     },
     budgetRow: {
       flexDirection: 'row',
@@ -99,17 +76,6 @@ export function createHomeStyles(theme: AppTheme) {
     budgetInputWrapper: {
       position: 'relative',
     },
-    budgetInput: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.sm,
-      fontSize: theme.typography.fontSize.sm,
-      color: theme.colors.text,
-      textAlign: 'right',
-    },
     budgetSymbol: {
       position: 'absolute',
       left: theme.spacing.md,
@@ -129,8 +95,8 @@ export function createHomeStyles(theme: AppTheme) {
       justifyContent: 'center',
     },
     primaryButton: {
+      ...buttonStyles.base,
       backgroundColor: theme.colors.midnight,
-      borderRadius: theme.borderRadius.button,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       alignItems: 'center',

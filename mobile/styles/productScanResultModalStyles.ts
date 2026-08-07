@@ -1,10 +1,14 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { AppTheme } from './theme';
+import { createButtonStyles } from './buttons';
+import { createInputStyles } from './inputs';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const MODAL_WIDTH = Math.min(SCREEN_WIDTH * 0.9, 400);
 
 export function createProductScanResultModalStyles(theme: AppTheme) {
+  const buttonStyles = createButtonStyles(theme);
+  const inputStyles = createInputStyles(theme);
   return StyleSheet.create({
     modalContainer: {
       flex: 1,
@@ -88,43 +92,23 @@ export function createProductScanResultModalStyles(theme: AppTheme) {
       marginBottom: theme.spacing.xs,
     },
     quantitySection: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.sm,
+      ...inputStyles.quantitySection,
       marginBottom: theme.spacing.md,
     },
-    quantityControls: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      gap: theme.spacing.lg,
-      backgroundColor: theme.colors.surfaceContainerLowest,
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.xs,
-    },
-    quantityButton: {
-      width: 30,
-      height: 30,
-      borderRadius: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    quantityNumber: {
-      fontSize: theme.typography.fontSize.xs,
-      fontWeight: theme.typography.fontWeight.semibold,
-      minWidth: 32,
-      textAlign: 'center',
-      color: theme.colors.onSurface,
-    },
+    quantityControls: inputStyles.quantityControls,
+    quantityButton: inputStyles.quantityButton,
+    quantityButtonPressedDecrement: inputStyles.quantityButtonPressedDecrement,
+    quantityButtonPressedIncrement: inputStyles.quantityButtonPressedIncrement,
+    quantityNumber: inputStyles.quantityNumber,
     actionRow: {
       flexDirection: 'row',
       gap: theme.spacing.xxs,
       marginTop: theme.spacing.sm,
     },
     retryButton: {
+      // ...buttonStyles.base,
       flex: 1,
       paddingVertical: theme.spacing.md,
-      borderRadius: theme.borderRadius.button,
       borderWidth: 1,
       borderColor: theme.colors.stoneSurface,
       alignItems: 'center',
@@ -136,9 +120,9 @@ export function createProductScanResultModalStyles(theme: AppTheme) {
       color: theme.colors.onSurfaceVariant,
     },
     addButton: {
+      ...buttonStyles.base,
       flex: 1,
       backgroundColor: theme.colors.midnight,
-      borderRadius: theme.borderRadius.button,
       paddingVertical: theme.spacing.md,
       flexDirection: 'row',
       alignItems: 'center',

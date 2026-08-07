@@ -8,6 +8,7 @@ import { PremiumActiveCard } from '../../components/profile/PremiumActiveCard';
 import { AnonymousPromptCard } from '../../components/profile/AnonymousPromptCard';
 import { GuestCard } from '../../components/profile/GuestCard';
 import { Toast } from '../../components/shared/Toast';
+import { FadeIn } from '../../components/shared/FadeIn';
 import { useAppTheme } from '../../styles/theme';
 import { useAuth } from '../../store/authStore';
 import { getPaymentsByUser, PENDING_STATUS_ID } from '../../services/paymentService';
@@ -67,42 +68,53 @@ export default function ProfileTab() {
       >
         {isAuthenticated ? (
           <>
-            <View style={styles.profileHeader as ViewStyle}>
-              <Avatar uri={user?.image || undefined} />
+            <FadeIn delay={0}>
+              <View style={styles.profileHeader as ViewStyle}>
+                <Avatar uri={user?.image || undefined} />
 
-              {!user?.isAnonymous ? (
-                <Text style={styles.profileName as TextStyle}>{user?.name}</Text>
+                {!user?.isAnonymous ? (
+                  <Text style={styles.profileName as TextStyle}>{user?.name}</Text>
+                ) : (
+                  <Text style={styles.profileName as TextStyle}>Usuario</Text>
+                )}
+
+                {!user?.isAnonymous && (
+                  <Text style={styles.profileEmail as TextStyle}>{user?.email || ''}</Text>
+                )}
+              </View>
+            </FadeIn>
+
+            <FadeIn delay={120} distance={12}>
+              {user?.isAnonymous ? (
+                <AnonymousPromptCard onLoginPress={handleCreateAccount} />
+              ) : isPremium ? (
+                <PremiumActiveCard
+                  premiumUntil={user?.premiumUntil}
+                  onUpgradePress={handleUpgrade}
+                />
               ) : (
-                <Text style={styles.profileName as TextStyle}>Usuario</Text>
+                <PremiumCard onUpgradePress={handleUpgrade} />
               )}
-
-              {!user?.isAnonymous && (
-                <Text style={styles.profileEmail as TextStyle}>{user?.email || ''}</Text>
-              )}
-            </View>
-
-            {user?.isAnonymous ? (
-              <AnonymousPromptCard onLoginPress={handleCreateAccount} />
-            ) : isPremium ? (
-              <PremiumActiveCard premiumUntil={user?.premiumUntil} onUpgradePress={handleUpgrade} />
-            ) : (
-              <PremiumCard onUpgradePress={handleUpgrade} />
-            )}
+            </FadeIn>
 
             {!user?.isAnonymous && (
-              <Pressable
-                style={({ pressed }) => [
-                  styles.logoutButton as ViewStyle,
-                  pressed && (styles.logoutButtonPressed as ViewStyle),
-                ]}
-                onPress={handleLogout}
-              >
-                <Text style={styles.logoutText as TextStyle}>Cerrar Sesión</Text>
-              </Pressable>
+              <FadeIn delay={220} distance={12}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.logoutButton as ViewStyle,
+                    pressed && (styles.logoutButtonPressed as ViewStyle),
+                  ]}
+                  onPress={handleLogout}
+                >
+                  <Text style={styles.logoutText as TextStyle}>Cerrar Sesión</Text>
+                </Pressable>
+              </FadeIn>
             )}
           </>
         ) : (
-          <GuestCard onCreateAccountPress={handleCreateAccount} />
+          <FadeIn>
+            <GuestCard onCreateAccountPress={handleCreateAccount} />
+          </FadeIn>
         )}
 
         <Text style={styles.versionText as TextStyle}>

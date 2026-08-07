@@ -1,6 +1,9 @@
-import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native';
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
+import { createCardStyles } from '../../styles/cards';
+import { createButtonStyles } from '../../styles/buttons';
+import { PressableScale } from '../shared/PressableScale';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface PremiumActiveCardProps {
@@ -24,59 +27,62 @@ function formatDate(premiumUntil: string): string {
   });
 }
 
-const stylesheet = StyleSheet.create(theme => ({
-  card: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.xl,
-    marginVertical: theme.spacing.lg,
-    boxShadow: 'color(display-p3 0.94902 0.941176 0.929412) 0px 0px 0px 1px inset',
-  },
-  content: {
-    gap: theme.spacing.md,
-  },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.xs,
-    backgroundColor: theme.colors.meadowGreen,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.borderRadius.sm,
-  },
-  badgeText: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.white,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  daysText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.charcoalPrimary,
-    letterSpacing: theme.typography.letterSpacing.xl,
-  },
-  expiresText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
-    color: theme.colors.ash,
-  },
-  upgradeButton: {
-    backgroundColor: theme.colors.midnight,
-    borderRadius: theme.borderRadius.button,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    alignItems: 'center',
-    marginTop: theme.spacing.sm,
-  },
-  upgradeButtonText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.medium,
-    color: theme.colors.white,
-  },
-}));
+const stylesheet = StyleSheet.create(theme => {
+  const cardStyles = createCardStyles(theme);
+  const buttonStyles = createButtonStyles(theme);
+  return {
+    card: {
+      ...cardStyles.base,
+      padding: theme.spacing.xl,
+      marginVertical: theme.spacing.lg,
+      boxShadow: `${theme.shadows.soft}, color(display-p3 0.94902 0.941176 0.929412) 0px 0px 0px 1px inset`,
+    },
+    content: {
+      gap: theme.spacing.md,
+    },
+    badge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.xs,
+      backgroundColor: theme.colors.meadowGreen,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.xs,
+      borderRadius: theme.borderRadius.sm,
+    },
+    badgeText: {
+      fontSize: theme.typography.fontSize.xs,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.white,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+    },
+    daysText: {
+      fontSize: theme.typography.fontSize.sm,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.charcoalPrimary,
+      letterSpacing: theme.typography.letterSpacing.xl,
+    },
+    expiresText: {
+      fontSize: theme.typography.fontSize.sm,
+      fontWeight: theme.typography.fontWeight.medium,
+      color: theme.colors.ash,
+    },
+    upgradeButton: {
+      ...buttonStyles.base,
+      backgroundColor: theme.colors.midnight,
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+      alignItems: 'center',
+      marginTop: theme.spacing.sm,
+    },
+    upgradeButtonText: {
+      fontSize: theme.typography.fontSize.sm,
+      fontWeight: theme.typography.fontWeight.medium,
+      color: theme.colors.white,
+    },
+  };
+});
 
 export function PremiumActiveCard({ premiumUntil, onUpgradePress }: PremiumActiveCardProps) {
   const theme = useAppTheme();
@@ -100,15 +106,13 @@ export function PremiumActiveCard({ premiumUntil, onUpgradePress }: PremiumActiv
           Te quedan {days} {days === 1 ? 'día' : 'días'} de Premium
         </Text>
         <Text style={styles.expiresText as TextStyle}>Tu suscripción vence el {expires}</Text>
-        <Pressable
-          style={({ pressed }) => [
-            styles.upgradeButton as ViewStyle,
-            pressed ? { opacity: 0.8 } : undefined,
-          ]}
+        <PressableScale
+          pressedScale={1.03}
+          style={styles.upgradeButton as ViewStyle}
           onPress={onUpgradePress}
         >
           <Text style={styles.upgradeButtonText as TextStyle}>Extender premium</Text>
-        </Pressable>
+        </PressableScale>
       </View>
     </View>
   );

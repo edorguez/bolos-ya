@@ -1,6 +1,8 @@
 import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
+import { createCardStyles } from '../../styles/cards';
+import { useCountUp } from '../../hooks/animations';
 import { ProgressBar } from '../shared/ProgressBar';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useBCV } from '../../store/bcvStore';
@@ -12,89 +14,89 @@ interface BudgetSummaryProps {
   budgetUsd: number;
 }
 
-const stylesheet = StyleSheet.create(theme => ({
-  container: {
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-    marginBottom: theme.spacing.md,
-  },
-  limitRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.xs,
-  },
-  limitRowColumn: {
-    flexDirection: 'column',
-    gap: 2,
-    marginBottom: theme.spacing.xs,
-    alignItems: 'flex-start',
-  },
-  limitLabel: {
-    fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    color: theme.colors.onSurfaceVariant,
-  },
-  limitUsd: {
-    fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurfaceVariant,
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginBottom: theme.spacing.sm,
-  },
-  totalLeft: {
-    flex: 1,
-  },
-  totalLabel: {
-    fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.bold,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    color: theme.colors.onSurface,
-    marginTop: theme.spacing.xs,
-  },
-  totalAmountRow: {
-    flexDirection: 'column',
-    gap: 2,
-  },
-  totalBs: {
-    fontSize: 28,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurface,
-  },
-  totalUsd: {
-    fontSize: 14,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurface,
-  },
-  progressBarContainer: {
-    marginBottom: theme.spacing.sm,
-  },
-  warningContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    padding: theme.spacing.xs,
-    backgroundColor: theme.colors.coralRed + '08',
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.coralRed + '20',
-  },
-  warningText: {
-    fontSize: 11,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.error,
-  },
-}));
+const stylesheet = StyleSheet.create(theme => {
+  const cardStyles = createCardStyles(theme);
+  return {
+    container: {
+      ...cardStyles.base,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+    },
+    limitRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: theme.spacing.xs,
+    },
+    limitRowColumn: {
+      flexDirection: 'column',
+      gap: 2,
+      marginBottom: theme.spacing.xs,
+      alignItems: 'flex-start',
+    },
+    limitLabel: {
+      fontSize: theme.typography.fontSize.xxs,
+      fontWeight: theme.typography.fontWeight.semibold,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      color: theme.colors.onSurfaceVariant,
+    },
+    limitUsd: {
+      fontSize: theme.typography.fontSize.xxs,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.onSurfaceVariant,
+    },
+    totalRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-end',
+      marginBottom: theme.spacing.sm,
+    },
+    totalLeft: {
+      flex: 1,
+    },
+    totalLabel: {
+      fontSize: theme.typography.fontSize.xxs,
+      fontWeight: theme.typography.fontWeight.bold,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      color: theme.colors.onSurface,
+      marginTop: theme.spacing.xs,
+    },
+    totalAmountRow: {
+      flexDirection: 'column',
+      gap: 2,
+    },
+    totalBs: {
+      fontSize: 28,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.onSurface,
+    },
+    totalUsd: {
+      fontSize: 14,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.onSurface,
+    },
+    progressBarContainer: {
+      marginBottom: theme.spacing.sm,
+    },
+    warningContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      padding: theme.spacing.xs,
+      backgroundColor: theme.colors.coralRed + '08',
+      borderRadius: theme.borderRadius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.coralRed + '20',
+    },
+    warningText: {
+      fontSize: 11,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.error,
+    },
+  };
+});
 
 export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: BudgetSummaryProps) {
   const theme = useAppTheme();
@@ -117,6 +119,9 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
   const limitLabelText = `LÍMITE: Bs. ${budgetBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
   const isLongBudget = limitLabelText.length > 22;
 
+  const totalBsText = useCountUp({ value: totalBs, prefix: 'Bs. ' });
+  const totalUsdText = useCountUp({ value: totalUsd, prefix: '($ ', suffix: ')' });
+
   return (
     <View style={styles.container as ViewStyle}>
       <View
@@ -137,21 +142,8 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
         <View style={styles.totalLeft as ViewStyle}>
           <Text style={styles.totalLabel as TextStyle}>TOTAL ACUMULADO</Text>
           <View style={styles.totalAmountRow as ViewStyle}>
-            <Text style={styles.totalBs as TextStyle}>
-              Bs.{' '}
-              {totalBs.toLocaleString('es-VE', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </Text>
-            <Text style={styles.totalUsd as TextStyle}>
-              (${' '}
-              {totalUsd.toLocaleString('es-VE', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-              )
-            </Text>
+            <Text style={styles.totalBs as TextStyle}>{totalBsText}</Text>
+            <Text style={styles.totalUsd as TextStyle}>{totalUsdText}</Text>
           </View>
         </View>
       </View>

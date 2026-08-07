@@ -1,13 +1,16 @@
 import {
-  ScrollView,
   View,
   type ScrollViewProps,
   type ViewStyle,
   type TextStyle,
   type LayoutChangeEvent,
-  type NativeSyntheticEvent,
-  type NativeScrollEvent,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import { useState, useRef } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet } from '../../styles/createStyleSheet';
@@ -71,10 +74,10 @@ export function HorizontalScrollWithIndicators({
   const theme = useAppTheme();
   const styles = stylesheet(theme);
 
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<Animated.ScrollView>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
-  const [scrollX, setScrollX] = useState(0);
+  const scrollX = useSharedValue(0);
 
   const handleContainerLayout = (event: LayoutChangeEvent) => {
     setContainerWidth(event.nativeEvent.layout.width);
@@ -84,67 +87,72 @@ export function HorizontalScrollWithIndicators({
     setContentWidth(width);
   };
 
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    setScrollX(event.nativeEvent.contentOffset.x);
-  };
+  const onScroll = useAnimatedScrollHandler(event => {
+    scrollX.set(event.contentOffset.x);
+  });
 
-  const showLeftArrow = scrollX > 0;
-  const showRightArrow =
-    contentWidth > containerWidth && scrollX < contentWidth - containerWidth - 1;
+  const canScroll = contentWidth > containerWidth;
+
+  const leftArrowAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(canScroll && scrollX.get() > 0 ? 1 : 0, { duration: 150 }),
+  }));
+
+  const rightArrowAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(canScroll && scrollX.get() < contentWidth - containerWidth - 1 ? 1 : 0, {
+      duration: 150,
+    }),
+  }));
 
   return (
     <View style={styles.container as ViewStyle}>
-      <ScrollView
+      <Animated.ScrollView
         ref={scrollViewRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         onLayout={handleContainerLayout}
         onContentSizeChange={handleContentSizeChange}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
+        onScroll={onScroll}
         {...scrollViewProps}
         style={[styles.scrollView as ViewStyle, scrollViewProps.style]}
       >
         {children}
-      </ScrollView>
+      </Animated.ScrollView>
 
-      {showLeftArrow && (
-        <View
-          style={[
-            styles.arrowContainer as ViewStyle,
-            styles.leftArrowContainer as ViewStyle,
-            leftArrowStyle,
-          ]}
-          pointerEvents="none"
-        >
-          <View style={styles.arrowBackground as ViewStyle}>
-            <MaterialIcons
-              name={iconNameLeft as keyof typeof MaterialIcons.glyphMap}
-              size={iconSize}
-              style={styles.icon as TextStyle}
-            />
-          </View>
+      <Animated.View
+        style={[
+          styles.arrowContainer as ViewStyle,
+          styles.leftArrowContainer as ViewStyle,
+          leftArrowAnimatedStyle,
+          leftArrowStyle,
+        ]}
+        pointerEvents="none"
+      >
+        <View style={styles.arrowBackground as ViewStyle}>
+          <MaterialIcons
+            name={iconNameLeft as keyof typeof MaterialIcons.glyphMap}
+            size={iconSize}
+            style={styles.icon as TextStyle}
+          />
         </View>
-      )}
+      </Animated.View>
 
-      {showRightArrow && (
-        <View
-          style={[
-            styles.arrowContainer as ViewStyle,
-            styles.rightArrowContainer as ViewStyle,
-            rightArrowStyle,
-          ]}
-          pointerEvents="none"
-        >
-          <View style={styles.arrowBackground as ViewStyle}>
-            <MaterialIcons
-              name={iconNameRight as keyof typeof MaterialIcons.glyphMap}
-              size={iconSize}
-              style={styles.icon as TextStyle}
-            />
-          </View>
+      <Animated.View
+        style={[
+          styles.arrowContainer as ViewStyle,
+          styles.rightArrowContainer as ViewStyle,
+          rightArrowAnimatedStyle,
+          rightArrowStyle,
+        ]}
+        pointerEvents="none"
+      >
+        <View style={styles.arrowBackground as ViewStyle}>
+          <MaterialIcons
+            name={iconNameRight as keyof typeof MaterialIcons.glyphMap}
+            size={iconSize}
+            style={styles.icon as TextStyle}
+          />
         </View>
-      )}
+      </Animated.View>
     </View>
   );
 }

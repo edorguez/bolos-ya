@@ -1,13 +1,23 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
+import { createButtonStyles } from '../../styles/buttons';
+import { useScaleIn, useFadeSlideIn, useHeartbeat } from '../../hooks/animations';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function CheckoutSuccessScreen() {
   const router = useRouter();
   const theme = useAppTheme();
+  const buttonStyles = createButtonStyles(theme);
   const insets = useSafeAreaInsets();
+
+  const iconEnter = useScaleIn({ delay: 150 });
+  const heartbeat = useHeartbeat();
+  const titleEnter = useFadeSlideIn({ delay: 300, distance: 12 });
+  const subtitleEnter = useFadeSlideIn({ delay: 420, distance: 12 });
+  const buttonEnter = useFadeSlideIn({ delay: 540, distance: 12 });
 
   const styles = StyleSheet.create({
     container: {
@@ -42,10 +52,10 @@ export default function CheckoutSuccessScreen() {
       lineHeight: 22,
     },
     button: {
+      ...buttonStyles.base,
       backgroundColor: theme.colors.midnight,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.xxl,
-      borderRadius: theme.borderRadius.button,
       width: '100%',
       maxWidth: 300,
       alignItems: 'center',
@@ -59,17 +69,25 @@ export default function CheckoutSuccessScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.iconContainer}>
-        <MaterialCommunityIcons name="check-circle" size={64} color={theme.colors.meadowGreen} />
-      </View>
-      <Text style={styles.title}>Tu carrito fue completado con éxito</Text>
-      <Text style={styles.subtitle}>Todo listo para tu próxima visita al supermercado</Text>
-      <Pressable
-        style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
-        onPress={() => router.replace('/(tabs)')}
-      >
-        <Text style={styles.buttonText}>Ir al Inicio</Text>
-      </Pressable>
+      <Animated.View style={iconEnter}>
+        <Animated.View style={[styles.iconContainer, heartbeat]}>
+          <MaterialCommunityIcons name="check-circle" size={64} color={theme.colors.meadowGreen} />
+        </Animated.View>
+      </Animated.View>
+      <Animated.Text style={[styles.title, titleEnter]}>
+        Tu carrito fue completado con éxito
+      </Animated.Text>
+      <Animated.Text style={[styles.subtitle, subtitleEnter]}>
+        Todo listo para tu próxima visita al supermercado
+      </Animated.Text>
+      <Animated.View style={buttonEnter}>
+        <Pressable
+          style={({ pressed }) => [styles.button, pressed && buttonStyles.pressed]}
+          onPress={() => router.replace('/(tabs)')}
+        >
+          <Text style={styles.buttonText}>Ir al Inicio</Text>
+        </Pressable>
+      </Animated.View>
     </View>
   );
 }

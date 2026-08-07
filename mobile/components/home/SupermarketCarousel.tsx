@@ -1,6 +1,7 @@
-import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native';
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
+import { PressableScale } from '../shared/PressableScale';
 import { MaterialIcons } from '@expo/vector-icons';
 import { HorizontalScrollWithIndicators } from '../shared/HorizontalScrollWithIndicators';
 
@@ -21,15 +22,14 @@ const stylesheet = StyleSheet.create(theme => ({
     gap: theme.spacing.xs,
   },
   carousel: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    paddingBottom: theme.spacing.sm,
     marginHorizontal: -theme.spacing.xs,
-    paddingHorizontal: theme.spacing.xs,
   },
   carouselContent: {
     flexDirection: 'row',
     gap: theme.spacing.sm,
+    paddingTop: theme.spacing.xs,
+    paddingBottom: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.xs,
   },
   option: {
     width: 80,
@@ -44,8 +44,9 @@ const stylesheet = StyleSheet.create(theme => ({
     marginVertical: 2,
   },
   optionSelected: {
-    borderColor: theme.colors.midnight,
     backgroundColor: theme.colors.surfaceContainerLowest,
+    boxShadow: theme.shadows.medium,
+    color: theme.colors.onSurface,
   },
   icon: {
     color: theme.colors.ash,
@@ -75,8 +76,9 @@ export function SupermarketCarousel({ supermarkets, onSelect }: SupermarketCarou
         style={styles.carousel as ViewStyle}
       >
         {supermarkets.map(supermarket => (
-          <Pressable
+          <PressableScale
             key={supermarket.id}
+            pressedScale={1.05}
             style={[
               styles.option as ViewStyle,
               supermarket.selected && (styles.optionSelected as ViewStyle),
@@ -96,7 +98,7 @@ export function SupermarketCarousel({ supermarkets, onSelect }: SupermarketCarou
             >
               {supermarket.name}
             </Text>
-          </Pressable>
+          </PressableScale>
         ))}
       </HorizontalScrollWithIndicators>
     </View>

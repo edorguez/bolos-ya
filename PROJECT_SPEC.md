@@ -18,7 +18,7 @@ A mobile application (iOS/Android) and web admin dashboard that allows users in 
 | **Backend APIs**       | REST (OpenAPI 3.0 specification)                                           |
 | **Mobile**             | React Native (Expo SDK 55) with TypeScript, Expo Router                    |
 | **Web / Admin**        | React 19, Vite 5, TypeScript 6, MUI 9, GSAP 3, SCSS Modules               |
-| **Styling (Mobile)**   | Unistyles (`react-native-unistyles`)                                       |
+| **Styling (Mobile)**   | Shared design-token modules (`styles/theme.ts`, `buttons.ts`, `cards.ts`, `inputs.ts`) + Unistyles for selected screens |
 | **State Management**   | Zustand (cart only, persisted via AsyncStorage); custom React hooks (auth, BCV) |
 | **Local Storage**      | `expo-sqlite` (offline DB), AsyncStorage (Zustand persist + caching), `expo-secure-store` (auth tokens) |
 | **Offline DB**         | Local SQLite (`expo-sqlite`) mirroring backend tables with sync queue      |
@@ -111,7 +111,7 @@ bolos-ya/
 │   │           └── supermarketRepository.ts # Local supermarket cache
 │   ├── hooks/               # React hooks
 │   │   └── useNetwork.ts    # Network state detection hook
-│   ├── components/          # UI components by domain (42 total)
+│   ├── components/          # UI components by domain (36 total)
 │   │   ├── home/            # BCVRateCard, SupermarketCarousel, CartCard, etc.
 │   │   ├── cart/            # BudgetSummary, ProductCard, ProductForm, etc.
 │   │   ├── shared/          # Toast, BottomSheet, ActionSheet, ManualEntryModal, etc.
@@ -205,7 +205,7 @@ func NewCartService(cartRepo repository.CartRepository, productRepo repository.P
 - **Auth Client**: `lib/auth-client.ts` — better-auth Expo plugin with SecureStore storage + anonymous guest plugin. Supports offline guest mode with local SecureStore fallback.
 - **OCR**: `@infinitered/react-native-mlkit-text-recognition` for on‑device price extraction from receipt photos. Image preprocessing via `expo-image-manipulator` (crop + resize to 1200px). Falls back to mock data if ML Kit unavailable. Works fully offline.
 - **Manual Entry**: `ManualEntryModal` for adding products without a receipt (barcode, prices, quantity). Works fully offline.
-- **Styling**: Unistyles with a shared theme (`mobile/styles/theme.ts`) and per‑screen style modules (light/dark mode via `useColorScheme()`).
+- **Styling**: Shared design-token system — `styles/theme.ts` (colors, spacing, typography, border radii, shadows) plus shared factories (`styles/buttons.ts`, `styles/cards.ts`, `styles/inputs.ts`) and shared components (`Button`, `Input`). Unistyles is used only by `styles/profileStyles.ts`. Light theme only (no dark mode / `useColorScheme()`).
 - **Local DB**: `expo-sqlite` with a local schema mirroring backend tables (`carts`, `cart_products`, `supermarkets`) plus a `sync_queue` table for tracking pending changes. Three local repositories (`cartRepository`, `cartProductRepository`, `supermarketRepository`) provide offline CRUD operations.
 - **Sync Engine**: `services/syncService.ts` orchestrates offline→online synchronization. On connectivity restored, the sync queue is drained by calling `POST /api/v1/sync` with batched `SyncOperation` items. Conflict resolution uses **last-write-wins** based on timestamps.
 - **Network Detection**: `hooks/useNetwork.ts` wraps `expo-network` to detect connectivity state changes; auto-triggers sync on reconnection.

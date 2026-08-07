@@ -98,11 +98,18 @@ const sharedBorderRadius = {
   button: 32,
 } as const;
 
+const sharedShadows = {
+  soft: '0 0 10px rgba(0, 0, 0, 0.08)',
+  medium: '0 0 10px rgba(0, 0, 0, 0.4)',
+  strong: '0 0 10px black',
+} as const;
+
 export const theme = {
   colors: lightColors,
   spacing: sharedSpacing,
   typography: sharedTypography,
   borderRadius: sharedBorderRadius,
+  shadows: sharedShadows,
 } as const;
 
 export type AppTheme = typeof theme;

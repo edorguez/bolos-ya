@@ -1,15 +1,9 @@
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  ActivityIndicator,
-  ScrollView,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
+import { createButtonStyles } from '../../styles/buttons';
+import { Input } from '../../components/shared/Input';
 import { signIn } from '../../lib/auth-client';
 import { Toast } from '../../components/shared/Toast';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -17,6 +11,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 export default function LoginScreen() {
   const router = useRouter();
   const theme = useAppTheme();
+  const buttonStyles = createButtonStyles(theme);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -91,30 +86,9 @@ export default function LoginScreen() {
     form: {
       gap: theme.spacing.md,
     },
-    inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.md,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-    },
-    input: {
-      flex: 1,
-      paddingVertical: theme.spacing.md,
-      fontSize: theme.typography.fontSize.sm,
-      color: theme.colors.text,
-    },
-    inputIcon: {
-      marginRight: theme.spacing.sm,
-    },
-    togglePassword: {
-      padding: theme.spacing.xs,
-    },
     loginButton: {
+      ...buttonStyles.base,
       backgroundColor: theme.colors.midnight,
-      borderRadius: theme.borderRadius.button,
       paddingVertical: theme.spacing.md,
       alignItems: 'center',
       justifyContent: 'center',
@@ -156,62 +130,52 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <MaterialIcons
-                name="mail-outline"
-                size={20}
-                color={theme.colors.textSecondary}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Correo electrónico"
-                placeholderTextColor={theme.colors.textSecondary}
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                autoComplete="email"
-                editable={!isLoading}
-              />
-            </View>
+            <Input
+              leadingIcon={
+                <MaterialIcons name="mail-outline" size={20} color={theme.colors.textSecondary} />
+              }
+              placeholder="Correo electrónico"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+              editable={!isLoading}
+            />
 
-            <View style={styles.inputContainer}>
-              <MaterialIcons
-                name="lock-outline"
-                size={20}
-                color={theme.colors.textSecondary}
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Contraseña"
-                placeholderTextColor={theme.colors.textSecondary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                editable={!isLoading}
-                maxLength={20}
-              />
-              <Pressable
-                style={styles.togglePassword}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <MaterialIcons
-                  name={showPassword ? 'visibility-off' : 'visibility'}
-                  size={20}
-                  color={theme.colors.textSecondary}
-                />
-              </Pressable>
-            </View>
+            <Input
+              leadingIcon={
+                <MaterialIcons name="lock-outline" size={20} color={theme.colors.textSecondary} />
+              }
+              trailingAction={
+                <Pressable
+                  onPress={() => setShowPassword(!showPassword)}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  <MaterialIcons
+                    name={showPassword ? 'visibility-off' : 'visibility'}
+                    size={20}
+                    color={theme.colors.textSecondary}
+                  />
+                </Pressable>
+              }
+              placeholder="Contraseña"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              editable={!isLoading}
+              maxLength={20}
+            />
 
             <Pressable
               onPress={handleLogin}
               disabled={isLoading}
               style={({ pressed }) => [
                 styles.loginButton,
-                pressed && { opacity: 0.8 },
+                pressed && buttonStyles.pressed,
                 isLoading && { opacity: 0.6 },
               ]}
             >

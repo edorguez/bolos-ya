@@ -9,6 +9,7 @@ import {
   type TextStyle,
 } from 'react-native';
 import { useAppTheme } from '../../styles/theme';
+import { createButtonStyles } from '../../styles/buttons';
 import { createProductScanResultModalStyles } from '../../styles/productScanResultModalStyles';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -31,6 +32,7 @@ export function ProductScanResultModal({
 }: ProductScanResultModalProps) {
   const theme = useAppTheme();
   const styles = createProductScanResultModalStyles(theme);
+  const buttonStyles = createButtonStyles(theme);
 
   const [quantity, setQuantity] = useState(1);
 
@@ -99,7 +101,7 @@ export function ProductScanResultModal({
                   style={({ pressed }) => [
                     styles.quantityButton as ViewStyle,
                     { backgroundColor: theme.colors.surfaceContainerHigh },
-                    pressed && { opacity: 0.8 },
+                    pressed && (styles.quantityButtonPressedDecrement as ViewStyle),
                   ]}
                   onPress={decrementQuantity}
                 >
@@ -110,7 +112,7 @@ export function ProductScanResultModal({
                   style={({ pressed }) => [
                     styles.quantityButton as ViewStyle,
                     { backgroundColor: theme.colors.primary },
-                    pressed && { opacity: 0.8 },
+                    pressed && (styles.quantityButtonPressedIncrement as ViewStyle),
                   ]}
                   onPress={incrementQuantity}
                 >
@@ -123,7 +125,7 @@ export function ProductScanResultModal({
               <Pressable
                 style={({ pressed }) => [
                   styles.retryButton as ViewStyle,
-                  pressed && { opacity: 0.8 },
+                  pressed && buttonStyles.pressed,
                 ]}
                 onPress={onClose}
               >
@@ -133,7 +135,7 @@ export function ProductScanResultModal({
               <Pressable
                 style={({ pressed }) => [
                   styles.addButton as ViewStyle,
-                  pressed && { opacity: 0.8 },
+                  pressed && buttonStyles.pressed,
                 ]}
                 onPress={() => {
                   onAddToCart(quantity);

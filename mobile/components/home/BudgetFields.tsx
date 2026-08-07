@@ -51,7 +51,6 @@ export function BudgetFields({
                 onValueChange={onBsChange}
                 placeholder="0,00"
                 error={!!fieldErrors.budgetBs || !!fieldErrors.budgetUsd}
-                style={styles.budgetInput as ViewStyle}
               />
               <Text style={styles.budgetSymbol as TextStyle}>Bs.</Text>
             </View>
@@ -62,13 +61,6 @@ export function BudgetFields({
                 onValueChange={() => {}}
                 placeholder="0,00"
                 editable={false}
-                style={[
-                  styles.budgetInput as ViewStyle,
-                  {
-                    color: theme.colors.onSurfaceVariant,
-                    backgroundColor: theme.colors.stoneSurface,
-                  } as ViewStyle,
-                ]}
               />
               <Text style={styles.budgetSymbol as TextStyle}>$</Text>
             </View>
@@ -82,7 +74,6 @@ export function BudgetFields({
                 onValueChange={onUsdChange}
                 placeholder="0,00"
                 error={!!fieldErrors.budgetBs || !!fieldErrors.budgetUsd}
-                style={styles.budgetInput as ViewStyle}
               />
               <Text style={styles.budgetSymbol as TextStyle}>$</Text>
             </View>
@@ -93,13 +84,6 @@ export function BudgetFields({
                 onValueChange={() => {}}
                 placeholder="0,00"
                 editable={false}
-                style={[
-                  styles.budgetInput as ViewStyle,
-                  {
-                    color: theme.colors.onSurfaceVariant,
-                    backgroundColor: theme.colors.stoneSurface,
-                  } as ViewStyle,
-                ]}
               />
               <Text style={styles.budgetSymbol as TextStyle}>Bs.</Text>
             </View>

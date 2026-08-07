@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCartStore, type Cart, type CartProduct } from '../../store/cartStore';
 import { useAppTheme } from '../../styles/theme';
+import { createButtonStyles } from '../../styles/buttons';
 import { createCartDetailStyles } from '../../styles/cartDetailStyles';
 import { ProductCard } from '../../components/cart/ProductCard';
 import { BudgetSummary } from '../../components/cart/BudgetSummary';
@@ -9,6 +10,8 @@ import { SupermarketHeader } from '../../components/cart/SupermarketHeader';
 import { TopAppBar } from '../../components/shared/TopAppBar';
 import { BottomSheetModal } from '../../components/shared/BottomSheetModal';
 import { ActionSheetModal } from '../../components/shared/ActionSheetModal';
+import { FadeIn } from '../../components/shared/FadeIn';
+import { Skeleton } from '../../components/shared/Skeleton';
 import { Toast } from '../../components/shared/Toast';
 import { ProductForm } from '../../components/cart/ProductForm';
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -28,6 +31,7 @@ export default function CartDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const theme = useAppTheme();
+  const buttonStyles = createButtonStyles(theme);
   const {
     carts,
     addCart,
@@ -228,11 +232,15 @@ export default function CartDetailScreen() {
           style={{
             flex: 1,
             backgroundColor: theme.colors.background,
-            justifyContent: 'center',
-            alignItems: 'center',
+            paddingHorizontal: theme.spacing.lg,
+            paddingTop: theme.spacing.lg,
+            gap: theme.spacing.md,
           }}
         >
-          <ActivityIndicator size="large" color={theme.colors.midnight} />
+          <Skeleton height={96} radius={10} />
+          <Skeleton height={160} radius={10} />
+          <Skeleton height={80} radius={10} />
+          <Skeleton height={80} radius={10} />
         </View>
       );
     }
@@ -284,19 +292,20 @@ export default function CartDetailScreen() {
         <Text style={styles.sectionHeader}>Productos en Carrito</Text>
         <View style={styles.productList}>
           {cart.products.length > 0 ? (
-            cart.products.map((product: CartProduct) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                name={product.name}
-                priceBs={product.priceBs}
-                priceUsd={product.priceUsd}
-                quantity={product.quantity}
-                productImageUrl={product.productImageUrl}
-                cartId={cart.id}
-                onMenuPress={handleMenuPress}
-                onQuantityChange={handleQuantityChange}
-              />
+            cart.products.map((product: CartProduct, index: number) => (
+              <FadeIn key={product.id} delay={index * 50} distance={12}>
+                <ProductCard
+                  id={product.id}
+                  name={product.name}
+                  priceBs={product.priceBs}
+                  priceUsd={product.priceUsd}
+                  quantity={product.quantity}
+                  productImageUrl={product.productImageUrl}
+                  cartId={cart.id}
+                  onMenuPress={handleMenuPress}
+                  onQuantityChange={handleQuantityChange}
+                />
+              </FadeIn>
             ))
           ) : (
             <View style={styles.emptyState}>
@@ -323,7 +332,7 @@ export default function CartDetailScreen() {
       <View style={styles.buttonBarContainer}>
         <View style={styles.buttonBar}>
           <Pressable
-            style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
+            style={({ pressed }) => [styles.button, pressed && buttonStyles.pressed]}
             onPress={() => setShowAddProduct(true)}
             accessibilityRole="button"
             accessibilityLabel="Agregar producto"
@@ -345,7 +354,7 @@ export default function CartDetailScreen() {
           </Pressable>
 
           <Pressable
-            style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
+            style={({ pressed }) => [styles.button, pressed && buttonStyles.pressed]}
             onPress={handleScanPress}
             accessibilityRole="button"
             accessibilityLabel="Escanear producto"

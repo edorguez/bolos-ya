@@ -1,52 +1,57 @@
-import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native';
+import { View, Text, type ViewStyle, type TextStyle } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
+import { createCardStyles } from '../../styles/cards';
+import { PressableScale } from '../shared/PressableScale';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface GuestCardProps {
   onCreateAccountPress?: () => void;
 }
 
-const stylesheet = StyleSheet.create(theme => ({
-  card: {
-    backgroundColor: theme.colors.parchmentCard,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.xl,
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: theme.colors.stoneSurface,
-    alignItems: 'center',
-    gap: theme.spacing.md,
-    marginVertical: theme.spacing.lg,
-  },
-  icon: {
-    width: 48,
-    height: 48,
-    borderRadius: 9999,
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurface,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: theme.typography.fontSize.sm,
-    color: theme.colors.onSurfaceVariant,
-    textAlign: 'center',
-  },
-  button: {
-    marginTop: theme.spacing.xs,
-  },
-  buttonText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.emberOrange,
-  },
-}));
+const stylesheet = StyleSheet.create(theme => {
+  const cardStyles = createCardStyles(theme);
+  return {
+    card: {
+      ...cardStyles.base,
+      backgroundColor: theme.colors.parchmentCard,
+      padding: theme.spacing.xl,
+      borderWidth: 2,
+      borderStyle: 'dashed',
+      borderColor: theme.colors.stoneSurface,
+      alignItems: 'center',
+      gap: theme.spacing.md,
+      marginVertical: theme.spacing.lg,
+    },
+    icon: {
+      width: 48,
+      height: 48,
+      borderRadius: 9999,
+      backgroundColor: theme.colors.surfaceContainerLowest,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    title: {
+      fontSize: theme.typography.fontSize.sm,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.onSurface,
+      textAlign: 'center',
+    },
+    subtitle: {
+      fontSize: theme.typography.fontSize.sm,
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
+    },
+    button: {
+      marginTop: theme.spacing.xs,
+    },
+    buttonText: {
+      fontSize: theme.typography.fontSize.sm,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.emberOrange,
+    },
+  };
+});
 
 export function GuestCard({ onCreateAccountPress }: GuestCardProps) {
   const theme = useAppTheme();
@@ -63,9 +68,13 @@ export function GuestCard({ onCreateAccountPress }: GuestCardProps) {
           Regístrate para guardar tu historial y más.
         </Text>
       </View>
-      <Pressable style={styles.button as ViewStyle} onPress={onCreateAccountPress}>
+      <PressableScale
+        pressedScale={1.04}
+        style={styles.button as ViewStyle}
+        onPress={onCreateAccountPress}
+      >
         <Text style={styles.buttonText as TextStyle}>Crear cuenta ahora</Text>
-      </Pressable>
+      </PressableScale>
     </View>
   );
 }

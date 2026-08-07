@@ -112,6 +112,11 @@ Family lands like a children's book dropped into a fintech dashboard — warm of
 | subtle-3 | `rgba(0, 0, 0, 0.04) 0px 0px 0px 1px` | `--shadow-subtle-3` |
 | lg | `rgba(0, 0, 0, 0.15) 0px 0px 24px 0px` | `--shadow-lg` |
 | sm | `rgba(0, 0, 0, 0.04) 0px 1px 6px 0px, rgba(0, 0, 0, 0.05) ...` | `--shadow-sm` |
+| soft (mobile) | `0 0 10px rgba(0, 0, 0, 0.08)` | `--shadow-soft` |
+| medium (mobile) | `0 0 10px rgba(0, 0, 0, 0.4)` | `--shadow-medium` |
+| strong (mobile) | `0 0 10px black` | `--shadow-strong` |
+
+Mobile shadow tokens (`--shadow-soft`, `--shadow-medium`, `--shadow-strong`) are the unified elevation system for the mobile app: `soft` is used on buttons, cards, inputs, and quantity controls; `medium` on selected/active chips (e.g., supermarket selection); `strong` is reserved for highest-emphasis states.
 
 ### Layout
 
@@ -125,7 +130,7 @@ Family lands like a children's book dropped into a fintech dashboard — warm of
 ### Primary CTA Button (Pill Dark)
 **Role:** Main conversion action — 'Get Started', 'Download on iOS'
 
-Background #121212, text #ffffff, border-radius 32px, padding 0px 14px. Inter 14px weight 500-600. The near-black pill floats against #fbfaf9 canvas as the site's only dark punch. Hover state likely lightens to #343433 via 0.2s ease transition.
+Background #121212, text #ffffff, border-radius 32px, padding 0px 14px. Inter 14px weight 500-600. The near-black pill floats against #fbfaf9 canvas as the site's only dark punch. Hover state likely lightens to #343433 via 0.2s ease transition. **Mobile:** the pill button carries `--shadow-soft`; press feedback scales up to 1.03 with opacity 0.9 (animated via transform/opacity on the UI thread), and corners use `borderCurve: 'continuous'`.
 
 ### Secondary CTA Button (Pill Light)
 **Role:** Alternative actions — 'Log In', 'Watch the Video'
@@ -145,7 +150,7 @@ Background transparent, text #474645 (Graphite), border 1px solid #474645, borde
 ### Feature Card (White)
 **Role:** Primary content cards — feature descriptions, testimonials
 
-Background white (display-p3 1 1 1), border via inset box-shadow: color(display-p3 0.949 0.941 0.929) 0px 0px 0px 1px inset (warm stone border, ~#f2f0ed), border-radius 10px, padding 32px all sides. The inset shadow technique keeps borders off-layout-flow — cards look hand-placed on the canvas.
+Background white (display-p3 1 1 1), border via inset box-shadow: color(display-p3 0.949 0.941 0.929) 0px 0px 0px 1px inset (warm stone border, ~#f2f0ed), border-radius 10px, padding 32px all sides. The inset shadow technique keeps borders off-layout-flow — cards look hand-placed on the canvas. **Mobile equivalent:** cards use a 1px stone-surface CSS border (`borderColor: stoneSurface`) plus the `--shadow-soft` drop shadow instead of the inset technique.
 
 ### Feature Card (Warm Cream)
 **Role:** Secondary content panels — screenshot containers, demo previews
@@ -182,11 +187,21 @@ Family typeface 500 at 68px with -2.11px letter-spacing and line-height 1.09 for
 
 Circular icon badge: background in brand color (Meadow Green for Receive, Flamingo for Purchase), icon in white, border-radius 40px, ~40px diameter. Acts as the only iconographic navigation within the dark phone card context.
 
+## Mobile Surfaces & Interaction
+
+The mobile app (Expo/React Native) implements the same token system (`styles/theme.ts`) and adds a shared surface layer built from small factory modules — `buttons.ts`, `cards.ts`, `inputs.ts` — each a single source of truth for its component family. Changing a token (e.g., `shadows.soft`) updates every affected surface app-wide.
+
+- **Inputs** (`styles/inputs.ts` + shared `Input` component): 10px radius, 1px `stoneSurface` border, `surfaceContainerLow` fill, `--shadow-soft`, 12px padding, placeholder in `onSurfaceVariant`. Focused inputs switch the border to `midnight` (#121212) for clear focus feedback; invalid inputs use `error` (#ff2b3a). Numeric/amount inputs right-align and render a muted read-only state when disabled.
+- **Quantity stepper** (`quantitySection` in `styles/inputs.ts`): a bordered box (`stoneSurface` border, 10px radius, `--shadow-soft`) wrapping the −/+ controls. The −/+ buttons are 30px circles; pressing scales them to 1.1 and shifts the fill — decrement to `surfaceContainerHighest`, increment to `obsidian`. The inline cart-row variant (24px buttons, `ProductCard`) presses to `surfaceContainerHigh`.
+- **Press states**: pill buttons scale up to 1.03 with opacity 0.9 while held (never down — the brand grows on press); quantity buttons scale 1.1 with a color shift. Only `transform` and `opacity` animate (GPU-friendly, no layout work).
+- **Cards**: white cards use a 1px `stoneSurface` CSS border plus `--shadow-soft` (instead of the web's inset-border technique); colorful/featured cards that clip decorative blobs (`overflow: hidden`) intentionally skip the outer shadow.
+- **Carousels**: horizontally scrolling chips/cards bleed to the screen edge via a negative-margin ScrollView; the content container carries the padding so the final item scrolls fully into view. The selected supermarket chip lifts with `--shadow-medium`.
+
 ## Do's and Don'ts
 
 ### Do
 - Use #fbfaf9 as page background — never pure white (#ffffff) at canvas level; the warm cream cast is the foundation of the tactile feel.
-- Apply the inset stone border (box-shadow: color(display-p3 0.949 0.941 0.929) 0px 0px 0px 1px inset) on all white cards instead of a CSS border property — keeps cards off-layout-flow.
+- Apply the inset stone border (box-shadow: color(display-p3 0.949 0.941 0.929) 0px 0px 0px 1px inset) on all white cards instead of a CSS border property — keeps cards off-layout-flow. On mobile, white cards use a 1px stone-surface CSS border (`borderColor: stoneSurface`) plus `--shadow-soft` instead of the inset technique.
 - Use border-radius 32px for all pill buttons (both #121212 dark and #f6f4ef light variants) — the pill shape is non-negotiable for interactive elements.
 - Apply tight negative letter-spacing to all large text: -2.11px at 68px display, -1.14px at 44px heading-lg, scaling to near-zero at body sizes.
 - Restrict the Family custom typeface to display and large section headings only (44px and 68px) — Inter handles all UI text regardless of weight.
@@ -194,7 +209,7 @@ Circular icon badge: background in brand color (Meadow Green for Receive, Flamin
 - Space illustration characters asymmetrically around hero text — overlap the headline bounding box with characters to create depth through layering, not z-index stacking.
 
 ### Don't
-- Don't use drop shadows on content cards — the inset warm-stone border is the only surface definition mechanism; shadows appear only on the dark phone mockup and hover-elevated states.
+- Don't use drop shadows on content cards on the web landing — the inset warm-stone border is the surface definition mechanism there; shadows appear only on the dark phone mockup and hover-elevated states. On mobile, surfaces use the unified `--shadow-soft` elevation on cards, buttons, inputs, and quantity controls, with `--shadow-medium`/`--shadow-strong` reserved for selected states and emphasis.
 - Don't use pure #ffffff as a page background — it breaks the warm cream identity; #fbfaf9 is the minimum warmth threshold.
 - Don't use the illustration characters as pure decoration at small sizes — below 60px they lose their expressive faces and become abstract blobs.
 - Don't mix Inter weight 700+ with the Family display typeface — the site uses Inter max weight 600; heavier weights fight the custom font's personality.

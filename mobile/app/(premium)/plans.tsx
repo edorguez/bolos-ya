@@ -4,6 +4,10 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAppTheme } from '../../styles/theme';
+import { createButtonStyles } from '../../styles/buttons';
+import { createCardStyles } from '../../styles/cards';
+import { useCountUp } from '../../hooks/animations';
+import { FadeIn } from '../../components/shared/FadeIn';
 import { TopAppBar } from '../../components/shared/TopAppBar';
 
 type BillingPeriod = 'monthly' | 'quarterly' | 'annual';
@@ -44,12 +48,16 @@ const PREMIUM_FEATURES = ['OCR Scanner ilimitado', 'Carritos ilimitados', 'Sopor
 
 export default function PlansScreen() {
   const theme = useAppTheme();
+  const buttonStyles = createButtonStyles(theme);
+  const cardStyles = createCardStyles(theme);
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
 
   const selected = BILLING_OPTIONS.find(b => b.id === billingPeriod)!;
+
+  const priceText = useCountUp({ value: selected.price, prefix: '$', duration: 500 });
 
   const getPerUnit = (option: BillingOption) => {
     if (option.id === 'monthly') return null;
@@ -136,11 +144,8 @@ export default function PlansScreen() {
       color: theme.colors.meadowGreen,
     },
     card: {
-      backgroundColor: theme.colors.surfaceContainerLowest,
+      ...cardStyles.base,
       borderRadius: 24,
-      borderCurve: 'continuous',
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
       padding: theme.spacing.xl,
       gap: theme.spacing.lg,
     },
@@ -200,13 +205,13 @@ export default function PlansScreen() {
       gap: theme.spacing.md,
     },
     submitButton: {
+      ...buttonStyles.base,
       backgroundColor: theme.colors.midnight,
-      borderRadius: theme.borderRadius.button,
       paddingVertical: theme.spacing.md,
       alignItems: 'center',
     },
     submitButtonPressed: {
-      opacity: 0.8,
+      ...buttonStyles.pressed,
     },
     submitText: {
       fontSize: theme.typography.fontSize.sm,
@@ -220,53 +225,61 @@ export default function PlansScreen() {
       <TopAppBar title="Premium" onBackPress={() => router.back()} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.headerSection}>
-          <View style={styles.starIconContainer}>
-            <MaterialIcons name="stars" size={24} color={theme.colors.sunburstYellow} />
+        <FadeIn>
+          <View style={styles.headerSection}>
+            <View style={styles.starIconContainer}>
+              <MaterialIcons name="stars" size={24} color={theme.colors.sunburstYellow} />
+            </View>
+            <Text style={styles.headerTitle}>Hazte Premium</Text>
+            <Text style={styles.headerSubtitle}>Elige tu plan de pago</Text>
           </View>
-          <Text style={styles.headerTitle}>Hazte Premium</Text>
-          <Text style={styles.headerSubtitle}>Elige tu plan de pago</Text>
-        </View>
+        </FadeIn>
 
-        <View style={styles.pillsContainer}>
-          {BILLING_OPTIONS.map(option => {
-            const isSelected = billingPeriod === option.id;
-            return (
-              <Pressable
-                key={option.id}
-                style={[styles.pill, isSelected && styles.pillSelected]}
-                onPress={() => setBillingPeriod(option.id)}
-              >
-                <Text style={[styles.pillLabel, isSelected && styles.pillLabelSelected]}>
-                  {option.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <View style={styles.card}>
-          <View style={styles.priceRow}>
-            <Text style={styles.priceAmount}>${selected.price.toFixed(2)}</Text>
-            <Text style={styles.pricePeriod}>{selected.periodLabel}</Text>
+        <FadeIn delay={120} distance={12}>
+          <View style={styles.pillsContainer}>
+            {BILLING_OPTIONS.map(option => {
+              const isSelected = billingPeriod === option.id;
+              return (
+                <Pressable
+                  key={option.id}
+                  style={[styles.pill, isSelected && styles.pillSelected]}
+                  onPress={() => setBillingPeriod(option.id)}
+                >
+                  <Text style={[styles.pillLabel, isSelected && styles.pillLabelSelected]}>
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
+        </FadeIn>
 
-          {getPerUnit(selected) ? (
-            <Text style={styles.perUnitText}>Oferta de {getPerUnit(selected)}</Text>
-          ) : null}
+        <FadeIn delay={240} distance={12}>
+          <View style={styles.card}>
+            <View style={styles.priceRow}>
+              <Text style={styles.priceAmount}>{priceText}</Text>
+              <Text style={styles.pricePeriod}>{selected.periodLabel}</Text>
+            </View>
 
-          <View style={styles.divider} />
+            {getPerUnit(selected) ? (
+              <Text style={styles.perUnitText}>Oferta de {getPerUnit(selected)}</Text>
+            ) : null}
 
-          <View style={styles.featuresSection}>
-            <Text style={styles.featuresTitle}>Incluye:</Text>
-            {PREMIUM_FEATURES.map((feature, i) => (
-              <View key={i} style={styles.featureRow}>
-                <MaterialIcons name="check-circle" size={20} color={theme.colors.meadowGreen} />
-                <Text style={styles.featureText}>{feature}</Text>
-              </View>
-            ))}
+            <View style={styles.divider} />
+
+            <View style={styles.featuresSection}>
+              <Text style={styles.featuresTitle}>Incluye:</Text>
+              {PREMIUM_FEATURES.map((feature, i) => (
+                <FadeIn key={i} delay={320 + i * 90} distance={10}>
+                  <View style={styles.featureRow}>
+                    <MaterialIcons name="check-circle" size={20} color={theme.colors.meadowGreen} />
+                    <Text style={styles.featureText}>{feature}</Text>
+                  </View>
+                </FadeIn>
+              ))}
+            </View>
           </View>
-        </View>
+        </FadeIn>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom }]}>

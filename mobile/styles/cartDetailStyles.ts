@@ -1,9 +1,11 @@
 import { StyleSheet } from 'react-native';
 import { AppTheme } from './theme';
+import { createButtonStyles } from './buttons';
 
 export function createCartDetailStyles(theme: AppTheme) {
   const buttonBarHeight = 56 + theme.spacing.lg * 2;
   const scrollContentPaddingBottom = buttonBarHeight + theme.spacing.md;
+  const buttonStyles = createButtonStyles(theme);
 
   return StyleSheet.create({
     container: {
@@ -70,6 +72,7 @@ export function createCartDetailStyles(theme: AppTheme) {
       position: 'relative',
     },
     button: {
+      ...buttonStyles.base,
       flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
@@ -78,7 +81,6 @@ export function createCartDetailStyles(theme: AppTheme) {
       paddingVertical: theme.spacing.sm,
       paddingHorizontal: theme.spacing.md,
       backgroundColor: theme.colors.midnight,
-      borderRadius: theme.borderRadius.button,
     },
     buttonText: {
       fontSize: theme.typography.fontSize.sm,

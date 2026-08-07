@@ -1,8 +1,9 @@
 import { Tabs } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
-import { View, Pressable, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
+import { PressableScale } from '../../components/shared/PressableScale';
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const theme = useAppTheme();
@@ -80,18 +81,15 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           if (route.name === 'profile') iconName = 'person';
 
           return (
-            <Pressable
+            <PressableScale
               key={route.key}
+              pressedScale={1.06}
               accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
               accessibilityLabel={options.tabBarAccessibilityLabel || label}
               onPress={onPress}
               onLongPress={onLongPress}
-              style={({ pressed }) => [
-                styles.tabItem,
-                isFocused && styles.activeTabItem,
-                pressed && { opacity: 0.8 },
-              ]}
+              style={[styles.tabItem, isFocused && styles.activeTabItem]}
             >
               <MaterialIcons
                 name={iconName as keyof typeof MaterialIcons.glyphMap}
@@ -107,7 +105,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               >
                 {label}
               </Text>
-            </Pressable>
+            </PressableScale>
           );
         })}
       </View>

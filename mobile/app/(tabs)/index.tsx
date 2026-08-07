@@ -12,6 +12,7 @@ import {
 } from '../../components/home/LatestCartsSection';
 import { TipCard } from '../../components/home/TipCard';
 import { Toast } from '../../components/shared/Toast';
+import { FadeIn } from '../../components/shared/FadeIn';
 import { useAppTheme } from '../../styles/theme';
 import { useAuth } from '../../store/authStore';
 import { savingsTips } from '../../utils/tips';
@@ -67,15 +68,23 @@ export default function HomeTab() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
       >
-        <CreateCartSection userId={user?.id} onCartCreated={handleCartCreated} />
+        <FadeIn delay={0}>
+          <CreateCartSection userId={user?.id} onCartCreated={handleCartCreated} />
+        </FadeIn>
 
-        <BCVRateCard ref={bcvRef} />
+        <FadeIn delay={90}>
+          <BCVRateCard ref={bcvRef} />
+        </FadeIn>
 
-        <LatestCartsSection ref={cartsRef} userId={user?.id} />
+        <FadeIn delay={180}>
+          <LatestCartsSection ref={cartsRef} userId={user?.id} />
+        </FadeIn>
 
-        <View style={styles.section}>
-          <TipCard title="Tip de Ahorro" text={savingsTips[currentTipIndex]} />
-        </View>
+        <FadeIn delay={270} key={currentTipIndex}>
+          <View style={styles.section}>
+            <TipCard title="Tip de Ahorro" text={savingsTips[currentTipIndex]} />
+          </View>
+        </FadeIn>
       </ScrollView>
     </View>
   );

@@ -26,27 +26,6 @@ export function createHistoryStyles(theme: AppTheme) {
       color: theme.colors.charcoalPrimary,
       letterSpacing: theme.typography.letterSpacing.xl,
     },
-    searchContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.md,
-    },
-    searchInput: {
-      flex: 1,
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.md,
-      fontSize: theme.typography.fontSize.sm,
-      color: theme.colors.onSurface,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.spacing.sm,
-    },
-    searchPlaceholder: {
-      color: theme.colors.outline,
-      fontSize: theme.typography.fontSize.sm,
-    },
     historyList: {
       gap: theme.spacing.md,
     },

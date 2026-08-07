@@ -1,7 +1,9 @@
 import { StyleSheet } from 'react-native';
 import { AppTheme } from './theme';
+import { createInputStyles } from './inputs';
 
 export function createProductFormStyles(theme: AppTheme) {
+  const inputStyles = createInputStyles(theme);
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -45,61 +47,18 @@ export function createProductFormStyles(theme: AppTheme) {
       color: theme.colors.onSurfaceVariant,
       marginLeft: theme.spacing.sm,
     },
-    textInput: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.sm,
-      fontSize: theme.typography.fontSize.sm,
-      color: theme.colors.text,
-    },
-    quantitySection: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.sm,
-    },
-    quantityControls: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      gap: theme.spacing.lg,
-      backgroundColor: theme.colors.surfaceContainerLowest,
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.xs,
-    },
-    quantityButton: {
-      width: 30,
-      height: 30,
-      borderRadius: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    quantityNumber: {
-      fontSize: theme.typography.fontSize.xs,
-      fontWeight: theme.typography.fontWeight.semibold,
-      minWidth: 32,
-      textAlign: 'center',
-      color: theme.colors.onSurface,
-    },
+    quantitySection: inputStyles.quantitySection,
+    quantityControls: inputStyles.quantityControls,
+    quantityButton: inputStyles.quantityButton,
+    quantityButtonPressedDecrement: inputStyles.quantityButtonPressedDecrement,
+    quantityButtonPressedIncrement: inputStyles.quantityButtonPressedIncrement,
+    quantityNumber: inputStyles.quantityNumber,
     priceInputContainer: {
       flex: 1,
       gap: theme.spacing.sm,
     },
     priceInputWrapper: {
       position: 'relative',
-    },
-    priceInput: {
-      backgroundColor: theme.colors.surfaceContainerLow,
-      borderWidth: 1,
-      borderColor: theme.colors.stoneSurface,
-      borderRadius: theme.borderRadius.md,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.sm,
-      fontSize: theme.typography.fontSize.sm,
-      color: theme.colors.text,
-      textAlign: 'right',
     },
     currencySymbol: {
       position: 'absolute',

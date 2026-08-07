@@ -1,5 +1,7 @@
 import { View, Text } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useFloat } from '../../hooks/animations';
 import { useAppTheme } from '../../styles/theme';
 
 interface EmptyCartsStateProps {
@@ -9,6 +11,7 @@ interface EmptyCartsStateProps {
 
 export function EmptyCartsState({ text, compact }: EmptyCartsStateProps) {
   const theme = useAppTheme();
+  const float = useFloat({ distance: 6, duration: 2800 });
 
   return (
     <View
@@ -19,7 +22,7 @@ export function EmptyCartsState({ text, compact }: EmptyCartsStateProps) {
         opacity: 0.4,
       }}
     >
-      <View style={{ width: 96, height: 96, marginBottom: theme.spacing.md }}>
+      <Animated.View style={[{ width: 96, height: 96, marginBottom: theme.spacing.md }, float]}>
         <View
           style={{
             width: '100%',
@@ -32,7 +35,7 @@ export function EmptyCartsState({ text, compact }: EmptyCartsStateProps) {
         >
           <MaterialIcons name="folder" size={48} color={theme.colors.outline} />
         </View>
-      </View>
+      </Animated.View>
       <Text
         style={{
           fontSize: theme.typography.fontSize.sm,

@@ -2,6 +2,7 @@ import { memo, useCallback } from 'react';
 import { View, Text, Pressable, type ViewStyle, type TextStyle } from 'react-native';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
+import { createCardStyles } from '../../styles/cards';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 interface ProductCardProps {
@@ -16,111 +17,115 @@ interface ProductCardProps {
   onQuantityChange?: (productId: string, newQuantity: number) => void;
 }
 
-const stylesheet = StyleSheet.create(theme => ({
-  card: {
-    backgroundColor: theme.colors.surfaceContainerLowest,
-    borderWidth: 1,
-    borderColor: theme.colors.stoneSurface,
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.spacing.md,
-  },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: theme.colors.primary + '0D',
-    borderWidth: 1,
-    borderColor: theme.colors.primary + '1A',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  content: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing.sm,
-  },
-  title: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurface,
-    flex: 1,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-  },
-  actionButton: {
-    paddingRight: theme.spacing.xs,
-  },
-  leftColumn: {
-    flex: 1,
-    marginRight: theme.spacing.md,
-  },
-  rightColumn: {
-    alignItems: 'flex-end',
-  },
-  menuButton: {
-    padding: theme.spacing.xxs,
-    backgroundColor: theme.colors.surfaceContainerLow,
-    borderRadius: theme.borderRadius.sm,
-  },
-  quantityRow: {
-    marginTop: theme.spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  priceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  priceColumn: {
-    flexDirection: 'column',
-    gap: 1,
-    alignItems: 'flex-end',
-  },
-  priceBs: {
-    fontSize: theme.typography.fontSize.xxs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurface,
-  },
-  priceUsd: {
-    fontSize: theme.typography.fontSize.xxs,
-    color: theme.colors.onSurfaceVariant,
-  },
-  quantityControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surfaceContainer,
-    borderRadius: theme.borderRadius.sm,
-    padding: theme.spacing.xs,
-    gap: theme.spacing.md,
-  },
-  quantityButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.surfaceContainerLowest,
-  },
-  quantityText: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.onSurface,
-    minWidth: 20,
-    textAlign: 'center',
-  },
-}));
+const stylesheet = StyleSheet.create(theme => {
+  const cardStyles = createCardStyles(theme);
+  return {
+    card: {
+      ...cardStyles.base,
+      padding: theme.spacing.sm,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.md,
+    },
+    iconContainer: {
+      width: 60,
+      height: 60,
+      borderRadius: theme.borderRadius.sm,
+      backgroundColor: theme.colors.primary + '0D',
+      borderWidth: 1,
+      borderColor: theme.colors.primary + '1A',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    content: {
+      flex: 1,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: theme.spacing.sm,
+    },
+    title: {
+      fontSize: theme.typography.fontSize.sm,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.onSurface,
+      flex: 1,
+    },
+    actionButtons: {
+      flexDirection: 'row',
+      gap: theme.spacing.md,
+    },
+    actionButton: {
+      paddingRight: theme.spacing.xs,
+    },
+    leftColumn: {
+      flex: 1,
+      marginRight: theme.spacing.md,
+    },
+    rightColumn: {
+      alignItems: 'flex-end',
+    },
+    menuButton: {
+      padding: theme.spacing.xxs,
+      backgroundColor: theme.colors.surfaceContainerLow,
+      borderRadius: theme.borderRadius.sm,
+    },
+    quantityRow: {
+      marginTop: theme.spacing.sm,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+    },
+    priceRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    priceColumn: {
+      flexDirection: 'column',
+      gap: 1,
+      alignItems: 'flex-end',
+    },
+    priceBs: {
+      fontSize: theme.typography.fontSize.xxs,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.onSurface,
+    },
+    priceUsd: {
+      fontSize: theme.typography.fontSize.xxs,
+      color: theme.colors.onSurfaceVariant,
+    },
+    quantityControls: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.colors.surfaceContainer,
+      borderRadius: theme.borderRadius.sm,
+      padding: theme.spacing.xs,
+      gap: theme.spacing.md,
+    },
+    quantityButton: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.colors.surfaceContainerLowest,
+    },
+    quantityButtonPressed: {
+      transform: [{ scale: 1.1 }],
+      backgroundColor: theme.colors.surfaceContainerHigh,
+    },
+    quantityText: {
+      fontSize: theme.typography.fontSize.xs,
+      fontWeight: theme.typography.fontWeight.semibold,
+      color: theme.colors.onSurface,
+      minWidth: 20,
+      textAlign: 'center',
+    },
+  };
+});
 
 function ProductCardComponent({
   id,
@@ -164,7 +169,7 @@ function ProductCardComponent({
                   onPress={handleDecrease}
                   style={({ pressed }) => [
                     styles.quantityButton as ViewStyle,
-                    pressed && { opacity: 0.7 },
+                    pressed && (styles.quantityButtonPressed as ViewStyle),
                   ]}
                 >
                   <MaterialIcons name="remove" size={16} color={theme.colors.emberOrange} />
@@ -174,7 +179,7 @@ function ProductCardComponent({
                   onPress={handleIncrease}
                   style={({ pressed }) => [
                     styles.quantityButton as ViewStyle,
-                    pressed && { opacity: 0.7 },
+                    pressed && (styles.quantityButtonPressed as ViewStyle),
                   ]}
                 >
                   <MaterialIcons name="add" size={16} color={theme.colors.emberOrange} />

@@ -1,14 +1,13 @@
-import {
-  View,
-  Text,
-  Pressable,
-  Animated,
-  Dimensions,
-  PanResponder,
-  type ViewStyle,
-  type TextStyle,
-} from 'react-native';
-import { useEffect, useRef, useCallback } from 'react';
+import { View, Text, Pressable, Dimensions, type ViewStyle, type TextStyle } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useEffect, useCallback, useMemo } from 'react';
 import { StyleSheet } from '../../styles/createStyleSheet';
 import { useAppTheme } from '../../styles/theme';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -98,66 +97,48 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
   const theme = useAppTheme();
   const styles = stylesheet(theme);
 
-  const translateY = useRef(new Animated.Value(MODAL_HEIGHT)).current;
-  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const translateY = useSharedValue(MODAL_HEIGHT);
+  const backdropOpacity = useSharedValue(0);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return gestureState.dy > 5;
-      },
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          translateY.setValue(Math.min(gestureState.dy, MODAL_HEIGHT));
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 100 || gestureState.vy > 0.5) {
-          closeModal();
-        } else {
-          Animated.spring(translateY, {
-            toValue: 0,
-            useNativeDriver: true,
-            tension: 50,
-            friction: 10,
-          }).start();
-        }
-      },
-    })
-  ).current;
+  const closeModal = useCallback(() => {
+    translateY.set(
+      withTiming(MODAL_HEIGHT, { duration: 250 }, finished => {
+        if (finished) runOnJS(onClose)();
+      })
+    );
+    backdropOpacity.set(withTiming(0, { duration: 250 }));
+  }, [translateY, backdropOpacity, onClose]);
+
+  const panGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .onUpdate(event => {
+          if (event.translationY > 0) {
+            translateY.set(Math.min(event.translationY, MODAL_HEIGHT));
+          }
+        })
+        .onEnd(event => {
+          if (event.translationY > 100 || event.velocityY > 500) {
+            runOnJS(closeModal)();
+          } else {
+            translateY.set(withSpring(0, { damping: 20, stiffness: 200 }));
+          }
+        }),
+    [translateY, closeModal]
+  );
 
   const openModal = useCallback(() => {
-    Animated.parallel([
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(backdropOpacity, {
-        toValue: 0.3,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    translateY.set(withTiming(0, { duration: 300 }));
+    backdropOpacity.set(withTiming(0.3, { duration: 300 }));
   }, [translateY, backdropOpacity]);
 
-  const closeModal = () => {
-    Animated.parallel([
-      Animated.timing(translateY, {
-        toValue: MODAL_HEIGHT,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-      Animated.timing(backdropOpacity, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onClose();
-    });
-  };
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: backdropOpacity.get(),
+  }));
+
+  const modalStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.get() }],
+  }));
 
   useEffect(() => {
     if (isVisible) {
@@ -171,28 +152,16 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
 
   return (
     <>
-      <Animated.View
-        style={[
-          styles.backdrop as ViewStyle,
-          {
-            opacity: backdropOpacity,
-          },
-        ]}
-      >
+      <Animated.View style={[styles.backdrop as ViewStyle, backdropStyle]}>
         <Pressable style={{ flex: 1 }} onPress={closeModal} />
       </Animated.View>
 
-      <Animated.View
-        style={[
-          styles.modalContainer as ViewStyle,
-          {
-            transform: [{ translateY }],
-          },
-        ]}
-      >
-        <View style={styles.handleContainer as ViewStyle} {...panResponder.panHandlers}>
-          <View style={styles.handle as ViewStyle} />
-        </View>
+      <Animated.View style={[styles.modalContainer as ViewStyle, modalStyle]}>
+        <GestureDetector gesture={panGesture}>
+          <View style={styles.handleContainer as ViewStyle}>
+            <View style={styles.handle as ViewStyle} />
+          </View>
+        </GestureDetector>
 
         <View style={styles.content as ViewStyle}>
           <View style={styles.optionContainer as ViewStyle}>

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -13,6 +13,8 @@ import { getCartIcon, getCartColorKey } from '../../utils/iconUtils';
 import { formatDate } from '../../utils/dateUtils';
 import type { ApiCartResponse } from '../../types';
 import { EmptyCartsState } from '../../components/shared/EmptyCartsState';
+import { FadeIn } from '../../components/shared/FadeIn';
+import { Skeleton } from '../../components/shared/Skeleton';
 import { MaterialIcons } from '@expo/vector-icons';
 
 function calcBudgetUsage(cart: ApiCartResponse): { usage: number; exceeded: boolean } {
@@ -84,10 +86,12 @@ export default function HistoryTab() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />}
       >
-        <HeroSection
-          title="Historial de Compras"
-          subtitle="Revisa tus gastos pasados y optimiza tu presupuesto."
-        />
+        <FadeIn>
+          <HeroSection
+            title="Historial de Compras"
+            subtitle="Revisa tus gastos pasados y optimiza tu presupuesto."
+          />
+        </FadeIn>
 
         {isOfflineData && (
           <Text
@@ -110,13 +114,15 @@ export default function HistoryTab() {
             </Text>
           </View>
         ) : isLoading && carts.length === 0 ? (
-          <View style={styles.emptyState}>
-            <ActivityIndicator size="large" color={theme.colors.midnight} />
+          <View style={styles.historyList}>
+            {[0, 1, 2].map(i => (
+              <Skeleton key={i} height={104} radius={10} />
+            ))}
           </View>
         ) : (
           <>
             <View style={styles.historyList}>
-              {carts.map(cart => {
+              {carts.map((cart, index) => {
                 const { usage, exceeded } = calcBudgetUsage(cart);
                 const colorKey = getCartColorKey(cart.id) as keyof typeof theme.colors;
                 const totalBs = cart.budgetBs.toLocaleString('es-VE', {
@@ -129,28 +135,31 @@ export default function HistoryTab() {
                 })}`;
 
                 return (
-                  <HistoryCard
-                    key={cart.id}
-                    storeName={cart.supermarketName}
-                    date={formatDate(cart.createdAt)}
-                    icon={getCartIcon(cart.id)}
-                    iconColor={theme.colors[colorKey]}
-                    status={getStatus(cart.isActive)}
-                    totalBs={totalBs}
-                    totalUsd={totalUsd}
-                    budgetUsage={usage}
-                    exceeded={exceeded}
-                    onPress={() =>
-                      router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })
-                    }
-                  />
+                  <FadeIn key={cart.id} delay={index * 70} distance={12}>
+                    <HistoryCard
+                      storeName={cart.supermarketName}
+                      date={formatDate(cart.createdAt)}
+                      icon={getCartIcon(cart.id)}
+                      iconColor={theme.colors[colorKey]}
+                      status={getStatus(cart.isActive)}
+                      totalBs={totalBs}
+                      totalUsd={totalUsd}
+                      budgetUsage={usage}
+                      exceeded={exceeded}
+                      onPress={() =>
+                        router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })
+                      }
+                    />
+                  </FadeIn>
                 );
               })}
             </View>
 
-            <EmptyCartsState
-              text={carts.length > 0 ? 'Fin del historial actual' : 'Aún no tienes carritos'}
-            />
+            <FadeIn delay={300} distance={12}>
+              <EmptyCartsState
+                text={carts.length > 0 ? 'Fin del historial actual' : 'Aún no tienes carritos'}
+              />
+            </FadeIn>
           </>
         )}
       </ScrollView>

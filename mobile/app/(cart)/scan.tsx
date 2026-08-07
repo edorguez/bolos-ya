@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { CameraView, Camera } from 'expo-camera';
 import { useAppTheme } from '../../styles/theme';
@@ -8,6 +9,8 @@ import { TopAppBar } from '../../components/shared/TopAppBar';
 import { ProductScanResultModal } from '../../components/shared/ProductScanResultModal';
 import { ManualEntryModal } from '../../components/shared/ManualEntryModal';
 import { NoRecognitionModal } from '../../components/shared/NoRecognitionModal';
+import { WaveText } from '../../components/shared/WaveText';
+import { usePulse } from '../../hooks/animations';
 import { useCartStore } from '../../store/cartStore';
 import { useAuth } from '../../store/authStore';
 import { useBCV } from '../../store/bcvStore';
@@ -73,6 +76,9 @@ export default function ScanScreen() {
   const [showNoRecognition, setShowNoRecognition] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [toast, setToast] = useState<{ message: string; isError: boolean } | null>(null);
+
+  const dotPulse = usePulse({ min: 0.3, max: 1, duration: 900 });
+  const cornerPulse = usePulse({ min: 0.7, max: 1, duration: 1200 });
 
   const activeCart = activeCartId ? carts.find(c => c.id === activeCartId) : null;
 
@@ -385,7 +391,7 @@ export default function ScanScreen() {
           <View style={styles.overlayMiddleRow}>
             <View style={[styles.overlayTint, { flex: 1 }]} />
 
-            <View ref={scanAreaRef} style={styles.scanArea}>
+            <Animated.View ref={scanAreaRef} style={[styles.scanArea, cornerPulse]}>
               <View style={[styles.cornerLine, styles.cornerVertical, { top: 0, left: 0 }]} />
               <View style={[styles.cornerLine, styles.cornerHorizontal, { top: 0, left: 0 }]} />
               <View style={[styles.cornerLine, styles.cornerVertical, { top: 0, right: 0 }]} />
@@ -394,7 +400,7 @@ export default function ScanScreen() {
               <View style={[styles.cornerLine, styles.cornerHorizontal, { bottom: 0, left: 0 }]} />
               <View style={[styles.cornerLine, styles.cornerVertical, { bottom: 0, right: 0 }]} />
               <View style={[styles.cornerLine, styles.cornerHorizontal, { bottom: 0, right: 0 }]} />
-            </View>
+            </Animated.View>
 
             <View style={[styles.overlayTint, { flex: 1 }]} />
           </View>
@@ -404,8 +410,10 @@ export default function ScanScreen() {
 
         {isScanning ? (
           <View style={styles.statusContainer}>
-            <View style={[styles.statusDot, { backgroundColor: theme.colors.emberOrange }]} />
-            <Text style={styles.statusText}>Escaneando...</Text>
+            <Animated.View
+              style={[styles.statusDot, { backgroundColor: theme.colors.emberOrange }, dotPulse]}
+            />
+            <WaveText text="Escaneando..." style={styles.statusText} />
           </View>
         ) : (
           <Text style={styles.hintText}>
