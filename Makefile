@@ -11,6 +11,7 @@ MODULE_NAME=github.com/edorguez/bolos-ya
 # Colors for output
 GREEN=\033[0;32m
 YELLOW=\033[1;33m
+RED=\033[0;31m
 NC=\033[0m # No Color
 
 # Example: make help
@@ -160,15 +161,27 @@ coverage:
 	@echo "${GREEN}Coverage report generated: coverage.html${NC}"
 
 # Example: make mobile-apk
-## Mobile: Build a shareable Android APK (release). Bump the version first with:
+## Mobile: Build a shareable Android APK (release) with a readable name
+## (AppName-Version.apk). Bump the version first with:
 ##   make mobile-apk VERSION=1.0.5
 mobile-apk:
 	@if [ -n "$(VERSION)" ]; then \
 		echo "${YELLOW}Setting mobile version to $(VERSION)...${NC}"; \
 		node -e "const fs=require('fs');const p='mobile/app.json';const j=JSON.parse(fs.readFileSync(p));j.expo.version='$(VERSION)';fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n');"; \
+		echo "${YELLOW}Regenerando proyecto nativo para aplicar la versión...${NC}"; \
+		cd mobile && npx expo prebuild --platform android --no-install; \
 	fi
 	cd mobile/android && ./gradlew assembleRelease
-	@echo "${GREEN}APK listo: mobile/android/app/build/outputs/apk/release/app-release.apk${NC}"
+	@APP_NAME=$$(node -e "console.log(require('./mobile/app.json').expo.name.replace(/\s+/g, ''))"); \
+	VER=$$(node -e "console.log(require('./mobile/app.json').expo.version)"); \
+	APK=$$(ls mobile/android/app/build/outputs/apk/release/app-*-release.apk 2>/dev/null | head -1); \
+	if [ -z "$$APK" ]; then \
+		echo "${RED}No se encontró el APK release en mobile/android/app/build/outputs/apk/release/${NC}"; \
+		exit 1; \
+	fi; \
+	DEST=mobile/android/app/build/outputs/apk/release/$${APP_NAME}-$${VER}.apk; \
+	cp "$$APK" "$$DEST"; \
+	echo "${GREEN}APK listo: $$DEST${NC}"
 
 ## Default target
 default: help
