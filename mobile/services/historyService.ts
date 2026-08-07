@@ -37,7 +37,24 @@ export async function getCarts(userId?: string, limit?: number): Promise<ApiCart
         });
       }
 
-      return transformed;
+      const localCarts = await cartRepository.getAll(userId);
+      const localById = new Map(localCarts.map(cart => [cart.id, cart]));
+
+      return transformed.map(cart => {
+        const local = localById.get(cart.id);
+        if (
+          local &&
+          local.totalEstimatedBs !== null &&
+          (cart.totalEstimatedBs === null || cart.totalEstimatedUsd === null)
+        ) {
+          return {
+            ...cart,
+            totalEstimatedBs: cart.totalEstimatedBs ?? local.totalEstimatedBs,
+            totalEstimatedUsd: cart.totalEstimatedUsd ?? local.totalEstimatedUsd,
+          };
+        }
+        return cart;
+      });
     }
 
     throw new Error('Error al obtener el historial');

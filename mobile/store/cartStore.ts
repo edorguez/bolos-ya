@@ -114,29 +114,42 @@ export const useCartStore = create<CartState>()(
           }),
         })),
       updateProductQuantity: (cartId, productId, newQuantity) =>
-        set(state => ({
-          carts: state.carts.map(cart => {
-            if (cart.id !== cartId) return cart;
+        set(state => {
+          const target = state.carts.find(c => c.id === cartId);
+          const idx = target?.products.findIndex(p => p.id === productId) ?? -1;
+          console.log('[store] updateProductQuantity', {
+            cartId,
+            productId,
+            newQuantity,
+            found: idx !== -1,
+            cartTotalBs: target?.totalBs,
+            oldQty: idx !== -1 ? target!.products[idx].quantity : undefined,
+            priceBs: idx !== -1 ? target!.products[idx].priceBs : undefined,
+          });
+          return {
+            carts: state.carts.map(cart => {
+              if (cart.id !== cartId) return cart;
 
-            const idx = cart.products.findIndex(p => p.id === productId);
-            if (idx === -1) return cart;
+              const productIdx = cart.products.findIndex(p => p.id === productId);
+              if (productIdx === -1) return cart;
 
-            const oldProduct = cart.products[idx];
-            const quantityDiff = newQuantity - oldProduct.quantity;
-            const newTotalBs = cart.totalBs + oldProduct.priceBs * quantityDiff;
-            const newTotalUsd = cart.totalUsd + oldProduct.priceUsd * quantityDiff;
+              const oldProduct = cart.products[productIdx];
+              const quantityDiff = newQuantity - oldProduct.quantity;
+              const newTotalBs = cart.totalBs + oldProduct.priceBs * quantityDiff;
+              const newTotalUsd = cart.totalUsd + oldProduct.priceUsd * quantityDiff;
 
-            const updatedProducts = [...cart.products];
-            updatedProducts[idx] = { ...oldProduct, quantity: newQuantity };
+              const updatedProducts = [...cart.products];
+              updatedProducts[productIdx] = { ...oldProduct, quantity: newQuantity };
 
-            return {
-              ...cart,
-              products: updatedProducts,
-              totalBs: newTotalBs,
-              totalUsd: newTotalUsd,
-            };
-          }),
-        })),
+              return {
+                ...cart,
+                products: updatedProducts,
+                totalBs: newTotalBs,
+                totalUsd: newTotalUsd,
+              };
+            }),
+          };
+        }),
       updateProduct: (cartId, productId, updates) =>
         set(state => ({
           carts: state.carts.map(cart => {

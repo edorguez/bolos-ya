@@ -213,6 +213,13 @@ export default function CartDetailScreen() {
   const cart = carts.find((c: Cart) => c.id === id);
   cartRef.current = cart ?? null;
   userRef.current = user;
+  console.log('[cart-detail] render', {
+    id,
+    found: !!cart,
+    totalBs: cart?.totalBs,
+    productCount: cart?.products.length,
+    storeCartCount: carts.length,
+  });
 
   if (!cart) {
     if (isLoadingFromApi) {

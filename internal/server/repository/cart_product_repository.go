@@ -14,6 +14,7 @@ import (
 type CartProductRepository interface {
 	Create(ctx context.Context, cartProduct *models.CartProduct) error
 	FindByID(ctx context.Context, id uuid.UUID) (*models.CartProduct, error)
+	FindByLocalID(ctx context.Context, userID uuid.UUID, localID string) (*models.CartProduct, error)
 	FindByCartID(ctx context.Context, cartID uuid.UUID) ([]*models.CartProduct, error)
 	FindByCartIDWithDetails(ctx context.Context, cartID uuid.UUID) ([]*CartProductDetail, error)
 	Update(ctx context.Context, cartProduct *models.CartProduct) error
@@ -45,6 +46,27 @@ func (r *cartProductRepository) FindByID(ctx context.Context, id uuid.UUID) (*mo
 
 	var cartProduct models.CartProduct
 	if err := r.db.WithContext(ctx).First(&cartProduct, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return &cartProduct, nil
+}
+
+// FindByLocalID retrieves a non-deleted cart product by its client-side local
+// ID, scoped to the owning user through its cart. Used to resolve "local_..."
+// ids sent by mobile clients in update/delete sync operations.
+func (r *cartProductRepository) FindByLocalID(ctx context.Context, userID uuid.UUID, localID string) (*models.CartProduct, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var cartProduct models.CartProduct
+	if err := r.db.WithContext(ctx).
+		Joins("JOIN carts ON carts.id = cart_products.cart_id").
+		Where("cart_products.local_id = ? AND carts.user_id = ? AND cart_products.deleted_at IS NULL AND carts.deleted_at IS NULL", localID, userID).
+		First(&cartProduct).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.ErrNotFound
 		}

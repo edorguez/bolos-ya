@@ -16,7 +16,9 @@ type UserRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*models.User, error)
 	FindByEmail(ctx context.Context, email string) (*models.User, error)
 	FindByBetterAuthUserID(ctx context.Context, betterAuthUserID string) (*models.User, error)
+	FindByBetterAuthUserIDUnscoped(ctx context.Context, betterAuthUserID string) (*models.User, error)
 	Update(ctx context.Context, user *models.User) error
+	Restore(ctx context.Context, user *models.User) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	DeleteUserData(ctx context.Context, userID uuid.UUID) error
 	TransferUserData(ctx context.Context, fromUserID, toUserID uuid.UUID) error
@@ -80,6 +82,37 @@ func (r *userRepository) FindByBetterAuthUserID(ctx context.Context, betterAuthU
 	}
 
 	return &user, nil
+}
+
+// FindByBetterAuthUserIDUnscoped retrieves a user by its better-auth ID
+// regardless of soft-deletion status. Used to recover users that were
+// soft-deleted so a session token for them does not cause a unique-constraint
+// conflict when re-creating the row.
+func (r *userRepository) FindByBetterAuthUserIDUnscoped(ctx context.Context, betterAuthUserID string) (*models.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var user models.User
+	if err := r.db.WithContext(ctx).Unscoped().
+		First(&user, "better_auth_user_id = ?", betterAuthUserID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+// Restore clears the soft-delete marker on a user (updating its fields in the
+// same write) so a session token for it keeps working instead of failing with
+// a unique-constraint conflict on better_auth_user_id.
+func (r *userRepository) Restore(ctx context.Context, user *models.User) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	user.DeletedAt = gorm.DeletedAt{}
+	return r.db.WithContext(ctx).Unscoped().Save(user).Error
 }
 
 func (r *userRepository) Update(ctx context.Context, user *models.User) error {

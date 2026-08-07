@@ -10,6 +10,7 @@ import type {
   ApiResponse,
 } from '../types';
 import { toCents, fromCents, transformPrices } from '../utils/priceUtils';
+import { SYNC_ACTIONS, SYNC_TABLES } from '../types/sync';
 
 export interface CreateCartParams {
   supermarketId?: string;
@@ -158,10 +159,30 @@ export async function getCartDetail(
   }
 }
 
+async function recalcCartTotals(cartId: string): Promise<void> {
+  try {
+    const t0 = Date.now();
+    const { totalBs, totalUsd } = await cartProductRepository.getCartTotals(cartId);
+    await cartRepository.update(cartId, {
+      totalEstimatedBs: totalBs,
+      totalEstimatedUsd: totalUsd,
+    });
+    console.log('[cartService] recalcCartTotals', {
+      cartId,
+      totalBs,
+      totalUsd,
+      ms: Date.now() - t0,
+    });
+  } catch (err) {
+    console.warn('Error al recalcular los totales del carrito', err);
+  }
+}
+
 export async function createCart(
   params: CreateCartParams,
   userId?: string
 ): Promise<CreateCartResponse> {
+  const t0 = Date.now();
   const localCart = await cartRepository.upsert({
     supermarketId: params.supermarketId || generateLocalId(),
     supermarketName: params.newSupermarket?.name || "Plaza's",
@@ -172,9 +193,10 @@ export async function createCart(
 
   const now = new Date().toISOString();
 
-  await syncService.enqueueAndSync(
-    'carts',
-    'INSERT',
+  const t1 = Date.now();
+  const serverVersion = await syncService.enqueueAndSync(
+    SYNC_TABLES.CARTS,
+    SYNC_ACTIONS.INSERT,
     localCart.id,
     {
       id: localCart.id,
@@ -188,9 +210,18 @@ export async function createCart(
     },
     userId
   );
+  console.log('[cartService] createCart', {
+    cartId: localCart.id,
+    serverId: serverVersion?.id,
+    upsertMs: t1 - t0,
+    syncMs: Date.now() - t1,
+    totalMs: Date.now() - t0,
+  });
+
+  const cartId = (serverVersion?.id as string) || localCart.id;
 
   return {
-    id: localCart.id,
+    id: cartId,
     supermarketId: params.supermarketId || localCart.supermarketId,
     userId: userId || '',
     isActive: true,
@@ -207,6 +238,7 @@ export async function addCartProduct(
   params: AddCartProductParams,
   userId?: string
 ): Promise<CartProductResponse> {
+  const t0 = Date.now();
   const localProduct = await cartProductRepository.upsert({
     cartId: params.cartId,
     name: params.name,
@@ -218,9 +250,10 @@ export async function addCartProduct(
     supermarket: params.supermarketId,
   });
 
-  await syncService.enqueueAndSync(
-    'cart_products',
-    'INSERT',
+  const t1 = Date.now();
+  const serverVersion = await syncService.enqueueAndSync(
+    SYNC_TABLES.CART_PRODUCTS,
+    SYNC_ACTIONS.INSERT,
     localProduct.id,
     {
       id: localProduct.id,
@@ -240,11 +273,23 @@ export async function addCartProduct(
     userId
   );
 
-  const now = new Date().toISOString();
-  return {
-    id: localProduct.id,
+  const t2 = Date.now();
+  await recalcCartTotals(params.cartId);
+  console.log('[cartService] addCartProduct', {
     cartId: params.cartId,
     productId: localProduct.id,
+    serverId: serverVersion?.id,
+    upsertMs: t1 - t0,
+    syncMs: t2 - t1,
+    recalcMs: Date.now() - t2,
+    totalMs: Date.now() - t0,
+  });
+
+  const now = new Date().toISOString();
+  return {
+    id: (serverVersion?.id as string) || localProduct.id,
+    cartId: params.cartId,
+    productId: (serverVersion?.productId as string) || localProduct.id,
     name: params.name,
     priceBs: params.priceBs,
     priceUsd: params.priceUsd,
@@ -270,8 +315,8 @@ export async function updateCartProduct(
   });
 
   await syncService.enqueueAndSync(
-    'cart_products',
-    'UPDATE',
+    SYNC_TABLES.CART_PRODUCTS,
+    SYNC_ACTIONS.UPDATE,
     cartProductId,
     {
       id: cartProductId,
@@ -284,6 +329,8 @@ export async function updateCartProduct(
     },
     userId
   );
+
+  await recalcCartTotals(params.cartId);
 
   const now = new Date().toISOString();
   return {
@@ -309,8 +356,8 @@ export async function updateCartProductQuantity(
   await cartProductRepository.updateQuantity(cartProductId, params.quantity);
 
   await syncService.enqueueAndSync(
-    'cart_products',
-    'UPDATE',
+    SYNC_TABLES.CART_PRODUCTS,
+    SYNC_ACTIONS.UPDATE,
     cartProductId,
     {
       id: cartProductId,
@@ -320,6 +367,8 @@ export async function updateCartProductQuantity(
     },
     userId
   );
+
+  await recalcCartTotals(params.cartId);
 
   return {
     id: cartProductId,
@@ -362,8 +411,8 @@ export async function checkoutCart(cartId: string, userId?: string): Promise<Api
     await cartRepository.update(cartId, { isActive: false });
 
     await syncService.enqueueAndSync(
-      'carts',
-      'UPDATE',
+      SYNC_TABLES.CARTS,
+      SYNC_ACTIONS.UPDATE,
       cartId,
       { id: cartId, isActive: false, checkout: true, userId },
       userId
@@ -386,13 +435,18 @@ export async function checkoutCart(cartId: string, userId?: string): Promise<Api
 }
 
 export async function deleteCartProduct(cartProductId: string, userId?: string): Promise<void> {
+  const existing = await cartProductRepository.getById(cartProductId);
   await cartProductRepository.delete(cartProductId);
 
   await syncService.enqueueAndSync(
-    'cart_products',
-    'DELETE',
+    SYNC_TABLES.CART_PRODUCTS,
+    SYNC_ACTIONS.DELETE,
     cartProductId,
     { id: cartProductId, userId },
     userId
   );
+
+  if (existing) {
+    await recalcCartTotals(existing.cartId);
+  }
 }

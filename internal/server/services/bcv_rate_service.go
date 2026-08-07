@@ -3,17 +3,21 @@ package services
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"math"
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/gocolly/colly/v2"
 	"go.uber.org/zap"
 
 	"github.com/edorguez/bolos-ya/internal/server/models"
 	"github.com/edorguez/bolos-ya/internal/server/repository"
+	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
 )
 
 type BCVRateService interface {
@@ -26,6 +30,9 @@ const bcvURL = "https://www.bcv.org.ve"
 type bcvRateService struct {
 	repo repository.BCVRateRepository
 	log  *zap.Logger
+	// scrapeMu guards on-demand scrapes triggered by GetLatestRate so concurrent
+	// requests don't all hit the upstream site when the rate table is empty.
+	scrapeMu sync.Mutex
 }
 
 func NewBCVRateService(repo repository.BCVRateRepository, log *zap.Logger) BCVRateService {
@@ -35,7 +42,33 @@ func NewBCVRateService(repo repository.BCVRateRepository, log *zap.Logger) BCVRa
 func (s *bcvRateService) scrapeURL() string { return bcvURL }
 
 func (s *bcvRateService) GetLatestRate(ctx context.Context) (*models.BCVRate, error) {
-	return s.repo.GetLatest(ctx)
+	rate, err := s.repo.GetLatest(ctx)
+	if err == nil {
+		return rate, nil
+	}
+	if !errors.Is(err, apperrors.ErrNotFound) {
+		return nil, err
+	}
+
+	// No stored rate (e.g. fresh DB after a migration or a failed scrape). Try to
+	// fetch on demand so the first request self-heals instead of returning 404.
+	s.scrapeMu.Lock()
+	defer s.scrapeMu.Unlock()
+
+	// Another request may have scraped while we waited for the lock.
+	if rate, err := s.repo.GetLatest(ctx); err == nil {
+		return rate, nil
+	}
+
+	scrapeCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
+
+	scraped, scrapeErr := s.ScrapeAndStore(scrapeCtx)
+	if scrapeErr != nil {
+		return nil, scrapeErr
+	}
+
+	return scraped, nil
 }
 
 func (s *bcvRateService) ScrapeAndStore(ctx context.Context) (*models.BCVRate, error) {

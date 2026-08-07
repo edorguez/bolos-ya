@@ -2,7 +2,7 @@ import { apiPost } from './api';
 import { cartRepository } from '../lib/local/repositories/cartRepository';
 import { supermarketRepository } from '../lib/local/repositories/supermarketRepository';
 import { syncQueue } from '../lib/local/syncQueue';
-import type { SyncOperation, SyncResponse } from '../types/sync';
+import { SYNC_ACTIONS, SYNC_TABLES, type SyncOperation, type SyncResponse } from '../types/sync';
 
 export const migrationService = {
   async migrateGuestData(
@@ -17,15 +17,15 @@ export const migrationService = {
 
       const operations: SyncOperation[] = [
         ...pendingOps.map(item => ({
-          table: item.tableName as SyncOperation['table'],
-          action: item.action as SyncOperation['action'],
+          table: item.tableName,
+          action: item.action,
           payload: { ...JSON.parse(item.payload), userId: newUserId },
           timestamp: new Date(item.createdAt).getTime(),
           localId: item.localId,
         })),
         ...localCarts.map(cart => ({
-          table: 'carts' as const,
-          action: 'INSERT' as const,
+          table: SYNC_TABLES.CARTS,
+          action: SYNC_ACTIONS.INSERT,
           payload: {
             id: cart.id,
             supermarketId: cart.supermarketId,
@@ -40,8 +40,8 @@ export const migrationService = {
         ...localSupermarkets
           .filter(s => s.isCustom)
           .map(s => ({
-            table: 'supermarkets' as const,
-            action: 'INSERT' as const,
+            table: SYNC_TABLES.SUPERMARKETS,
+            action: SYNC_ACTIONS.INSERT,
             payload: {
               id: s.id,
               name: s.name,

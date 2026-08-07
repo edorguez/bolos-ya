@@ -2,6 +2,16 @@ import { getDb, generateLocalId } from '../database';
 import { CART_PRODUCT_COLUMNS, type LocalCartProduct } from './cartRepository';
 
 export const cartProductRepository = {
+  async getById(id: string): Promise<LocalCartProduct | null> {
+    const database = await getDb();
+    const row = await database.getFirstAsync<LocalCartProduct>(
+      `SELECT ${CART_PRODUCT_COLUMNS} FROM cart_products WHERE id = ? AND deleted_at IS NULL`,
+      [id]
+    );
+    if (!row) return null;
+    return { ...row, isManualEntry: Boolean(row.isManualEntry) };
+  },
+
   async getByCartId(cartId: string): Promise<LocalCartProduct[]> {
     const database = await getDb();
     const rows = await database.getAllAsync<LocalCartProduct>(
@@ -141,6 +151,15 @@ export const cartProductRepository = {
     await database.runAsync(
       'UPDATE cart_products SET deleted_at = ?, updated_at = ? WHERE id = ?',
       [now, now, id]
+    );
+  },
+
+  async replaceId(oldId: string, newId: string, serverProductId?: string): Promise<void> {
+    const database = await getDb();
+    const now = new Date().toISOString();
+    await database.runAsync(
+      'UPDATE cart_products SET id = ?, product_id = COALESCE(?, product_id), updated_at = ? WHERE id = ?',
+      [newId, serverProductId ?? null, now, oldId]
     );
   },
 

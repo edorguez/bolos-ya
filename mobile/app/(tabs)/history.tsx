@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -61,11 +61,6 @@ export default function HistoryTab() {
       setIsLoading(false);
     }
   }, [user?.id, user?.userId]);
-
-  useEffect(() => {
-    if (isAuthLoading) return;
-    fetchCarts();
-  }, [isAuthLoading, fetchCarts]);
 
   useFocusEffect(
     useCallback(() => {

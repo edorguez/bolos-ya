@@ -6,6 +6,13 @@ const STORAGE_KEY = 'better-auth_cookie';
 const DEFAULT_TIMEOUT_MS = 15_000;
 const MAX_RETRIES = 2;
 
+const HTTP_METHODS = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
+} as const;
+
 let cachedSessionToken: string | null = null;
 let sessionTokenPromise: Promise<string | null> | null = null;
 
@@ -91,7 +98,7 @@ async function apiFetch<T>(
   path: string,
   options: { method?: string; userId?: string; body?: unknown; retries?: number } = {}
 ): Promise<T> {
-  const { method = 'GET', userId, body } = options;
+  const { method = HTTP_METHODS.GET, userId, body } = options;
   const maxRetries = options.retries ?? MAX_RETRIES;
 
   const headers = await buildHeaders(userId);
@@ -101,7 +108,7 @@ async function apiFetch<T>(
     headers,
   };
 
-  if (body && method !== 'GET') {
+  if (body && method !== HTTP_METHODS.GET) {
     fetchInit.body = JSON.stringify(body);
   }
 
@@ -139,17 +146,17 @@ async function apiFetch<T>(
 }
 
 export async function apiGet<T>(path: string, userId?: string): Promise<T> {
-  return apiFetch<T>(path, { method: 'GET', userId });
+  return apiFetch<T>(path, { method: HTTP_METHODS.GET, userId });
 }
 
 export async function apiPost<T>(path: string, userId?: string, body?: unknown): Promise<T> {
-  return apiFetch<T>(path, { method: 'POST', userId, body });
+  return apiFetch<T>(path, { method: HTTP_METHODS.POST, userId, body });
 }
 
 export async function apiPut<T>(path: string, userId?: string, body?: unknown): Promise<T> {
-  return apiFetch<T>(path, { method: 'PUT', userId, body });
+  return apiFetch<T>(path, { method: HTTP_METHODS.PUT, userId, body });
 }
 
 export async function apiDelete<T>(path: string, userId?: string): Promise<T> {
-  return apiFetch<T>(path, { method: 'DELETE', userId });
+  return apiFetch<T>(path, { method: HTTP_METHODS.DELETE, userId });
 }

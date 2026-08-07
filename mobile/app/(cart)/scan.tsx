@@ -13,8 +13,41 @@ import { useAuth } from '../../store/authStore';
 import { useBCV } from '../../store/bcvStore';
 import { addCartProduct } from '../../services/cartService';
 import { Toast } from '../../components/shared/Toast';
-import { scanImage, preprocessImage } from '../../lib/ocr';
+import { scanImage, preprocessImage, rotateImage } from '../../lib/ocr';
 import { MaterialIcons } from '@expo/vector-icons';
+
+// Measures a view with a timeout so scanning can never hang if a ref is null
+// or not laid out yet.
+function measureWithTimeout(ref: View | null): Promise<number[] | null> {
+  return new Promise(resolve => {
+    const timer = setTimeout(() => resolve(null), 300);
+    if (!ref) {
+      clearTimeout(timer);
+      resolve(null);
+      return;
+    }
+    ref.measure((...args: number[]) => {
+      clearTimeout(timer);
+      resolve(args);
+    });
+  });
+}
+
+// Clamps a crop rectangle to the photo bounds.
+function clampCrop(
+  originX: number,
+  originY: number,
+  width: number,
+  height: number,
+  photoW: number,
+  photoH: number
+): { originX: number; originY: number; width: number; height: number } {
+  const ox = Math.max(0, Math.min(originX, photoW - 1));
+  const oy = Math.max(0, Math.min(originY, photoH - 1));
+  const w = Math.max(1, Math.min(width, photoW - ox));
+  const h = Math.max(1, Math.min(height, photoH - oy));
+  return { originX: ox, originY: oy, width: w, height: h };
+}
 
 export default function ScanScreen() {
   const router = useRouter();
@@ -59,38 +92,106 @@ export default function ScanScreen() {
       const photo = await cameraRef.current.takePictureAsync({
         quality: 1.0,
         base64: false,
-        exif: false,
+        exif: true,
         shutterSound: false,
       });
 
       const [camMeasure, scanMeasure] = await Promise.all([
-        new Promise<number[]>(resolve =>
-          cameraContainerRef.current?.measure((...a: number[]) => resolve(a))
-        ),
-        new Promise<number[]>(resolve =>
-          scanAreaRef.current?.measure((...a: number[]) => resolve(a))
-        ),
+        measureWithTimeout(cameraContainerRef.current),
+        measureWithTimeout(scanAreaRef.current),
       ]);
 
       const [, , camW, camH, camPageX, camPageY] = camMeasure || [];
       const [, , scanW, scanH, scanPageX, scanPageY] = scanMeasure || [];
 
       let processedUri: string;
+      const validMeasure = camW > 0 && camH > 0 && scanW > 0 && scanH > 0;
 
-      if (camW > 0 && scanW > 0) {
-        const scaleX = photo.width / camW;
-        const scaleY = photo.height / camH;
+      if (validMeasure) {
         const relX = Math.max(0, scanPageX - camPageX);
         const relY = Math.max(0, scanPageY - camPageY);
 
-        processedUri = await preprocessImage(photo.uri, {
-          originX: Math.round(relX * scaleX),
-          originY: Math.round(relY * scaleY),
-          width: Math.round(scanW * scaleX),
-          height: Math.round(scanH * scaleY),
+        const containerLandscape = camW > camH;
+        const photoLandscape = photo.width > photo.height;
+        const needsRotation = containerLandscape !== photoLandscape;
+
+        let photoUri = photo.uri;
+        let photoW = photo.width;
+        let photoH = photo.height;
+        let rotationDeg = 0;
+
+        if (needsRotation) {
+          // The captured photo is rotated relative to the (portrait) preview,
+          // e.g. the phone is held in landscape. Rotate it to match the
+          // container so the scan rectangle maps correctly.
+          const orientation = (photo.exif as Record<string, unknown> | undefined)?.Orientation;
+          if (orientation === 6) rotationDeg = 90;
+          else if (orientation === 8) rotationDeg = 270;
+          else if (orientation === 3) rotationDeg = 180;
+          else rotationDeg = 90;
+          try {
+            const rotated = await rotateImage(photo.uri, rotationDeg);
+            photoUri = rotated.uri;
+            photoW = rotated.width;
+            photoH = rotated.height;
+          } catch {
+            rotationDeg = 0;
+          }
+        }
+
+        const scaleX = photoW / camW;
+        const scaleY = photoH / camH;
+        const originX = Math.round(relX * scaleX);
+        const originY = Math.round(relY * scaleY);
+        const width = Math.round(scanW * scaleX);
+        const height = Math.round(scanH * scaleY);
+
+        console.log('[SCAN] crop', {
+          photoW: photo.width,
+          photoH: photo.height,
+          cam: { camW, camH, camPageX, camPageY },
+          scan: { scanW, scanH, scanPageX, scanPageY },
+          containerLandscape,
+          photoLandscape,
+          needsRotation,
+          rotationDeg,
+          exifOrientation: (photo.exif as Record<string, unknown> | undefined)?.Orientation,
+          cropPhotoW: photoW,
+          cropPhotoH: photoH,
+          originX,
+          originY,
+          width,
+          height,
+        });
+
+        // Clamp to the photo bounds so we never read outside the image.
+        const {
+          originX: ox,
+          originY: oy,
+          width: w,
+          height: h,
+        } = clampCrop(originX, originY, width, height, photoW, photoH);
+
+        processedUri = await preprocessImage(photoUri, {
+          originX: ox,
+          originY: oy,
+          width: w,
+          height: h,
         });
       } else {
-        processedUri = await preprocessImage(photo.uri);
+        // Never fall back to the full image: that would read text outside the
+        // scan rectangle. Use a center crop instead.
+        console.warn('[SCAN] measure fallback (center crop)', { camMeasure, scanMeasure });
+        const w = Math.round(photo.width * 0.6);
+        const h = Math.round(photo.height * 0.6);
+        const ox = Math.max(0, Math.round((photo.width - w) / 2));
+        const oy = Math.max(0, Math.round((photo.height - h) / 2));
+        processedUri = await preprocessImage(photo.uri, {
+          originX: ox,
+          originY: oy,
+          width: w,
+          height: h,
+        });
       }
 
       const result = await scanImage(processedUri);

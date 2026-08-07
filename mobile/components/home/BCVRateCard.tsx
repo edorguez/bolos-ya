@@ -134,7 +134,7 @@ export const BCVRateCard = forwardRef<BCVRateRef, object>((_props, ref) => {
           </View>
         </View>
         <Text style={{ color: theme.colors.emberOrange, fontSize: theme.typography.fontSize.sm }}>
-          No disponible sin conexión
+          Tasa BCV no disponible
         </Text>
       </View>
     );

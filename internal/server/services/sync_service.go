@@ -580,15 +580,32 @@ func (s *syncService) handleCartProductInsert(ctx context.Context, userID uuid.U
 	}, nil
 }
 
+// resolveCartProductID parses a cart product id, falling back to resolving a
+// client-side local id (e.g. "local_...") against the owning user's cart
+// products so update/delete sync ops sent before the insert was reconciled
+// still apply.
+func (s *syncService) resolveCartProductID(ctx context.Context, userID uuid.UUID, idStr string) (uuid.UUID, error) {
+	id, err := uuid.Parse(idStr)
+	if err == nil {
+		return id, nil
+	}
+
+	resolved, findErr := s.cartProductRepo.FindByLocalID(ctx, userID, idStr)
+	if findErr != nil {
+		return uuid.Nil, fmt.Errorf("ID de producto de carrito inválido")
+	}
+	return resolved.ID, nil
+}
+
 func (s *syncService) handleCartProductUpdate(ctx context.Context, userID uuid.UUID, op dto.SyncOperation) (map[string]any, error) {
 	idStr, ok := op.Payload["id"].(string)
 	if !ok {
 		return nil, fmt.Errorf("ID de producto de carrito requerido")
 	}
 
-	id, err := uuid.Parse(idStr)
+	id, err := s.resolveCartProductID(ctx, userID, idStr)
 	if err != nil {
-		return nil, fmt.Errorf("ID de producto de carrito inválido")
+		return nil, err
 	}
 
 	existing, err := s.cartProductRepo.FindByID(ctx, id)
@@ -616,9 +633,9 @@ func (s *syncService) handleCartProductDelete(ctx context.Context, userID uuid.U
 		return fmt.Errorf("ID de producto de carrito requerido")
 	}
 
-	id, err := uuid.Parse(idStr)
+	id, err := s.resolveCartProductID(ctx, userID, idStr)
 	if err != nil {
-		return fmt.Errorf("ID de producto de carrito inválido")
+		return err
 	}
 
 	return s.cartProductRepo.Delete(ctx, id)

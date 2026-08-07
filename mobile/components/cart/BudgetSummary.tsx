@@ -104,6 +104,13 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
   const isOverBudget = totalBs > budgetBs;
   const overBudgetAmount = Math.max(0, totalBs - budgetBs);
   const progressPercentage = Math.min(100, (totalBs / budgetBs) * 100);
+  console.log('[BudgetSummary] render', {
+    totalBs,
+    totalUsd,
+    budgetBs,
+    budgetUsd,
+    progressPercentage,
+  });
   const exchangeRate =
     budgetBs > 0 && budgetUsd > 0 ? budgetUsd / budgetBs : (bcvRate?.usdRate ?? 55);
   const overBudgetUsd = overBudgetAmount * exchangeRate;
@@ -117,7 +124,12 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
       >
         <Text style={styles.limitLabel as TextStyle}>{limitLabelText}</Text>
         <Text style={styles.limitUsd as TextStyle}>
-          ($ {budgetUsd.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+          (${' '}
+          {budgetUsd.toLocaleString('es-VE', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+          )
         </Text>
       </View>
 
@@ -126,10 +138,19 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
           <Text style={styles.totalLabel as TextStyle}>TOTAL ACUMULADO</Text>
           <View style={styles.totalAmountRow as ViewStyle}>
             <Text style={styles.totalBs as TextStyle}>
-              Bs. {totalBs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              Bs.{' '}
+              {totalBs.toLocaleString('es-VE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </Text>
             <Text style={styles.totalUsd as TextStyle}>
-              ($ {totalUsd.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+              (${' '}
+              {totalUsd.toLocaleString('es-VE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+              )
             </Text>
           </View>
         </View>

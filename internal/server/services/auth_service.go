@@ -44,11 +44,53 @@ func NewAuthService(userRepo repository.UserRepository, emailSvc email.Service, 
 	}
 }
 
+// recoverSoftDeletedUser restores a soft-deleted user matching the better-auth
+// ID so its session token keeps working instead of failing with a unique
+// constraint conflict. It returns (nil, nil) when no soft-deleted record exists
+// and the caller should create a fresh one.
+func (s *authService) recoverSoftDeletedUser(ctx context.Context, betterAuthUserID, userEmail, authProvider string, isAnonymous bool) (*models.User, error) {
+	existing, err := s.userRepo.FindByBetterAuthUserIDUnscoped(ctx, betterAuthUserID)
+	if err != nil {
+		if errors.Is(err, apperrors.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if !existing.DeletedAt.Valid {
+		return existing, nil
+	}
+
+	existing.Email = userEmail
+	if existing.Email == "" {
+		existing.Email = betterAuthUserID + "@anonymous.local"
+	}
+	if authProvider != "" {
+		existing.AuthProvider = authProvider
+	}
+	existing.IsAnonymous = isAnonymous
+
+	if err := s.userRepo.Restore(ctx, existing); err != nil {
+		return nil, err
+	}
+
+	return existing, nil
+}
+
 func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string, isAnonymous bool) (*models.User, error) {
 	user, err := s.userRepo.FindByBetterAuthUserID(ctx, betterAuthUserID)
 	if err != nil {
 		if !errors.Is(err, apperrors.ErrNotFound) {
 			return nil, err
+		}
+
+		// A soft-deleted user may exist for this token (e.g. after a guest to
+		// registered migration). Recover it instead of creating a duplicate,
+		// which would violate the better_auth_user_id unique constraint.
+		if recovered, recErr := s.recoverSoftDeletedUser(ctx, betterAuthUserID, email, authProvider, isAnonymous); recErr != nil {
+			return nil, recErr
+		} else if recovered != nil {
+			return recovered, nil
 		}
 
 		user = models.NewUserFromBetterAuth(betterAuthUserID, email, authProvider, isAnonymous)
@@ -112,6 +154,15 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 	if err != nil {
 		if !errors.Is(err, apperrors.ErrNotFound) {
 			return nil, err
+		}
+
+		// A soft-deleted user may exist for this token (e.g. after a guest to
+		// registered migration). Recover it instead of creating a duplicate,
+		// which would violate the better_auth_user_id unique constraint.
+		if recovered, recErr := s.recoverSoftDeletedUser(ctx, userID, userEmail, authProvider, isAnonymous); recErr != nil {
+			return nil, recErr
+		} else if recovered != nil {
+			return recovered, nil
 		}
 
 		if userEmail == "" {

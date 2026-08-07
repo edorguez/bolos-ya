@@ -1,5 +1,5 @@
 # Makefile for Bolos Ya Project
-.PHONY: help build test test-race lint run generate deps docker-build docker-up docker-down docker-server-up docker-auth-up migrate-up migrate-down clean swagger coverage
+.PHONY: help build test test-race lint run generate deps docker-build docker-up docker-down docker-server-up docker-auth-up migrate-up migrate-down clean swagger coverage mobile-apk
 
 # Variables
 BINARY_NAME=bolos-ya-server
@@ -34,6 +34,7 @@ help:
 	@echo "  ${GREEN}clean${NC}             - Clean build artifacts"
 	@echo "  ${GREEN}swagger${NC}           - Generate Swagger/OpenAPI documentation"
 	@echo "  ${GREEN}coverage${NC}          - Generate test coverage report"
+	@echo "  ${GREEN}mobile-apk${NC}        - Build a shareable Android APK (release)"
 
 # Example: make build
 ## Build: Build the backend binary
@@ -157,6 +158,17 @@ coverage:
 	$(GO) test -coverprofile=coverage.out ./...
 	$(GO) tool cover -html=coverage.out -o coverage.html
 	@echo "${GREEN}Coverage report generated: coverage.html${NC}"
+
+# Example: make mobile-apk
+## Mobile: Build a shareable Android APK (release). Bump the version first with:
+##   make mobile-apk VERSION=1.0.5
+mobile-apk:
+	@if [ -n "$(VERSION)" ]; then \
+		echo "${YELLOW}Setting mobile version to $(VERSION)...${NC}"; \
+		node -e "const fs=require('fs');const p='mobile/app.json';const j=JSON.parse(fs.readFileSync(p));j.expo.version='$(VERSION)';fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n');"; \
+	fi
+	cd mobile/android && ./gradlew assembleRelease
+	@echo "${GREEN}APK listo: mobile/android/app/build/outputs/apk/release/app-release.apk${NC}"
 
 ## Default target
 default: help

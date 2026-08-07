@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSession, signOut } from '../lib/auth-client';
-import { apiGet } from '../services/api';
+import { apiGet, clearSessionTokenCache } from '../services/api';
 import * as SecureStore from 'expo-secure-store';
 
 const OFFLINE_GUEST_KEY = 'bolosya.offline.guest';
@@ -37,6 +37,14 @@ export function useAuth() {
     premiumUntil?: string | null;
   } | null>(null);
   const [offlineGuest, setOfflineGuest] = useState<OfflineGuest | null>(null);
+
+  // The API client caches the bearer token at module level. Drop that cache
+  // whenever the session user changes (login/logout/migration) so requests
+  // always use the token for the CURRENT session, never a stale one.
+  const sessionUserId = session?.user?.id;
+  useEffect(() => {
+    clearSessionTokenCache();
+  }, [sessionUserId]);
 
   useEffect(() => {
     SecureStore.getItemAsync(OFFLINE_GUEST_KEY).then(raw => {
@@ -96,6 +104,7 @@ export function useAuth() {
       : null;
 
   const handleLogout = async () => {
+    clearSessionTokenCache();
     await SecureStore.deleteItemAsync(OFFLINE_GUEST_KEY);
     await signOut();
     setOfflineGuest(null);

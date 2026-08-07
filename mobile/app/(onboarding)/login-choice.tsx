@@ -14,7 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import * as Network from 'expo-network';
 import * as SecureStore from 'expo-secure-store';
-import { getStoredSessionToken } from '../../services/api';
+import { getStoredSessionToken, clearSessionTokenCache } from '../../services/api';
 
 const { width, height } = Dimensions.get('window');
 const isLargeScreen = height > 800;
@@ -45,6 +45,7 @@ export default function LoginChoiceScreen() {
       const networkState = await Network.getNetworkStateAsync();
       if (networkState.isConnected) {
         await signIn.anonymous();
+        clearSessionTokenCache();
         await waitForSessionToken();
         router.replace('/(tabs)');
       } else {

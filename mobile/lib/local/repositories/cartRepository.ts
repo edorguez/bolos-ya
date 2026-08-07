@@ -111,8 +111,8 @@ export const cartRepository = {
           cart.isActive !== false ? 1 : 0,
           cart.budgetBs,
           cart.budgetUsd,
-          null,
-          null,
+          existing.totalEstimatedBs,
+          existing.totalEstimatedUsd,
           now,
           id,
         ]
