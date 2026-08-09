@@ -113,7 +113,6 @@ export function detectCurrencyFromText(text: string): 'BS' | 'USD' | null {
   if (/\b(USD|U\$S|D[OÓ]LAR(?:ES)?|DLS|REF)\b/.test(upper)) return 'USD';
   if (/\b(EUR|EURO)\b/.test(upper)) return 'USD';
   if (/\$/.test(text)) return 'USD';
-  if (/^REF/i.test(text)) return 'USD';
 
   return null;
 }

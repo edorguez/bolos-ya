@@ -4,10 +4,10 @@
     "slug": "bolos-ya",
     "version": "1.0.7",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/system/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/system/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -27,10 +27,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/system/android-icon-foreground.png",
+        "backgroundImage": "./assets/system/android-icon-background.png",
+        "monochromeImage": "./assets/system/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
@@ -56,7 +56,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#ffffff",
-          "image": "./assets/splash-icon.png",
+          "image": "./assets/system/splash-icon.png",
           "resizeMode": "contain"
         }
       ],

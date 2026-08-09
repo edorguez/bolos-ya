@@ -205,6 +205,58 @@ function extractLastPriceFromText(text: string): number | null {
   return isNaN(price) ? null : price;
 }
 
+// ML Kit misreads digit-like glyphs on low-contrast labels ("3.77" -> "3.T7",
+// "0.88" -> "O.88"). Fix the most common confusions inside price-like tokens.
+function normalizeOcrDigits(text: string): string {
+  return text.replace(/[TOloI]/g, ch => {
+    switch (ch) {
+      case 'T':
+        return '7';
+      case 'O':
+      case 'o':
+        return '0';
+      case 'I':
+      case 'l':
+        return '1';
+      default:
+        return ch;
+    }
+  });
+}
+
+// Lenient fallback that tolerates OCR digit/separator misreads, so a token
+// like "3.T7" still yields 3.77. Keeps the "last 2-decimal number wins" rule
+// of extractLastPriceFromText. Only matches real prices: "0.385" (weight) is
+// not a 2-decimal value, so it never qualifies.
+function extractLenientPriceFromText(text: string): number | null {
+  const tokens = text.match(/\d[\d.,TIloO]*/g);
+  if (!tokens || tokens.length === 0) return null;
+  let best: number | null = null;
+  for (const raw of tokens) {
+    const cleaned = normalizeOcrDigits(raw).replace(/,/g, '.');
+    const match = cleaned.match(/\d{1,3}(?:\.\d{3})*\.\d{2}(?!\d)/);
+    if (match) {
+      const price = parseFloat(match[0]);
+      if (!isNaN(price) && price > 0) best = price;
+    }
+  }
+  return best;
+}
+
+// Try the strict parser first, then the OCR-tolerant one.
+function extractAnyPrice(text: string): number | null {
+  return extractLastPriceFromText(text) ?? extractLenientPriceFromText(text);
+}
+
+// ML Kit sometimes splits a large currency glyph from its number ("$" and
+// "3.T7" become separate blocks). This block has no price of its own but
+// should be recombined with the adjacent number block.
+function isLoneCurrencySymbol(text: string): boolean {
+  const t = text.trim();
+  if (t.length === 0 || /\d/.test(t)) return false;
+  return detectCurrencyFromText(t) !== null || t === '#';
+}
+
 function parseDecimal(s: string): number {
   const normalized = s
     .replace(',', '.')
@@ -297,68 +349,127 @@ function findBestPriceBlock(
   let bestBlockIndex = -1;
   let bestPriceScore = -99;
 
-  for (let i = 0; i < sortedBlocks.length; i++) {
-    const block = sortedBlocks[i];
-    const blockText = block.text.trim();
-    const price = extractLastPriceFromText(blockText);
-    const currency = detectCurrencyFromText(blockText);
+  // Weight-based labels (deli / meat / cheese) print both a per-kg price and
+  // a final "PRECIO TOTAL". The header itself has no price, so the "total"
+  // keyword bonus below never fires on it. Detect those headers (tolerating
+  // OCR misreads like "TƠTAL") so the price closest to them wins.
+  const totalLabelIndices = sortedBlocks
+    .map((block, i) => (/\bT.{0,2}TAL\b/i.test(block.text) && extractAnyPrice(block.text) === null ? i : -1))
+    .filter(i => i >= 0);
+
+  // Scores one price candidate. Text may come from a single block or from a
+  // currency-symbol block recombined with its adjacent number block.
+  const scoreCandidate = (
+    text: string,
+    fontHeight: number,
+    idx: number,
+    price: number,
+    currency: 'BS' | 'USD' | null
+  ): number => {
     // "Ref." is a price label (Ref. KG = price/kg, Total Ref = total price), not a currency indicator
-    const isRefLabel = /\bRef\.?\b/i.test(blockText);
+    const isRefLabel = /\bRef\.?\b/i.test(text);
     const isActualCurrency = currency !== null && !isRefLabel;
     let score = 0;
 
-    if (price !== null) score += 3;
+    score += 3;
     // Explicit currency ($ / Bs) is the strongest signal of the real price.
     if (isActualCurrency) score += 8;
-    if (/\d{6,}/.test(blockText)) score -= 2;
-    if (blockText.length < 4) score -= 1;
+    if (/\d{6,}/.test(text)) score -= 2;
+    if (text.length < 4) score -= 1;
     // Bare integers are less likely the final price than 2-decimal prices.
-    if (/^\d{2,6}$/.test(blockText)) score -= 2;
-    if (price !== null && /[.,]\d{2}(?!\d)/.test(blockText)) score += 2;
+    if (/^\d{2,6}$/.test(text)) score -= 2;
+    if (/[.,]\d{2}(?!\d)/.test(text)) score += 2;
     // Weight / quantity lines ("0.440 kg", "60 kg") are not prices. Include
-    // common ML Kit misreads of "kg" (e.g. "ko", "kq").
-    if (/\b\d+(?:[.,]\d+)?\s*(kg|kgs|ko|kq|g|gr|ml|l|lb|oz)\b/i.test(blockText)) {
+    // common ML Kit misreads of "kg" (e.g. "ko", "kq"). A block that also
+    // carries a "#" price marker (e.g. "Crema ... 170Gr\n# 2.24") is a real
+    // price, so it must not be penalized.
+    if (
+      /\b\d+(?:[.,]\d+)?\s*(kg|kgs|ko|kq|g|gr|ml|l|lb|oz)\b/i.test(text) &&
+      !/#/.test(text)
+    ) {
       score -= 25;
     }
     // Per-kg reference price ("Ref.KG", "Ref .KG") is not the product price.
-    if (/\bref\.?\s*(kg|g|lb|kilo)\b/i.test(blockText)) {
-      continue;
+    if (/\bref\.?\s*(kg|g|lb|kilo)\b/i.test(text)) {
+      return -Infinity;
     }
 
-    // Font size heuristic: small-print blocks get penalized, larger fonts get proportional bonus
-    if (isSmallPrint(block, smallPrintThreshold)) {
+    // Font size heuristic: small-print blocks get penalized, larger fonts get
+    // a proportional bonus. The final price on a label is almost always the
+    // biggest number, so the font weight is deliberately the dominant signal
+    // (larger than every other bonus/penalty combined).
+    if (fontHeight > 0 && fontHeight < smallPrintThreshold) {
       score -= 3;
-    } else if (avgElementHeight(block) > 0) {
-      const fontHeight = avgElementHeight(block);
+    } else if (fontHeight > 0) {
       const ratio = fontHeight / globalAvgHeight;
       // Proportional font bonus: bigger font = higher score
-      score += Math.round(2 * ratio);
+      score += Math.round(15 * ratio);
     }
 
     // Penalize bare price-only lines (likely unit price / tax, not final)
-    if (price !== null && !isActualCurrency && hasPricePatternOnly(blockText)) {
+    if (!isActualCurrency && hasPricePatternOnly(text)) {
       score -= 1;
     }
 
     // Bonus for "Total"/"Total Ref" keyword — the final total price.
-    if (/total/i.test(blockText)) {
+    if (/total/i.test(text)) {
       score += 5;
     }
 
     // Strong proximity bonus to the product name block.
     if (productBlockIndex >= 0) {
-      const dist = Math.abs(i - productBlockIndex);
+      const dist = Math.abs(idx - productBlockIndex);
       if (dist <= PROXIMITY_RANGE) {
         score += (PROXIMITY_RANGE - dist + 1) * 3;
       }
     }
 
-    if (price !== null && score > bestPriceScore) {
+    // The price block nearest to a "PRECIO TOTAL" header is the final price;
+    // give it a large bonus so it always beats the per-kg price next to it.
+    for (const totalIdx of totalLabelIndices) {
+      const dist = Math.abs(idx - totalIdx);
+      if (dist <= 3) {
+        score += (4 - dist) * 5;
+      }
+    }
+
+    return score;
+  };
+
+  // Registers a candidate if it beats the current best.
+  const consider = (text: string, fontHeight: number, idx: number) => {
+    const price = extractAnyPrice(text);
+    if (price === null) return;
+    const currency = detectCurrencyFromText(text);
+    const score = scoreCandidate(text, fontHeight, idx, price, currency);
+    if (score > bestPriceScore) {
       bestPriceScore = score;
       detectedPrice = price;
-      detectedCurrency = isActualCurrency ? currency : null;
-      priceSourceText = blockText;
-      bestBlockIndex = i;
+      detectedCurrency = currency !== null && !/\bRef\.?\b/i.test(text) ? currency : null;
+      priceSourceText = text;
+      bestBlockIndex = idx;
+    }
+  };
+
+  for (let i = 0; i < sortedBlocks.length; i++) {
+    const block = sortedBlocks[i];
+    const blockText = block.text.trim();
+    const fontHeight = avgElementHeight(block);
+
+    consider(blockText, fontHeight, i);
+
+    // ML Kit split the big currency glyph from its number ("$" + "3.T7").
+    // Recombine them so "$ 3.77" becomes a candidate at the symbol's font size.
+    if (isLoneCurrencySymbol(blockText) && i + 1 < sortedBlocks.length) {
+      const next = sortedBlocks[i + 1];
+      const nextPrice = extractAnyPrice(next.text);
+      if (nextPrice !== null) {
+        consider(
+          `${blockText} ${next.text.trim()}`,
+          Math.max(fontHeight, avgElementHeight(next)),
+          i + 1
+        );
+      }
     }
   }
 

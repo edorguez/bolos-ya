@@ -14,7 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useAppTheme } from '../../styles/theme';
 import { Button } from '../Button';
 import { ProgressBar } from '../shared/ProgressBar';
-import { useScaleIn, useFadeSlideIn } from '../../hooks/animations';
+import { useScaleIn, useFadeSlideIn, useFloat } from '../../hooks/animations';
 
 interface OnboardingStepProps {
   image: number;
@@ -48,8 +48,11 @@ export function OnboardingStep({
   const theme = useAppTheme();
   const { height } = useWindowDimensions();
   const cardHeight = Math.min(height * 0.42, 320);
+  const bubbleSize = Math.min(cardHeight * 0.78, 260);
+  const mascotHeight = bubbleSize * 0.58;
 
   const imageEnter = useScaleIn({ delay: 80, from: 0.6 });
+  const bubbleFloat = useFloat({ distance: 6, duration: 3000 });
   const titleEnter = useFadeSlideIn({ delay: 160, distance: 18 });
   const subtitleEnter = useFadeSlideIn({ delay: 280, distance: 16 });
   const buttonEnter = useFadeSlideIn({ delay: 420, distance: 16 });
@@ -133,6 +136,23 @@ export function OnboardingStep({
       alignItems: 'center',
       justifyContent: 'center',
     },
+    bubble: {
+      width: bubbleSize,
+      height: bubbleSize,
+      borderRadius: theme.borderRadius.full,
+      backgroundColor: theme.colors.white,
+      boxShadow: theme.shadows.soft,
+      overflow: 'hidden',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderCurve: 'continuous',
+    },
+    mascotWrap: {
+      width: '100%',
+      height: mascotHeight,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     image: {
       width: '100%',
       height: '100%',
@@ -202,20 +222,24 @@ export function OnboardingStep({
           <View style={styles.blob1} />
           <View style={styles.blob2} />
           <View style={styles.blob3} />
-          <Animated.View style={[styles.imageWrap, imageEnter, imageAnimatedStyle]}>
-            <Image
-              source={image}
-              style={styles.image}
-              contentFit="contain"
-              transition={200}
-              accessibilityIgnoresInvertColors
-            />
-          </Animated.View>
-          {imageOverlay ? (
-            <View style={styles.overlayWrap} pointerEvents="none">
-              {imageOverlay(cardHeight)}
-            </View>
-          ) : null}
+          <View style={styles.imageWrap}>
+            <Animated.View style={[styles.bubble, bubbleFloat]}>
+              <Animated.View style={[styles.mascotWrap, imageEnter, imageAnimatedStyle]}>
+                <Image
+                  source={image}
+                  style={styles.image}
+                  contentFit="contain"
+                  transition={200}
+                  accessibilityIgnoresInvertColors
+                />
+              </Animated.View>
+              {imageOverlay ? (
+                <View style={styles.overlayWrap} pointerEvents="none">
+                  {imageOverlay(mascotHeight)}
+                </View>
+              ) : null}
+            </Animated.View>
+          </View>
         </View>
 
         <View style={styles.content}>
