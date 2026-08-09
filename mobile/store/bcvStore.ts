@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { getBCVRates } from '../services/bcvService';
 import { safeGetItem, safeSetItem } from '../utils/storage';
 
@@ -25,49 +25,72 @@ interface StoreEntry {
   lastFetched: string;
 }
 
+interface BCVState {
+  rate: BCVRateData | null;
+  isLoading: boolean;
+  error: Error | null;
+}
+
 export interface BCVRateRef {
   refresh: () => Promise<void>;
 }
 
-export function useBCV() {
-  const [rate, setRate] = useState<BCVRateData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const fetchingRef = useRef(false);
+let state: BCVState = {
+  rate: null,
+  isLoading: true,
+  error: null,
+};
 
-  const loadRate = useCallback(async (force = false) => {
-    if (fetchingRef.current) return;
-    fetchingRef.current = true;
+const listeners = new Set<() => void>();
 
-    let rateData: BCVRateData | null = null;
-    let cached: string | null = null;
-    const today = localDateStr();
+function emit(next: BCVState): void {
+  state = next;
+  listeners.forEach(listener => listener());
+}
 
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function getSnapshot(): BCVState {
+  return state;
+}
+
+let fetching = false;
+let loadedOnce = false;
+
+export async function loadRate(force = false): Promise<void> {
+  if (fetching) return;
+  fetching = true;
+
+  try {
+    let cachedRate: BCVRateData | null = null;
     try {
-      cached = await safeGetItem(STORAGE_KEY);
+      const cached = await safeGetItem(STORAGE_KEY);
       if (cached) {
         const parsed: StoreEntry = JSON.parse(cached);
-        if (!force && parsed.lastFetched === today) {
-          rateData = {
+        if (parsed.usdRate > 0) {
+          cachedRate = {
             createdAt: parsed.createdAt,
             usdRate: parsed.usdRate,
             eurRate: parsed.eurRate,
           };
-          setRate(rateData);
-          setIsLoading(false);
-          fetchingRef.current = false;
-          return;
         }
-        rateData = {
-          createdAt: parsed.createdAt,
-          usdRate: parsed.usdRate,
-          eurRate: parsed.eurRate,
-        };
-        setRate(rateData);
       }
     } catch {
       // ignore parse errors, fetch fresh
     }
+
+    if (cachedRate && !state.rate) {
+      emit({ ...state, rate: cachedRate });
+    }
+
+    if (!force && loadedOnce) return;
+
+    emit({ ...state, isLoading: true });
 
     try {
       const response = await getBCVRates();
@@ -76,48 +99,49 @@ export function useBCV() {
           usdRate: response.data.usdRate / 100,
           eurRate: response.data.eurRate / 100,
           createdAt: response.data.createdAt,
-          lastFetched: today,
+          lastFetched: localDateStr(),
         };
         await safeSetItem(STORAGE_KEY, JSON.stringify(data));
-        rateData = {
-          createdAt: response.data.createdAt,
-          usdRate: data.usdRate,
-          eurRate: data.eurRate,
-        };
-        setRate(rateData);
-        setError(null);
+        emit({
+          rate: {
+            createdAt: response.data.createdAt,
+            usdRate: data.usdRate,
+            eurRate: data.eurRate,
+          },
+          isLoading: false,
+          error: null,
+        });
       }
     } catch (err) {
-      if (!rateData) {
-        if (cached) {
-          try {
-            const parsed: StoreEntry = JSON.parse(cached);
-            setRate({
-              createdAt: parsed.createdAt,
-              usdRate: parsed.usdRate,
-              eurRate: parsed.eurRate,
-            });
-          } catch {
-            setError(err instanceof Error ? err : new Error('Failed to load BCV rate'));
-          }
-        } else {
-          setError(err instanceof Error ? err : new Error('Failed to load BCV rate'));
-        }
-      }
-    } finally {
-      setIsLoading(false);
-      fetchingRef.current = false;
+      const nextError = err instanceof Error ? err : new Error('Failed to load BCV rate');
+      emit({
+        ...state,
+        isLoading: false,
+        error: state.rate ? state.error : nextError,
+      });
     }
-  }, []);
+  } finally {
+    fetching = false;
+    loadedOnce = true;
+  }
+}
+
+export const refresh = async (): Promise<void> => {
+  await loadRate(true);
+};
+
+export function useBCV() {
+  const current = useSyncExternalStore(subscribe, getSnapshot);
 
   useEffect(() => {
     loadRate();
-  }, [loadRate]);
+  }, []);
 
-  const refresh = useCallback(async () => {
-    setIsLoading(true);
-    await loadRate(true);
-  }, [loadRate]);
-
-  return { rate, isLoading, error, refresh, loadRate };
+  return {
+    rate: current.rate,
+    isLoading: current.isLoading,
+    error: current.error,
+    refresh,
+    loadRate,
+  };
 }

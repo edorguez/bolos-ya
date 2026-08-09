@@ -188,6 +188,30 @@ export function useCountUp(opts: {
   return `${prefix}${display}${suffix}`;
 }
 
+export function useSway(opts?: { degrees?: number; duration?: number }) {
+  const { degrees = 4, duration = 3600 } = opts ?? {};
+  const reduced = usePrefersReducedMotion();
+  const progress = useSharedValue(0);
+
+  useEffect(() => {
+    if (reduced) {
+      progress.set(0);
+      return;
+    }
+    progress.set(0);
+    progress.set(
+      withRepeat(withTiming(1, { duration, easing: Easing.inOut(Easing.ease) }), -1, true)
+    );
+    return () => cancelAnimation(progress);
+  }, [degrees, duration, reduced, progress]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${interpolate(progress.get(), [0, 1], [-degrees, degrees])}deg` }],
+  }));
+
+  return animatedStyle;
+}
+
 export function useHeartbeat(opts?: { to?: number; beat?: number; rest?: number }) {
   const { to = 1.12, beat = 200, rest = 2480 } = opts ?? {};
   const reduced = usePrefersReducedMotion();

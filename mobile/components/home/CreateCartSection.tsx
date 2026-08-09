@@ -12,7 +12,7 @@ import { getAllSupermarkets } from '../../services/supermarketService';
 import { createCart } from '../../services/cartService';
 
 import { validateName, sanitizeName } from '../../utils/validation';
-import { getExchangeRate } from '../../utils/currency';
+import { useBCV } from '../../store/bcvStore';
 import type { SupermarketOption } from '../../services/supermarketService';
 
 interface CreateCartSectionProps {
@@ -30,7 +30,8 @@ export function CreateCartSection({ userId, onCartCreated }: CreateCartSectionPr
   const [budgetBs, setBudgetBs] = useState<number | null>(null);
   const [budgetUsd, setBudgetUsd] = useState<number | null>(null);
   const [topCurrency, setTopCurrency] = useState<'BS' | 'USD'>('BS');
-  const [exchangeRate, setExchangeRate] = useState(0);
+  const { rate } = useBCV();
+  const exchangeRate = rate?.usdRate ?? 0;
   const [customMarketName, setCustomMarketName] = useState('');
   const [showCustomMarket, setShowCustomMarket] = useState(false);
   const [renderCustomMarket, setRenderCustomMarket] = useState(false);
@@ -67,10 +68,6 @@ export function CreateCartSection({ userId, onCartCreated }: CreateCartSectionPr
       mounted = false;
     };
   }, [userId]);
-
-  useEffect(() => {
-    getExchangeRate().then(setExchangeRate);
-  }, []);
 
   const bsEditable = topCurrency === 'BS';
 
@@ -185,6 +182,10 @@ export function CreateCartSection({ userId, onCartCreated }: CreateCartSectionPr
       if (usdAmount <= 0) {
         errors.budgetUsd = 'Ingresa un presupuesto en USD';
       }
+    }
+
+    if (exchangeRate <= 0) {
+      errors.budgetBs = 'Tasa BCV no disponible, intenta de nuevo';
     }
 
     setFieldErrors(errors);

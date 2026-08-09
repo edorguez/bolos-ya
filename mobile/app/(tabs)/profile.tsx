@@ -32,7 +32,7 @@ export default function ProfileTab() {
 
   const handleLogout = async () => {
     await logout();
-    router.replace('/(onboarding)/welcome');
+    router.replace('/(onboarding)/step-1');
   };
 
   const handleUpgrade = async () => {

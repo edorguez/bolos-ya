@@ -74,8 +74,13 @@ export const AmountInput = memo(
 
     useEffect(() => {
       if (focusedRef.current) return;
-      setText(formatAmount(value));
-      setSyncKey(key => key + 1);
+      const formatted = formatAmount(value);
+      setText(formatted);
+      if (inputRef.current?.setNativeProps) {
+        inputRef.current.setNativeProps({ text: formatted });
+      } else {
+        setSyncKey(key => key + 1);
+      }
     }, [value]);
 
     const handleChangeText = useCallback(

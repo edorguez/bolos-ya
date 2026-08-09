@@ -24,7 +24,10 @@ export default function OnboardingLayout() {
           contentStyle: { backgroundColor: 'transparent' },
         }}
       >
-        <Stack.Screen name="welcome" />
+        <Stack.Screen name="step-1" />
+        <Stack.Screen name="step-2" />
+        <Stack.Screen name="step-3" />
+        <Stack.Screen name="step-4" />
         <Stack.Screen name="login-choice" />
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
