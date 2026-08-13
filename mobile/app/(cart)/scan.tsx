@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, type LayoutChangeEvent } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { CameraView, Camera } from 'expo-camera';
+import { Accelerometer } from 'expo-sensors';
 import { useAppTheme } from '../../styles/theme';
 import { createScanStyles } from '../../styles/scanStyles';
 import { TopAppBar } from '../../components/shared/TopAppBar';
@@ -18,23 +19,6 @@ import { addCartProduct } from '../../services/cartService';
 import { Toast } from '../../components/shared/Toast';
 import { scanImage, preprocessImage, rotateImage } from '../../lib/ocr';
 import { MaterialIcons } from '@expo/vector-icons';
-
-// Measures a view with a timeout so scanning can never hang if a ref is null
-// or not laid out yet.
-function measureWithTimeout(ref: View | null): Promise<number[] | null> {
-  return new Promise(resolve => {
-    const timer = setTimeout(() => resolve(null), 300);
-    if (!ref) {
-      clearTimeout(timer);
-      resolve(null);
-      return;
-    }
-    ref.measure((...args: number[]) => {
-      clearTimeout(timer);
-      resolve(args);
-    });
-  });
-}
 
 // Clamps a crop rectangle to the photo bounds.
 function clampCrop(
@@ -68,14 +52,44 @@ export default function ScanScreen() {
     priceBs: number;
     priceUsd: number;
     confidence?: number;
+    imageUri?: string;
+    imageAspectRatio?: number;
   } | null>(null);
 
   const cameraRef = useRef<CameraView>(null);
-  const cameraContainerRef = useRef<View>(null);
-  const scanAreaRef = useRef<View>(null);
   const [showNoRecognition, setShowNoRecognition] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [toast, setToast] = useState<{ message: string; isError: boolean } | null>(null);
+
+  const cameraLayoutRef = useRef<{ width: number; height: number } | null>(null);
+  const middleRowLayoutRef = useRef<{ x: number; y: number } | null>(null);
+  const scanAreaLayoutRef = useRef<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  // Physical device rotation (degrees, counter-clockwise from upright:
+  // 0 = upright, 90 = head-left, 180 = upside-down, 270 = head-right). The
+  // app is portrait-locked, so the camera's capture rotation is based on this
+  // physical angle, and EXIF orientation is unreliable across devices.
+  const deviceAngleRef = useRef<number | null>(null);
+
+  const handleCameraLayout = (e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    cameraLayoutRef.current = { width, height };
+  };
+
+  const handleMiddleRowLayout = (e: LayoutChangeEvent) => {
+    const { x, y } = e.nativeEvent.layout;
+    middleRowLayoutRef.current = { x, y };
+  };
+
+  const handleScanAreaLayout = (e: LayoutChangeEvent) => {
+    const { x, y, width, height } = e.nativeEvent.layout;
+    scanAreaLayoutRef.current = { x, y, width, height };
+  };
 
   const dotPulse = usePulse({ min: 0.3, max: 1, duration: 900 });
   const cornerPulse = usePulse({ min: 0.7, max: 1, duration: 1200 });
@@ -87,6 +101,21 @@ export default function ScanScreen() {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    Accelerometer.setUpdateInterval(100);
+    const subscription = Accelerometer.addListener(({ x, y }) => {
+      if (!active) return;
+      const raw = (Math.atan2(-x, -y) * 180) / Math.PI;
+      deviceAngleRef.current = ((raw % 360) + 360) % 360;
+    });
+    return () => {
+      active = false;
+      subscription.remove();
+      Accelerometer.removeAllListeners();
+    };
   }, []);
 
   const startScanning = async () => {
@@ -102,21 +131,21 @@ export default function ScanScreen() {
         shutterSound: false,
       });
 
-      const [camMeasure, scanMeasure] = await Promise.all([
-        measureWithTimeout(cameraContainerRef.current),
-        measureWithTimeout(scanAreaRef.current),
-      ]);
+      const camLayout = cameraLayoutRef.current;
+      const middleRowLayout = middleRowLayoutRef.current;
+      const scanLayout = scanAreaLayoutRef.current;
 
-      const [, , camW, camH, camPageX, camPageY] = camMeasure || [];
-      const [, , scanW, scanH, scanPageX, scanPageY] = scanMeasure || [];
+      const camW = camLayout?.width ?? 0;
+      const camH = camLayout?.height ?? 0;
+      const relX = Math.max(0, (middleRowLayout?.x ?? 0) + (scanLayout?.x ?? 0));
+      const relY = Math.max(0, (middleRowLayout?.y ?? 0) + (scanLayout?.y ?? 0));
+      const scanW = scanLayout?.width ?? 0;
+      const scanH = scanLayout?.height ?? 0;
 
       let processedUri: string;
       const validMeasure = camW > 0 && camH > 0 && scanW > 0 && scanH > 0;
 
       if (validMeasure) {
-        const relX = Math.max(0, scanPageX - camPageX);
-        const relY = Math.max(0, scanPageY - camPageY);
-
         const containerLandscape = camW > camH;
         const photoLandscape = photo.width > photo.height;
         const needsRotation = containerLandscape !== photoLandscape;
@@ -125,16 +154,26 @@ export default function ScanScreen() {
         let photoW = photo.width;
         let photoH = photo.height;
         let rotationDeg = 0;
+        const deviceAngle = deviceAngleRef.current;
 
         if (needsRotation) {
-          // The captured photo is rotated relative to the (portrait) preview,
-          // e.g. the phone is held in landscape. Rotate it to match the
-          // container so the scan rectangle maps correctly.
-          const orientation = (photo.exif as Record<string, unknown> | undefined)?.Orientation;
-          if (orientation === 6) rotationDeg = 90;
-          else if (orientation === 8) rotationDeg = 270;
-          else if (orientation === 3) rotationDeg = 180;
-          else rotationDeg = 90;
+          // The captured photo is rotated relative to the (portrait) preview.
+          // EXIF orientation is unreliable across devices (some cameras report
+          // 0/1 even when rotated), so derive the direction from the physical
+          // device orientation reported by the accelerometer — the camera sets
+          // its capture rotation from the very same physical angle.
+          if (deviceAngle !== null) {
+            // The camera and preview share the same physical rotation, so the
+            // raw photo must be rotated 90° CW when the phone's top points up
+            // and 270° CW in every other orientation (left/right/down).
+            rotationDeg = deviceAngle >= 315 || deviceAngle < 45 ? 90 : 270;
+          } else {
+            const orientation = (photo.exif as Record<string, unknown> | undefined)?.Orientation;
+            if (orientation === 6) rotationDeg = 90;
+            else if (orientation === 8) rotationDeg = 270;
+            else if (orientation === 3) rotationDeg = 180;
+            else rotationDeg = 90;
+          }
           try {
             const rotated = await rotateImage(photo.uri, rotationDeg);
             photoUri = rotated.uri;
@@ -145,6 +184,9 @@ export default function ScanScreen() {
           }
         }
 
+        // The preview and the captured photo show the same full frame, so the
+        // box maps onto the photo with a simple per-axis scale (the photo is a
+        // scaled copy of what the user framed).
         const scaleX = photoW / camW;
         const scaleY = photoH / camH;
         const originX = Math.round(relX * scaleX);
@@ -155,15 +197,18 @@ export default function ScanScreen() {
         console.log('[SCAN] crop', {
           photoW: photo.width,
           photoH: photo.height,
-          cam: { camW, camH, camPageX, camPageY },
-          scan: { scanW, scanH, scanPageX, scanPageY },
+          cam: { camW, camH },
+          scan: { relX, relY, scanW, scanH },
           containerLandscape,
           photoLandscape,
           needsRotation,
           rotationDeg,
+          deviceAngle,
           exifOrientation: (photo.exif as Record<string, unknown> | undefined)?.Orientation,
           cropPhotoW: photoW,
           cropPhotoH: photoH,
+          scaleX,
+          scaleY,
           originX,
           originY,
           width,
@@ -187,7 +232,11 @@ export default function ScanScreen() {
       } else {
         // Never fall back to the full image: that would read text outside the
         // scan rectangle. Use a center crop instead.
-        console.warn('[SCAN] measure fallback (center crop)', { camMeasure, scanMeasure });
+        console.warn('[SCAN] layout not ready (center crop)', {
+          camLayout,
+          middleRowLayout,
+          scanLayout,
+        });
         const w = Math.round(photo.width * 0.6);
         const h = Math.round(photo.height * 0.6);
         const ox = Math.max(0, Math.round((photo.width - w) / 2));
@@ -210,6 +259,8 @@ export default function ScanScreen() {
           priceBs: result.priceBs,
           priceUsd: result.priceUsd,
           confidence: result.confidence,
+          imageUri: processedUri,
+          imageAspectRatio: scanW > 0 && scanH > 0 ? scanW / scanH : 1.8,
         });
       }
     } catch (error) {
@@ -376,7 +427,7 @@ export default function ScanScreen() {
     <View style={styles.container}>
       <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} />
 
-      <View ref={cameraContainerRef} style={styles.cameraContainer}>
+      <View onLayout={handleCameraLayout} style={styles.cameraContainer}>
         <CameraView
           ref={cameraRef}
           style={StyleSheet.absoluteFillObject}
@@ -388,10 +439,10 @@ export default function ScanScreen() {
         <View style={styles.overlayPanels} pointerEvents="none">
           <View style={[styles.overlayTint, { flex: 0.8 }]} />
 
-          <View style={styles.overlayMiddleRow}>
+          <View onLayout={handleMiddleRowLayout} style={styles.overlayMiddleRow}>
             <View style={[styles.overlayTint, { flex: 1 }]} />
 
-            <Animated.View ref={scanAreaRef} style={[styles.scanArea, cornerPulse]}>
+            <Animated.View onLayout={handleScanAreaLayout} style={[styles.scanArea, cornerPulse]}>
               <View style={[styles.cornerLine, styles.cornerVertical, { top: 0, left: 0 }]} />
               <View style={[styles.cornerLine, styles.cornerHorizontal, { top: 0, left: 0 }]} />
               <View style={[styles.cornerLine, styles.cornerVertical, { top: 0, right: 0 }]} />
@@ -453,6 +504,8 @@ export default function ScanScreen() {
         productName={scanResult?.name || ''}
         priceBs={scanResult?.priceBs || 0}
         priceUsd={scanResult?.priceUsd || 0}
+        imageUri={scanResult?.imageUri || ''}
+        imageAspectRatio={scanResult?.imageAspectRatio ?? 1.8}
         onAddToCart={handleAddToCart}
       />
 

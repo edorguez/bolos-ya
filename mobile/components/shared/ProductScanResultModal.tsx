@@ -7,7 +7,9 @@ import {
   Animated,
   type ViewStyle,
   type TextStyle,
+  type ImageStyle,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useAppTheme } from '../../styles/theme';
 import { createButtonStyles } from '../../styles/buttons';
 import { createProductScanResultModalStyles } from '../../styles/productScanResultModalStyles';
@@ -19,6 +21,8 @@ interface ProductScanResultModalProps {
   productName: string;
   priceBs: number;
   priceUsd: number;
+  imageUri: string;
+  imageAspectRatio: number;
   onAddToCart: (quantity: number) => void;
 }
 
@@ -28,6 +32,8 @@ export function ProductScanResultModal({
   productName,
   priceBs,
   priceUsd,
+  imageUri,
+  imageAspectRatio,
   onAddToCart,
 }: ProductScanResultModalProps) {
   const theme = useAppTheme();
@@ -53,6 +59,7 @@ export function ProductScanResultModal({
 
   useEffect(() => {
     if (isVisible) {
+      setQuantity(1);
       Animated.timing(slideAnim, {
         toValue: 0,
         duration: 300,
@@ -80,6 +87,16 @@ export function ProductScanResultModal({
               <View style={styles.verifiedBadge as ViewStyle}>
                 <MaterialIcons name="verified" size={24} color={theme.colors.meadowGreen} />
               </View>
+            </View>
+
+            <View style={styles.captureImageWrap as ViewStyle}>
+              <Image
+                source={{ uri: imageUri }}
+                style={[styles.captureImage as ImageStyle, { aspectRatio: imageAspectRatio }]}
+                contentFit="cover"
+                transition={150}
+                cachePolicy="none"
+              />
             </View>
 
             <View style={styles.priceRow as ViewStyle}>

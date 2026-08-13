@@ -55,6 +55,18 @@ export function createProductScanResultModalStyles(theme: AppTheme) {
       padding: theme.spacing.sm,
       borderRadius: theme.borderRadius.md,
     },
+    captureImageWrap: {
+      width: '100%',
+      borderRadius: theme.borderRadius.md,
+      overflow: 'hidden',
+      backgroundColor: '#000',
+      borderWidth: 1,
+      borderColor: theme.colors.stoneSurface,
+      marginBottom: theme.spacing.md,
+    },
+    captureImage: {
+      width: '100%',
+    },
     priceRow: {
       flexDirection: 'row',
       alignItems: 'flex-end',
