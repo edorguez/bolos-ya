@@ -174,7 +174,7 @@ mobile-apk:
 	cd mobile/android && ./gradlew assembleRelease
 	@APP_NAME=$$(node -e "console.log(require('./mobile/app.json').expo.name.replace(/\s+/g, ''))"); \
 	VER=$$(node -e "console.log(require('./mobile/app.json').expo.version)"); \
-	APK=$$(ls mobile/android/app/build/outputs/apk/release/app-*-release.apk 2>/dev/null | head -1); \
+	APK=$$(ls mobile/android/app/build/outputs/apk/release/app-release.apk mobile/android/app/build/outputs/apk/release/app-*-release.apk 2>/dev/null | head -1); \
 	if [ -z "$$APK" ]; then \
 		echo "${RED}No se encontró el APK release en mobile/android/app/build/outputs/apk/release/${NC}"; \
 		exit 1; \
