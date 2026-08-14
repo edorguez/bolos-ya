@@ -4,9 +4,6 @@ let db: SQLite.SQLiteDatabase | null = null;
 let initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 const DB_NAME = 'merki_offline.db';
-const LEGACY_DB_NAME = 'bolosya_offline.db';
-
-const MIGRATABLE_TABLES = ['supermarkets', 'carts', 'cart_products', 'sync_queue', 'auth_cache'];
 
 const MIGRATIONS = [
   {
@@ -88,45 +85,9 @@ const MIGRATIONS = [
   },
 ];
 
-async function migrateLegacyDatabase(database: SQLite.SQLiteDatabase): Promise<void> {
-  try {
-    const legacy = await SQLite.openDatabaseAsync(LEGACY_DB_NAME);
-    try {
-      const legacyTables = await legacy.getAllAsync<{ name: string }>(
-        "SELECT name FROM sqlite_master WHERE type='table'"
-      );
-      const hasLegacyData = legacyTables.some(t => MIGRATABLE_TABLES.includes(t.name));
-      if (!hasLegacyData) return;
-
-      for (const table of MIGRATABLE_TABLES) {
-        const columns = await legacy.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
-        if (columns.length === 0) continue;
-
-        const rows = await legacy.getAllAsync<Record<string, unknown>>(`SELECT * FROM ${table}`);
-        if (rows.length === 0) continue;
-
-        const colNames = columns.map(c => c.name).join(', ');
-        const placeholders = columns.map(() => '?').join(', ');
-        for (const row of rows) {
-          const values = columns.map(c => row[c.name]) as unknown as SQLite.SQLiteBindValue[];
-          await database.runAsync(
-            `INSERT OR IGNORE INTO ${table} (${colNames}) VALUES (${placeholders})`,
-            values
-          );
-        }
-      }
-    } finally {
-      await legacy.closeAsync();
-    }
-  } catch {
-    // ignore legacy DB migration errors; start fresh
-  }
-}
-
 async function openAndMigrate(): Promise<SQLite.SQLiteDatabase> {
   const database = await SQLite.openDatabaseAsync(DB_NAME);
   await runMigrations(database);
-  await migrateLegacyDatabase(database);
   return database;
 }
 
