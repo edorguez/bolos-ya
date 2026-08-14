@@ -3,7 +3,8 @@ import { useSession, signOut } from '../lib/auth-client';
 import { apiGet, clearSessionTokenCache } from '../services/api';
 import * as SecureStore from 'expo-secure-store';
 
-const OFFLINE_GUEST_KEY = 'bolosya.offline.guest';
+const OFFLINE_GUEST_KEY = 'merki.offline.guest';
+const LEGACY_GUEST_KEY = 'bolosya.offline.guest';
 
 interface AuthUser {
   id: string;
@@ -47,7 +48,10 @@ export function useAuth() {
   }, [sessionUserId]);
 
   useEffect(() => {
-    SecureStore.getItemAsync(OFFLINE_GUEST_KEY).then(raw => {
+    const loadOfflineGuest = async () => {
+      const raw =
+        (await SecureStore.getItemAsync(OFFLINE_GUEST_KEY)) ||
+        (await SecureStore.getItemAsync(LEGACY_GUEST_KEY));
       if (raw) {
         try {
           setOfflineGuest(JSON.parse(raw));
@@ -55,7 +59,8 @@ export function useAuth() {
           // ignore
         }
       }
-    });
+    };
+    loadOfflineGuest();
   }, []);
 
   useEffect(() => {
@@ -106,6 +111,7 @@ export function useAuth() {
   const handleLogout = async () => {
     clearSessionTokenCache();
     await SecureStore.deleteItemAsync(OFFLINE_GUEST_KEY);
+    await SecureStore.deleteItemAsync(LEGACY_GUEST_KEY);
     await signOut();
     setOfflineGuest(null);
   };

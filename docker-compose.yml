@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bolos-ya-server
+    container_name: merki-server
     ports:
       - "${PORT}:${PORT}"
     environment:
@@ -35,12 +35,12 @@ services:
       redis:
         condition: service_started
     networks:
-      - bolos-ya-network
+      - merki-network
     restart: unless-stopped
 
   postgres:
     image: postgres:15-alpine
-    container_name: bolos-ya-postgres
+    container_name: merki-postgres
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
@@ -48,10 +48,10 @@ services:
     ports:
       - "${DATABASE_PORT}:5432"
     volumes:
-      - bolos_ya_db_data:/var/lib/postgresql/data
+      - merki_db_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - bolos-ya-network
+      - merki-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
       interval: 10s
@@ -61,13 +61,13 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: bolos-ya-redis
+    container_name: merki-redis
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
-      - bolos_ya_redis_data:/data
+      - merki_redis_data:/data
     networks:
-      - bolos-ya-network
+      - merki-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -77,7 +77,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: bolos-ya-minio
+    container_name: merki-minio
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_USER}
@@ -86,9 +86,9 @@ services:
       - "${MINIO_PORT_1}:9000"
       - "${MINIO_PORT_2}:9001"
     volumes:
-      - bolos_ya_minio_data:/data
+      - merki_minio_data:/data
     networks:
-      - bolos-ya-network
+      - merki-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -101,7 +101,7 @@ services:
     build:
       context: ./auth-server
       dockerfile: Dockerfile
-    container_name: bolos-ya-auth-server
+    container_name: merki-auth-server
     ports:
       - "3001:3001"
     environment:
@@ -117,14 +117,14 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - bolos-ya-network
+      - merki-network
     restart: unless-stopped
 
 volumes:
-  bolos_ya_db_data:
-  bolos_ya_redis_data:
-  bolos_ya_minio_data:
+  merki_db_data:
+  merki_redis_data:
+  merki_minio_data:
 
 networks:
-  bolos-ya-network:
+  merki-network:
     driver: bridge

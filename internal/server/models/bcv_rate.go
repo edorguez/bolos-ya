@@ -1,6 +1,6 @@
 package models
 
-import "github.com/edorguez/bolos-ya/pkg/models"
+import "github.com/edorguez/merki/pkg/models"
 
 type BCVRate struct {
 	models.BaseModel

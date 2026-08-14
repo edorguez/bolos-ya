@@ -1,8 +1,9 @@
 import { safeGetItem, safeSetItem } from './storage';
 
 const DEFAULT_EXCHANGE_RATE = 55;
-const BCV_RATE_KEY = '@bolosya_bcv_rate';
+const BCV_RATE_KEY = '@merki_bcv_rate';
 const LEGACY_RATE_KEY = '@bolosya_exchange_rate';
+const LEGACY_BCV_RATE_KEY = '@bolosya_bcv_rate';
 
 interface BCVStorageEntry {
   usdRate: number;
@@ -11,7 +12,8 @@ interface BCVStorageEntry {
 
 export async function getExchangeRate(): Promise<number> {
   try {
-    const stored = await safeGetItem(BCV_RATE_KEY);
+    const stored =
+      (await safeGetItem(BCV_RATE_KEY)) || (await safeGetItem(LEGACY_BCV_RATE_KEY));
     if (stored) {
       const parsed: BCVStorageEntry = JSON.parse(stored);
       if (parsed.usdRate > 0) {

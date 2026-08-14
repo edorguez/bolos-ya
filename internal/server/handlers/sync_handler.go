@@ -8,12 +8,12 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	"github.com/edorguez/bolos-ya/internal/server/dto"
-	"github.com/edorguez/bolos-ya/internal/server/middleware"
-	"github.com/edorguez/bolos-ya/internal/server/services"
-	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
-	"github.com/edorguez/bolos-ya/pkg/logger"
-	"github.com/edorguez/bolos-ya/pkg/utils"
+	"github.com/edorguez/merki/internal/server/dto"
+	"github.com/edorguez/merki/internal/server/middleware"
+	"github.com/edorguez/merki/internal/server/services"
+	apperrors "github.com/edorguez/merki/pkg/core/errors"
+	"github.com/edorguez/merki/pkg/logger"
+	"github.com/edorguez/merki/pkg/utils"
 )
 
 type SyncHandler struct {

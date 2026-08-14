@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/edorguez/bolos-ya/internal/server/services"
+	"github.com/edorguez/merki/internal/server/services"
 )
 
 const (

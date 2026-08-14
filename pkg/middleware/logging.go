@@ -3,7 +3,7 @@ package middleware
 import (
 	"time"
 
-	"github.com/edorguez/bolos-ya/pkg/logger"
+	"github.com/edorguez/merki/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )

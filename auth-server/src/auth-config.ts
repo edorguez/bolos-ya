@@ -10,7 +10,7 @@ export const pool = new Pool({
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3001/api/auth',
   trustedOrigins: [
-    'bolosya://',
+    'merki://',
     ...(process.env.TRUSTED_ORIGINS?.split(',').map((o) => o.trim()) || []),
   ],
   database: pool,

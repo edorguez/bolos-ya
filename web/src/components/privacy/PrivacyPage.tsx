@@ -6,7 +6,7 @@ const sections = [
   {
     title: '1. Responsable del Tratamiento',
     content:
-      'El responsable del tratamiento de tus datos personales es el equipo de desarrollo de Bolos Ya. Si tienes alguna pregunta sobre esta política de privacidad, puedes contactarnos a través del correo electrónico: soporte@edezco.com.',
+      'El responsable del tratamiento de tus datos personales es el equipo de desarrollo de Merki. Si tienes alguna pregunta sobre esta política de privacidad, puedes contactarnos a través del correo electrónico: soporte@somosmerki.app.',
   },
   {
     title: '2. Datos que Recopilamos',
@@ -48,7 +48,7 @@ const sections = [
   {
     title: '5. Almacenamiento Local en tu Dispositivo',
     content:
-      'Bolos Ya almacena datos localmente en tu dispositivo móvil para garantizar su funcionamiento incluso sin conexión a internet:',
+      'Merki almacena datos localmente en tu dispositivo móvil para garantizar su funcionamiento incluso sin conexión a internet:',
     items: [
       'Base de datos SQLite local: almacena tus carritos, productos y supermercados para uso offline.',
       'SecureStore (expo-secure-store): guarda tu sesión de autenticación y tokens de forma segura.',
@@ -71,12 +71,12 @@ const sections = [
   {
     title: '7. Permisos de la Cámara',
     content:
-      'Bolos Ya solicita acceso a la cámara de tu dispositivo exclusivamente para la función de escaneo OCR de etiquetas de precios y recibos. Las imágenes capturadas se procesan localmente en tu dispositivo mediante Google ML Kit y no son almacenadas ni transmitidas a nuestros servidores. Puedes denegar este permiso en cualquier momento desde la configuración de tu dispositivo; la aplicación seguirá funcionando, pero la función de escaneo OCR no estará disponible.',
+      'Merki solicita acceso a la cámara de tu dispositivo exclusivamente para la función de escaneo OCR de etiquetas de precios y recibos. Las imágenes capturadas se procesan localmente en tu dispositivo mediante Google ML Kit y no son almacenadas ni transmitidas a nuestros servidores. Puedes denegar este permiso en cualquier momento desde la configuración de tu dispositivo; la aplicación seguirá funcionando, pero la función de escaneo OCR no estará disponible.',
   },
   {
     title: '8. Conservación de los Datos',
     content:
-      'Conservamos tus datos personales mientras mantengas una cuenta activa en Bolos Ya. Si eliminas tu cuenta, tus datos personales se eliminarán de nuestros servidores en un plazo máximo de 30 días. Los datos de pago se conservarán durante el tiempo exigido por las obligaciones fiscales y legales aplicables en Venezuela.',
+      'Conservamos tus datos personales mientras mantengas una cuenta activa en Merki. Si eliminas tu cuenta, tus datos personales se eliminarán de nuestros servidores en un plazo máximo de 30 días. Los datos de pago se conservarán durante el tiempo exigido por las obligaciones fiscales y legales aplicables en Venezuela.',
   },
   {
     title: '9. Tus Derechos (ARCO)',
@@ -90,7 +90,7 @@ const sections = [
       'Portabilidad: recibir tus datos en un formato estructurado y de uso común.',
     ],
     extra:
-      'Para ejercer cualquiera de estos derechos, escríbenos a soporte@edezco.com. Responderemos a tu solicitud en un plazo máximo de 15 días hábiles.',
+      'Para ejercer cualquiera de estos derechos, escríbenos a soporte@somosmerki.app. Responderemos a tu solicitud en un plazo máximo de 15 días hábiles.',
   },
   {
     title: '10. Seguridad de los Datos',
@@ -107,7 +107,7 @@ const sections = [
   {
     title: '11. Menores de Edad',
     content:
-      'Bolos Ya está dirigida a mayores de 13 años. No recopilamos intencionadamente datos personales de menores de 13 años. Si descubrimos que hemos recopilado datos de un menor sin consentimiento parental, eliminaremos dicha información lo antes posible.',
+      'Merki está dirigida a mayores de 13 años. No recopilamos intencionadamente datos personales de menores de 13 años. Si descubrimos que hemos recopilado datos de un menor sin consentimiento parental, eliminaremos dicha información lo antes posible.',
   },
   {
     title: '12. Cambios en esta Política de Privacidad',
@@ -119,7 +119,7 @@ const sections = [
     content:
       'Si tienes preguntas, inquietudes o solicitudes relacionadas con esta política de privacidad o el tratamiento de tus datos personales, puedes contactarnos:',
     items: [
-      'Correo electrónico: soporte@edezco.com',
+      'Correo electrónico: soporte@somosmerki.app',
       'A través de la aplicación: sección de Perfil → Ayuda y Soporte',
     ],
   },
@@ -133,14 +133,14 @@ export function PrivacyPage() {
       <div className={styles.container}>
         <Link to="/" className={styles.backLink}>
           <span className="material-symbols-outlined">arrow_back</span>
-          Volver a Bolos Ya
+          Volver a Merki
         </Link>
 
         <header className={styles.header}>
           <h1 className={styles.title}>Política de Privacidad</h1>
           <p className={styles.subtitle}>
             Esta política explica cómo recopilamos, usamos y protegemos tus datos personales al
-            utilizar la aplicación Bolos Ya.
+            utilizar la aplicación Merki.
           </p>
           <p className={styles.lastUpdated}>Última actualización: {lastUpdated}</p>
         </header>
@@ -166,7 +166,7 @@ export function PrivacyPage() {
 
         <div className={styles.footerNote}>
           <p>
-            Al utilizar Bolos Ya, aceptas los términos de esta política de privacidad. Si no estás
+            Al utilizar Merki, aceptas los términos de esta política de privacidad. Si no estás
             de acuerdo con esta política, por favor no utilices la aplicación.
           </p>
         </div>

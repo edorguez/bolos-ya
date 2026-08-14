@@ -12,15 +12,15 @@ import (
 	goredis "github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
-	serverconfig "github.com/edorguez/bolos-ya/configs/server"
-	"github.com/edorguez/bolos-ya/internal/cron"
-	"github.com/edorguez/bolos-ya/internal/server"
-	"github.com/edorguez/bolos-ya/internal/server/email"
-	"github.com/edorguez/bolos-ya/internal/server/repository"
-	"github.com/edorguez/bolos-ya/internal/server/services"
-	"github.com/edorguez/bolos-ya/pkg/database/postgresql"
-	pkgredis "github.com/edorguez/bolos-ya/pkg/database/redis"
-	"github.com/edorguez/bolos-ya/pkg/logger"
+	serverconfig "github.com/edorguez/merki/configs/server"
+	"github.com/edorguez/merki/internal/cron"
+	"github.com/edorguez/merki/internal/server"
+	"github.com/edorguez/merki/internal/server/email"
+	"github.com/edorguez/merki/internal/server/repository"
+	"github.com/edorguez/merki/internal/server/services"
+	"github.com/edorguez/merki/pkg/database/postgresql"
+	pkgredis "github.com/edorguez/merki/pkg/database/redis"
+	"github.com/edorguez/merki/pkg/logger"
 )
 
 func main() {

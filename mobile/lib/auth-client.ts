@@ -6,7 +6,7 @@ import { getAuthBaseUrl } from '../lib/env';
 
 export const authClient = createAuthClient({
   baseURL: getAuthBaseUrl(),
-  plugins: [expoClient({ storage: SecureStore, scheme: 'bolosya' }), anonymousClient()],
+  plugins: [expoClient({ storage: SecureStore, scheme: 'merki' }), anonymousClient()],
 });
 
 export const { signIn, signUp, signOut, useSession } = authClient;

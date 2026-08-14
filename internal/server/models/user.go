@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
-	"github.com/edorguez/bolos-ya/pkg/constants"
-	"github.com/edorguez/bolos-ya/pkg/models"
+	"github.com/edorguez/merki/pkg/constants"
+	"github.com/edorguez/merki/pkg/models"
 )
 
 // User represents an application user in the system.

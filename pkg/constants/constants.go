@@ -3,7 +3,7 @@ package constants
 // Application constants
 const (
 	// App info
-	AppName    = "Bolos Ya"
+	AppName    = "Merki"
 	AppVersion = "1.0.0"
 
 	// Environment

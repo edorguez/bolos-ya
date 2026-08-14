@@ -12,12 +12,12 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/edorguez/bolos-ya/pkg/constants"
-	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
+	"github.com/edorguez/merki/pkg/constants"
+	apperrors "github.com/edorguez/merki/pkg/core/errors"
 
-	"github.com/edorguez/bolos-ya/internal/server/email"
-	"github.com/edorguez/bolos-ya/internal/server/models"
-	"github.com/edorguez/bolos-ya/internal/server/repository"
+	"github.com/edorguez/merki/internal/server/email"
+	"github.com/edorguez/merki/internal/server/models"
+	"github.com/edorguez/merki/internal/server/repository"
 )
 
 type AuthService interface {

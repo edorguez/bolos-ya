@@ -3,7 +3,7 @@ package models
 import (
 	"github.com/google/uuid"
 
-	"github.com/edorguez/bolos-ya/pkg/models"
+	"github.com/edorguez/merki/pkg/models"
 )
 
 // Cart represents a shopping cart

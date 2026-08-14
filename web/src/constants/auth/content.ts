@@ -1,5 +1,5 @@
 export const loginContent = {
-  brand: 'Bolos Ya',
+  brand: 'Merki',
   title: 'Inicio Admin',
   subtitle: 'Solo Acceso Autorizado',
   emailLabel: 'Correo',

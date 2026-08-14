@@ -27,7 +27,7 @@ export function FeaturesSection() {
             <div className={styles.mockup}>
               <div className={styles.mockupScreen}>
                 <div className={styles.mockupHeader}>
-                  <span className={styles.mockupBrand}>Bolos Ya</span>
+                  <span className={styles.mockupBrand}>Merki</span>
                   <span className="material-symbols-outlined">menu</span>
                 </div>
                 <div className={styles.mockupContent}>

@@ -2,7 +2,8 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { getBCVRates } from '../services/bcvService';
 import { safeGetItem, safeSetItem } from '../utils/storage';
 
-const STORAGE_KEY = '@bolosya_bcv_rate';
+const STORAGE_KEY = '@merki_bcv_rate';
+const LEGACY_STORAGE_KEY = '@bolosya_bcv_rate';
 
 function localDateStr(): string {
   const d = new Date();
@@ -69,7 +70,8 @@ export async function loadRate(force = false): Promise<void> {
   try {
     let cachedRate: BCVRateData | null = null;
     try {
-      const cached = await safeGetItem(STORAGE_KEY);
+      const cached =
+        (await safeGetItem(STORAGE_KEY)) || (await safeGetItem(LEGACY_STORAGE_KEY));
       if (cached) {
         const parsed: StoreEntry = JSON.parse(cached);
         if (parsed.usdRate > 0) {

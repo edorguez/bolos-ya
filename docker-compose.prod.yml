@@ -4,7 +4,7 @@ services:
     build:
       context: ./caddy
       dockerfile: Dockerfile
-    container_name: bolos-ya-caddy
+    container_name: merki-caddy
     ports:
       - "80:80"
       - "443:443"
@@ -23,14 +23,14 @@ services:
       web:
         condition: service_started
     networks:
-      - bolos-ya-network
+      - merki-network
     restart: unless-stopped
 
   server:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bolos-ya-server
+    container_name: merki-server
     environment:
       PORT: ${PORT}
       SERVER_HOST: ${SERVER_HOST}
@@ -58,46 +58,46 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - bolos-ya-network
+      - merki-network
     restart: unless-stopped
 
   postgres:
     image: postgres:15-alpine
-    container_name: bolos-ya-postgres
+    container_name: merki-postgres
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
     volumes:
-      - bolos_ya_db_data:/var/lib/postgresql/data
+      - merki_db_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - bolos-ya-network
+      - merki-network
     restart: always
 
   redis:
     image: redis:7-alpine
-    container_name: bolos-ya-redis
+    container_name: merki-redis
     volumes:
-      - bolos_ya_redis_data:/data
+      - merki_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - bolos-ya-network
+      - merki-network
     restart: always
 
   auth-server:
     build:
       context: ./auth-server
       dockerfile: Dockerfile
-    container_name: bolos-ya-auth-server
+    container_name: merki-auth-server
     environment:
       PORT: 3001
       DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable
@@ -111,7 +111,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - bolos-ya-network
+      - merki-network
     restart: unless-stopped
 
   web:
@@ -121,17 +121,17 @@ services:
       args:
         VITE_BETTER_AUTH_URL: https://auth.${DOMAIN}/api/auth
         VITE_GO_BACKEND_URL: https://api.${DOMAIN}/api/v1
-    container_name: bolos-ya-web
+    container_name: merki-web
     networks:
-      - bolos-ya-network
+      - merki-network
     restart: unless-stopped
 
 volumes:
-  bolos_ya_db_data:
-  bolos_ya_redis_data:
+  merki_db_data:
+  merki_redis_data:
   caddy_data:
   caddy_config:
 
 networks:
-  bolos-ya-network:
+  merki-network:
     driver: bridge

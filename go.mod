@@ -1,4 +1,4 @@
-module github.com/edorguez/bolos-ya
+module github.com/edorguez/merki
 
 go 1.25.0
 

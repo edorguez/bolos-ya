@@ -5,8 +5,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/edorguez/bolos-ya/internal/server/models"
-	"github.com/edorguez/bolos-ya/internal/server/repository"
+	"github.com/edorguez/merki/internal/server/models"
+	"github.com/edorguez/merki/internal/server/repository"
 )
 
 type SupermarketService interface {

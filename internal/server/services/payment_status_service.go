@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 
-	"github.com/edorguez/bolos-ya/internal/server/models"
-	"github.com/edorguez/bolos-ya/internal/server/repository"
+	"github.com/edorguez/merki/internal/server/models"
+	"github.com/edorguez/merki/internal/server/repository"
 )
 
 type PaymentStatusService interface {

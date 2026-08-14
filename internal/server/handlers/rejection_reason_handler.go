@@ -3,9 +3,9 @@ package handlers
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/edorguez/bolos-ya/internal/server/dto"
-	"github.com/edorguez/bolos-ya/internal/server/services"
-	"github.com/edorguez/bolos-ya/pkg/utils"
+	"github.com/edorguez/merki/internal/server/dto"
+	"github.com/edorguez/merki/internal/server/services"
+	"github.com/edorguez/merki/pkg/utils"
 )
 
 type RejectionReasonHandler struct {

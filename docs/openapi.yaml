@@ -1,11 +1,11 @@
 openapi: 3.0.0
 info:
-  title: Bolos Ya API
-  description: API for Bolos Ya - Supermarket cart calculator with dual currency support
+  title: Merki API
+  description: API for Merki - Supermarket cart calculator with dual currency support
   version: 1.0.0
   contact:
-    name: Bolos Ya Team
-    email: team@bolosya.com
+    name: Merki Team
+    email: team@somosmerki.app
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -13,7 +13,7 @@ info:
 servers:
   - url: http://localhost:8080/api/v1
     description: Local development server
-  - url: https://api.bolosya.com/api/v1
+  - url: https://api.somosmerki.app/api/v1
     description: Production server
 
 paths:

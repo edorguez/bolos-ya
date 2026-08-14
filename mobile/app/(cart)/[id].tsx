@@ -267,7 +267,7 @@ export default function CartDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} />
+      <TopAppBar title="Merki" onBackPress={() => router.back()} />
       <View style={styles.headerContainer}>
         <View style={styles.supermarketHeaderContainer}>
           <SupermarketHeader

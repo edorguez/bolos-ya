@@ -1,12 +1,12 @@
-# Makefile for Bolos Ya Project
+# Makefile for Merki Project
 .PHONY: help build test test-race lint run generate deps docker-build docker-up docker-down docker-server-up docker-auth-up migrate-up migrate-down clean swagger coverage mobile-apk
 
 # Variables
-BINARY_NAME=bolos-ya-server
+BINARY_NAME=merki-server
 BUILD_DIR=bin
 GO=go
 GOFLAGS=-v
-MODULE_NAME=github.com/edorguez/bolos-ya
+MODULE_NAME=github.com/edorguez/merki
 
 # Colors for output
 GREEN=\033[0;32m

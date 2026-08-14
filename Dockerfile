@@ -15,7 +15,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/bin/bolos-ya-server ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/bin/merki-server ./cmd/server
 
 # Final stage
 FROM alpine:3.21
@@ -31,7 +31,7 @@ RUN addgroup -g 1001 -S app && \
 WORKDIR /app
 
 # Copy binary from builder
-COPY --from=builder --chown=app:app /app/bin/bolos-ya-server /app/bolos-ya-server
+COPY --from=builder --chown=app:app /app/bin/merki-server /app/merki-server
 
 # Copy timezone data
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
@@ -47,4 +47,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
 # Run the application
-CMD ["/app/bolos-ya-server"]
+CMD ["/app/merki-server"]

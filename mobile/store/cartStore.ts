@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface CartProduct {
@@ -47,7 +47,28 @@ interface CartState {
   completeCart: (id: string) => void;
 }
 
-const storage = createJSONStorage(() => AsyncStorage);
+const LEGACY_CART_STORE_KEY = '@bolosya_cart_store';
+
+const cartStorage: StateStorage = {
+  getItem: async name => {
+    const value = await AsyncStorage.getItem(name);
+    if (value !== null) return value;
+    const legacy = await AsyncStorage.getItem(LEGACY_CART_STORE_KEY);
+    if (legacy !== null) {
+      await AsyncStorage.setItem(name, legacy);
+      return legacy;
+    }
+    return null;
+  },
+  setItem: async (name, value) => {
+    await AsyncStorage.setItem(name, value);
+  },
+  removeItem: async name => {
+    await AsyncStorage.removeItem(name);
+  },
+};
+
+const storage = createJSONStorage(() => cartStorage);
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -190,7 +211,7 @@ export const useCartStore = create<CartState>()(
         })),
     }),
     {
-      name: '@bolosya_cart_store',
+      name: '@merki_cart_store',
       version: 1,
       storage,
       partialize: state => ({

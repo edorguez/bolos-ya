@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/edorguez/bolos-ya/pkg/models"
+	"github.com/edorguez/merki/pkg/models"
 	"github.com/google/uuid"
 )
 

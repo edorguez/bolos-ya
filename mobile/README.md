@@ -1,4 +1,4 @@
-# Bolos Ya Mobile
+# Merki Mobile
 
 React Native (Expo) mobile application for calculating supermarket cart totals in dual currency (Bolívares + USD) with OCR and offline sync.
 

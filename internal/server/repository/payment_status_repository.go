@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/edorguez/bolos-ya/internal/server/models"
+	"github.com/edorguez/merki/internal/server/models"
 )
 
 type PaymentStatusRepository interface {

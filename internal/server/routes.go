@@ -7,11 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 	goredis "github.com/redis/go-redis/v9"
 
-	"github.com/edorguez/bolos-ya/internal/server/handlers"
-	internalmiddleware "github.com/edorguez/bolos-ya/internal/server/middleware"
-	"github.com/edorguez/bolos-ya/internal/server/services"
-	"github.com/edorguez/bolos-ya/pkg/logger"
-	pkgmiddleware "github.com/edorguez/bolos-ya/pkg/middleware"
+	"github.com/edorguez/merki/internal/server/handlers"
+	internalmiddleware "github.com/edorguez/merki/internal/server/middleware"
+	"github.com/edorguez/merki/internal/server/services"
+	"github.com/edorguez/merki/pkg/logger"
+	pkgmiddleware "github.com/edorguez/merki/pkg/middleware"
 )
 
 func SetupRoutes(
@@ -120,7 +120,7 @@ func SetupRoutes(
 
 		apiV1.GET("/", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
-				"message": "Bolos Ya API v1",
+				"message": "Merki API v1",
 				"version": "1.0.0",
 			})
 		})

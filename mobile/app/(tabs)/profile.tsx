@@ -59,7 +59,7 @@ export default function ProfileTab() {
   return (
     <View style={styles.container as ViewStyle}>
       <View style={styles.header as ViewStyle}>
-        <Text style={styles.headerTitle as TextStyle}>MercadoLibreta</Text>
+        <Text style={styles.headerTitle as TextStyle}>Merki</Text>
       </View>
 
       <ScrollView
@@ -118,7 +118,7 @@ export default function ProfileTab() {
         )}
 
         <Text style={styles.versionText as TextStyle}>
-          MercadoLibreta v{Constants.expoConfig?.version || '2.4.0'}
+          Merki v{Constants.expoConfig?.version || '2.4.0'}
         </Text>
       </ScrollView>
       <Toast message={toast} onDismiss={() => setToast(null)} />

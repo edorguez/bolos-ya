@@ -23,7 +23,7 @@ const { width, height } = Dimensions.get('window');
 const isLargeScreen = height > 800;
 const isExtraLargeScreen = height > 900;
 
-const OFFLINE_GUEST_KEY = 'bolosya.offline.guest';
+const OFFLINE_GUEST_KEY = 'merki.offline.guest';
 
 async function waitForSessionToken(timeoutMs = 5000): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
@@ -483,7 +483,7 @@ export default function LoginChoiceScreen() {
           <Animated.View style={headlineEnter}>
             <View style={styles.headline}>
               <Text style={styles.title}>
-                MercadoLibreta: <Text style={styles.titlePrimary}>Tu Aliado en Caja</Text>
+                Merki: <Text style={styles.titlePrimary}>Tu Aliado en Caja</Text>
               </Text>
               <Text style={styles.subtitle}>
                 Organiza tus compras, controla tu presupuesto y nunca olvides lo esencial.

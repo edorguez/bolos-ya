@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🛒 Bolos Ya</h1>
+  <h1>🛒 Merki</h1>
   <p><strong>Supermarket cart calculator for Venezuela — dual currency, smart budgets, and receipt OCR</strong></p>
   <p>
     <img src="https://img.shields.io/badge/Go-1.25-00ADD8?style=flat-square&logo=go" alt="Go 1.25">
@@ -160,7 +160,7 @@ npx expo run:ios    # or run:android
 ## 📁 Project Structure
 
 ```
-bolos-ya/
+merki/
 ├── cmd/server/              # Go backend entry point
 ├── internal/
 │   ├── cron/                # BCV rate scraper (background job)

@@ -15,8 +15,8 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_BETTER_AUTH_URL": "https://auth.edezco.com/api/auth",
-        "EXPO_PUBLIC_GO_BACKEND_URL": "https://api.edezco.com/api/v1"
+        "EXPO_PUBLIC_BETTER_AUTH_URL": "https://auth.somosmerki.app/api/auth",
+        "EXPO_PUBLIC_GO_BACKEND_URL": "https://api.somosmerki.app/api/v1"
       }
     }
   },

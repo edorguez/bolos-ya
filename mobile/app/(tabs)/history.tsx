@@ -79,7 +79,7 @@ export default function HistoryTab() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>MercadoLibreta</Text>
+        <Text style={styles.headerTitle}>Merki</Text>
       </View>
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: 140 }]}

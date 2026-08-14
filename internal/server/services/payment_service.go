@@ -10,10 +10,10 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/edorguez/bolos-ya/internal/server/dto"
-	"github.com/edorguez/bolos-ya/internal/server/email"
-	"github.com/edorguez/bolos-ya/internal/server/models"
-	"github.com/edorguez/bolos-ya/internal/server/repository"
+	"github.com/edorguez/merki/internal/server/dto"
+	"github.com/edorguez/merki/internal/server/email"
+	"github.com/edorguez/merki/internal/server/models"
+	"github.com/edorguez/merki/internal/server/repository"
 )
 
 type PaymentService interface {

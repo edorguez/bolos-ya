@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Bolos Ya",
-    "slug": "bolos-ya",
+    "name": "Merki",
+    "slug": "merki",
     "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/system/icon.png",
@@ -11,7 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "scheme": "bolosya",
+    "scheme": "merki",
     "platforms": [
       "ios",
       "android",
@@ -23,7 +23,7 @@
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera for OCR scanning.",
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photo library for OCR scanning."
       },
-      "bundleIdentifier": "com.edezco.bolosya"
+      "bundleIdentifier": "com.merki.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -39,7 +39,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.edezco.bolosya"
+      "package": "com.merki.app"
     },
     "web": {
       "favicon": "./assets/favicon.png",

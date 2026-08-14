@@ -24,7 +24,7 @@ export interface NavLink {
 }
 
 export const heroContent = {
-  badge: 'Bolos Ya - Descarga Gratis',
+  badge: 'Merki - Descarga Gratis',
   badgeIcon: 'bolt',
   title: 'Calcula tu carrito en segundos,',
   titleAccent: 'en cualquier moneda.',
@@ -48,7 +48,7 @@ export const storyContent = {
   solution: {
     title: 'Tenemos la solución.',
     description:
-      'Bolos Ya simplifica todo. Agrega productos, escanea etiquetas y ve el total en ambas monedas al instante.',
+      'Merki simplifica todo. Agrega productos, escanea etiquetas y ve el total en ambas monedas al instante.',
     points: [
       {
         icon: 'bolt',
@@ -104,13 +104,13 @@ export const testimonials: Testimonial[] = [
 export const ctaContent = {
   title: 'Simplifica tus compras hoy.',
   description:
-    'Únete a la comunidad de Bolos Ya y nunca más te confundas calculando el cambio.',
+    'Únete a la comunidad de Merki y nunca más te confundas calculando el cambio.',
   iosLabel: 'Descargar iOS',
   androidLabel: 'Descargar Android',
 }
 
 export const footerContent = {
-  brand: 'Bolos Ya',
+  brand: 'Merki',
   tagline: 'Impulsando el comercio venezolano.',
   year: new Date().getFullYear(),
   links: [

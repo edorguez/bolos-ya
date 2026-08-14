@@ -15,9 +15,9 @@ import (
 	"github.com/gocolly/colly/v2"
 	"go.uber.org/zap"
 
-	"github.com/edorguez/bolos-ya/internal/server/models"
-	"github.com/edorguez/bolos-ya/internal/server/repository"
-	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
+	"github.com/edorguez/merki/internal/server/models"
+	"github.com/edorguez/merki/internal/server/repository"
+	apperrors "github.com/edorguez/merki/pkg/core/errors"
 )
 
 type BCVRateService interface {

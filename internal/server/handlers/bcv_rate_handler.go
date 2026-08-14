@@ -7,11 +7,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/edorguez/bolos-ya/internal/server/dto"
-	"github.com/edorguez/bolos-ya/internal/server/models"
-	"github.com/edorguez/bolos-ya/internal/server/services"
-	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
-	"github.com/edorguez/bolos-ya/pkg/utils"
+	"github.com/edorguez/merki/internal/server/dto"
+	"github.com/edorguez/merki/internal/server/models"
+	"github.com/edorguez/merki/internal/server/services"
+	apperrors "github.com/edorguez/merki/pkg/core/errors"
+	"github.com/edorguez/merki/pkg/utils"
 )
 
 type BCVRateHandler struct {

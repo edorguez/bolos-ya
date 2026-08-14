@@ -33,7 +33,7 @@ jobs:
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           script: |
             set -e
-            cd /opt/bolos-ya
+            cd /opt/merki
             git pull origin main
             docker compose -f docker-compose.prod.yml --env-file .env up -d --build --pull always
             docker image prune -f

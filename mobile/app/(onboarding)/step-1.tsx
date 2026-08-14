@@ -12,7 +12,7 @@ export default function OnboardingStep1() {
       image={IMAGE}
       title="¡Hola! Soy "
       titleAccent="Merki"
-      subtitle="Bienvenido a MercadoLibreta, tu libreta de compras. Registra cada producto y ten tu total siempre bajo control."
+      subtitle="Tu compañero de compras. Registra cada producto y ten tu total siempre bajo control."
       stepIndex={1}
       totalSteps={4}
       imageAnimatedStyle={float}

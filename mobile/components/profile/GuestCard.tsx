@@ -63,7 +63,7 @@ export function GuestCard({ onCreateAccountPress }: GuestCardProps) {
         <MaterialIcons name="person-add" size={24} color={theme.colors.emberOrange} />
       </View>
       <View>
-        <Text style={styles.title as TextStyle}>¡Únete a MercadoLibreta!</Text>
+        <Text style={styles.title as TextStyle}>¡Únete a Merki!</Text>
         <Text style={styles.subtitle as TextStyle}>
           Regístrate para guardar tu historial y más.
         </Text>

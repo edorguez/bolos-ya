@@ -60,7 +60,7 @@ export default function HomeTab() {
     <View style={styles.container}>
       <Toast message={toast} onDismiss={dismissToast} />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>MercadoLibreta</Text>
+        <Text style={styles.headerTitle}>Merki</Text>
       </View>
 
       <ScrollView

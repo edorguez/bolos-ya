@@ -6,8 +6,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/edorguez/bolos-ya/internal/server/models"
-	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
+	"github.com/edorguez/merki/internal/server/models"
+	apperrors "github.com/edorguez/merki/pkg/core/errors"
 )
 
 type BCVRateRepository interface {

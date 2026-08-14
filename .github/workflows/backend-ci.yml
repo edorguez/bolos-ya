@@ -29,7 +29,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: bolosya_test
+          POSTGRES_DB: merki_test
         ports:
           - 5432:5432
         options: >-
@@ -69,7 +69,7 @@ jobs:
       
       - name: Run tests
         env:
-          DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/bolosya_test?sslmode=disable'
+          DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/merki_test?sslmode=disable'
           REDIS_URL: 'redis://localhost:6379'
           JWT_SECRET: 'test-secret-change-in-production'
         run: go test -v -race -coverprofile=coverage.out ./...
@@ -98,11 +98,11 @@ jobs:
         with:
           context: .
           push: false
-          tags: edorguez/bolos-ya-backend:ci-test   # Local name only
+          tags: edorguez/merki-backend:ci-test   # Local name only
           load: true   # Load into local Docker daemon for optional verification
           cache-from: type=gha
           cache-to: type=gha,mode=max
       
       # Optional: verify the image exists
       - name: Verify image built successfully
-        run: docker image inspect edorguez/bolos-ya-backend:ci-test
+        run: docker image inspect edorguez/merki-backend:ci-test

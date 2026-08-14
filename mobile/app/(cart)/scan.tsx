@@ -429,7 +429,7 @@ export default function ScanScreen() {
 
   return (
     <View style={styles.container}>
-      <TopAppBar title="MercadoLibreta" onBackPress={() => router.back()} />
+      <TopAppBar title="Merki" onBackPress={() => router.back()} />
 
       <View onLayout={handleCameraLayout} style={styles.cameraContainer}>
         <CameraView

@@ -1,4 +1,4 @@
-# Technical Specification – Bolos Ya
+# Technical Specification – Merki
 **Version:** 2.0 – Production
 **Date:** June 2026
 
@@ -36,7 +36,7 @@ A mobile application (iOS/Android) and web admin dashboard that allows users in 
 ## 3. Monorepo Folder Structure
 
 ```
-bolos-ya/
+merki/
 ├── cmd/server/              # Go backend entry point
 │   └── main.go
 ├── configs/server/          # Viper‑based config (env vars + .env)
@@ -687,7 +687,7 @@ Returns `SyncResponse` with per-operation results and `serverVersion` for confli
 ### 12.2 Production Deploy
 
 1. Provision a VPS (Ubuntu 24.04, Docker + Compose installed).
-2. Clone the repo to `/opt/bolos-ya`.
+2. Clone the repo to `/opt/merki`.
 3. Copy `.env.production.example` to `.env` and fill in all secrets and the `DOMAIN`.
 4. Generate a **Cloudflare API Token** (Profile → API Tokens → Create Token → Edit zone DNS → zone: `{$DOMAIN}`) and paste it as `CLOUDFLARE_API_TOKEN` in `.env`.
 5. Build and start all services:

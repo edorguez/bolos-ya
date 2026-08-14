@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/edorguez/bolos-ya/internal/server/models"
-	"github.com/edorguez/bolos-ya/internal/server/repository"
-	apperrors "github.com/edorguez/bolos-ya/pkg/core/errors"
+	"github.com/edorguez/merki/internal/server/models"
+	"github.com/edorguez/merki/internal/server/repository"
+	apperrors "github.com/edorguez/merki/pkg/core/errors"
 )
 
 // CartService defines shopping cart operations

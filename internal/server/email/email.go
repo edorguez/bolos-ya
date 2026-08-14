@@ -75,7 +75,7 @@ func (s *service) SendWelcome(ctx context.Context, to, name string) error {
 	if err := templates.ExecuteTemplate(&buf, "welcome.gohtml", WelcomeData{
 		Name:   name,
 		Email:  to,
-		AppURL: "https://bolosya.app",
+		AppURL: "https://somosmerki.app",
 	}); err != nil {
 		return fmt.Errorf("render welcome template: %w", err)
 	}
@@ -86,7 +86,7 @@ func (s *service) SendWelcome(ctx context.Context, to, name string) error {
 	params := &resend.SendEmailRequest{
 		From:    s.from,
 		To:      []string{to},
-		Subject: "¡Bienvenido a Bolos Ya!",
+		Subject: "¡Bienvenido a Merki!",
 		Html:    buf.String(),
 	}
 

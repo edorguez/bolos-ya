@@ -12,9 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 	goredis "github.com/redis/go-redis/v9"
 
-	"github.com/edorguez/bolos-ya/internal/server/services"
-	"github.com/edorguez/bolos-ya/pkg/constants"
-	"github.com/edorguez/bolos-ya/pkg/utils"
+	"github.com/edorguez/merki/internal/server/services"
+	"github.com/edorguez/merki/pkg/constants"
+	"github.com/edorguez/merki/pkg/utils"
 )
 
 const sessionCacheTTL = 15 * time.Minute
