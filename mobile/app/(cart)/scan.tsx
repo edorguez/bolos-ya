@@ -148,7 +148,6 @@ export default function ScanScreen() {
       if (validMeasure) {
         const containerLandscape = camW > camH;
         const photoLandscape = photo.width > photo.height;
-        const needsRotation = containerLandscape !== photoLandscape;
 
         let photoUri = photo.uri;
         let photoW = photo.width;
@@ -156,24 +155,30 @@ export default function ScanScreen() {
         let rotationDeg = 0;
         const deviceAngle = deviceAngleRef.current;
 
-        if (needsRotation) {
-          // The captured photo is rotated relative to the (portrait) preview.
-          // EXIF orientation is unreliable across devices (some cameras report
-          // 0/1 even when rotated), so derive the direction from the physical
-          // device orientation reported by the accelerometer — the camera sets
-          // its capture rotation from the very same physical angle.
-          if (deviceAngle !== null) {
-            // The camera and preview share the same physical rotation, so the
-            // raw photo must be rotated 90° CW when the phone's top points up
-            // and 270° CW in every other orientation (left/right/down).
-            rotationDeg = deviceAngle >= 315 || deviceAngle < 45 ? 90 : 270;
+        // Rotate the captured photo so it matches the (portrait) preview.
+        // EXIF orientation is unreliable across devices (some cameras report
+        // 0/1 even when rotated), so the direction is derived from the physical
+        // device orientation reported by the accelerometer. The raw photo is
+        // normally landscape and is rotated 90°/270° to become portrait; when
+        // the phone is upside down the camera returns a portrait raw that must
+        // be flipped 180° instead.
+        if (deviceAngle !== null) {
+          if (photoLandscape) {
+            // Only the head-left position needs 270° CW; upright and head-right
+            // both need 90° CW.
+            rotationDeg = deviceAngle >= 45 && deviceAngle < 135 ? 270 : 90;
           } else {
-            const orientation = (photo.exif as Record<string, unknown> | undefined)?.Orientation;
-            if (orientation === 6) rotationDeg = 90;
-            else if (orientation === 8) rotationDeg = 270;
-            else if (orientation === 3) rotationDeg = 180;
-            else rotationDeg = 90;
+            rotationDeg = deviceAngle >= 135 && deviceAngle < 225 ? 180 : 0;
           }
+        } else {
+          const orientation = (photo.exif as Record<string, unknown> | undefined)?.Orientation;
+          if (orientation === 6) rotationDeg = 90;
+          else if (orientation === 8) rotationDeg = 270;
+          else if (orientation === 3) rotationDeg = 180;
+          else rotationDeg = photoLandscape ? 90 : 0;
+        }
+
+        if (rotationDeg !== 0) {
           try {
             const rotated = await rotateImage(photo.uri, rotationDeg);
             photoUri = rotated.uri;
@@ -201,7 +206,6 @@ export default function ScanScreen() {
           scan: { relX, relY, scanW, scanH },
           containerLandscape,
           photoLandscape,
-          needsRotation,
           rotationDeg,
           deviceAngle,
           exifOrientation: (photo.exif as Record<string, unknown> | undefined)?.Orientation,
