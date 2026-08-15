@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -83,7 +82,6 @@ const styles = StyleSheet.create({
 });
 
 export default function OnboardingStep3() {
-  const router = useRouter();
   const float = useFloat({ distance: 10, duration: 3200 });
 
   return (
@@ -92,13 +90,8 @@ export default function OnboardingStep3() {
       title="Escanea el "
       titleAccent="precio"
       subtitle="Toma una foto del precio y regístralo en USD o Bs en segundos, sin escribir nada."
-      stepIndex={3}
-      totalSteps={4}
       imageAnimatedStyle={float}
       imageOverlay={cardHeight => <ScanSweep height={cardHeight} />}
-      showBack
-      onBack={() => router.back()}
-      onNext={() => router.push('/(onboarding)/step-4')}
     />
   );
 }

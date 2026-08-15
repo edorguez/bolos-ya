@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -16,6 +17,7 @@ import { EmptyCartsState } from '../../components/shared/EmptyCartsState';
 import { FadeIn } from '../../components/shared/FadeIn';
 import { Skeleton } from '../../components/shared/Skeleton';
 import { MaterialIcons } from '@expo/vector-icons';
+import { MERKI_LOGO } from '../../constants/images';
 
 function calcBudgetUsage(cart: ApiCartResponse): { usage: number; exceeded: boolean } {
   if (cart.budgetBs > 0 && cart.totalEstimatedBs !== null) {
@@ -79,7 +81,7 @@ export default function HistoryTab() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Merki</Text>
+        <Image source={MERKI_LOGO} style={styles.headerLogo} resizeMode="contain" />
       </View>
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: 140 }]}

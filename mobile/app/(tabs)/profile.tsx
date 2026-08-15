@@ -1,4 +1,13 @@
-import { View, Text, ScrollView, Pressable, type ViewStyle, type TextStyle } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  type ViewStyle,
+  type TextStyle,
+  type ImageStyle,
+} from 'react-native';
+import { Image } from 'expo-image';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { profileStyles } from '../../styles/profileStyles';
@@ -14,6 +23,7 @@ import { useAuth } from '../../store/authStore';
 import { getPaymentsByUser, PENDING_STATUS_ID } from '../../services/paymentService';
 import { useState, useEffect } from 'react';
 import * as Network from 'expo-network';
+import { MERKI_LOGO } from '../../constants/images';
 
 export default function ProfileTab() {
   const theme = useAppTheme();
@@ -59,7 +69,7 @@ export default function ProfileTab() {
   return (
     <View style={styles.container as ViewStyle}>
       <View style={styles.header as ViewStyle}>
-        <Text style={styles.headerTitle as TextStyle}>Merki</Text>
+        <Image source={MERKI_LOGO} style={styles.headerLogo as ImageStyle} resizeMode="contain" />
       </View>
 
       <ScrollView

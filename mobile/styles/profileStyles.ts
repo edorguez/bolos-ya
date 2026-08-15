@@ -13,11 +13,9 @@ export const profileStyles = StyleSheet.create(theme => ({
     justifyContent: 'center',
     width: '100%',
   },
-  headerTitle: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.charcoalPrimary,
-    letterSpacing: theme.typography.letterSpacing.xl,
+  headerLogo: {
+    width: 24,
+    height: 24,
   },
   content: {
     paddingTop: theme.spacing.lg,

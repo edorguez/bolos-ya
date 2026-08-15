@@ -2,7 +2,6 @@ import { type ReactNode } from 'react';
 import {
   View,
   Text,
-  Pressable,
   StyleSheet,
   useWindowDimensions,
   type StyleProp,
@@ -10,10 +9,7 @@ import {
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { Image } from 'expo-image';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useAppTheme } from '../../styles/theme';
-import { Button } from '../Button';
-import { ProgressBar } from '../shared/ProgressBar';
 import { useScaleIn, useFadeSlideIn, useFloat } from '../../hooks/animations';
 
 interface OnboardingStepProps {
@@ -21,14 +17,8 @@ interface OnboardingStepProps {
   title: string;
   titleAccent?: string;
   subtitle: string;
-  nextLabel?: string;
-  onNext: () => void;
-  stepIndex: number;
-  totalSteps: number;
   imageAnimatedStyle?: StyleProp<ViewStyle>;
   imageOverlay?: (cardHeight: number) => ReactNode;
-  showBack?: boolean;
-  onBack?: () => void;
 }
 
 export function OnboardingStep({
@@ -36,14 +26,8 @@ export function OnboardingStep({
   title,
   titleAccent,
   subtitle,
-  nextLabel = 'Siguiente',
-  onNext,
-  stepIndex,
-  totalSteps,
   imageAnimatedStyle,
   imageOverlay,
-  showBack = false,
-  onBack,
 }: OnboardingStepProps) {
   const theme = useAppTheme();
   const { height } = useWindowDimensions();
@@ -55,40 +39,11 @@ export function OnboardingStep({
   const bubbleFloat = useFloat({ distance: 6, duration: 3000 });
   const titleEnter = useFadeSlideIn({ delay: 160, distance: 18 });
   const subtitleEnter = useFadeSlideIn({ delay: 280, distance: 16 });
-  const buttonEnter = useFadeSlideIn({ delay: 420, distance: 16 });
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.lg,
-    },
-    headerSpacer: {
-      width: 40,
-    },
-    backButton: {
-      width: 40,
-      height: 40,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: theme.borderRadius.full,
-    },
-    stepLabel: {
-      fontSize: theme.typography.fontSize.xs,
-      fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.textSecondary,
-      letterSpacing: 0.5,
-      textTransform: 'uppercase',
-    },
-    progressWrap: {
-      paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.sm,
     },
     body: {
       flex: 1,
@@ -184,39 +139,10 @@ export function OnboardingStep({
       maxWidth: 340,
       marginTop: theme.spacing.sm,
     },
-    footer: {
-      paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.xl,
-      paddingBottom: theme.spacing.lg,
-    },
   });
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        {showBack ? (
-          <Pressable
-            onPress={onBack}
-            hitSlop={12}
-            style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.6 }]}
-          >
-            <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
-          </Pressable>
-        ) : (
-          <View style={styles.headerSpacer} />
-        )}
-
-        <Text style={styles.stepLabel}>
-          Paso {stepIndex} de {totalSteps}
-        </Text>
-
-        <View style={styles.headerSpacer} />
-      </View>
-
-      <View style={styles.progressWrap}>
-        <ProgressBar progress={(stepIndex / totalSteps) * 100} height={5} />
-      </View>
-
       <View style={styles.body}>
         <View style={[styles.imageCard, { height: cardHeight }]}>
           <View style={styles.blob1} />
@@ -253,12 +179,6 @@ export function OnboardingStep({
             <Text style={styles.subtitle}>{subtitle}</Text>
           </Animated.View>
         </View>
-      </View>
-
-      <View style={styles.footer}>
-        <Animated.View style={buttonEnter}>
-          <Button title={nextLabel} onPress={onNext} size="large" fullWidth />
-        </Animated.View>
       </View>
     </View>
   );

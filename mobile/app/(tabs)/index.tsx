@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, RefreshControl } from 'react-native';
+import { View, ScrollView, RefreshControl } from 'react-native';
+import { Image } from 'expo-image';
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -16,6 +17,7 @@ import { FadeIn } from '../../components/shared/FadeIn';
 import { useAppTheme } from '../../styles/theme';
 import { useAuth } from '../../store/authStore';
 import { savingsTips } from '../../utils/tips';
+import { MERKI_LOGO } from '../../constants/images';
 
 export default function HomeTab() {
   const theme = useAppTheme();
@@ -60,7 +62,7 @@ export default function HomeTab() {
     <View style={styles.container}>
       <Toast message={toast} onDismiss={dismissToast} />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Merki</Text>
+        <Image source={MERKI_LOGO} style={styles.headerLogo} resizeMode="contain" />
       </View>
 
       <ScrollView

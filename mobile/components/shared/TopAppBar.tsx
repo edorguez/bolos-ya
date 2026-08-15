@@ -1,10 +1,13 @@
 import { View, Text, Pressable, type ViewStyle } from 'react-native';
 import { StyleSheet as RNStyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { useAppTheme } from '../../styles/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import { MERKI_LOGO } from '../../constants/images';
 
 interface TopAppBarProps {
-  title: string;
+  title?: string;
+  logo?: boolean;
   rightLabel?: string;
   onBackPress?: () => void;
   showBackButton?: boolean;
@@ -12,6 +15,7 @@ interface TopAppBarProps {
 
 export function TopAppBar({
   title,
+  logo = false,
   rightLabel,
   onBackPress,
   showBackButton = true,
@@ -58,6 +62,10 @@ export function TopAppBar({
       textAlign: 'center',
       letterSpacing: theme.typography.letterSpacing.lg,
     },
+    logo: {
+      width: 20,
+      height: 20,
+    },
     rightContainer: {
       minWidth: 40,
       alignItems: 'flex-end',
@@ -83,7 +91,11 @@ export function TopAppBar({
       </View>
 
       <View style={styles.centerContainer}>
-        <Text style={styles.title}>{title}</Text>
+        {logo ? (
+          <Image source={MERKI_LOGO} style={styles.logo} resizeMode="contain" />
+        ) : (
+          <Text style={styles.title}>{title}</Text>
+        )}
       </View>
 
       <View style={styles.rightContainer}>
