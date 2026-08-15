@@ -25,6 +25,8 @@ import {
   checkoutCart,
 } from '../../services/cartService';
 import { useAuth } from '../../store/authStore';
+import { useInterstitialAd } from '../../components/ads/useInterstitialAd';
+import { AdBanner } from '../../components/ads/AdBanner';
 import type { ApiCartDetailResponse } from '../../types';
 
 export default function CartDetailScreen() {
@@ -43,6 +45,7 @@ export default function CartDetailScreen() {
     completeCart,
   } = useCartStore();
   const { user } = useAuth();
+  const { show: showInterstitialAd } = useInterstitialAd();
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [isLoadingFromApi, setIsLoadingFromApi] = useState(false);
   const [, setIsSubmitting] = useState(false);
@@ -365,6 +368,8 @@ export default function CartDetailScreen() {
         </View>
       </View>
 
+      <AdBanner />
+
       <BottomSheetModal
         isVisible={showAddProduct}
         onClose={() => setShowAddProduct(false)}
@@ -445,6 +450,7 @@ export default function CartDetailScreen() {
                 await checkoutCart(cart.id, user.id);
                 completeCart(cart.id);
                 setShowCompleteCartSheet(false);
+                await showInterstitialAd();
                 router.push('/(cart)/checkout-success');
               } catch (err) {
                 setToast(err instanceof Error ? err.message : 'Error al completar carrito');

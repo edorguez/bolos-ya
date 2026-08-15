@@ -83,7 +83,14 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-1019164072675452~9310060521",
+          "iosAppId": "ca-app-pub-1019164072675452~1291969706"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

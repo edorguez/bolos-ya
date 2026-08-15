@@ -57,9 +57,8 @@ merki/
 │       ├── services/        # Business logic layer
 │       └── routes.go        # Central route registration (25+ endpoints)
 ├── pkg/
-│   ├── constants/           # Shared constants (plan limits, header keys, app info)
-│   │   ├── constants.go
-│   │   └── user_plans.go    # Free vs Premium limits
+│   ├── constants/           # Shared constants (header keys, app info)
+│   │   └── constants.go
 │   ├── core/errors/         # Custom error types (ErrNotFound, ErrConflict, etc.)
 │   ├── database/
 │   │   ├── migrations/      # SQL migration files (golang-migrate)
@@ -466,18 +465,15 @@ ApprovedStatusID = "a2222222-2222-4a22-9a22-222222222222"
 RejectedStatusID = "a3333333-3333-4a33-9a33-333333333333"
 ```
 
-### 7.5 Plan Limits (Free vs Premium)
+### 7.5 Plans & Monetization (Free vs Premium)
 
-Defined in `pkg/constants/user_plans.go`:
-
-| Limit | Free | Premium |
-|-------|------|---------|
-| Max active carts | 1 | 10 |
-| Max products per cart | 20 | 100 |
-| Max saved products | 10 | 100 |
-| Max price reports | 5 | 50 |
-| Max OCR scans per day | 3 | 50 |
-| Premium duration | — | 30 days (monthly) / 365 days (yearly) |
+- **Free plan (default):** The app displays ads to the user.
+- **Premium plan:** No ads. Future premium-only features are planned but not yet available (see §13).
+- Premium is an **entitlement flag, not a login level** — all users (email, Google, anonymous guests) can log in and use the app identically.
+- Premium status is stored in both the application `users` table (`is_premium`, `premium_until`) and the better-auth `"user"` table (`isPremium`, `premiumUntil`); both are kept in sync by the Go backend on payment approval/rejection.
+- **Grant path:** An admin approves a pago-móvil payment in the web dashboard (`PUT /api/v1/payments/:paymentId` with `statusId` = approved). The Go backend sets `is_premium = true`, computes `premium_until` by extending the current (or future) expiry by `numberOfMonths` calendar months (1 / 3 / 12), writes both tables, and calls the auth-server's `/api/auth/update-premium` endpoint.
+- **Revoke path:** Admin rejects a payment → `is_premium = false`, `premium_until = NULL` in both tables.
+- **No feature limits are enforced in the MVP.** Free and premium users currently have identical functionality; the only difference is ad display. Carts, products, OCR scans, saved products, and price reports are all unlimited for everyone.
 
 ### 7.6 Seed Data
 
@@ -513,10 +509,18 @@ Authentication is handled by a **standalone auth server** (`auth-server/`) using
 
 ### 8.3 Authorization
 
-- **Free vs Premium**: Premium status is stored in both `users.is_premium` and better-auth's `"user"."isPremium"`. The Go backend syncs both on approval.
+- **Free vs Premium**: Premium is an entitlement flag, not a login level — all users (email, Google, anonymous guests) can log in and use the app. Premium currently means **ad-free**; no feature gating exists yet. The Go backend keeps `users.is_premium`/`premium_until` and better-auth's `"user"."isPremium"`/`premiumUntil` in sync on payment approval/rejection.
 - **Guest users**: Supported via better-auth anonymous sessions (`"isAnonymous"`).
 - **Roles**: Identified by better-auth's `role` field. Supported values: `user`, `staff`, `admin`. A CLI script (`auth-server/scripts/set-role.ts`) can promote a user by email.
 - **Admin/staff users**: Access the web admin dashboard at `/admin/payments` to manage premium subscription payments (approve/reject).
+
+### 8.4 Known Issues & Security Gaps
+
+- **`/api/auth/update-premium` is unauthenticated** (`auth-server/src/server.ts`): any caller that can reach the auth server and knows a `userId` can flip that user's premium status. It should require a shared secret or an authenticated admin call.
+- **Premium self-grant via sync**: `POST /api/v1/sync` accepts a client-supplied `isPremium` payload and writes it to the Go `users` table (`internal/server/services/sync_service.go`), diverging from the better-auth record. Client-sent premium fields should be rejected.
+- **No premium-expiry job**: nothing clears `is_premium` when `premium_until` passes; `User.IsActivePremium()` is defined but unused. A cron job is needed to expire premium entitlements.
+- **Non-transactional approval**: payment update, Go user update, and auth-server update run as separate writes in goroutines (`internal/server/services/payment_service.go`); a failure can leave the two sources of truth inconsistent.
+- **Wholesale revocation**: rejecting any payment sets `is_premium = false` even when the user has other approved payments. Rejection should recompute the entitlement from remaining approved payments.
 
 ---
 
@@ -577,6 +581,7 @@ Location: `mobile/services/syncService.ts`
 | **History** | ✅ Full | Reads from local SQLite; shows last synced timestamp |
 | **Profile** | Partial | Profile data from last sync; premium/upgrade buttons require internet |
 | **Premium (Plans, Pago-móvil)** | ❌ Requires internet | Network guard at layout level redirects to profile |
+| **Ads (free tier)** | Online only | Free users see ads only when online; premium users see none |
 
 ### 9.7 Guest Mode Offline
 
@@ -702,6 +707,8 @@ Returns `SyncResponse` with per-operation results and `serverVersion` for confli
 ## 13. Future Considerations
 
 - **Crowdsourced pricing**: A `prices` table with confidence‑scoring algorithm for community‑reported product prices (as originally specified).
+- **Ads (free tier)**: Free users will see ads in‑app; premium removes them. Ad provider/SDK is **AdMob** (`react-native-google-mobile-ads`) — the client gates ad rendering on the user's premium status. See `docs/ads.md` for the live integration checklist and deployment status.
+- **Premium feature set**: Planned premium‑only features (beyond ad removal) are not yet defined or built.
 - **Offline sync queue**: Local SQLite + background sync with exponential backoff for write‑operations without network. (Partially started — `POST /api/v1/sync` endpoint + `SyncOperation` types exist, `expo-sqlite` dependency added.)
 - **Push notifications**: Via Expo Push Notifications for premium expiry reminders and cart sharing.
 - **Admin dashboard**: ✅ **Implemented** — The `web/` app provides a marketing landing page and an admin panel at `/admin/payments` for approving/rejecting premium subscription payments. Future iterations may add user management, reported price review, and analytics.
