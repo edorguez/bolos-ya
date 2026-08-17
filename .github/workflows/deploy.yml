@@ -33,6 +33,7 @@ jobs:
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           script: |
             set -e
+            git config --global --add safe.directory /opt/merki
             cd /opt/merki
             git pull origin main
             docker compose -f docker-compose.prod.yml --env-file .env up -d --build --pull always
