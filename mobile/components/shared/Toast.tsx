@@ -82,7 +82,7 @@ export function Toast({
       <View style={styles.row as ViewStyle}>
         <MaterialIcons
           name={isError ? 'error' : 'check-circle'}
-          size={20}
+          size={theme.iconSize.md}
           color={theme.colors.white}
         />
         <Text style={styles.text as TextStyle}>{message}</Text>

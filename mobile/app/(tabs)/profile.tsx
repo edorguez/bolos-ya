@@ -24,6 +24,7 @@ import { getPaymentsByUser, PENDING_STATUS_ID } from '../../services/paymentServ
 import { useState, useEffect } from 'react';
 import * as Network from 'expo-network';
 import { MERKI_LOGO } from '../../constants/images';
+import { AdBanner } from '../../components/ads/AdBanner';
 
 export default function ProfileTab() {
   const theme = useAppTheme();
@@ -83,9 +84,9 @@ export default function ProfileTab() {
                 <Avatar uri={user?.image || undefined} />
 
                 {!user?.isAnonymous ? (
-                  <Text style={styles.profileName as TextStyle}>{user?.name}</Text>
-                ) : (
                   <Text style={styles.profileName as TextStyle}>Usuario</Text>
+                ) : (
+                  <Text style={styles.profileName as TextStyle}>Usuario Anónimo</Text>
                 )}
 
                 {!user?.isAnonymous && (
@@ -130,6 +131,10 @@ export default function ProfileTab() {
         <Text style={styles.versionText as TextStyle}>
           Merki v{Constants.expoConfig?.version || '2.4.0'}
         </Text>
+
+        <View style={{ marginTop: theme.spacing.sm }}>
+          <AdBanner />
+        </View>
       </ScrollView>
       <Toast message={toast} onDismiss={() => setToast(null)} />
     </View>

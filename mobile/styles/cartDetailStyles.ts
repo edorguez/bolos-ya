@@ -3,7 +3,7 @@ import { AppTheme } from './theme';
 import { createButtonStyles } from './buttons';
 
 export function createCartDetailStyles(theme: AppTheme) {
-  const buttonBarHeight = 56 + theme.spacing.lg * 2;
+  const buttonBarHeight = theme.sizes.circleButton + theme.spacing.lg * 2;
   const scrollContentPaddingBottom = buttonBarHeight + theme.spacing.md;
   const buttonStyles = createButtonStyles(theme);
 
@@ -19,25 +19,24 @@ export function createCartDetailStyles(theme: AppTheme) {
       borderBottomColor: theme.colors.stoneSurface,
     },
     supermarketHeaderContainer: {
-      paddingTop: theme.spacing.md,
+      paddingTop: theme.spacing.sm,
     },
     scrollView: {
       flex: 1,
       paddingTop: theme.spacing.sm,
     },
     scrollContent: {
-      paddingHorizontal: 24,
+      paddingHorizontal: theme.spacing.lg,
       paddingBottom: scrollContentPaddingBottom,
     },
     productList: {
-      gap: 16,
+      gap: theme.spacing.xxs,
     },
     sectionHeader: {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: '600',
       color: theme.colors.onSurface,
-      marginBottom: 16,
-      marginTop: 8,
+      marginBottom: theme.spacing.md,
       letterSpacing: theme.typography.letterSpacing.lg,
     },
     emptyState: {
@@ -58,8 +57,7 @@ export function createCartDetailStyles(theme: AppTheme) {
       left: 0,
       right: 0,
       backgroundColor: theme.colors.surfaceContainerLowest,
-      paddingTop: theme.spacing.md,
-      paddingBottom: theme.spacing.md,
+      paddingVertical: theme.spacing.xs,
       paddingHorizontal: theme.spacing.md,
       alignItems: 'center',
     },
@@ -78,12 +76,12 @@ export function createCartDetailStyles(theme: AppTheme) {
       alignItems: 'center',
       justifyContent: 'center',
       gap: theme.spacing.xs,
-      paddingVertical: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.xs,
+      paddingHorizontal: theme.spacing.sm,
       backgroundColor: theme.colors.midnight,
     },
     buttonText: {
-      fontSize: theme.typography.fontSize.sm,
+      fontSize: theme.typography.fontSize.xs,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.white,
       flexShrink: 1,
@@ -100,16 +98,16 @@ export function createCartDetailStyles(theme: AppTheme) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      width: 56,
-      height: 56,
+      width: theme.sizes.circleButton,
+      height: theme.sizes.circleButton,
       backgroundColor: theme.colors.meadowGreen,
       borderRadius: theme.borderRadius.full,
       borderWidth: 2,
       borderColor: theme.colors.white,
       position: 'absolute',
-      top: -8,
+      top: -theme.spacing.xs,
       left: '50%',
-      marginLeft: -28,
+      marginLeft: -(theme.sizes.circleButton / 2),
       zIndex: 10,
     },
   });

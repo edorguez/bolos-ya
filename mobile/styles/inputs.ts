@@ -42,9 +42,9 @@ export function createInputStyles(theme: AppTheme) {
       padding: theme.spacing.xs,
     },
     quantityButton: {
-      width: 30,
-      height: 30,
-      borderRadius: 20,
+      width: theme.sizes.quantityButton,
+      height: theme.sizes.quantityButton,
+      borderRadius: theme.borderRadius.lg,
       alignItems: 'center' as const,
       justifyContent: 'center' as const,
     },
@@ -59,7 +59,7 @@ export function createInputStyles(theme: AppTheme) {
     quantityNumber: {
       fontSize: theme.typography.fontSize.xs,
       fontWeight: theme.typography.fontWeight.semibold,
-      minWidth: 32,
+      minWidth: theme.spacing.xl,
       textAlign: 'center' as const,
       color: theme.colors.onSurface,
     },

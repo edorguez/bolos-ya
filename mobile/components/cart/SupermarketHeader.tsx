@@ -14,12 +14,12 @@ const stylesheet = StyleSheet.create(theme => ({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
-    marginBottom: 16,
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
   },
   logoContainer: {
-    width: 48,
-    height: 48,
+    width: theme.sizes.iconButton,
+    height: theme.sizes.iconButton,
     borderRadius: theme.borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -32,10 +32,10 @@ const stylesheet = StyleSheet.create(theme => ({
     fontSize: theme.typography.fontSize.sm,
     fontWeight: '600',
     color: theme.colors.onSurface,
-    letterSpacing: -0.25,
+    letterSpacing: theme.typography.letterSpacing.lg,
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: theme.typography.fontSize.xxs,
     fontWeight: '500',
     color: theme.colors.onSurfaceVariant,
     marginTop: 2,
@@ -55,7 +55,7 @@ export function SupermarketHeader({ cartId, supermarket, productCount }: Superma
       <View style={[styles.logoContainer as ViewStyle, { backgroundColor: iconColor + '20' }]}>
         <MaterialIcons
           name={icon as keyof typeof MaterialIcons.glyphMap}
-          size={24}
+          size={theme.iconSize.md}
           color={iconColor}
         />
       </View>

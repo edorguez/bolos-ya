@@ -200,7 +200,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
         <View style={styles.iconContainer as ViewStyle}>
           <MaterialIcons
             name="shopping-bag"
-            size={36}
+            size={theme.iconSize.xxl}
             color={theme.colors.secondary}
             style={styles.icon as TextStyle}
           />
@@ -240,7 +240,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               ]}
               onPress={decrementQuantity}
             >
-              <MaterialIcons name="remove" size={24} color={theme.colors.primary} />
+              <MaterialIcons name="remove" size={theme.iconSize.lg} color={theme.colors.primary} />
             </Pressable>
             <Text style={styles.quantityNumber as TextStyle}>{quantity}</Text>
             <Pressable
@@ -251,7 +251,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               ]}
               onPress={incrementQuantity}
             >
-              <MaterialIcons name="add" size={24} color={theme.colors.white} />
+              <MaterialIcons name="add" size={theme.iconSize.lg} color={theme.colors.white} />
             </Pressable>
           </View>
         </View>
@@ -289,7 +289,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               >
                 <MaterialIcons
                   name="swap-vert"
-                  size={20}
+                  size={theme.iconSize.md}
                   color={getSyncIconColor()}
                   style={{ transform: [{ rotate: '0deg' }] }}
                 />
@@ -343,7 +343,7 @@ export function ProductForm({ onSubmit, supermarket, initialData }: ProductFormP
               >
                 <MaterialIcons
                   name="swap-vert"
-                  size={20}
+                  size={theme.iconSize.md}
                   color={getSyncIconColor()}
                   style={{ transform: [{ rotate: '180deg' }] }}
                 />

@@ -18,6 +18,9 @@ import { FadeIn } from '../../components/shared/FadeIn';
 import { Skeleton } from '../../components/shared/Skeleton';
 import { MaterialIcons } from '@expo/vector-icons';
 import { MERKI_LOGO } from '../../constants/images';
+import { AdNative } from '../../components/ads/AdNative';
+
+const AD_AFTER_PRODUCTS = 3;
 
 function calcBudgetUsage(cart: ApiCartResponse): { usage: number; exceeded: boolean } {
   if (cart.budgetBs > 0 && cart.totalEstimatedBs !== null) {
@@ -78,6 +81,36 @@ export default function HistoryTab() {
     await fetchCarts();
   }, [fetchCarts]);
 
+  const renderCart = (cart: ApiCartResponse, index: number) => {
+    const { usage, exceeded } = calcBudgetUsage(cart);
+    const colorKey = getCartColorKey(cart.id) as keyof typeof theme.colors;
+    const totalBs = cart.budgetBs.toLocaleString('es-VE', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    const totalUsd = `$ ${cart.budgetUsd.toLocaleString('es-VE', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+
+    return (
+      <FadeIn key={cart.id} delay={index * 70} distance={12}>
+        <HistoryCard
+          storeName={cart.supermarketName}
+          date={formatDate(cart.createdAt)}
+          icon={getCartIcon(cart.id)}
+          iconColor={theme.colors[colorKey]}
+          status={getStatus(cart.isActive)}
+          totalBs={totalBs}
+          totalUsd={totalUsd}
+          budgetUsage={usage}
+          exceeded={exceeded}
+          onPress={() => router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })}
+        />
+      </FadeIn>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -124,44 +157,24 @@ export default function HistoryTab() {
         ) : (
           <>
             <View style={styles.historyList}>
-              {carts.map((cart, index) => {
-                const { usage, exceeded } = calcBudgetUsage(cart);
-                const colorKey = getCartColorKey(cart.id) as keyof typeof theme.colors;
-                const totalBs = cart.budgetBs.toLocaleString('es-VE', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                });
-                const totalUsd = `$ ${cart.budgetUsd.toLocaleString('es-VE', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}`;
-
-                return (
-                  <FadeIn key={cart.id} delay={index * 70} distance={12}>
-                    <HistoryCard
-                      storeName={cart.supermarketName}
-                      date={formatDate(cart.createdAt)}
-                      icon={getCartIcon(cart.id)}
-                      iconColor={theme.colors[colorKey]}
-                      status={getStatus(cart.isActive)}
-                      totalBs={totalBs}
-                      totalUsd={totalUsd}
-                      budgetUsage={usage}
-                      exceeded={exceeded}
-                      onPress={() =>
-                        router.push({ pathname: '/(cart)/[id]', params: { id: cart.id } })
-                      }
-                    />
-                  </FadeIn>
-                );
-              })}
+              {carts.slice(0, AD_AFTER_PRODUCTS).map(renderCart)}
             </View>
+
+            {carts.length > 0 ? <AdNative /> : null}
+
+            {carts.length > AD_AFTER_PRODUCTS ? (
+              <View style={styles.historyList}>
+                {carts.slice(AD_AFTER_PRODUCTS).map(renderCart)}
+              </View>
+            ) : null}
 
             <FadeIn delay={300} distance={12}>
               <EmptyCartsState
                 text={carts.length > 0 ? 'Fin del historial actual' : 'Aún no tienes carritos'}
               />
             </FadeIn>
+
+            {carts.length === 0 ? <AdNative /> : null}
           </>
         )}
       </ScrollView>

@@ -7,11 +7,13 @@ import { useAppTheme } from '../styles/theme';
 import { useBCV } from '../store/bcvStore';
 import { syncService } from '../services/syncService';
 import { useNetwork } from '../hooks/useNetwork';
+import { useGuestDataMigration } from '../hooks/useGuestDataMigration';
 import '../styles/unistylesConfigured';
 
 export default function RootLayout() {
   const theme = useAppTheme();
   useBCV();
+  useGuestDataMigration();
   const { subscribeToReconnect } = useNetwork();
 
   useEffect(() => {

@@ -63,8 +63,8 @@ const stylesheet = StyleSheet.create(theme => ({
     alignItems: 'center',
   },
   handle: {
-    width: 48,
-    height: 4,
+    width: theme.sizes.handleWidth,
+    height: theme.sizes.handleHeight,
     backgroundColor: theme.colors.surfaceContainer,
     borderRadius: theme.borderRadius.full,
   },
@@ -83,9 +83,9 @@ const stylesheet = StyleSheet.create(theme => ({
     gap: theme.spacing.md,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: theme.sizes.iconButton,
+    height: theme.sizes.iconButton,
+    borderRadius: theme.borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.surfaceContainerLow,
@@ -210,7 +210,11 @@ export function BottomSheetModal({
                 ]}
                 onPress={closeModal}
               >
-                <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurfaceVariant} />
+                <MaterialIcons
+                  name="arrow-back"
+                  size={theme.iconSize.lg}
+                  color={theme.colors.onSurfaceVariant}
+                />
               </Pressable>
             )}
             <View>

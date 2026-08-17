@@ -80,6 +80,46 @@ export const syncQueue = {
     return row?.count ?? 0;
   },
 
+  async hasPendingOp(table: SyncTable, localId: string): Promise<boolean> {
+    const database = await getDb();
+    const row = await database.getFirstAsync<{ count: number }>(
+      `SELECT COUNT(*) as count FROM sync_queue WHERE table_name = ? AND local_id = ? AND status = ?`,
+      [table, localId, SYNC_STATUS.PENDING]
+    );
+    return (row?.count ?? 0) > 0;
+  },
+
+  async rewriteUserId(oldId: string, newId: string): Promise<void> {
+    const database = await getDb();
+    const rows = await database.getAllAsync<SyncQueueItem>(
+      `SELECT ${SYNC_QUEUE_COLUMNS} FROM sync_queue`
+    );
+
+    for (const row of rows) {
+      let payload: Record<string, unknown>;
+      try {
+        payload = JSON.parse(row.payload);
+      } catch {
+        continue;
+      }
+
+      let changed = false;
+      for (const key of ['userId', 'user_id']) {
+        if (payload[key] === oldId) {
+          payload[key] = newId;
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        await database.runAsync('UPDATE sync_queue SET payload = ? WHERE id = ?', [
+          JSON.stringify(payload),
+          row.id,
+        ]);
+      }
+    }
+  },
+
   async clearFailed(): Promise<void> {
     const database = await getDb();
     await database.runAsync('DELETE FROM sync_queue WHERE status = ?', [SYNC_STATUS.FAILED]);

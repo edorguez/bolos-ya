@@ -22,14 +22,15 @@ const stylesheet = StyleSheet.create(theme => {
   return {
     card: {
       ...cardStyles.base,
-      padding: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.xs,
+      paddingVertical: theme.spacing.xxs,
       flexDirection: 'row',
       alignItems: 'center',
       gap: theme.spacing.md,
     },
     iconContainer: {
-      width: 60,
-      height: 60,
+      width: theme.sizes.productIcon,
+      height: theme.sizes.productIcon,
       borderRadius: theme.borderRadius.sm,
       backgroundColor: theme.colors.primary + '0D',
       borderWidth: 1,
@@ -106,9 +107,9 @@ const stylesheet = StyleSheet.create(theme => {
       gap: theme.spacing.md,
     },
     quantityButton: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
+      width: theme.sizes.quantityButton,
+      height: theme.sizes.quantityButton,
+      borderRadius: theme.borderRadius.lg,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: theme.colors.surfaceContainerLowest,
@@ -121,7 +122,7 @@ const stylesheet = StyleSheet.create(theme => {
       fontSize: theme.typography.fontSize.xs,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.onSurface,
-      minWidth: 20,
+      minWidth: theme.sizes.logo,
       textAlign: 'center',
     },
   };
@@ -157,7 +158,11 @@ function ProductCardComponent({
   return (
     <View style={styles.card as ViewStyle}>
       <View style={styles.iconContainer as ViewStyle}>
-        <MaterialIcons name="shopping-basket" size={28} color={theme.colors.primary} />
+        <MaterialIcons
+          name="shopping-basket"
+          size={theme.iconSize.xl}
+          color={theme.colors.primary}
+        />
       </View>
       <View style={styles.content as ViewStyle}>
         <View style={styles.header as ViewStyle}>
@@ -172,7 +177,11 @@ function ProductCardComponent({
                     pressed && (styles.quantityButtonPressed as ViewStyle),
                   ]}
                 >
-                  <MaterialIcons name="remove" size={16} color={theme.colors.emberOrange} />
+                  <MaterialIcons
+                    name="remove"
+                    size={theme.iconSize.sm}
+                    color={theme.colors.emberOrange}
+                  />
                 </Pressable>
                 <Text style={styles.quantityText as TextStyle}>{quantity}</Text>
                 <Pressable
@@ -182,7 +191,11 @@ function ProductCardComponent({
                     pressed && (styles.quantityButtonPressed as ViewStyle),
                   ]}
                 >
-                  <MaterialIcons name="add" size={16} color={theme.colors.emberOrange} />
+                  <MaterialIcons
+                    name="add"
+                    size={theme.iconSize.sm}
+                    color={theme.colors.emberOrange}
+                  />
                 </Pressable>
               </View>
             </View>
@@ -192,7 +205,11 @@ function ProductCardComponent({
               onPress={handleMenu}
               style={({ pressed }) => [styles.menuButton as ViewStyle, pressed && { opacity: 0.7 }]}
             >
-              <MaterialIcons name="more-horiz" size={20} color={theme.colors.onSurfaceVariant} />
+              <MaterialIcons
+                name="more-horiz"
+                size={theme.iconSize.md}
+                color={theme.colors.onSurfaceVariant}
+              />
             </Pressable>
             <View style={styles.priceColumn as ViewStyle}>
               <Text style={styles.priceBs as TextStyle}>

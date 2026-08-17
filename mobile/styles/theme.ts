@@ -98,6 +98,29 @@ const sharedBorderRadius = {
   button: 32,
 } as const;
 
+const sharedIconSize = {
+  xs: 12,
+  sm: 16,
+  md: 20,
+  lg: 24,
+  xl: 28,
+  xxl: 36,
+  xxxl: 48,
+} as const;
+
+const sharedSizes = {
+  logo: 20,
+  quantityButton: 24,
+  optionIconWidth: 24,
+  iconButton: 40,
+  handleWidth: 48,
+  handleHeight: 4,
+  circleButton: 50,
+  productIcon: 60,
+  appBar: 64,
+  formIcon: 64,
+} as const;
+
 const sharedShadows = {
   soft: '0 0 10px rgba(0, 0, 0, 0.08)',
   medium: '0 0 10px rgba(0, 0, 0, 0.4)',
@@ -109,6 +132,8 @@ export const theme = {
   spacing: sharedSpacing,
   typography: sharedTypography,
   borderRadius: sharedBorderRadius,
+  iconSize: sharedIconSize,
+  sizes: sharedSizes,
   shadows: sharedShadows,
 } as const;
 

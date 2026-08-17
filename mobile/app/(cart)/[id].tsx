@@ -240,10 +240,10 @@ export default function CartDetailScreen() {
             gap: theme.spacing.md,
           }}
         >
-          <Skeleton height={96} radius={10} />
-          <Skeleton height={160} radius={10} />
-          <Skeleton height={80} radius={10} />
-          <Skeleton height={80} radius={10} />
+          <Skeleton height={96} radius={theme.borderRadius.md} />
+          <Skeleton height={160} radius={theme.borderRadius.md} />
+          <Skeleton height={80} radius={theme.borderRadius.md} />
+          <Skeleton height={80} radius={theme.borderRadius.md} />
         </View>
       );
     }
@@ -287,6 +287,8 @@ export default function CartDetailScreen() {
         />
       </View>
 
+      <AdBanner />
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -323,7 +325,11 @@ export default function CartDetailScreen() {
                     justifyContent: 'center',
                   }}
                 >
-                  <MaterialIcons name="shopping-bag" size={48} color={theme.colors.outline} />
+                  <MaterialIcons
+                    name="shopping-bag"
+                    size={theme.iconSize.xxxl}
+                    color={theme.colors.outline}
+                  />
                 </View>
               </View>
               <Text style={styles.emptyStateText}>Sin productos</Text>
@@ -340,7 +346,7 @@ export default function CartDetailScreen() {
             accessibilityRole="button"
             accessibilityLabel="Agregar producto"
           >
-            <MaterialIcons name="add" size={12} color={theme.colors.white} />
+            <MaterialIcons name="add" size={theme.iconSize.xs} color={theme.colors.white} />
             <Text style={styles.buttonText}>Agregar</Text>
           </Pressable>
 
@@ -353,7 +359,11 @@ export default function CartDetailScreen() {
             accessibilityRole="button"
             accessibilityLabel="Completar Carrito"
           >
-            <MaterialCommunityIcons name="cart-check" size={24} color={theme.colors.white} />
+            <MaterialCommunityIcons
+              name="cart-check"
+              size={theme.iconSize.lg}
+              color={theme.colors.white}
+            />
           </Pressable>
 
           <Pressable
@@ -362,13 +372,11 @@ export default function CartDetailScreen() {
             accessibilityRole="button"
             accessibilityLabel="Escanear producto"
           >
-            <MaterialIcons name="camera-alt" size={12} color={theme.colors.white} />
+            <MaterialIcons name="camera-alt" size={theme.iconSize.xs} color={theme.colors.white} />
             <Text style={styles.buttonText}>Escanear</Text>
           </Pressable>
         </View>
       </View>
-
-      <AdBanner />
 
       <BottomSheetModal
         isVisible={showAddProduct}

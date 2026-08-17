@@ -248,15 +248,19 @@ func (s *authService) MigrateUserData(ctx context.Context, fromBetterAuthUserId,
 		return fmt.Errorf("failed to find source user: %w", err)
 	}
 
-	_, err = s.userRepo.FindByBetterAuthUserID(ctx, toBetterAuthUserId)
+	destUser, err := s.userRepo.FindByBetterAuthUserID(ctx, toBetterAuthUserId)
+	if err != nil && !errors.Is(err, apperrors.ErrNotFound) {
+		return fmt.Errorf("failed to find destination user: %w", err)
+	}
+
 	if err == nil {
-		if err := s.userRepo.DeleteUserData(ctx, user.ID); err != nil {
-			return fmt.Errorf("failed to delete anonymous data: %w", err)
+		if err := s.userRepo.TransferUserData(ctx, user.ID, destUser.ID); err != nil {
+			return fmt.Errorf("failed to transfer anonymous data: %w", err)
 		}
 		return s.userRepo.Delete(ctx, user.ID)
 	}
 
-	destUser := models.NewUserFromBetterAuth(toBetterAuthUserId, email, authProvider, false)
+	destUser = models.NewUserFromBetterAuth(toBetterAuthUserId, email, authProvider, false)
 	if err := s.userRepo.Create(ctx, destUser); err != nil {
 		return fmt.Errorf("failed to create destination user: %w", err)
 	}

@@ -18,7 +18,11 @@ import { useBCV } from '../../store/bcvStore';
 import { addCartProduct } from '../../services/cartService';
 import { Toast } from '../../components/shared/Toast';
 import { scanImage, preprocessImage, rotateImage } from '../../lib/ocr';
+import { useInterstitialAd } from '../../components/ads/useInterstitialAd';
+import { safeGetItem, safeSetItem } from '../../utils/storage';
 import { MaterialIcons } from '@expo/vector-icons';
+
+const SCAN_COUNT_KEY = '@merki/scan_count';
 
 // Clamps a crop rectangle to the photo bounds.
 function clampCrop(
@@ -43,6 +47,9 @@ export default function ScanScreen() {
   const { activeCartId, carts, addProductToCart } = useCartStore();
   const { user } = useAuth();
   const { rate: exchangeRate } = useBCV();
+  const { show: showInterstitialAd } = useInterstitialAd();
+  const scanCountRef = useRef(0);
+  const scanCountLoadedRef = useRef(false);
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [cameraType, setCameraType] = useState<'back' | 'front'>('back');
@@ -116,6 +123,17 @@ export default function ScanScreen() {
       subscription.remove();
       Accelerometer.removeAllListeners();
     };
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const value = await safeGetItem(SCAN_COUNT_KEY);
+      const parsed = value ? parseInt(value, 10) : 0;
+      if (!Number.isNaN(parsed)) {
+        scanCountRef.current = parsed;
+      }
+      scanCountLoadedRef.current = true;
+    })();
   }, []);
 
   const startScanning = async () => {
@@ -272,6 +290,12 @@ export default function ScanScreen() {
       setShowNoRecognition(true);
     } finally {
       setIsScanning(false);
+      scanCountRef.current += 1;
+      const count = scanCountRef.current;
+      safeSetItem(SCAN_COUNT_KEY, String(count));
+      if (count % 10 === 0) {
+        showInterstitialAd();
+      }
     }
   };
 

@@ -58,8 +58,8 @@ const stylesheet = StyleSheet.create(theme => ({
     alignItems: 'center',
   },
   handle: {
-    width: 48,
-    height: 4,
+    width: theme.sizes.handleWidth,
+    height: theme.sizes.handleHeight,
     backgroundColor: theme.colors.surfaceContainer,
     borderRadius: theme.borderRadius.full,
   },
@@ -83,7 +83,7 @@ const stylesheet = StyleSheet.create(theme => ({
     backgroundColor: theme.colors.surfaceContainerLow,
   },
   optionIcon: {
-    width: 24,
+    width: theme.sizes.optionIconWidth,
     alignItems: 'center',
   },
   optionLabel: {
@@ -180,7 +180,7 @@ export function ActionSheetModal({ isVisible, onClose, options }: ActionSheetMod
                 <View style={styles.optionIcon as ViewStyle}>
                   <MaterialIcons
                     name={option.icon as keyof typeof MaterialIcons.glyphMap}
-                    size={24}
+                    size={theme.iconSize.lg}
                     color={option.color}
                   />
                 </View>

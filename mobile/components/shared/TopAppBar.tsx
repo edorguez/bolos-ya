@@ -23,11 +23,11 @@ export function TopAppBar({
   const theme = useAppTheme();
 
   const baseContainerStyle: ViewStyle = {
-    height: 64,
+    height: theme.sizes.appBar,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: theme.spacing.md,
     zIndex: 50,
   };
 
@@ -40,12 +40,12 @@ export function TopAppBar({
     leftContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      minWidth: 40,
+      minWidth: theme.sizes.iconButton,
     },
     backButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: theme.sizes.iconButton,
+      height: theme.sizes.iconButton,
+      borderRadius: theme.borderRadius.full,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: theme.colors.surfaceContainerLow,
@@ -63,11 +63,11 @@ export function TopAppBar({
       letterSpacing: theme.typography.letterSpacing.lg,
     },
     logo: {
-      width: 20,
-      height: 20,
+      width: theme.sizes.logo,
+      height: theme.sizes.logo,
     },
     rightContainer: {
-      minWidth: 40,
+      minWidth: theme.sizes.iconButton,
       alignItems: 'flex-end',
     },
     rightLabel: {
@@ -85,7 +85,11 @@ export function TopAppBar({
             style={({ pressed }) => [styles.backButton, pressed && { opacity: 0.8 }]}
             onPress={onBackPress}
           >
-            <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurfaceVariant} />
+            <MaterialIcons
+              name="arrow-back"
+              size={theme.iconSize.lg}
+              color={theme.colors.onSurfaceVariant}
+            />
           </Pressable>
         )}
       </View>

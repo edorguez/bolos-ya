@@ -19,19 +19,19 @@ const stylesheet = StyleSheet.create(theme => {
   return {
     container: {
       ...cardStyles.base,
-      padding: theme.spacing.md,
-      marginBottom: theme.spacing.md,
+      padding: theme.spacing.sm,
+      marginBottom: theme.spacing.sm,
     },
     limitRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: theme.spacing.xs,
+      marginBottom: theme.spacing.xxs,
     },
     limitRowColumn: {
       flexDirection: 'column',
       gap: 2,
-      marginBottom: theme.spacing.xs,
+      marginBottom: theme.spacing.xxs,
       alignItems: 'flex-start',
     },
     limitLabel: {
@@ -50,7 +50,7 @@ const stylesheet = StyleSheet.create(theme => {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-end',
-      marginBottom: theme.spacing.sm,
+      marginBottom: theme.spacing.xs,
     },
     totalLeft: {
       flex: 1,
@@ -61,29 +61,29 @@ const stylesheet = StyleSheet.create(theme => {
       textTransform: 'uppercase',
       letterSpacing: 1,
       color: theme.colors.onSurface,
-      marginTop: theme.spacing.xs,
+      marginTop: theme.spacing.xxs,
     },
     totalAmountRow: {
       flexDirection: 'column',
       gap: 2,
     },
     totalBs: {
-      fontSize: 28,
+      fontSize: 24,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.onSurface,
     },
     totalUsd: {
-      fontSize: 14,
+      fontSize: theme.typography.fontSize.xs,
       fontWeight: theme.typography.fontWeight.semibold,
       color: theme.colors.onSurface,
     },
     progressBarContainer: {
-      marginBottom: theme.spacing.sm,
+      marginBottom: theme.spacing.xxs,
     },
     warningContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 8,
+      gap: theme.spacing.xs,
       padding: theme.spacing.xs,
       backgroundColor: theme.colors.coralRed + '08',
       borderRadius: theme.borderRadius.md,
@@ -153,13 +153,13 @@ export function BudgetSummary({ totalBs, totalUsd, budgetBs, budgetUsd }: Budget
           progress={progressPercentage}
           color={isOverBudget ? theme.colors.error : theme.colors.midnight}
           backgroundColor={theme.colors.surfaceContainer}
-          height={12}
+          height={8}
         />
       </View>
 
       {isOverBudget && (
         <View style={styles.warningContainer as ViewStyle}>
-          <MaterialIcons name="warning" size={16} color={theme.colors.error} />
+          <MaterialIcons name="warning" size={theme.iconSize.sm} color={theme.colors.error} />
           <Text style={styles.warningText as TextStyle}>
             Excedido por Bs.{' '}
             {overBudgetAmount.toLocaleString('es-VE', { minimumFractionDigits: 2 })} / $
