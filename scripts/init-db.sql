@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     better_auth_user_id VARCHAR(255) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE,
+    name VARCHAR(20) NOT NULL DEFAULT '',
     auth_provider VARCHAR(20) CHECK (auth_provider IN ('email', 'google', 'guest')),
     is_premium BOOLEAN DEFAULT FALSE,
     is_anonymous BOOLEAN DEFAULT FALSE,

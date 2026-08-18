@@ -8,16 +8,16 @@ import {
   NativeMediaView,
 } from 'react-native-google-mobile-ads';
 import { useAppTheme } from '../../styles/theme';
-import { useAuth } from '../../store/authStore';
+import { useIsPremium } from '../../store/authStore';
 import { NATIVE_AD_UNIT_ID } from '../../lib/ads';
 
 export function AdNative() {
   const theme = useAppTheme();
-  const { user } = useAuth();
+  const { isPremium, isResolved } = useIsPremium();
   const [nativeAd, setNativeAd] = useState<NativeAd | null>(null);
 
   useEffect(() => {
-    if (user?.isPremium) {
+    if (isPremium || !isResolved) {
       return;
     }
 
@@ -41,9 +41,9 @@ export function AdNative() {
       mounted = false;
       ad?.destroy();
     };
-  }, [user?.isPremium]);
+  }, [isPremium, isResolved]);
 
-  if (user?.isPremium || !nativeAd) {
+  if (isPremium || !isResolved || !nativeAd) {
     return null;
   }
 

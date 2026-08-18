@@ -15,15 +15,13 @@ import { signIn } from '../../lib/auth-client';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import * as Network from 'expo-network';
-import * as SecureStore from 'expo-secure-store';
 import { getStoredSessionToken, clearSessionTokenCache } from '../../services/api';
+import { Toast } from '../../components/shared/Toast';
 import Animated from 'react-native-reanimated';
 
 const { width, height } = Dimensions.get('window');
 const isLargeScreen = height > 800;
 const isExtraLargeScreen = height > 900;
-
-const OFFLINE_GUEST_KEY = 'merki.offline.guest';
 
 async function waitForSessionToken(timeoutMs = 5000): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
@@ -41,43 +39,24 @@ export default function LoginChoiceScreen() {
   const theme = useAppTheme();
   const buttonStyles = createButtonStyles(theme);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
-  const [, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleGuestLogin = async () => {
     setIsGuestLoading(true);
     try {
       const networkState = await Network.getNetworkStateAsync();
-      if (networkState.isConnected) {
-        await signIn.anonymous();
-        clearSessionTokenCache();
-        await waitForSessionToken();
-        router.replace('/(tabs)');
-      } else {
-        await SecureStore.setItemAsync(
-          OFFLINE_GUEST_KEY,
-          JSON.stringify({
-            id: `offline_${Date.now()}`,
-            isAnonymous: true,
-            createdAt: new Date().toISOString(),
-          })
-        );
-        router.replace('/(tabs)');
-      }
-    } catch {
-      try {
-        await SecureStore.setItemAsync(
-          OFFLINE_GUEST_KEY,
-          JSON.stringify({
-            id: `offline_${Date.now()}`,
-            isAnonymous: true,
-            createdAt: new Date().toISOString(),
-          })
-        );
-        router.replace('/(tabs)');
-      } catch {
-        setToast('Error al iniciar sesión como invitado');
+      if (!networkState.isConnected) {
+        setToast('Se necesita conexión a internet para entrar como invitado');
         setIsGuestLoading(false);
+        return;
       }
+      await signIn.anonymous();
+      clearSessionTokenCache();
+      await waitForSessionToken();
+      router.replace('/(tabs)');
+    } catch {
+      setToast('Error al iniciar sesión como invitado');
+      setIsGuestLoading(false);
     }
   };
 
@@ -563,6 +542,7 @@ export default function LoginChoiceScreen() {
           <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
         </Pressable>
       </View>
+      <Toast message={toast} onDismiss={() => setToast(null)} position="bottom" />
     </View>
   );
 }

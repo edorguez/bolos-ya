@@ -1,9 +1,11 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
 import { PressableScale } from '../../components/shared/PressableScale';
+import { useSession } from '../../lib/auth-client';
+import { useEffect } from 'react';
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const theme = useAppTheme();
@@ -113,7 +115,34 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   );
 }
 
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+});
+
 export default function TabsLayout() {
+  const { data: session, isPending } = useSession();
+  const router = useRouter();
+  const theme = useAppTheme();
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.replace('/(onboarding)/step-1');
+    }
+  }, [isPending, session, router]);
+
+  if (isPending || !session) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.colors.midnight} />
+      </View>
+    );
+  }
+
   return (
     <Tabs
       screenOptions={{

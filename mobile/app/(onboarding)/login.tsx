@@ -7,6 +7,7 @@ import { Input } from '../../components/shared/Input';
 import { signIn } from '../../lib/auth-client';
 import { Toast } from '../../components/shared/Toast';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Network from 'expo-network';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -31,6 +32,11 @@ export default function LoginScreen() {
 
     setIsLoading(true);
     try {
+      const networkState = await Network.getNetworkStateAsync();
+      if (!networkState.isConnected) {
+        setToast('Se necesita conexión a internet para iniciar sesión');
+        return;
+      }
       const result = await signIn.email({
         email: email.trim(),
         password,

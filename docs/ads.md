@@ -12,6 +12,14 @@ the app is rebuilt with the native module and published.
 **Plan model:** Free users see ads; premium users see **no ads**. See
 `PROJECT_SPEC.md` §7.5 (Plans & Monetization).
 
+**Premium gating is expiry-aware.** `GET /api/v1/auth/me` returns the *effective*
+premium status via `User.IsActivePremium()` (flag **and** `premiumUntil` still in
+the future), and the client's `useIsPremium()` hook re-checks `premiumUntil`
+locally. Ads render only when `isPremium === false && isResolved === true`
+(`isResolved` is false while premium status loads, so premium users never get a
+flash of ads). Interstitial ads additionally bail out inside `show()` so a
+stale loaded ad can never be presented after a user becomes premium.
+
 ## AdMob Account
 
 - Publisher ID: `ca-app-pub-1019164072675452`
@@ -42,8 +50,11 @@ the var names only.
 | Placement | Format | Location |
 |-----------|--------|----------|
 | Home in-feed | Native advanced | `app/(tabs)/index.tsx` (`AdNative`) |
+| History in-feed | Native advanced | `app/(tabs)/history.tsx` (`AdNative`) |
+| Profile | Banner | `app/(tabs)/profile.tsx` (`AdBanner`) |
 | After checkout | Interstitial | `app/(cart)/[id].tsx` (`useInterstitialAd`) |
 | Cart detail | Banner | `app/(cart)/[id].tsx` (`AdBanner`) |
+| Every 10 scans | Interstitial | `app/(cart)/scan.tsx` (`useInterstitialAd`) |
 
 ## TODO — before / at launch
 

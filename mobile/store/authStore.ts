@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSession, signOut } from '../lib/auth-client';
 import { apiGet, clearSessionTokenCache } from '../services/api';
-import * as SecureStore from 'expo-secure-store';
-
-const OFFLINE_GUEST_KEY = 'merki.offline.guest';
 
 interface AuthUser {
   id: string;
@@ -18,25 +15,20 @@ interface AuthUser {
 
 interface GetMeData {
   userId: string;
+  name: string;
   isPremium: boolean;
   isAnonymous: boolean;
   premiumUntil?: string | null;
 }
 
-interface OfflineGuest {
-  id: string;
-  isAnonymous: boolean;
-  createdAt: string;
-}
-
 export function useAuth() {
   const { data: session, isPending } = useSession();
   const [internalUserId, setInternalUserId] = useState<string | null>(null);
+  const [backendName, setBackendName] = useState<string | null>(null);
   const [premiumData, setPremiumData] = useState<{
     isPremium: boolean;
     premiumUntil?: string | null;
   } | null>(null);
-  const [offlineGuest, setOfflineGuest] = useState<OfflineGuest | null>(null);
 
   // The API client caches the bearer token at module level. Drop that cache
   // whenever the session user changes (login/logout/migration) so requests
@@ -47,22 +39,11 @@ export function useAuth() {
   }, [sessionUserId]);
 
   useEffect(() => {
-    SecureStore.getItemAsync(OFFLINE_GUEST_KEY).then(raw => {
-      if (raw) {
-        try {
-          setOfflineGuest(JSON.parse(raw));
-        } catch {
-          // ignore
-        }
-      }
-    });
-  }, []);
-
-  useEffect(() => {
     if (session?.user && !internalUserId) {
       apiGet<{ success: boolean; data: GetMeData }>('/auth/me')
         .then(res => {
           setInternalUserId(res.data.userId);
+          setBackendName(res.data.name || null);
           setPremiumData({
             isPremium: res.data.isPremium,
             premiumUntil: res.data.premiumUntil,
@@ -70,9 +51,13 @@ export function useAuth() {
         })
         .catch(() => {
           setInternalUserId(session.user.id);
+          setBackendName(null);
           setPremiumData({
             isPremium: (session.user as Record<string, unknown>).isPremium === true,
-            premiumUntil: null,
+            premiumUntil: (session.user as Record<string, unknown>).premiumUntil as
+              | string
+              | null
+              | undefined,
           });
         });
     }
@@ -87,33 +72,39 @@ export function useAuth() {
           premiumData?.isPremium ?? (session.user as Record<string, unknown>).isPremium === true,
         isAnonymous: (session.user as Record<string, unknown>).isAnonymous === true,
         premiumUntil: premiumData?.premiumUntil,
-        name: session.user.name,
+        name: backendName ?? session.user.name,
         image: (session.user as Record<string, unknown>).image as string | null | undefined,
       }
-    : offlineGuest
-      ? {
-          id: offlineGuest.id,
-          userId: offlineGuest.id,
-          email: '',
-          isPremium: false,
-          isAnonymous: true,
-          premiumUntil: null,
-          name: 'Invitado',
-          image: null,
-        }
-      : null;
+    : null;
+
+  // True once we know the user's premium status with certainty (from /auth/me
+  // or a settled logged-out session). Until then, ad components must render
+  // nothing so premium users never see a flash of ads.
+  const premiumResolved = premiumData !== null || (!isPending && !session?.user);
 
   const handleLogout = async () => {
     clearSessionTokenCache();
-    await SecureStore.deleteItemAsync(OFFLINE_GUEST_KEY);
     await signOut();
-    setOfflineGuest(null);
   };
 
   return {
     user,
-    isLoading: isPending && !offlineGuest,
-    isAuthenticated: !!session || !!offlineGuest,
+    isLoading: isPending,
+    premiumResolved,
     logout: handleLogout,
   };
+}
+
+// Single source of truth for ad gating: a user is premium only while the flag
+// is set AND premiumUntil (when present) is still in the future. `isResolved`
+// is false while the premium status is still loading — ads must not render then.
+export function useIsPremium(): { isPremium: boolean; isResolved: boolean } {
+  const { user, premiumResolved } = useAuth();
+
+  let isPremium = user?.isPremium === true;
+  if (isPremium && user?.premiumUntil) {
+    isPremium = new Date(user.premiumUntil).getTime() > Date.now();
+  }
+
+  return { isPremium, isResolved: premiumResolved };
 }

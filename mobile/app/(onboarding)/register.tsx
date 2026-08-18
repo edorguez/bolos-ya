@@ -7,11 +7,13 @@ import { Input } from '../../components/shared/Input';
 import { signUp } from '../../lib/auth-client';
 import { Toast } from '../../components/shared/Toast';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Network from 'expo-network';
 
 export default function RegisterScreen() {
   const router = useRouter();
   const theme = useAppTheme();
   const buttonStyles = createButtonStyles(theme);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,6 +24,14 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     setToast(null);
+    if (!name.trim()) {
+      setToast('Ingresa tu nombre');
+      return;
+    }
+    if (name.trim().length > 20) {
+      setToast('El nombre debe tener máximo 20 caracteres');
+      return;
+    }
     if (!email.trim()) {
       setToast('Ingresa tu correo electrónico');
       return;
@@ -41,10 +51,15 @@ export default function RegisterScreen() {
 
     setIsLoading(true);
     try {
+      const networkState = await Network.getNetworkStateAsync();
+      if (!networkState.isConnected) {
+        setToast('Se necesita conexión a internet para crear la cuenta');
+        return;
+      }
       const result = await signUp.email({
         email: email.trim(),
         password,
-        name: email.trim().split('@')[0],
+        name: name.trim(),
       });
       if (result.error) {
         setToast('Error al crear la cuenta');
@@ -141,6 +156,18 @@ export default function RegisterScreen() {
           </View>
 
           <View style={styles.form}>
+            <Input
+              leadingIcon={
+                <MaterialIcons name="person-outline" size={20} color={theme.colors.textSecondary} />
+              }
+              placeholder="Nombre (máx. 20 caracteres)"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+              editable={!isLoading}
+              maxLength={20}
+            />
+
             <Input
               leadingIcon={
                 <MaterialIcons name="mail-outline" size={20} color={theme.colors.textSecondary} />

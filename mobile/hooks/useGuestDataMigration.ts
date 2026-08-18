@@ -3,38 +3,64 @@ import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '../store/authStore';
 import { migrationService } from '../services/migrationService';
 
-const OFFLINE_GUEST_KEY = 'merki.offline.guest';
+const PREV_IDENTITY_KEY = 'merki.prev.identity';
+
+interface StoredIdentity {
+  id: string;
+  isAnonymous: boolean;
+}
 
 export function useGuestDataMigration() {
   const { user } = useAuth();
   const attemptedRef = useRef(false);
 
   useEffect(() => {
-    if (attemptedRef.current) return;
-    if (!user?.id || user.isAnonymous) return;
-
+    if (!user?.id) return;
     let cancelled = false;
+
     (async () => {
-      let raw: string | null = null;
+      let prevRaw: string | null = null;
       try {
-        raw = await SecureStore.getItemAsync(OFFLINE_GUEST_KEY);
+        prevRaw = await SecureStore.getItemAsync(PREV_IDENTITY_KEY);
       } catch {
         return;
       }
-      if (cancelled || !raw) return;
 
-      let guest: { id?: string } | null = null;
-      try {
-        guest = JSON.parse(raw);
-      } catch {
-        return;
+      let prev: StoredIdentity | null = null;
+      if (prevRaw) {
+        try {
+          prev = JSON.parse(prevRaw) as StoredIdentity;
+        } catch {
+          // corrupted value — ignore
+        }
       }
-      if (!guest?.id) return;
 
-      attemptedRef.current = true;
-      const result = await migrationService.migrateGuestData(guest.id, user.id);
-      if (result.success) {
-        await SecureStore.deleteItemAsync(OFFLINE_GUEST_KEY).catch(() => {});
+      const shouldMigrate =
+        !cancelled &&
+        !user.isAnonymous &&
+        !!prev?.id &&
+        prev.isAnonymous === true &&
+        prev.id !== user.id &&
+        !attemptedRef.current;
+
+      if (shouldMigrate && prev?.id) {
+        attemptedRef.current = true;
+        const result = await migrationService.migrateGuestData(prev.id, user.id);
+        if (result.success) {
+          await SecureStore.deleteItemAsync(PREV_IDENTITY_KEY).catch(() => {});
+        } else {
+          // Allow a retry on the next identity change or app restart.
+          attemptedRef.current = false;
+        }
+      }
+
+      // Always record the current identity so the next anonymous → registered
+      // transition knows where the previous data lives.
+      if (!cancelled) {
+        const current = JSON.stringify({ id: user.id, isAnonymous: user.isAnonymous });
+        if (prevRaw !== current) {
+          await SecureStore.setItemAsync(PREV_IDENTITY_KEY, current).catch(() => {});
+        }
       }
     })();
 

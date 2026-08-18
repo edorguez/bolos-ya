@@ -1,5 +1,6 @@
 import { getDb } from '../lib/local/database';
 import { cartRepository } from '../lib/local/repositories/cartRepository';
+import { cartProductRepository } from '../lib/local/repositories/cartProductRepository';
 import { syncQueue } from '../lib/local/syncQueue';
 import { syncService } from './syncService';
 import { toCents } from '../utils/priceUtils';
@@ -39,6 +40,29 @@ export const migrationService = {
           budgetUsd: toCents(cart.budgetUsd),
           userId: newUserId,
         });
+
+        // Carry the cart's products so migrated carts are not empty.
+        const products = await cartProductRepository.getByCartId(cart.id);
+        for (const product of products) {
+          const productAlreadyQueued = await syncQueue.hasPendingOp(
+            SYNC_TABLES.CART_PRODUCTS,
+            product.id
+          );
+          if (productAlreadyQueued) continue;
+
+          await syncQueue.enqueue(SYNC_TABLES.CART_PRODUCTS, SYNC_ACTIONS.INSERT, product.id, {
+            id: product.id,
+            cartId: cart.id,
+            supermarketId: cart.supermarketId,
+            name: product.name,
+            priceUsd: toCents(product.priceUsd),
+            priceBs: toCents(product.priceBs),
+            quantity: product.quantity,
+            isManualEntry: product.isManualEntry,
+            imageUrl: product.imageUrl || null,
+            userId: newUserId,
+          });
+        }
       }
 
       await syncService.syncAll(newUserId);

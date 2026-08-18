@@ -1,12 +1,12 @@
 import { StyleSheet, View } from 'react-native';
 import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
-import { useAuth } from '../../store/authStore';
+import { useIsPremium } from '../../store/authStore';
 import { BANNER_AD_UNIT_ID } from '../../lib/ads';
 
 export function AdBanner() {
-  const { user } = useAuth();
+  const { isPremium, isResolved } = useIsPremium();
 
-  if (user?.isPremium) {
+  if (isPremium || !isResolved) {
     return null;
   }
 

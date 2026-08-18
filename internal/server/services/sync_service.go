@@ -665,14 +665,15 @@ func (s *syncService) processUserOperation(ctx context.Context, userID uuid.UUID
 			return false, err.Error()
 		}
 
+		// Only email and name are client-settable here. Premium and anonymous
+		// flags are managed server-side (payment approval + the session
+		// middleware), so client-supplied values are rejected to prevent
+		// self-granting premium.
 		if email, ok := op.Payload["email"].(string); ok {
 			user.Email = email
 		}
-		if isPremium, ok := op.Payload["isPremium"].(bool); ok {
-			user.IsPremium = isPremium
-		}
-		if isAnonymous, ok := op.Payload["isAnonymous"].(bool); ok {
-			user.IsAnonymous = isAnonymous
+		if name, ok := op.Payload["name"].(string); ok {
+			user.Name = models.TruncateName(name)
 		}
 
 		if err := s.userRepo.Update(ctx, user); err != nil {

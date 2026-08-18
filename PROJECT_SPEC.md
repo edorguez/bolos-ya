@@ -201,7 +201,7 @@ func NewCartService(cartRepo repository.CartRepository, productRepo repository.P
 - **State Management**: Zustand for cart data (`store/cartStore.ts`) with `zustand/middleware` persist layer backed by AsyncStorage — survives app restarts. Custom React hooks for auth (`store/authStore.ts` with SecureStore offline guest support) and BCV rate (`store/bcvStore.ts` with AsyncStorage cache, offline-first).
 - **HTTP Client**: Custom `fetch`‑based API client (`mobile/services/api.ts`). Sends the better-auth session token as `Authorization: Bearer` + `X-User-ID` header. Backend URL is resolved via `lib/env.ts` (auto-detects device host in dev mode).
 - **Caching**: AsyncStorage for BCV rate (reduces API calls), Zustand cart store persistence, and auth session data (via expo-secure-store).
-- **Auth Client**: `lib/auth-client.ts` — better-auth Expo plugin with SecureStore storage + anonymous guest plugin. Supports offline guest mode with local SecureStore fallback.
+- **Auth Client**: `lib/auth-client.ts` — better-auth Expo plugin with SecureStore storage + anonymous guest plugin. Sign-in/sign-up (email, Google, anonymous) **always requires internet** — there is no offline-guest fallback. The session is cached in SecureStore (`better-auth_session_data`) so the app remains fully usable offline afterward, until the session expires.
 - **OCR**: `@infinitered/react-native-mlkit-text-recognition` for on‑device price extraction from receipt photos. Image preprocessing via `expo-image-manipulator` (crop + resize to 1200px). Falls back to mock data if ML Kit unavailable. Works fully offline.
 - **Manual Entry**: `ManualEntryModal` for adding products without a receipt (barcode, prices, quantity). Works fully offline.
 - **Styling**: Shared design-token system — `styles/theme.ts` (colors, spacing, typography, border radii, shadows) plus shared factories (`styles/buttons.ts`, `styles/cards.ts`, `styles/inputs.ts`) and shared components (`Button`, `Input`). Unistyles is used only by `styles/profileStyles.ts`. Light theme only (no dark mode / `useColorScheme()`).
@@ -329,6 +329,7 @@ CREATE TABLE users (
     id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     better_auth_user_id VARCHAR(255) UNIQUE NOT NULL,
     email              VARCHAR(100) UNIQUE,
+    name               VARCHAR(20) NOT NULL DEFAULT '',  -- display name, capped at 20 chars
     auth_provider      VARCHAR(20) CHECK (auth_provider IN ('email','google','guest')),
     is_premium         BOOLEAN DEFAULT FALSE,
     is_anonymous       BOOLEAN DEFAULT FALSE,
@@ -469,11 +470,15 @@ RejectedStatusID = "a3333333-3333-4a33-9a33-333333333333"
 
 - **Free plan (default):** The app displays ads to the user.
 - **Premium plan:** No ads. Future premium-only features are planned but not yet available (see §13).
+- **Premium benefits (source of truth — keep mobile copy in sync):**
+  1. **Ad-free experience** — the only current premium benefit.
+  2. **Access to future features** — planned premium-only features, not yet available.
+  The in-app copy in `mobile/components/profile/PremiumCard.tsx` and `mobile/app/(premium)/plans.tsx` (both list "Sin publicidad en la app" / "Acceso a futuras funciones") must match these two items exactly.
 - Premium is an **entitlement flag, not a login level** — all users (email, Google, anonymous guests) can log in and use the app identically.
 - Premium status is stored in both the application `users` table (`is_premium`, `premium_until`) and the better-auth `"user"` table (`isPremium`, `premiumUntil`); both are kept in sync by the Go backend on payment approval/rejection.
 - **Grant path:** An admin approves a pago-móvil payment in the web dashboard (`PUT /api/v1/payments/:paymentId` with `statusId` = approved). The Go backend sets `is_premium = true`, computes `premium_until` by extending the current (or future) expiry by `numberOfMonths` calendar months (1 / 3 / 12), writes both tables, and calls the auth-server's `/api/auth/update-premium` endpoint.
 - **Revoke path:** Admin rejects a payment → `is_premium = false`, `premium_until = NULL` in both tables.
-- **No feature limits are enforced in the MVP.** Free and premium users currently have identical functionality; the only difference is ad display. Carts, products, OCR scans, saved products, and price reports are all unlimited for everyone.
+- **No feature limits are enforced in the MVP.** Free and premium users currently have identical functionality; the only difference is ad display. Carts, products, OCR scans, saved products, and price reports are all unlimited for everyone — **do not** advertise these as premium benefits.
 
 ### 7.6 Seed Data
 
@@ -493,7 +498,7 @@ Authentication is handled by a **standalone auth server** (`auth-server/`) using
 3. **Auth Server** exposes a `POST /api/auth/validate-session` endpoint that validates a Bearer token using a **two-path approach**:
    - **Fast path (direct SQL):** Looks up the session token in the `session` table with `expiresAt > NOW()`.
    - **Fallback (better-auth handler):** If no direct match, sends a synthetic request to better-auth's `get-session` endpoint with the token as a cookie.
-   - Returns `{ user: { id, email, isAnonymous } }` or `null`.
+   - Returns `{ user: { id, email, name, isAnonymous } }` or `null`.
 4. **Go Middleware** passes the Bearer token to the auth server's validate endpoint, retrieves the user info, and auto‑creates/updates the application user record in the `users` table.
 5. **Handlers** use `GetUserIDFromContext(c)` to access the authenticated user's UUID.
 
@@ -510,15 +515,15 @@ Authentication is handled by a **standalone auth server** (`auth-server/`) using
 ### 8.3 Authorization
 
 - **Free vs Premium**: Premium is an entitlement flag, not a login level — all users (email, Google, anonymous guests) can log in and use the app. Premium currently means **ad-free**; no feature gating exists yet. The Go backend keeps `users.is_premium`/`premium_until` and better-auth's `"user"."isPremium"`/`premiumUntil` in sync on payment approval/rejection.
-- **Guest users**: Supported via better-auth anonymous sessions (`"isAnonymous"`).
+- **Guest users**: Supported via better-auth anonymous sessions (`"isAnonymous"`). Signing in as a guest **always requires internet** (no offline fallback); after sign-in the app works offline via the cached session. Anonymous users who later register with email/Google trigger a **universal local migration** (`useGuestDataMigration`) plus a server-side ownership transfer (`onLinkAccount` → `POST /api/v1/auth/internal/migrate-user-data`) so carts and products carry over.
 - **Roles**: Identified by better-auth's `role` field. Supported values: `user`, `staff`, `admin`. A CLI script (`auth-server/scripts/set-role.ts`) can promote a user by email.
 - **Admin/staff users**: Access the web admin dashboard at `/admin/payments` to manage premium subscription payments (approve/reject).
 
 ### 8.4 Known Issues & Security Gaps
 
 - **`/api/auth/update-premium` is unauthenticated** (`auth-server/src/server.ts`): any caller that can reach the auth server and knows a `userId` can flip that user's premium status. It should require a shared secret or an authenticated admin call.
-- **Premium self-grant via sync**: `POST /api/v1/sync` accepts a client-supplied `isPremium` payload and writes it to the Go `users` table (`internal/server/services/sync_service.go`), diverging from the better-auth record. Client-sent premium fields should be rejected.
-- **No premium-expiry job**: nothing clears `is_premium` when `premium_until` passes; `User.IsActivePremium()` is defined but unused. A cron job is needed to expire premium entitlements.
+- **Premium self-grant via sync**: **Fixed** — `POST /api/v1/sync` no longer applies client-supplied `isPremium`/`isAnonymous` fields to the `users` table (`internal/server/services/sync_service.go`); premium and anonymous flags are managed server-side only.
+- **No premium-expiry job**: nothing clears `is_premium` when `premium_until` passes in the DB. `GET /api/v1/auth/me` now returns `User.IsActivePremium()` (flag **and** expiry), so expired users correctly see ads again; the DB flag itself is only cleaned on the next write. A cron job to clear stale flags is still recommended.
 - **Non-transactional approval**: payment update, Go user update, and auth-server update run as separate writes in goroutines (`internal/server/services/payment_service.go`); a failure can leave the two sources of truth inconsistent.
 - **Wholesale revocation**: rejecting any payment sets `is_premium = false` even when the user has other approved payments. Rejection should recompute the entitlement from remaining approved payments.
 
@@ -574,7 +579,7 @@ Location: `mobile/services/syncService.ts`
 
 | Screen | Offline | Notes |
 |--------|---------|-------|
-| **Login/Register** | Partial | Guest mode works offline via SecureStore; email/Google auth requires internet |
+| **Login/Register** | Requires internet | Sign-in/sign-up (email, Google, anonymous) needs internet; cached sessions keep the app usable offline afterward |
 | **Home (Create Cart)** | ✅ Full | Carts created locally, synced when online |
 | **Cart Detail** | ✅ Full | Add/edit/delete products locally, quantities, checkout |
 | **Scan (OCR)** | ✅ Full | ML Kit runs on-device; products added locally |
@@ -583,12 +588,12 @@ Location: `mobile/services/syncService.ts`
 | **Premium (Plans, Pago-móvil)** | ❌ Requires internet | Network guard at layout level redirects to profile |
 | **Ads (free tier)** | Online only | Free users see ads only when online; premium users see none |
 
-### 9.7 Guest Mode Offline
+### 9.7 Offline After Authentication
 
-- When the user taps "Entrar como Invitado" without internet, a local guest session is stored in `expo-secure-store` with a generated UUID
-- All local CRUD operations work with this guest identity
-- When the user registers later, `services/migrationService.ts` calls `POST /api/v1/auth/internal/migrate-user-data` with all pending sync operations to merge data into the new account
-- Auth sessions are cached for up to **7 days** before requiring re-authentication
+- Sign-in/sign-up (email, Google, anonymous) **always requires internet** — there is no offline-guest fallback.
+- Once authenticated, the better-auth session is cached in SecureStore (`better-auth_session_data`); `useSession` hydrates from that cache when offline, so the app keeps working (carts, sync queue, BCV cache, history local fallback) until the session expires.
+- **Universal identity migration**: `useGuestDataMigration` persists the current identity (`merki.prev.identity`) and, whenever the session transitions **anonymous → registered** (or to any different account), calls `migrationService.migrateGuestData(oldId, newId)` to re-key local carts/supermarkets and re-upload any unsynced carts **and their products** to the new account. The better-auth `onLinkAccount` hook additionally transfers already-synced server data via the backend.
+- Auth sessions are cached until their better-auth `expiresAt`; after expiry, re-authentication requires internet.
 
 ### 9.8 Backend Sync Endpoint
 

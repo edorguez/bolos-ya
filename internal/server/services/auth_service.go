@@ -21,11 +21,11 @@ import (
 )
 
 type AuthService interface {
-	GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string, isAnonymous bool) (*models.User, error)
-	GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string, isAnonymous bool) (*models.User, error)
+	GetOrCreateUser(ctx context.Context, betterAuthUserID, email, name, authProvider string, isAnonymous bool) (*models.User, error)
+	GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, name, authProvider string, isAnonymous bool) (*models.User, error)
 	GetUserByID(ctx context.Context, betterAuthUserID string) (*models.User, error)
 	UpdateUserPremium(ctx context.Context, betterAuthUserID string, isPremium bool, premiumUntil *time.Time) error
-	MigrateUserData(ctx context.Context, fromBetterAuthUserId, toBetterAuthUserId, email, authProvider string) error
+	MigrateUserData(ctx context.Context, fromBetterAuthUserId, toBetterAuthUserId, email, name, authProvider string) error
 }
 
 type authService struct {
@@ -48,7 +48,7 @@ func NewAuthService(userRepo repository.UserRepository, emailSvc email.Service, 
 // ID so its session token keeps working instead of failing with a unique
 // constraint conflict. It returns (nil, nil) when no soft-deleted record exists
 // and the caller should create a fresh one.
-func (s *authService) recoverSoftDeletedUser(ctx context.Context, betterAuthUserID, userEmail, authProvider string, isAnonymous bool) (*models.User, error) {
+func (s *authService) recoverSoftDeletedUser(ctx context.Context, betterAuthUserID, userEmail, name, authProvider string, isAnonymous bool) (*models.User, error) {
 	existing, err := s.userRepo.FindByBetterAuthUserIDUnscoped(ctx, betterAuthUserID)
 	if err != nil {
 		if errors.Is(err, apperrors.ErrNotFound) {
@@ -65,6 +65,9 @@ func (s *authService) recoverSoftDeletedUser(ctx context.Context, betterAuthUser
 	if existing.Email == "" {
 		existing.Email = betterAuthUserID + "@anonymous.local"
 	}
+	if name != "" {
+		existing.Name = models.TruncateName(name)
+	}
 	if authProvider != "" {
 		existing.AuthProvider = authProvider
 	}
@@ -77,7 +80,7 @@ func (s *authService) recoverSoftDeletedUser(ctx context.Context, betterAuthUser
 	return existing, nil
 }
 
-func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, email, authProvider string, isAnonymous bool) (*models.User, error) {
+func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, email, name, authProvider string, isAnonymous bool) (*models.User, error) {
 	user, err := s.userRepo.FindByBetterAuthUserID(ctx, betterAuthUserID)
 	if err != nil {
 		if !errors.Is(err, apperrors.ErrNotFound) {
@@ -87,13 +90,13 @@ func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, ema
 		// A soft-deleted user may exist for this token (e.g. after a guest to
 		// registered migration). Recover it instead of creating a duplicate,
 		// which would violate the better_auth_user_id unique constraint.
-		if recovered, recErr := s.recoverSoftDeletedUser(ctx, betterAuthUserID, email, authProvider, isAnonymous); recErr != nil {
+		if recovered, recErr := s.recoverSoftDeletedUser(ctx, betterAuthUserID, email, name, authProvider, isAnonymous); recErr != nil {
 			return nil, recErr
 		} else if recovered != nil {
 			return recovered, nil
 		}
 
-		user = models.NewUserFromBetterAuth(betterAuthUserID, email, authProvider, isAnonymous)
+		user = models.NewUserFromBetterAuth(betterAuthUserID, email, models.TruncateName(name), authProvider, isAnonymous)
 		if err := s.userRepo.Create(ctx, user); err != nil {
 			// Race: user was created concurrently (e.g. by MigrateUserData). Retry find.
 			if dup, dupErr := s.userRepo.FindByBetterAuthUserID(ctx, betterAuthUserID); dupErr == nil {
@@ -112,6 +115,9 @@ func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, ema
 
 	if user.Email != email {
 		user.Email = email
+	}
+	if name != "" && user.Name != name {
+		user.Name = models.TruncateName(name)
 	}
 	if authProvider != "" {
 		user.AuthProvider = authProvider
@@ -149,7 +155,7 @@ func (s *authService) sendWelcomeEmail(user *models.User) {
 	}()
 }
 
-func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, authProvider string, isAnonymous bool) (*models.User, error) {
+func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, name, authProvider string, isAnonymous bool) (*models.User, error) {
 	user, err := s.userRepo.FindByBetterAuthUserID(ctx, userID)
 	if err != nil {
 		if !errors.Is(err, apperrors.ErrNotFound) {
@@ -159,7 +165,7 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 		// A soft-deleted user may exist for this token (e.g. after a guest to
 		// registered migration). Recover it instead of creating a duplicate,
 		// which would violate the better_auth_user_id unique constraint.
-		if recovered, recErr := s.recoverSoftDeletedUser(ctx, userID, userEmail, authProvider, isAnonymous); recErr != nil {
+		if recovered, recErr := s.recoverSoftDeletedUser(ctx, userID, userEmail, name, authProvider, isAnonymous); recErr != nil {
 			return nil, recErr
 		} else if recovered != nil {
 			return recovered, nil
@@ -174,7 +180,7 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 			provider = constants.AuthProviderEmail
 		}
 
-		user = models.NewUserFromBetterAuth(userID, userEmail, provider, isAnonymous)
+		user = models.NewUserFromBetterAuth(userID, userEmail, models.TruncateName(name), provider, isAnonymous)
 		if err := s.userRepo.Create(ctx, user); err != nil {
 			// Race: user was created concurrently (e.g. by MigrateUserData). Retry find.
 			if dup, dupErr := s.userRepo.FindByBetterAuthUserID(ctx, userID); dupErr == nil {
@@ -193,6 +199,9 @@ func (s *authService) GetOrCreateUserFromHeaders(ctx context.Context, userID, us
 
 	if userEmail != "" && user.Email != userEmail {
 		user.Email = userEmail
+	}
+	if name != "" && user.Name != name {
+		user.Name = models.TruncateName(name)
 	}
 	if authProvider != "" {
 		user.AuthProvider = authProvider
@@ -242,9 +251,13 @@ func (s *authService) UpdateUserPremium(ctx context.Context, betterAuthUserID st
 	return nil
 }
 
-func (s *authService) MigrateUserData(ctx context.Context, fromBetterAuthUserId, toBetterAuthUserId, email, authProvider string) error {
+func (s *authService) MigrateUserData(ctx context.Context, fromBetterAuthUserId, toBetterAuthUserId, email, name, authProvider string) error {
 	user, err := s.userRepo.FindByBetterAuthUserID(ctx, fromBetterAuthUserId)
 	if err != nil {
+		if errors.Is(err, apperrors.ErrNotFound) {
+			// Idempotent: the source user was already migrated/deleted.
+			return nil
+		}
 		return fmt.Errorf("failed to find source user: %w", err)
 	}
 
@@ -254,13 +267,16 @@ func (s *authService) MigrateUserData(ctx context.Context, fromBetterAuthUserId,
 	}
 
 	if err == nil {
+		if destUser.ID == user.ID {
+			return nil
+		}
 		if err := s.userRepo.TransferUserData(ctx, user.ID, destUser.ID); err != nil {
 			return fmt.Errorf("failed to transfer anonymous data: %w", err)
 		}
 		return s.userRepo.Delete(ctx, user.ID)
 	}
 
-	destUser = models.NewUserFromBetterAuth(toBetterAuthUserId, email, authProvider, false)
+	destUser = models.NewUserFromBetterAuth(toBetterAuthUserId, email, models.TruncateName(name), authProvider, false)
 	if err := s.userRepo.Create(ctx, destUser); err != nil {
 		return fmt.Errorf("failed to create destination user: %w", err)
 	}

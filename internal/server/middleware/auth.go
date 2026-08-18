@@ -49,7 +49,7 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 
-		betterAuthUserID, betterAuthEmail, isAnonymous, role, err := m.validateSession(c.Request.Context(), parts[1])
+		betterAuthUserID, betterAuthEmail, betterAuthName, isAnonymous, role, err := m.validateSession(c.Request.Context(), parts[1])
 		if err != nil {
 			utils.UnauthorizedResponse(c)
 			c.Abort()
@@ -63,7 +63,7 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 			userEmail = betterAuthEmail
 		}
 
-		user, err := m.authService.GetOrCreateUserFromHeaders(c.Request.Context(), betterAuthUserID, userEmail, authProvider, isAnonymous)
+		user, err := m.authService.GetOrCreateUserFromHeaders(c.Request.Context(), betterAuthUserID, userEmail, betterAuthName, authProvider, isAnonymous)
 		if err != nil {
 			utils.InternalErrorResponse(c)
 			c.Abort()
@@ -86,12 +86,13 @@ type sessionCacheData struct {
 	User struct {
 		ID          string `json:"id"`
 		Email       string `json:"email"`
+		Name        string `json:"name"`
 		IsAnonymous bool   `json:"isAnonymous"`
 		Role        string `json:"role"`
 	} `json:"user"`
 }
 
-func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (string, string, bool, string, error) {
+func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (string, string, string, bool, string, error) {
 	if m.redisClient != nil {
 		cacheKey := sessionCacheKey(token)
 		cached, err := m.redisClient.Get(ctx, cacheKey).Result()
@@ -99,7 +100,7 @@ func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (str
 			var cachedResult sessionCacheData
 			if json.Unmarshal([]byte(cached), &cachedResult) == nil && cachedResult.User.ID != "" {
 				m.redisClient.Expire(ctx, cacheKey, sessionCacheTTL)
-				return cachedResult.User.ID, cachedResult.User.Email, cachedResult.User.IsAnonymous, cachedResult.User.Role, nil
+				return cachedResult.User.ID, cachedResult.User.Email, cachedResult.User.Name, cachedResult.User.IsAnonymous, cachedResult.User.Role, nil
 			}
 		}
 	}
@@ -107,33 +108,33 @@ func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (str
 	body := map[string]string{"token": token}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
-		return "", "", false, "", fmt.Errorf("failed to marshal request body: %w", err)
+		return "", "", "", false, "", fmt.Errorf("failed to marshal request body: %w", err)
 	}
 
 	url := m.betterAuthURL + "/api/auth/validate-session"
 	req, err := http.NewRequestWithContext(ctx, "POST", url, strings.NewReader(string(jsonBody)))
 	if err != nil {
-		return "", "", false, "", fmt.Errorf("failed to create request: %w", err)
+		return "", "", "", false, "", fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", "", false, "", fmt.Errorf("failed to call auth server: %w", err)
+		return "", "", "", false, "", fmt.Errorf("failed to call auth server: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", "", false, "", fmt.Errorf("auth server returned status %d", resp.StatusCode)
+		return "", "", "", false, "", fmt.Errorf("auth server returned status %d", resp.StatusCode)
 	}
 
 	var result sessionCacheData
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", "", false, "", fmt.Errorf("failed to decode auth server response: %w", err)
+		return "", "", "", false, "", fmt.Errorf("failed to decode auth server response: %w", err)
 	}
 
 	if result.User.ID == "" {
-		return "", "", false, "", fmt.Errorf("empty user ID in auth server response")
+		return "", "", "", false, "", fmt.Errorf("empty user ID in auth server response")
 	}
 
 	if m.redisClient != nil {
@@ -143,7 +144,7 @@ func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (str
 		}
 	}
 
-	return result.User.ID, result.User.Email, result.User.IsAnonymous, result.User.Role, nil
+	return result.User.ID, result.User.Email, result.User.Name, result.User.IsAnonymous, result.User.Role, nil
 }
 
 func GetUserIDFromContext(c *gin.Context) (string, bool) {

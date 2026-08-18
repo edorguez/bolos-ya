@@ -15,7 +15,6 @@ import { Avatar } from '../../components/profile/Avatar';
 import { PremiumCard } from '../../components/profile/PremiumCard';
 import { PremiumActiveCard } from '../../components/profile/PremiumActiveCard';
 import { AnonymousPromptCard } from '../../components/profile/AnonymousPromptCard';
-import { GuestCard } from '../../components/profile/GuestCard';
 import { Toast } from '../../components/shared/Toast';
 import { FadeIn } from '../../components/shared/FadeIn';
 import { useAppTheme } from '../../styles/theme';
@@ -29,7 +28,7 @@ import { AdBanner } from '../../components/ads/AdBanner';
 export default function ProfileTab() {
   const theme = useAppTheme();
   const router = useRouter();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout } = useAuth();
   const isPremium = user?.isPremium || false;
   const styles = profileStyles(theme);
   const [isOnline, setIsOnline] = useState(true);
@@ -77,64 +76,55 @@ export default function ProfileTab() {
         contentContainerStyle={[styles.content as ViewStyle, { paddingBottom: 140 }]}
         showsVerticalScrollIndicator={false}
       >
-        {isAuthenticated ? (
-          <>
-            <FadeIn delay={0}>
-              <View style={styles.profileHeader as ViewStyle}>
-                <Avatar uri={user?.image || undefined} />
+        <>
+          <FadeIn delay={0}>
+            <View style={styles.profileHeader as ViewStyle}>
+              <Avatar uri={user?.image || undefined} />
 
-                {!user?.isAnonymous ? (
-                  <Text style={styles.profileName as TextStyle}>Usuario</Text>
-                ) : (
-                  <Text style={styles.profileName as TextStyle}>Usuario Anónimo</Text>
-                )}
-
-                {!user?.isAnonymous && (
-                  <Text style={styles.profileEmail as TextStyle}>{user?.email || ''}</Text>
-                )}
-              </View>
-            </FadeIn>
-
-            <FadeIn delay={120} distance={12}>
-              {user?.isAnonymous ? (
-                <AnonymousPromptCard onLoginPress={handleCreateAccount} />
-              ) : isPremium ? (
-                <PremiumActiveCard
-                  premiumUntil={user?.premiumUntil}
-                  onUpgradePress={handleUpgrade}
-                />
+              {!user?.isAnonymous ? (
+                <Text style={styles.profileName as TextStyle}>{user?.name || 'Usuario'}</Text>
               ) : (
-                <PremiumCard onUpgradePress={handleUpgrade} />
+                <Text style={styles.profileName as TextStyle}>Usuario Anónimo</Text>
               )}
-            </FadeIn>
 
-            {!user?.isAnonymous && (
-              <FadeIn delay={220} distance={12}>
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.logoutButton as ViewStyle,
-                    pressed && (styles.logoutButtonPressed as ViewStyle),
-                  ]}
-                  onPress={handleLogout}
-                >
-                  <Text style={styles.logoutText as TextStyle}>Cerrar Sesión</Text>
-                </Pressable>
-              </FadeIn>
-            )}
-          </>
-        ) : (
-          <FadeIn>
-            <GuestCard onCreateAccountPress={handleCreateAccount} />
+              {!user?.isAnonymous && (
+                <Text style={styles.profileEmail as TextStyle}>{user?.email || ''}</Text>
+              )}
+            </View>
           </FadeIn>
-        )}
+
+          <FadeIn delay={120} distance={12}>
+            {user?.isAnonymous ? (
+              <AnonymousPromptCard onLoginPress={handleCreateAccount} />
+            ) : isPremium ? (
+              <PremiumActiveCard premiumUntil={user?.premiumUntil} onUpgradePress={handleUpgrade} />
+            ) : (
+              <PremiumCard onUpgradePress={handleUpgrade} />
+            )}
+          </FadeIn>
+
+          <View>
+            <AdBanner />
+          </View>
+
+          {!user?.isAnonymous && (
+            <FadeIn delay={220} distance={12}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.logoutButton as ViewStyle,
+                  pressed && (styles.logoutButtonPressed as ViewStyle),
+                ]}
+                onPress={handleLogout}
+              >
+                <Text style={styles.logoutText as TextStyle}>Cerrar Sesión</Text>
+              </Pressable>
+            </FadeIn>
+          )}
+        </>
 
         <Text style={styles.versionText as TextStyle}>
           Merki v{Constants.expoConfig?.version || '2.4.0'}
         </Text>
-
-        <View style={{ marginTop: theme.spacing.sm }}>
-          <AdBanner />
-        </View>
       </ScrollView>
       <Toast message={toast} onDismiss={() => setToast(null)} />
     </View>

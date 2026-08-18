@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { AdEventType, InterstitialAd } from 'react-native-google-mobile-ads';
-import { useAuth } from '../../store/authStore';
+import { useIsPremium } from '../../store/authStore';
 import { INTERSTITIAL_AD_UNIT_ID } from '../../lib/ads';
 
 export function useInterstitialAd() {
-  const { user } = useAuth();
-  const isPremium = user?.isPremium === true;
+  const { isPremium, isResolved } = useIsPremium();
   const interstitialRef = useRef<InterstitialAd | null>(null);
   const closeResolverRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    if (isPremium) {
+    if (isPremium || !isResolved) {
       return;
     }
 
@@ -34,10 +33,14 @@ export function useInterstitialAd() {
     return () => {
       closed();
       error();
+      interstitialRef.current = null;
     };
-  }, [isPremium]);
+  }, [isPremium, isResolved]);
 
   const show = useCallback((): Promise<void> => {
+    if (isPremium) {
+      return Promise.resolve();
+    }
     const ad = interstitialRef.current;
     if (!ad || !ad.loaded) {
       return Promise.resolve();
@@ -46,7 +49,7 @@ export function useInterstitialAd() {
       closeResolverRef.current = resolve;
       ad.show();
     });
-  }, []);
+  }, [isPremium]);
 
   return { show };
 }

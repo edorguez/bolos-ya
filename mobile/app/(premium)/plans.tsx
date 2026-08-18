@@ -44,7 +44,7 @@ const BILLING_OPTIONS: BillingOption[] = [
   },
 ];
 
-const PREMIUM_FEATURES = ['OCR Scanner ilimitado', 'Carritos ilimitados', 'Soporte prioritario'];
+const PREMIUM_FEATURES = ['Sin publicidad en la app', 'Acceso a futuras funciones'];
 
 export default function PlansScreen() {
   const theme = useAppTheme();

@@ -46,6 +46,7 @@ func (h *AuthHandler) SyncUser(c *gin.Context) {
 		c.Request.Context(),
 		userID,
 		req.Email,
+		req.Name,
 		req.AuthProvider,
 		req.IsAnonymous,
 	)
@@ -63,8 +64,9 @@ func (h *AuthHandler) SyncUser(c *gin.Context) {
 		ID:               user.ID.String(),
 		BetterAuthUserID: user.BetterAuthUserID,
 		Email:            user.Email,
+		Name:             user.Name,
 		AuthProvider:     user.AuthProvider,
-		IsPremium:        user.IsPremium,
+		IsPremium:        user.IsActivePremium(),
 		IsAnonymous:      user.IsAnonymous,
 		PremiumUntil:     premiumUntil,
 		CreatedAt:        user.CreatedAt.Format(time.RFC3339),
@@ -100,7 +102,8 @@ func (h *AuthHandler) GetMe(c *gin.Context) {
 
 	utils.SuccessResponse(c, dto.GetMeResponse{
 		UserID:       userID,
-		IsPremium:    user.IsPremium,
+		Name:         user.Name,
+		IsPremium:    user.IsActivePremium(),
 		IsAnonymous:  user.IsAnonymous,
 		PremiumUntil: premiumUntil,
 	})
@@ -129,7 +132,7 @@ func (h *AuthHandler) MigrateUserData(c *gin.Context) {
 		return
 	}
 
-	if err := h.authService.MigrateUserData(c.Request.Context(), req.FromBetterAuthUserId, req.ToBetterAuthUserId, req.Email, req.AuthProvider); err != nil {
+	if err := h.authService.MigrateUserData(c.Request.Context(), req.FromBetterAuthUserId, req.ToBetterAuthUserId, req.Email, req.Name, req.AuthProvider); err != nil {
 		h.handleError(c, err)
 		return
 	}
