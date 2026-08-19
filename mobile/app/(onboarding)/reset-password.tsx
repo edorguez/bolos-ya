@@ -20,24 +20,24 @@ export default function ResetPasswordScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; isError: boolean } | null>(null);
 
   const handleReset = async () => {
     setToast(null);
     if (!token) {
-      setToast('El enlace no es válido o ha expirado');
+      setToast({ message: 'El enlace no es válido o ha expirado', isError: true });
       return;
     }
     if (!password) {
-      setToast('Ingresa una nueva contraseña');
+      setToast({ message: 'Ingresa una nueva contraseña', isError: true });
       return;
     }
     if (password.length < 8) {
-      setToast('La contraseña debe tener al menos 8 caracteres');
+      setToast({ message: 'La contraseña debe tener al menos 8 caracteres', isError: true });
       return;
     }
     if (password !== confirmPassword) {
-      setToast('Las contraseñas no coinciden');
+      setToast({ message: 'Las contraseñas no coinciden', isError: true });
       return;
     }
 
@@ -45,21 +45,32 @@ export default function ResetPasswordScreen() {
     try {
       const networkState = await Network.getNetworkStateAsync();
       if (!networkState.isConnected) {
-        setToast('Se necesita conexión a internet para restablecer tu contraseña');
+        setToast({
+          message: 'Se necesita conexión a internet para restablecer tu contraseña',
+          isError: true,
+        });
         return;
       }
       const result = await resetPassword({ newPassword: password, token });
       if (result.error) {
-        setToast('El enlace no es válido o ha expirado. Solicita uno nuevo.');
+        setToast({
+          message: 'El enlace no es válido o ha expirado. Solicita uno nuevo.',
+          isError: true,
+        });
         return;
       }
-      setToast('Contraseña actualizada. Inicia sesión con tu nueva contraseña.');
+      setToast({
+        message: 'Contraseña actualizada. Inicia sesión con tu nueva contraseña.',
+        isError: false,
+      });
       setTimeout(() => {
         router.replace('/(onboarding)/login');
       }, 1200);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al restablecer la contraseña';
-      setToast(message);
+    } catch {
+      setToast({
+        message: 'Error al restablecer la contraseña. Inténtalo de nuevo.',
+        isError: true,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -251,7 +262,12 @@ export default function ResetPasswordScreen() {
           </View>
         </View>
       </ScrollView>
-      <Toast message={toast} onDismiss={() => setToast(null)} position="bottom" />
+      <Toast
+        message={toast?.message ?? null}
+        isError={toast?.isError ?? true}
+        onDismiss={() => setToast(null)}
+        position="bottom"
+      />
     </View>
   );
 }
