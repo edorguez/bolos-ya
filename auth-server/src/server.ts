@@ -1,8 +1,21 @@
 import 'dotenv/config'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serve } from '@hono/node-server'
 import { auth, pool } from './auth-config.js'
+
+// Static HTML pages served by dedicated routes. Kept out of the source so no
+// markup is hardcoded in code. Resolved from the `public/` folder next to
+// `src/` (dev) / `dist/` (build) and read once at startup.
+const publicDir = fileURLToPath(new URL('../public', import.meta.url))
+
+const pages = {
+  resetPassword: readFileSync(`${publicDir}/reset-password.html`, 'utf8'),
+  resetPasswordInvalid: readFileSync(`${publicDir}/reset-password-invalid.html`, 'utf8'),
+  expoAuthProxy: readFileSync(`${publicDir}/expo-auth-proxy.html`, 'utf8'),
+}
 
 const app = new Hono()
 
@@ -89,7 +102,6 @@ app.post('/api/auth/update-premium', async (c) => {
 // follow 302 redirects from HTTP to HTTPS, causing a blank page.
 app.get('/api/auth/expo-authorization-proxy', async (c) => {
   const authorizationURL = c.req.query('authorizationURL')
-  const oauthState = c.req.query('oauthState')
 
   if (!authorizationURL) {
     return c.json({ error: 'authorizationURL is required' }, 400)
@@ -115,25 +127,25 @@ app.get('/api/auth/expo-authorization-proxy', async (c) => {
   }
 
   // 1s delay before redirect ensures cookies are committed before navigation
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="refresh" content="1;url=${encodeURI(authorizationURL)}">
-</head>
-<body style="background:#121212;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
-  <p>Redirecting...</p>
-  <script>setTimeout(function(){window.location.href=${JSON.stringify(authorizationURL)};},800);</script>
-</body>
-</html>`
-
   const headers = new Headers()
   headers.set('Content-Type', 'text/html; charset=utf-8')
   for (const cookie of setCookies) {
     headers.append('Set-Cookie', cookie)
   }
 
-  return new Response(html, { status: 200, headers })
+  return new Response(pages.expoAuthProxy, { status: 200, headers })
+})
+
+// Password reset deep-link redirect. Email clients (Gmail) block custom URL
+// schemes, so the email link is an https URL that jumps into the app here.
+app.get('/reset-password', (c) => {
+  const token = c.req.query('token') || ''
+
+  if (!token) {
+    return c.html(pages.resetPasswordInvalid, 400)
+  }
+
+  return c.html(pages.resetPassword)
 })
 
 app.all('/api/auth/*', async (c) => {

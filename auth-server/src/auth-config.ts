@@ -28,7 +28,7 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, token }) => {
       // The reset link points straight at the mobile deep link. The email is
       // rendered and sent by the Go backend, which owns all email templates.
-      const resetUrl = `${process.env.RESET_PASSWORD_URL || 'merki://reset-password'}?token=${token}`
+      const resetUrl = `${process.env.RESET_PASSWORD_URL || 'https://auth.somosmerki.app/reset-password'}?token=${token}`
       const goBackendUrl = process.env.GO_BACKEND_URL || 'http://localhost:8080'
 
       const response = await fetch(
