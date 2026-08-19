@@ -33,6 +33,8 @@ export default function OnboardingLayout() {
           <Stack.Screen name="login-choice" />
           <Stack.Screen name="login" />
           <Stack.Screen name="register" />
+          <Stack.Screen name="forgot-password" />
+          <Stack.Screen name="reset-password" />
         </Stack>
       </OnboardingChrome>
     </SafeAreaView>

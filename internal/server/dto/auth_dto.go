@@ -38,3 +38,9 @@ type MigrateUserDataRequest struct {
 	AuthProvider         string          `json:"authProvider"`
 	Operations           []SyncOperation `json:"operations,omitempty"`
 }
+
+type ForgotPasswordRequest struct {
+	Email    string `json:"email" validate:"required,email,max=100"`
+	Name     string `json:"name" validate:"omitempty,max=20"`
+	ResetURL string `json:"resetUrl" validate:"required"`
+}

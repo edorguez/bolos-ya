@@ -90,6 +90,7 @@ func main() {
 		supermarketService,
 		bcvRateService,
 		cfg.Auth.BetterAuthURL,
+		cfg.Auth.InternalAuthSecret,
 		log,
 		redisClient,
 	)

@@ -13,9 +13,46 @@ export const auth = betterAuth({
     'merki://',
     ...(process.env.TRUSTED_ORIGINS?.split(',').map((o) => o.trim()) || []),
   ],
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 20,
+    customRules: {
+      '/request-password-reset': { window: 60, max: 5 },
+    },
+  },
   database: pool,
   emailAndPassword: {
     enabled: true,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, token }) => {
+      // The reset link points straight at the mobile deep link. The email is
+      // rendered and sent by the Go backend, which owns all email templates.
+      const resetUrl = `${process.env.RESET_PASSWORD_URL || 'merki://reset-password'}?token=${token}`
+      const goBackendUrl = process.env.GO_BACKEND_URL || 'http://localhost:8080'
+
+      const response = await fetch(
+        `${goBackendUrl}/api/v1/auth/internal/send-reset-password-email`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.INTERNAL_API_KEY}`,
+          },
+          body: JSON.stringify({
+            email: user.email,
+            name: user.name,
+            resetUrl,
+          }),
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error(
+          `send reset password email failed: ${response.status} ${await response.text()}`,
+        )
+      }
+    },
   },
   socialProviders: {
     google: {

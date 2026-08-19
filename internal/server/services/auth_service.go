@@ -26,6 +26,7 @@ type AuthService interface {
 	GetUserByID(ctx context.Context, betterAuthUserID string) (*models.User, error)
 	UpdateUserPremium(ctx context.Context, betterAuthUserID string, isPremium bool, premiumUntil *time.Time) error
 	MigrateUserData(ctx context.Context, fromBetterAuthUserId, toBetterAuthUserId, email, name, authProvider string) error
+	SendPasswordResetEmail(ctx context.Context, email, name, resetURL string) error
 }
 
 type authService struct {
@@ -131,6 +132,13 @@ func (s *authService) GetOrCreateUser(ctx context.Context, betterAuthUserID, ema
 
 func (s *authService) GetUserByID(ctx context.Context, betterAuthUserID string) (*models.User, error) {
 	return s.userRepo.FindByBetterAuthUserID(ctx, betterAuthUserID)
+}
+
+func (s *authService) SendPasswordResetEmail(ctx context.Context, email, name, resetURL string) error {
+	if name == "" {
+		name = strings.Split(email, "@")[0]
+	}
+	return s.emailSvc.SendPasswordReset(ctx, email, name, resetURL)
 }
 
 func (s *authService) sendWelcomeEmail(user *models.User) {

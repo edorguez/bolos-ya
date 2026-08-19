@@ -109,6 +109,21 @@ func (h *AuthHandler) GetMe(c *gin.Context) {
 	})
 }
 
+func (h *AuthHandler) RequestPasswordReset(c *gin.Context) {
+	var req dto.ForgotPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, dto.ValidateRequest(req))
+		return
+	}
+
+	if err := h.authService.SendPasswordResetEmail(c.Request.Context(), req.Email, req.Name, req.ResetURL); err != nil {
+		utils.InternalErrorResponse(c)
+		return
+	}
+
+	utils.SuccessResponse(c, gin.H{"message": "email de restablecimiento enviado"})
+}
+
 func (h *AuthHandler) MigrateUserData(c *gin.Context) {
 	userAny, exists := c.Get(constants.CtxUserKey)
 	if !exists {

@@ -71,6 +71,37 @@ paths:
         "401":
           description: Invalid credentials
 
+  /auth/internal/send-reset-password-email:
+    post:
+      summary: Send a password reset email (internal, auth-server to Go)
+      description: >
+        Sends the password reset email via Resend using the Go backend's email
+        templates. Called by the auth-server (better-auth `sendResetPassword`
+        hook). NOT intended for mobile clients. Authenticated with the shared
+        INTERNAL_API_KEY secret.
+      operationId: sendResetPasswordEmail
+      security:
+        - internalApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPasswordRequest"
+      responses:
+        "200":
+          description: Reset password email sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleResponse"
+        "400":
+          description: Validation error
+        "401":
+          description: Invalid or missing internal API key
+        "500":
+          description: Failed to send email
+
   /sync:
     post:
       summary: Sync offline operations
@@ -169,6 +200,38 @@ components:
         user:
           $ref: "#/components/schemas/User"
 
+    ForgotPasswordRequest:
+      type: object
+      required:
+        - email
+        - resetUrl
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        name:
+          type: string
+          description: Display name of the user (falls back to email prefix)
+          example: "Ana"
+        resetUrl:
+          type: string
+          description: Full deep-link URL carrying the reset token
+          example: "merki://reset-password?token=abc123"
+
+    SimpleResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "email de restablecimiento enviado"
+
     SyncOperation:
       type: object
       properties:
@@ -212,3 +275,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    internalApiKey:
+      type: http
+      scheme: bearer
+      description: Shared INTERNAL_API_KEY secret used for auth-server to Go service calls

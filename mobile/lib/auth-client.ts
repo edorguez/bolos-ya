@@ -9,4 +9,5 @@ export const authClient = createAuthClient({
   plugins: [expoClient({ storage: SecureStore, scheme: 'merki' }), anonymousClient()],
 });
 
-export const { signIn, signUp, signOut, useSession } = authClient;
+export const { signIn, signUp, signOut, useSession, requestPasswordReset, resetPassword } =
+  authClient;

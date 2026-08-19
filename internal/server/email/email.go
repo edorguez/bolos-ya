@@ -48,10 +48,17 @@ type PaymentRejectedData struct {
 	SupportPhone  string
 }
 
+type PasswordResetData struct {
+	Name     string
+	Email    string
+	ResetURL string
+}
+
 type Service interface {
 	SendWelcome(ctx context.Context, to, name string) error
 	SendPaymentApproved(ctx context.Context, to, name, premiumUntil string) error
 	SendPaymentRejected(ctx context.Context, to, name, reason, customMessage string) error
+	SendPasswordReset(ctx context.Context, to, name, resetURL string) error
 }
 
 type service struct {
@@ -95,6 +102,34 @@ func (s *service) SendWelcome(ctx context.Context, to, name string) error {
 	}
 
 	s.log.Info("welcome email sent", zap.String("to", to))
+	return nil
+}
+
+func (s *service) SendPasswordReset(ctx context.Context, to, name, resetURL string) error {
+	var buf bytes.Buffer
+	if err := templates.ExecuteTemplate(&buf, "reset-password.gohtml", PasswordResetData{
+		Name:     name,
+		Email:    to,
+		ResetURL: resetURL,
+	}); err != nil {
+		return fmt.Errorf("render reset password template: %w", err)
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	params := &resend.SendEmailRequest{
+		From:    s.from,
+		To:      []string{to},
+		Subject: "Restablece tu contraseña en Merki",
+		Html:    buf.String(),
+	}
+
+	if _, err := s.client.Emails.SendWithContext(ctx, params); err != nil {
+		return fmt.Errorf("send reset password email via resend: %w", err)
+	}
+
+	s.log.Info("reset password email sent", zap.String("to", to))
 	return nil
 }
 

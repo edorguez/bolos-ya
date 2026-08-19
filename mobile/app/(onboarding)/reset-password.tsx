@@ -1,32 +1,43 @@
 import { useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
 import { createButtonStyles } from '../../styles/buttons';
 import { Input } from '../../components/shared/Input';
-import { signIn } from '../../lib/auth-client';
+import { resetPassword } from '../../lib/auth-client';
 import { Toast } from '../../components/shared/Toast';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Network from 'expo-network';
 
-export default function LoginScreen() {
+export default function ResetPasswordScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ token?: string }>();
+  const token = typeof params.token === 'string' ? params.token : '';
   const theme = useAppTheme();
   const buttonStyles = createButtonStyles(theme);
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
-  const handleLogin = async () => {
+  const handleReset = async () => {
     setToast(null);
-    if (!email.trim()) {
-      setToast('Ingresa tu correo electrónico');
+    if (!token) {
+      setToast('El enlace no es válido o ha expirado');
       return;
     }
     if (!password) {
-      setToast('Ingresa tu contraseña');
+      setToast('Ingresa una nueva contraseña');
+      return;
+    }
+    if (password.length < 8) {
+      setToast('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setToast('Las contraseñas no coinciden');
       return;
     }
 
@@ -34,20 +45,20 @@ export default function LoginScreen() {
     try {
       const networkState = await Network.getNetworkStateAsync();
       if (!networkState.isConnected) {
-        setToast('Se necesita conexión a internet para iniciar sesión');
+        setToast('Se necesita conexión a internet para restablecer tu contraseña');
         return;
       }
-      const result = await signIn.email({
-        email: email.trim(),
-        password,
-      });
+      const result = await resetPassword({ newPassword: password, token });
       if (result.error) {
-        setToast('Correo o contraseña incorrectos');
+        setToast('El enlace no es válido o ha expirado. Solicita uno nuevo.');
         return;
       }
-      router.replace('/(tabs)');
+      setToast('Contraseña actualizada. Inicia sesión con tu nueva contraseña.');
+      setTimeout(() => {
+        router.replace('/(onboarding)/login');
+      }, 1200);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al iniciar sesión';
+      const message = err instanceof Error ? err.message : 'Error al restablecer la contraseña';
       setToast(message);
     } finally {
       setIsLoading(false);
@@ -92,7 +103,7 @@ export default function LoginScreen() {
     form: {
       gap: theme.spacing.md,
     },
-    loginButton: {
+    resetButton: {
       ...buttonStyles.base,
       backgroundColor: theme.colors.midnight,
       paddingVertical: theme.spacing.md,
@@ -101,36 +112,56 @@ export default function LoginScreen() {
       flexDirection: 'row',
       gap: theme.spacing.sm,
     },
-    loginButtonText: {
+    resetButtonText: {
       color: theme.colors.white,
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },
-    forgotPassword: {
-      alignSelf: 'flex-end',
-      paddingVertical: theme.spacing.xs,
-    },
-    forgotPasswordText: {
-      color: theme.colors.emberOrange,
-      fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.semibold,
-    },
-    footer: {
+    invalid: {
       alignItems: 'center',
+      gap: theme.spacing.sm,
       paddingVertical: theme.spacing.lg,
     },
-    footerText: {
+    invalidText: {
       fontSize: theme.typography.fontSize.sm,
       color: theme.colors.textSecondary,
-    },
-    link: {
-      color: theme.colors.emberOrange,
-      fontWeight: theme.typography.fontWeight.semibold,
+      textAlign: 'center',
     },
   });
 
+  if (!token) {
+    return (
+      <View style={styles.container}>
+        <View style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}>
+          <Pressable
+            onPress={() => router.replace('/(onboarding)/login')}
+            style={styles.backButton}
+          >
+            <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
+          </Pressable>
+        </View>
+        <View style={[styles.content, { flex: 1, justifyContent: 'center' }]}>
+          <View style={styles.invalid}>
+            <MaterialIcons name="error-outline" size={48} color={theme.colors.coralRed} />
+            <Text style={styles.invalidText}>
+              El enlace no es válido o ha expirado. Solicita uno nuevo desde la pantalla de inicio
+              de sesión.
+            </Text>
+            <Pressable
+              onPress={() => router.replace('/(onboarding)/login')}
+              style={({ pressed }) => [styles.resetButton, pressed && buttonStyles.pressed]}
+            >
+              <MaterialIcons name="login" size={20} color={theme.colors.white} />
+              <Text style={styles.resetButtonText}>Ir a Iniciar Sesión</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+    <View style={styles.container}>
       <View style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={24} color={theme.colors.text} />
@@ -139,25 +170,12 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
         <View style={styles.content}>
           <View style={styles.header}>
-            <MaterialIcons name="lock" size={48} color={theme.colors.midnight} />
-            <Text style={styles.title}>Iniciar Sesión</Text>
-            <Text style={styles.subtitle}>Ingresa tus credenciales para continuar</Text>
+            <MaterialIcons name="lock-reset" size={48} color={theme.colors.midnight} />
+            <Text style={styles.title}>Nueva contraseña</Text>
+            <Text style={styles.subtitle}>Ingresa una contraseña nueva para tu cuenta</Text>
           </View>
 
           <View style={styles.form}>
-            <Input
-              leadingIcon={
-                <MaterialIcons name="mail-outline" size={20} color={theme.colors.textSecondary} />
-              }
-              placeholder="Correo electrónico"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              autoComplete="email"
-              editable={!isLoading}
-            />
-
             <Input
               leadingIcon={
                 <MaterialIcons name="lock-outline" size={20} color={theme.colors.textSecondary} />
@@ -176,7 +194,7 @@ export default function LoginScreen() {
                   />
                 </Pressable>
               }
-              placeholder="Contraseña"
+              placeholder="Nueva contraseña (mín. 8 caracteres)"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -185,22 +203,38 @@ export default function LoginScreen() {
               maxLength={20}
             />
 
-            <Pressable
-              onPress={() => router.push('/(onboarding)/forgot-password')}
-              hitSlop={8}
-              disabled={isLoading}
-              accessibilityRole="button"
-              accessibilityLabel="Restablecer contraseña"
-              style={styles.forgotPassword}
-            >
-              <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
-            </Pressable>
+            <Input
+              leadingIcon={
+                <MaterialIcons name="lock-outline" size={20} color={theme.colors.textSecondary} />
+              }
+              trailingAction={
+                <Pressable
+                  onPress={() => setShowConfirm(!showConfirm)}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={showConfirm ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  <MaterialIcons
+                    name={showConfirm ? 'visibility-off' : 'visibility'}
+                    size={20}
+                    color={theme.colors.textSecondary}
+                  />
+                </Pressable>
+              }
+              placeholder="Confirmar contraseña"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!showConfirm}
+              autoCapitalize="none"
+              editable={!isLoading}
+              maxLength={20}
+            />
 
             <Pressable
-              onPress={handleLogin}
+              onPress={handleReset}
               disabled={isLoading}
               style={({ pressed }) => [
-                styles.loginButton,
+                styles.resetButton,
                 pressed && buttonStyles.pressed,
                 isLoading && { opacity: 0.6 },
               ]}
@@ -209,20 +243,11 @@ export default function LoginScreen() {
                 <ActivityIndicator size="small" color={theme.colors.white} />
               ) : (
                 <>
-                  <MaterialIcons name="login" size={20} color={theme.colors.white} />
-                  <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+                  <MaterialIcons name="vpn-key" size={20} color={theme.colors.white} />
+                  <Text style={styles.resetButtonText}>Restablecer contraseña</Text>
                 </>
               )}
             </Pressable>
-          </View>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              ¿No tienes cuenta?{' '}
-              <Text style={styles.link} onPress={() => router.push('/(onboarding)/register')}>
-                Regístrate
-              </Text>
-            </Text>
           </View>
         </View>
       </ScrollView>

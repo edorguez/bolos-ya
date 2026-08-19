@@ -24,6 +24,7 @@ func SetupRoutes(
 	supermarketService services.SupermarketService,
 	bcvRateService services.BCVRateService,
 	betterAuthURL string,
+	internalAuthSecret string,
 	log *logger.Logger,
 	redisClient goredis.Cmdable,
 ) *gin.Engine {
@@ -56,6 +57,15 @@ func SetupRoutes(
 
 	apiV1 := router.Group("/api/v1")
 	{
+		// Internal service-to-service endpoints (auth-server → Go). These are
+		// reachable from the public internet, so they require a shared secret
+		// instead of a user session.
+		internalAuth := apiV1.Group("/auth/internal")
+		internalAuth.Use(internalmiddleware.InternalAuthMiddleware(internalAuthSecret))
+		{
+			internalAuth.POST("/send-reset-password-email", authHandler.RequestPasswordReset)
+		}
+
 		protected := apiV1.Group("")
 		protected.Use(authMiddleware.Handler())
 		{
