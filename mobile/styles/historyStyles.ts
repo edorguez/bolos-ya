@@ -21,8 +21,8 @@ export function createHistoryStyles(theme: AppTheme) {
       width: '100%',
     },
     headerLogo: {
-      width: 24,
       height: 24,
+      aspectRatio: 1380 / 664,
     },
     historyList: {
       gap: theme.spacing.md,

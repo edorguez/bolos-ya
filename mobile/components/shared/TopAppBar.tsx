@@ -63,8 +63,8 @@ export function TopAppBar({
       letterSpacing: theme.typography.letterSpacing.lg,
     },
     logo: {
-      width: theme.sizes.logo,
-      height: theme.sizes.logo,
+      height: 20,
+      aspectRatio: 1380 / 664,
     },
     rightContainer: {
       minWidth: theme.sizes.iconButton,

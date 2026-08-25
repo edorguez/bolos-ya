@@ -2,12 +2,12 @@
   "expo": {
     "name": "Merki",
     "slug": "merki",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/system/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/system/splash-icon.png",
+      "image": "./assets/system/merki_logo_text_vertical.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -56,7 +56,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#ffffff",
-          "image": "./assets/system/splash-icon.png",
+          "image": "./assets/system/merki_logo_text_vertical.png",
           "resizeMode": "contain"
         }
       ],

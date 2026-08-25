@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, StyleSheet, type LayoutChangeEvent } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Platform, type LayoutChangeEvent } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { CameraView, Camera } from 'expo-camera';
-import { Accelerometer } from 'expo-sensors';
 import { useAppTheme } from '../../styles/theme';
 import { createScanStyles } from '../../styles/scanStyles';
 import { TopAppBar } from '../../components/shared/TopAppBar';
@@ -17,7 +16,7 @@ import { useAuth } from '../../store/authStore';
 import { useBCV } from '../../store/bcvStore';
 import { addCartProduct } from '../../services/cartService';
 import { Toast } from '../../components/shared/Toast';
-import { scanImage, preprocessImage, rotateImage } from '../../lib/ocr';
+import { scanImage, preprocessImage } from '../../lib/ocr';
 import { useInterstitialAd } from '../../components/ads/useInterstitialAd';
 import { safeGetItem, safeSetItem } from '../../utils/storage';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -77,12 +76,6 @@ export default function ScanScreen() {
     height: number;
   } | null>(null);
 
-  // Physical device rotation (degrees, counter-clockwise from upright:
-  // 0 = upright, 90 = head-left, 180 = upside-down, 270 = head-right). The
-  // app is portrait-locked, so the camera's capture rotation is based on this
-  // physical angle, and EXIF orientation is unreliable across devices.
-  const deviceAngleRef = useRef<number | null>(null);
-
   const handleCameraLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
     cameraLayoutRef.current = { width, height };
@@ -111,21 +104,6 @@ export default function ScanScreen() {
   }, []);
 
   useEffect(() => {
-    let active = true;
-    Accelerometer.setUpdateInterval(100);
-    const subscription = Accelerometer.addListener(({ x, y }) => {
-      if (!active) return;
-      const raw = (Math.atan2(-x, -y) * 180) / Math.PI;
-      deviceAngleRef.current = ((raw % 360) + 360) % 360;
-    });
-    return () => {
-      active = false;
-      subscription.remove();
-      Accelerometer.removeAllListeners();
-    };
-  }, []);
-
-  useEffect(() => {
     (async () => {
       const value = await safeGetItem(SCAN_COUNT_KEY);
       const parsed = value ? parseInt(value, 10) : 0;
@@ -145,7 +123,7 @@ export default function ScanScreen() {
       const photo = await cameraRef.current.takePictureAsync({
         quality: 1.0,
         base64: false,
-        exif: true,
+        exif: false,
         shutterSound: false,
       });
 
@@ -164,73 +142,37 @@ export default function ScanScreen() {
       const validMeasure = camW > 0 && camH > 0 && scanW > 0 && scanH > 0;
 
       if (validMeasure) {
-        const containerLandscape = camW > camH;
-        const photoLandscape = photo.width > photo.height;
+        // The camera already returns the photo upright (matching the preview),
+        // so no manual rotation is applied. The preview fits the feed inside the
+        // container (FIT_CENTER with black bars on Android when ratio is 16:9,
+        // aspect-fill crop on iOS). Map the scan box through the same fit so the
+        // crop is exactly what the user framed.
+        const photoW = photo.width;
+        const photoH = photo.height;
+        const fitMode = Platform.OS === 'android';
+        const previewScale = fitMode
+          ? Math.min(camW / photoW, camH / photoH)
+          : Math.max(camW / photoW, camH / photoH);
+        const gapX = fitMode
+          ? (camW - photoW * previewScale) / 2
+          : -(photoW * previewScale - camW) / 2;
+        const gapY = fitMode
+          ? (camH - photoH * previewScale) / 2
+          : -(photoH * previewScale - camH) / 2;
 
-        let photoUri = photo.uri;
-        let photoW = photo.width;
-        let photoH = photo.height;
-        let rotationDeg = 0;
-        const deviceAngle = deviceAngleRef.current;
-
-        // Rotate the captured photo so it matches the (portrait) preview.
-        // EXIF orientation is unreliable across devices (some cameras report
-        // 0/1 even when rotated), so the direction is derived from the physical
-        // device orientation reported by the accelerometer. The raw photo is
-        // normally landscape and is rotated 90°/270° to become portrait; when
-        // the phone is upside down the camera returns a portrait raw that must
-        // be flipped 180° instead.
-        if (deviceAngle !== null) {
-          if (photoLandscape) {
-            // Only the head-left position needs 270° CW; upright and head-right
-            // both need 90° CW.
-            rotationDeg = deviceAngle >= 45 && deviceAngle < 135 ? 270 : 90;
-          } else {
-            rotationDeg = deviceAngle >= 135 && deviceAngle < 225 ? 180 : 0;
-          }
-        } else {
-          const orientation = (photo.exif as Record<string, unknown> | undefined)?.Orientation;
-          if (orientation === 6) rotationDeg = 90;
-          else if (orientation === 8) rotationDeg = 270;
-          else if (orientation === 3) rotationDeg = 180;
-          else rotationDeg = photoLandscape ? 90 : 0;
-        }
-
-        if (rotationDeg !== 0) {
-          try {
-            const rotated = await rotateImage(photo.uri, rotationDeg);
-            photoUri = rotated.uri;
-            photoW = rotated.width;
-            photoH = rotated.height;
-          } catch {
-            rotationDeg = 0;
-          }
-        }
-
-        // The preview and the captured photo show the same full frame, so the
-        // box maps onto the photo with a simple per-axis scale (the photo is a
-        // scaled copy of what the user framed).
-        const scaleX = photoW / camW;
-        const scaleY = photoH / camH;
-        const originX = Math.round(relX * scaleX);
-        const originY = Math.round(relY * scaleY);
-        const width = Math.round(scanW * scaleX);
-        const height = Math.round(scanH * scaleY);
+        const originX = Math.round((relX - gapX) / previewScale);
+        const originY = Math.round((relY - gapY) / previewScale);
+        const width = Math.round(scanW / previewScale);
+        const height = Math.round(scanH / previewScale);
 
         console.log('[SCAN] crop', {
-          photoW: photo.width,
-          photoH: photo.height,
+          photoW,
+          photoH,
           cam: { camW, camH },
           scan: { relX, relY, scanW, scanH },
-          containerLandscape,
-          photoLandscape,
-          rotationDeg,
-          deviceAngle,
-          exifOrientation: (photo.exif as Record<string, unknown> | undefined)?.Orientation,
-          cropPhotoW: photoW,
-          cropPhotoH: photoH,
-          scaleX,
-          scaleY,
+          previewScale,
+          gapX,
+          gapY,
           originX,
           originY,
           width,
@@ -245,7 +187,7 @@ export default function ScanScreen() {
           height: h,
         } = clampCrop(originX, originY, width, height, photoW, photoH);
 
-        processedUri = await preprocessImage(photoUri, {
+        processedUri = await preprocessImage(photo.uri, {
           originX: ox,
           originY: oy,
           width: w,

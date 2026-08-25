@@ -53,7 +53,7 @@ export default function CheckoutSuccessScreen() {
     },
     button: {
       ...buttonStyles.base,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.xxl,
       width: '100%',
@@ -61,7 +61,7 @@ export default function CheckoutSuccessScreen() {
       alignItems: 'center',
     },
     buttonText: {
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
       fontSize: theme.typography.fontSize.md,
       fontWeight: theme.typography.fontWeight.semibold,
     },

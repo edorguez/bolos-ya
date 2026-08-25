@@ -78,12 +78,12 @@ export function AdNative() {
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.xs,
       borderRadius: theme.borderRadius.full,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
     },
     ctaText: {
       fontSize: theme.typography.fontSize.xs,
       fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
     },
     media: {
       width: '100%',

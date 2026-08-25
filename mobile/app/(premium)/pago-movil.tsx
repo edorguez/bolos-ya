@@ -338,7 +338,7 @@ export default function PagoMovilScreen() {
       },
       submitButton: {
         ...buttonStyles.base,
-        backgroundColor: theme.colors.midnight,
+        backgroundColor: theme.colors.primary,
         paddingVertical: theme.spacing.md,
         alignItems: 'center',
       },
@@ -348,7 +348,7 @@ export default function PagoMovilScreen() {
       submitText: {
         fontSize: theme.typography.fontSize.sm,
         fontWeight: theme.typography.fontWeight.semibold,
-        color: theme.colors.white,
+        color: theme.colors.onPrimary,
       },
     });
   }, [theme, buttonStyles, cardStyles]);

@@ -77,7 +77,7 @@ const stylesheet = StyleSheet.create(theme => {
     manualButton: {
       ...buttonStyles.base,
       flex: 1,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.md,
       flexDirection: 'row',
       alignItems: 'center',
@@ -85,7 +85,7 @@ const stylesheet = StyleSheet.create(theme => {
       gap: 8,
     },
     manualButtonText: {
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },

@@ -78,12 +78,12 @@ export function createCartDetailStyles(theme: AppTheme) {
       gap: theme.spacing.xs,
       paddingVertical: theme.spacing.xs,
       paddingHorizontal: theme.spacing.sm,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
     },
     buttonText: {
       fontSize: theme.typography.fontSize.xs,
       fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
       flexShrink: 1,
     },
     buttonCircle: {

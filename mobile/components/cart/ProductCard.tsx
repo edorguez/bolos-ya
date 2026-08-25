@@ -96,7 +96,7 @@ const stylesheet = StyleSheet.create(theme => {
     },
     priceUsd: {
       fontSize: theme.typography.fontSize.xxs,
-      color: theme.colors.onSurfaceVariant,
+      color: theme.colors.primaryText,
     },
     quantityControls: {
       flexDirection: 'row',
@@ -180,7 +180,7 @@ function ProductCardComponent({
                   <MaterialIcons
                     name="remove"
                     size={theme.iconSize.sm}
-                    color={theme.colors.emberOrange}
+                    color={theme.colors.primaryText}
                   />
                 </Pressable>
                 <Text style={styles.quantityText as TextStyle}>{quantity}</Text>
@@ -194,7 +194,7 @@ function ProductCardComponent({
                   <MaterialIcons
                     name="add"
                     size={theme.iconSize.sm}
-                    color={theme.colors.emberOrange}
+                    color={theme.colors.primaryText}
                   />
                 </Pressable>
               </View>

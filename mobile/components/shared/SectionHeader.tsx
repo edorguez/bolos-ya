@@ -28,7 +28,7 @@ const stylesheet = StyleSheet.create(theme => ({
   link: {
     fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
-    color: theme.colors.emberOrange,
+    color: theme.colors.primaryText,
   },
   icon: {
     marginRight: theme.spacing.sm,

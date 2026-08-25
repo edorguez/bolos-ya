@@ -18,7 +18,7 @@ export function createInputStyles(theme: AppTheme) {
       borderColor: theme.colors.error,
     },
     focused: {
-      borderColor: theme.colors.midnight,
+      borderColor: theme.colors.focus,
     },
     right: {
       textAlign: 'right' as const,
@@ -54,7 +54,7 @@ export function createInputStyles(theme: AppTheme) {
     },
     quantityButtonPressedIncrement: {
       transform: [{ scale: 1.1 }],
-      backgroundColor: theme.colors.obsidian,
+      backgroundColor: theme.colors.primaryPressed,
     },
     quantityNumber: {
       fontSize: theme.typography.fontSize.xs,

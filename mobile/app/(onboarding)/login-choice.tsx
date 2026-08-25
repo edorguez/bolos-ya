@@ -313,12 +313,12 @@ export default function LoginChoiceScreen() {
       gap: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
     },
     emailButtonText: {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
     },
     registerButton: {
       ...buttonStyles.base,

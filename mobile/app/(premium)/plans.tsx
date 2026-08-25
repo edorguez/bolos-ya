@@ -125,7 +125,7 @@ export default function PlansScreen() {
       gap: 2,
     },
     pillSelected: {
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
     },
     pillLabel: {
       fontSize: theme.typography.fontSize.sm,
@@ -133,7 +133,7 @@ export default function PlansScreen() {
       color: theme.colors.midnight,
     },
     pillLabelSelected: {
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
     },
     pillSavings: {
       fontSize: 10,
@@ -141,7 +141,7 @@ export default function PlansScreen() {
       color: theme.colors.meadowGreen,
     },
     pillSavingsSelected: {
-      color: theme.colors.meadowGreen,
+      color: theme.colors.onPrimary,
     },
     card: {
       ...cardStyles.base,
@@ -206,7 +206,7 @@ export default function PlansScreen() {
     },
     submitButton: {
       ...buttonStyles.base,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.md,
       alignItems: 'center',
     },
@@ -216,7 +216,7 @@ export default function PlansScreen() {
     submitText: {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
     },
   });
 

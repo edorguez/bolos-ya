@@ -49,7 +49,7 @@ const stylesheet = StyleSheet.create(theme => ({
     paddingRight: theme.spacing.xs,
   },
   arrowBackground: {
-    backgroundColor: theme.colors.midnight,
+    backgroundColor: theme.colors.primary,
     borderRadius: theme.borderRadius.full,
     width: 32,
     height: 32,
@@ -58,7 +58,7 @@ const stylesheet = StyleSheet.create(theme => ({
   },
   icon: {
     opacity: 1,
-    color: 'white',
+    color: theme.colors.onPrimary,
   },
 }));
 

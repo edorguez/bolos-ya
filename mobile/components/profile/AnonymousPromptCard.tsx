@@ -75,7 +75,7 @@ const stylesheet = StyleSheet.create(theme => {
     },
     loginButton: {
       ...buttonStyles.base,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       alignItems: 'center',
@@ -83,7 +83,7 @@ const stylesheet = StyleSheet.create(theme => {
     loginButtonText: {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.medium,
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
     },
   };
 });

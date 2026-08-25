@@ -14,8 +14,8 @@ export const profileStyles = StyleSheet.create(theme => ({
     width: '100%',
   },
   headerLogo: {
-    width: 24,
     height: 24,
+    aspectRatio: 1380 / 664,
   },
   content: {
     paddingTop: theme.spacing.lg,

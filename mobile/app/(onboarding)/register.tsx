@@ -114,7 +114,7 @@ export default function RegisterScreen() {
     },
     registerButton: {
       ...buttonStyles.base,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.md,
       alignItems: 'center',
       justifyContent: 'center',
@@ -122,7 +122,7 @@ export default function RegisterScreen() {
       gap: theme.spacing.sm,
     },
     registerButtonText: {
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },

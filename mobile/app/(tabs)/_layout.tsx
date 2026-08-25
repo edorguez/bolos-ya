@@ -1,10 +1,12 @@
 import { Tabs, useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
 import { PressableScale } from '../../components/shared/PressableScale';
 import { useSession } from '../../lib/auth-client';
+import { SPLASH_LOGO } from '../../constants/images';
 import { useEffect } from 'react';
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -39,7 +41,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       borderRadius: theme.borderRadius.md,
     },
     activeTabItem: {
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
     },
     tabIcon: {
       marginBottom: theme.spacing.xxs,
@@ -96,13 +98,13 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               <MaterialIcons
                 name={iconName as keyof typeof MaterialIcons.glyphMap}
                 size={24}
-                color={isFocused ? theme.colors.white : theme.colors.textSecondary}
+                color={isFocused ? theme.colors.onPrimary : theme.colors.textSecondary}
                 style={styles.tabIcon}
               />
               <Text
                 style={[
                   styles.tabLabel,
-                  { color: isFocused ? theme.colors.white : theme.colors.textSecondary },
+                  { color: isFocused ? theme.colors.onPrimary : theme.colors.textSecondary },
                 ]}
               >
                 {label}
@@ -121,6 +123,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
+    gap: 24,
+  },
+  loadingLogo: {
+    width: 140,
+    height: 140,
   },
 });
 
@@ -138,7 +145,8 @@ export default function TabsLayout() {
   if (isPending || !session) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={theme.colors.midnight} />
+        <Image source={SPLASH_LOGO} style={styles.loadingLogo} contentFit="contain" />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }

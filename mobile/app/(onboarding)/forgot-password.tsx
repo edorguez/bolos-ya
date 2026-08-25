@@ -89,7 +89,7 @@ export default function ForgotPasswordScreen() {
     },
     sendButton: {
       ...buttonStyles.base,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.md,
       alignItems: 'center',
       justifyContent: 'center',
@@ -97,7 +97,7 @@ export default function ForgotPasswordScreen() {
       gap: theme.spacing.sm,
     },
     sendButtonText: {
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },

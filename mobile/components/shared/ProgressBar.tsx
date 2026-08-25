@@ -39,7 +39,7 @@ export function ProgressBar({
 }: ProgressBarProps) {
   const theme = useAppTheme();
   const styles = stylesheet(theme);
-  const fillColor = color || theme.colors.midnight;
+  const fillColor = color || theme.colors.primary;
   const clamped = Math.min(Math.max(progress, 0), 100);
   const progressValue = useSharedValue(0);
 

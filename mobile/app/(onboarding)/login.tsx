@@ -94,7 +94,7 @@ export default function LoginScreen() {
     },
     loginButton: {
       ...buttonStyles.base,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.md,
       alignItems: 'center',
       justifyContent: 'center',
@@ -102,7 +102,7 @@ export default function LoginScreen() {
       gap: theme.spacing.sm,
     },
     loginButtonText: {
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },

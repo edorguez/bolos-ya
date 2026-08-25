@@ -44,15 +44,15 @@ const stylesheet = StyleSheet.create(theme => ({
     marginVertical: 2,
   },
   optionSelected: {
-    backgroundColor: theme.colors.surfaceContainerLowest,
+    backgroundColor: theme.colors.primaryContainer,
+    borderColor: theme.colors.primary,
     boxShadow: theme.shadows.medium,
-    color: theme.colors.onSurface,
   },
   icon: {
     color: theme.colors.ash,
   },
   iconSelected: {
-    color: theme.colors.midnight,
+    color: theme.colors.primary,
   },
   name: {
     fontSize: theme.typography.fontSize.xs,
@@ -61,7 +61,7 @@ const stylesheet = StyleSheet.create(theme => ({
     textAlign: 'center',
   },
   nameSelected: {
-    color: theme.colors.midnight,
+    color: theme.colors.primaryText,
   },
 }));
 
@@ -88,7 +88,7 @@ export function SupermarketCarousel({ supermarkets, onSelect }: SupermarketCarou
             <MaterialIcons
               name={supermarket.icon as keyof typeof MaterialIcons.glyphMap}
               size={24}
-              color={supermarket.selected ? theme.colors.midnight : theme.colors.ash}
+              color={supermarket.selected ? theme.colors.primary : theme.colors.ash}
             />
             <Text
               style={[

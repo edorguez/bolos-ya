@@ -346,14 +346,14 @@ export default function CartDetailScreen() {
             accessibilityRole="button"
             accessibilityLabel="Agregar producto"
           >
-            <MaterialIcons name="add" size={theme.iconSize.xs} color={theme.colors.white} />
+            <MaterialIcons name="add" size={theme.iconSize.xs} color={theme.colors.onPrimary} />
             <Text style={styles.buttonText}>Agregar</Text>
           </Pressable>
 
           <Pressable
             style={({ pressed }) => [
               styles.buttonCircleComplete,
-              pressed && { backgroundColor: '#80e5a6' },
+              pressed && { backgroundColor: theme.colors.successPressed },
             ]}
             onPress={() => setShowCompleteCartSheet(true)}
             accessibilityRole="button"

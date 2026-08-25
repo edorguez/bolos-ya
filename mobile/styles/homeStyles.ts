@@ -25,8 +25,8 @@ export function createHomeStyles(theme: AppTheme) {
       width: '100%',
     },
     headerLogo: {
-      width: 24,
       height: 24,
+      aspectRatio: 1380 / 664,
     },
     section: {
       gap: theme.spacing.lg,
@@ -94,7 +94,7 @@ export function createHomeStyles(theme: AppTheme) {
     },
     primaryButton: {
       ...buttonStyles.base,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       alignItems: 'center',
@@ -105,7 +105,7 @@ export function createHomeStyles(theme: AppTheme) {
     primaryButtonText: {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.medium,
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
     },
     primaryButtonOverlay: {
       position: 'absolute',

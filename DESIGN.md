@@ -5,10 +5,16 @@
 
 Family lands like a children's book dropped into a fintech dashboard — warm off-white canvas (#fbfaf9) littered with expressive flat-illustrated characters in vivid primary colors (electric orange, grass green, sky blue, bright yellow) while the typography stays grounded and authoritative. The custom 'Family' typeface at 68px with tight -0.031em tracking carries the hero weight, while Inter handles everything else with progressively tighter letter-spacing as sizes increase. Cards use an inset warm-stone border (a single 1px shadow at #f2f0ed) instead of drop shadows, keeping surfaces flat and tactile. The only dark surface is the 'Get Started' pill button in near-black #121212 against the warm cream background — a single moment of contrast in an otherwise light, airy layout. The illustration vocabulary — wobbly blob creatures with stick legs and expressive faces — is the real identity system, not the color palette alone.
 
+## Brand — Merki
+
+- **Primary / brand color:** `#339933` (green) — the app's main color, used for primary buttons, active/selected states, and accent links/text.
+- **Logo font:** `Poppins Bold` — used for the Merki logo wordmark.
+
 ## Tokens — Colors
 
 | Name | Value | Token | Role |
 |------|-------|-------|------|
+| Primary Green | `#339933` | `--color-primary` | Primary brand color — buttons, active/selected states, links |
 | Warm Canvas | `#fbfaf9` | `--color-warm-canvas` | Page background, nav background, light button fill |
 | Stone Surface | `#f2f0ed` | `--color-stone-surface` | Card inset border color, secondary button background, subtle dividers |
 | Parchment Card | `#f8f7f4` | `--color-parchment-card` | Feature card backgrounds (display-p3 0.984 0.980 0.976 approximation) |
@@ -51,6 +57,10 @@ Family lands like a children's book dropped into a fintech dashboard — warm of
 - **Letter spacing:** -1.14px at 44px, -0.44px at 23px, -0.25px at 19px, -0.22px at 17px, -0.16px at 16px, -0.20px at 15px, -0.18px at 14px, -0.17px at 13px, -0.12px at 12px
 - **OpenType features:** `normal`
 - **Role:** All UI text: nav (14px/500), body copy (15-17px/400), card labels (13px/500), buttons (14-15px/500-600), captions (12px/400). Letter-spacing tightens with size — large Inter (44px) gets -0.026em to match the display font's density.
+
+### Poppins Bold — Logo wordmark only. · `--font-poppins`
+- **Weights:** 700 (Bold)
+- **Role:** The Merki logo/wordmark font.
 
 ### Type Scale
 

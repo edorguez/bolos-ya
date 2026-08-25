@@ -70,7 +70,7 @@ const stylesheet = StyleSheet.create(theme => {
     },
     upgradeButton: {
       ...buttonStyles.base,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       alignItems: 'center',
@@ -79,7 +79,7 @@ const stylesheet = StyleSheet.create(theme => {
     upgradeButtonText: {
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.medium,
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
     },
   };
 });

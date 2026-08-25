@@ -30,7 +30,7 @@ export function createManualEntryModalStyles(theme: AppTheme) {
     headerTitle: {
       fontSize: theme.typography.fontSize.xs,
       fontWeight: theme.typography.fontWeight.semibold,
-      color: theme.colors.emberOrange,
+      color: theme.colors.primaryText,
       textTransform: 'uppercase',
       letterSpacing: 1,
     },
@@ -63,7 +63,7 @@ export function createManualEntryModalStyles(theme: AppTheme) {
       alignItems: 'center',
     },
     currencyToggleActive: {
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
     },
     currencyToggleText: {
       fontSize: theme.typography.fontSize.xs,
@@ -71,7 +71,7 @@ export function createManualEntryModalStyles(theme: AppTheme) {
       color: theme.colors.onSurfaceVariant,
     },
     currencyToggleTextActive: {
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
     },
     errorText: {
       color: theme.colors.emberOrange,
@@ -105,7 +105,7 @@ export function createManualEntryModalStyles(theme: AppTheme) {
     addButton: {
       ...buttonStyles.base,
       flex: 1,
-      backgroundColor: theme.colors.midnight,
+      backgroundColor: theme.colors.primary,
       paddingVertical: theme.spacing.md,
       flexDirection: 'row',
       alignItems: 'center',
@@ -113,7 +113,7 @@ export function createManualEntryModalStyles(theme: AppTheme) {
       gap: 8,
     },
     addButtonText: {
-      color: theme.colors.white,
+      color: theme.colors.onPrimary,
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },

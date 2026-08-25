@@ -31,7 +31,13 @@ const lightColors = {
   surfaceContainer: '#f2f0ed',
   surfaceContainerHigh: '#e8e6e3',
   surfaceContainerHighest: '#d4d2cf',
-  primary: '#343433',
+  primary: '#339933',
+  onPrimary: '#ffffff',
+  primaryPressed: '#287a28',
+  primaryContainer: '#e5f2e5',
+  onPrimaryContainer: '#1d5c1d',
+  primaryText: '#287a28',
+  focus: '#339933',
   secondary: '#ff3e00',
   secondaryContainer: '#f2f0ed',
   text: '#474645',
@@ -44,6 +50,7 @@ const lightColors = {
   errorContainer: '#fee2e2',
   warning: '#ffbb26',
   success: '#00ca48',
+  successPressed: '#00a83d',
 };
 
 const sharedSpacing = {
