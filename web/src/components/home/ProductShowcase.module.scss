@@ -1,0 +1,257 @@
+.section {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 4rem 1.25rem 6rem;
+  scroll-margin-top: 5rem;
+
+  @media (min-width: 768px) {
+    padding: 4rem 1.5rem 6rem;
+  }
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 620px;
+  overflow: hidden;
+}
+
+/* Floating coins */
+.coin {
+  position: absolute;
+  object-fit: contain;
+  z-index: 0;
+  will-change: transform;
+  animation: coinSpin 12s linear infinite;
+}
+
+.coinTop {
+  width: 64px;
+  top: 40px;
+  left: 12%;
+  animation-duration: 10s;
+
+  @media (max-width: 900px) {
+    left: 4%;
+  }
+}
+
+.coinBottom {
+  width: 96px;
+  bottom: 48px;
+  right: 12%;
+  animation-direction: reverse;
+  animation-duration: 15s;
+
+  @media (max-width: 900px) {
+    right: 4%;
+  }
+}
+
+@keyframes coinSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dark phone mockup */
+.phoneWrap {
+  position: relative;
+  z-index: 10;
+  perspective: 1200px;
+}
+
+.phone {
+  width: 300px;
+  height: 600px;
+  background: var(--color-obsidian);
+  border-radius: 40px;
+  padding: 6px;
+  box-shadow: var(--shadow-lg);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 34px;
+  background: var(--color-warm-canvas);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  gap: 1rem;
+}
+
+.walletHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+}
+
+.walletTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.25px;
+  color: var(--color-charcoal-primary);
+  margin: 0;
+}
+
+.balanceCard {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.balanceLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.balanceValue {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.75px;
+}
+
+.transactions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.transactionsLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-graphite);
+}
+
+.txRow {
+  background: var(--surface-card-surface);
+  border: 1px solid var(--color-stone-surface);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.txLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.txBadge {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.txBadgeNeutral {
+  background: var(--color-stone-surface);
+}
+
+.receiveDot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background: var(--color-primary);
+  border: 2px solid #ffffff;
+  border-radius: 9999px;
+}
+
+.txMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.txName {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-charcoal-primary);
+}
+
+.txDate {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-graphite);
+}
+
+.txAmount {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-charcoal-primary);
+}
+
+.txPositive {
+  color: var(--color-primary);
+}
+
+/* Speech bubble */
+.bubble {
+  position: absolute;
+  right: calc(50% - 330px);
+  top: 96px;
+  z-index: 20;
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  background: #ffffff;
+  border: 1px solid var(--color-stone-surface);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+  max-width: 240px;
+
+  @media (min-width: 1024px) {
+    display: flex;
+  }
+}
+
+.bubbleAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: var(--color-stone-surface);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.bubbleText {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.2px;
+  color: var(--color-charcoal-primary);
+  margin: 0;
+}

@@ -123,7 +123,7 @@ export default function ForgotPasswordScreen() {
       color: theme.colors.textSecondary,
     },
     link: {
-      color: theme.colors.emberOrange,
+      color: theme.colors.secondaryText,
       fontWeight: theme.typography.fontWeight.semibold,
     },
   });

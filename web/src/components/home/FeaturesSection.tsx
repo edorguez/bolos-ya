@@ -3,51 +3,37 @@ import styles from './FeaturesSection.module.scss'
 
 export function FeaturesSection() {
   return (
-    <section id="features-pin" className={styles.pinSpacer}>
-      <div className={styles.pinContainer}>
-        <div className={styles.layout}>
-          <div className={styles.textCol}>
-            {features.map((f, i) => (
-              <div
-                key={i}
-                id={`f-text-${i}`}
-                className={`${styles.featureBlock} ${i > 0 ? styles.featureHidden : ''}`}
-              >
-                <div className={`${styles.featureIcon} ${styles[`icon${f.color.charAt(0).toUpperCase() + f.color.slice(1)}`]}`}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.875rem' }}>
-                    {f.icon}
-                  </span>
-                </div>
-                <h3 className={styles.featureTitle}>{f.title}</h3>
-                <p className={styles.featureDesc}>{f.description}</p>
+    <section id="caracteristicas" className={styles.section}>
+      <h2 className={styles.heading}>Diseñado para tu día a día</h2>
+      <div className={styles.grid}>
+        {features.map((f, i) => (
+          <article key={i} className={`${styles.card} gsap-reveal`}>
+            <div className={styles.panel}>
+              <img src={f.image} alt="" className={styles.panelImage} loading="lazy" />
+            </div>
+            <div className={styles.body}>
+              <div className={styles.titleRow}>
+                <span className={`material-symbols-outlined ${styles.icon}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+                  {f.icon}
+                </span>
+                <h3 className={styles.cardTitle}>{f.title}</h3>
               </div>
-            ))}
-          </div>
-          <div className={styles.mockupCol}>
-            <div className={styles.mockup}>
-              <div className={styles.mockupScreen}>
-                <div className={styles.mockupHeader}>
-                  <span className={styles.mockupBrand}>Merki</span>
-                  <span className="material-symbols-outlined">menu</span>
-                </div>
-                <div className={styles.mockupContent}>
-                  {['qr_code_scanner', 'map', 'cloud_off'].map((icon, i) => (
-                    <div
-                      key={i}
-                      id={`f-screen-${i}`}
-                      className={`${styles[`screenBase`]} ${styles[`screen${i}`]} ${i > 0 ? styles.screenHidden : ''}`}
+              <p className={styles.cardDesc}>{f.description}</p>
+              {f.chips && (
+                <div className={styles.chips}>
+                  {f.chips.map(chip => (
+                    <span
+                      key={chip.label}
+                      className={`${styles.chip} ${chip.variant === 'primary' ? styles.chipPrimary : styles.chipNeutral}`}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: '3.75rem' }}>
-                        {icon}
-                      </span>
-                      {i === 2 && <p className={styles.screenLabel}>Modo Offline Activo</p>}
-                    </div>
+                      {chip.label}
+                    </span>
                   ))}
                 </div>
-              </div>
+              )}
             </div>
-          </div>
-        </div>
+          </article>
+        ))}
       </div>
     </section>
   )

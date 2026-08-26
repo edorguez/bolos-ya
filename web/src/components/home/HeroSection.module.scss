@@ -6,31 +6,20 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: 5rem 1.5rem;
+  padding: 7rem 1.5rem 5rem;
   background: var(--color-warm-canvas);
 }
 
-.grid {
-  max-width: var(--page-max-width);
-  margin: 0 auto;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 3rem;
-  align-items: center;
-  z-index: 10;
+.content {
   position: relative;
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.textCol {
+  z-index: 10;
+  max-width: 56rem;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 1.5rem;
-  position: relative;
 }
 
 .badge {
@@ -38,45 +27,44 @@
   align-items: center;
   gap: 0.5rem;
   background: var(--color-parchment-card);
+  border: 1px solid var(--color-stone-surface);
   padding: 0.5rem 1rem;
   border-radius: var(--radius-tags);
-  width: fit-content;
   color: var(--color-graphite);
   font: var(--font-label-md);
 }
 
 .title {
-  font-family: 'Inter', sans-serif;
-  font-size: var(--text-display);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 7vw, 68px);
   font-weight: 500;
-  line-height: var(--leading-display);
-  letter-spacing: var(--tracking-display);
+  line-height: 1.09;
+  letter-spacing: -2.11px;
   color: var(--color-charcoal-primary);
   margin: 0;
 }
 
 .titleAccent {
-  color: var(--color-ember-orange);
+  color: var(--color-primary);
 }
 
 .description {
   font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  font-weight: var(--font-weight-regular);
-  line-height: 1.47;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.22px;
   color: var(--color-graphite);
-  max-width: 36rem;
+  max-width: 38rem;
+  margin: 0;
 }
 
-.mockupCol {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.buttons {
+  margin-top: 0.75rem;
 }
 
-/* Illustration blob characters */
-.illustrations {
+/* Scattered floating illustration characters */
+.blobs {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -85,58 +73,39 @@
 
 .blob {
   position: absolute;
-  border-radius: var(--radius-illustrations);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 28px;
-  color: #ffffff;
+  object-fit: contain;
+  will-change: transform;
 }
 
-.blob1 {
-  width: 80px;
-  height: 80px;
-  background: var(--color-ember-orange);
-  top: -20px;
-  left: -30px;
-  border-radius: 40px 40px 40px 4px;
+.blobBrand {
+  width: clamp(120px, 16vw, 220px);
+  top: 18%;
+  right: 8%;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.08));
+
+  @media (max-width: 900px) {
+    right: -30px;
+    opacity: 0.5;
+  }
 }
 
-.blob2 {
-  width: 100px;
-  height: 70px;
-  background: var(--color-sky-blue);
-  top: 10px;
-  right: -20px;
-  border-radius: 50% 50% 50% 4px;
+.blobCoin {
+  width: clamp(110px, 14vw, 190px);
+  bottom: 12%;
+  left: 6%;
+
+  @media (max-width: 900px) {
+    left: -40px;
+    opacity: 0.5;
+  }
 }
 
-.blob3 {
-  width: 60px;
-  height: 60px;
-  background: var(--color-meadow-green);
-  bottom: -10px;
-  right: 40px;
-  border-radius: 30px 30px 4px 30px;
-}
+.blobPeek {
+  width: clamp(80px, 10vw, 130px);
+  top: 30%;
+  left: 18%;
 
-.blob4 {
-  width: 90px;
-  height: 50px;
-  background: var(--color-sunburst-yellow);
-  bottom: -30px;
-  left: 20px;
-  border-radius: 4px 50% 50% 50%;
-}
-
-.blobText {
-  font-size: 10px;
-  font-weight: 600;
-  color: inherit;
-  text-align: center;
-  line-height: 1.2;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  @media (max-width: 900px) {
+    display: none;
+  }
 }

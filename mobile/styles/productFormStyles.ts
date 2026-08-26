@@ -23,7 +23,7 @@ export function createProductFormStyles(theme: AppTheme) {
       justifyContent: 'center',
     },
     icon: {
-      color: theme.colors.emberOrange,
+      color: theme.colors.secondary,
     },
     title: {
       fontSize: theme.typography.fontSize.sm,

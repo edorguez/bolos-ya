@@ -111,7 +111,7 @@ export default function LoginScreen() {
       paddingVertical: theme.spacing.xs,
     },
     forgotPasswordText: {
-      color: theme.colors.emberOrange,
+      color: theme.colors.secondaryText,
       fontSize: theme.typography.fontSize.sm,
       fontWeight: theme.typography.fontWeight.semibold,
     },
@@ -124,7 +124,7 @@ export default function LoginScreen() {
       color: theme.colors.textSecondary,
     },
     link: {
-      color: theme.colors.emberOrange,
+      color: theme.colors.secondaryText,
       fontWeight: theme.typography.fontWeight.semibold,
     },
   });

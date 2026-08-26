@@ -3,9 +3,10 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useReducedMotion } from '../../hooks/home/useReducedMotion'
 import { ProgressBar } from './ProgressBar'
+import { TopNavBar } from './TopNavBar'
 import { HeroSection } from './HeroSection'
-import { StorySection } from './StorySection'
 import { FeaturesSection } from './FeaturesSection'
+import { ProductShowcase } from './ProductShowcase'
 import { SocialProofSection } from './SocialProofSection'
 import { CtaSection } from './CtaSection'
 import { Footer } from './Footer'
@@ -17,6 +18,7 @@ gsap.registerPlugin(ScrollTrigger)
 export function HomePage() {
   const reduced = useReducedMotion()
   const ctxRef = useRef<gsap.Context | null>(null)
+  const tiltRef = useRef<{ raf: number; x: number; y: number; tx: number; ty: number }>({ raf: 0, x: 0, y: 0, tx: 0, ty: 0 })
 
   useEffect(() => {
     if (reduced) return
@@ -25,171 +27,105 @@ export function HomePage() {
     const ctx = gsap.context(() => {
       const isDesktop = window.matchMedia('(min-width: 1024px)').matches
 
-      const heroTl = gsap.timeline({ defaults: { duration: 0.8, ease: 'power3.out' } })
-      heroTl
-        .from('.gsap-hero-text > *', { y: 30, opacity: 0, stagger: 0.1 })
-        .from('.gsap-float', { y: 20, opacity: 0, ease: 'back.out(1.5)' }, '-=0.4')
-
-      gsap.to('.gsap-float-target', {
-        y: -12,
-        rotation: -3,
-        duration: 3,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
+      // Hero entrance — staggered reveal
+      gsap.from('.gsap-hero-text', {
+        y: 32,
+        opacity: 0,
+        duration: 0.9,
+        stagger: 0.12,
+        ease: 'power3.out',
       })
 
-      gsap.to('#hero', {
-        opacity: 0.3,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '#story-pin',
-          start: 'top bottom',
-          end: 'top top',
-          scrub: 1,
-        },
+      // Hero blobs — pop in + idle bob
+      gsap.from('.gsap-hero-blob', {
+        scale: 0,
+        opacity: 0,
+        duration: 1,
+        ease: 'back.out(1.6)',
+        stagger: 0.15,
+        delay: 0.3,
       })
 
+      gsap.utils.toArray<HTMLElement>('.gsap-hero-blob').forEach((el, i) => {
+        gsap.to(el, {
+          y: 'random(-14, 14)',
+          rotation: 'random(-5, 5)',
+          duration: 3 + i,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+        })
+      })
+
+      // Hero parallax on scroll
+      gsap.to('.gsap-hero-blob', {
+        yPercent: 30,
+        ease: 'none',
+        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1 },
+      })
+
+      // Scroll indicator fades as you leave hero
       gsap.to('.gsap-scroll-indicator', {
         opacity: 0,
-        scrollTrigger: {
-          trigger: '#story-pin',
-          start: 'top bottom-=100',
-          end: 'top top',
-          scrub: 0.5,
-        },
+        scrollTrigger: { trigger: '#hero', start: 'top top', end: '60% top', scrub: 0.5 },
       })
 
-      ScrollTrigger.create({
-        trigger: '#story-pin',
-        pin: true,
-        start: 'top top',
-        end: '+=200%',
-        scrub: 1.5,
-      })
-
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: '#story-pin',
-            start: 'top top',
-            end: '+=200%',
-            scrub: 1.5,
-          },
-        })
-        .to('#story-problem', {
-          xPercent: isDesktop ? -100 : 0,
-          yPercent: isDesktop ? 0 : -100,
-          opacity: 0,
-          ease: 'power2.inOut',
-          duration: 0.6,
-        })
-        .fromTo(
-          '#story-solution',
-          {
-            xPercent: isDesktop ? 50 : 0,
-            yPercent: isDesktop ? 0 : 100,
-            opacity: 0,
-          },
-          {
-            xPercent: 0,
-            yPercent: 0,
-            opacity: 1,
-            ease: 'power2.inOut',
-            duration: 0.6,
-          },
-          0.2
-        )
-
-      ScrollTrigger.create({
-        trigger: '#features-pin',
-        pin: true,
-        start: 'top top',
-        end: '+=300%',
-        scrub: 1.5,
-      })
-
-      const fStarts = [0, 0.33, 0.66]
-
-      for (let i = 0; i < 3; i++) {
-        const s = fStarts[i]
-        const enter = s
-        const stayEnd = s + 0.33
-
-        gsap.fromTo(
-          `#f-text-${i}`,
-          { y: 30, opacity: 0 },
-          {
+      // Feature cards + social cards — staggered batch reveal per section
+      gsap.set('.gsap-reveal', { y: 40, opacity: 0 })
+      ScrollTrigger.batch('.gsap-reveal', {
+        start: 'top 88%',
+        onEnter: batch =>
+          gsap.to(batch, {
             y: 0,
             opacity: 1,
+            duration: 0.7,
+            stagger: 0.12,
             ease: 'power2.out',
-            scrollTrigger: {
-              trigger: '#features-pin',
-              start: `+=${enter * 100}%`,
-              end: `+=${(enter + 0.15) * 100}%`,
-              scrub: 1.5,
-            },
-          }
-        )
-        gsap.to(`#f-text-${i}`, {
-          y: -30,
+            overwrite: true,
+          }),
+      })
+
+      // Product showcase — phone entrance + coin parallax + bubble pop
+      if (isDesktop) {
+        gsap.from('.gsap-showcase-phone', {
+          y: 90,
+          rotationY: -18,
+          rotationX: 6,
           opacity: 0,
-          ease: 'power2.in',
-          scrollTrigger: {
-            trigger: '#features-pin',
-            start: `+=${(enter + 0.15) * 100}%`,
-            end: `+=${stayEnd * 100}%`,
-            scrub: 1.5,
-          },
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: '#soluciones', start: 'top 75%', toggleActions: 'play none none reverse' },
         })
 
-        gsap.fromTo(
-          `#f-screen-${i}`,
-          { opacity: 0, zIndex: 0 },
-          {
-            opacity: 1,
-            zIndex: 10,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: '#features-pin',
-              start: `+=${enter * 100}%`,
-              end: `+=${(enter + 0.15) * 100}%`,
-              scrub: 1.5,
-            },
-          }
-        )
-        gsap.to(`#f-screen-${i}`, {
+        gsap.to('.gsap-coin-top', {
+          yPercent: 40,
+          ease: 'none',
+          scrollTrigger: { trigger: '#soluciones', start: 'top bottom', end: 'bottom top', scrub: 1 },
+        })
+        gsap.to('.gsap-coin-bottom', {
+          yPercent: -40,
+          ease: 'none',
+          scrollTrigger: { trigger: '#soluciones', start: 'top bottom', end: 'bottom top', scrub: 1 },
+        })
+
+        gsap.from('.gsap-showcase-bubble', {
+          scale: 0,
           opacity: 0,
-          zIndex: 0,
-          ease: 'power2.in',
-          scrollTrigger: {
-            trigger: '#features-pin',
-            start: `+=${(enter + 0.15) * 100}%`,
-            end: `+=${stayEnd * 100}%`,
-            scrub: 1.5,
-          },
+          duration: 0.7,
+          ease: 'back.out(1.8)',
+          delay: 0.5,
+          scrollTrigger: { trigger: '#soluciones', start: 'top 70%', toggleActions: 'play none none reverse' },
         })
       }
 
-      ScrollTrigger.create({
-        trigger: '#social-pin',
-        pin: true,
-        start: 'top top',
-        end: '+=200%',
-        scrub: 1,
-      })
-
+      // CTA card — pop in
       gsap.from('#cta-card', {
-        scale: 0.8,
+        scale: 0.85,
         opacity: 0,
-        y: 50,
-        duration: 1,
+        y: 40,
+        duration: 0.9,
         ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '#cta-section',
-          start: 'top 85%',
-          toggleActions: 'play none none reverse',
-        },
+        scrollTrigger: { trigger: '#cta-section', start: 'top 85%', toggleActions: 'play none none reverse' },
       })
     })
 
@@ -198,13 +134,49 @@ export function HomePage() {
     return () => ctx.revert()
   }, [reduced])
 
+  // Mouse tilt for the showcase phone (desktop only, GPU-friendly transform)
+  useEffect(() => {
+    if (reduced) return
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches
+    if (!isDesktop) return
+
+    const phone = document.querySelector('.gsap-showcase-phone') as HTMLElement | null
+    if (!phone) return
+
+    const tilt = tiltRef.current
+
+    const onMove = (e: MouseEvent) => {
+      const rect = phone.getBoundingClientRect()
+      const cx = rect.left + rect.width / 2
+      const cy = rect.top + rect.height / 2
+      tilt.tx = ((e.clientX - cx) / rect.width) * 10
+      tilt.ty = ((e.clientY - cy) / rect.height) * 8
+    }
+
+    const loop = () => {
+      tilt.x += (tilt.tx - tilt.x) * 0.08
+      tilt.y += (tilt.ty - tilt.y) * 0.08
+      phone.style.transform = `rotateY(${tilt.x}deg) rotateX(${-tilt.y}deg)`
+      tilt.raf = requestAnimationFrame(loop)
+    }
+
+    window.addEventListener('mousemove', onMove, { passive: true })
+    tilt.raf = requestAnimationFrame(loop)
+
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      cancelAnimationFrame(tilt.raf)
+    }
+  }, [reduced])
+
   return (
     <div className={styles.app}>
       <ProgressBar />
+      <TopNavBar />
       <main>
         <HeroSection />
-        <StorySection />
         <FeaturesSection />
+        <ProductShowcase />
         <SocialProofSection />
         <CtaSection />
       </main>

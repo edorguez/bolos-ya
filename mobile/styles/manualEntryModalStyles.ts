@@ -63,7 +63,7 @@ export function createManualEntryModalStyles(theme: AppTheme) {
       alignItems: 'center',
     },
     currencyToggleActive: {
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme.colors.secondary,
     },
     currencyToggleText: {
       fontSize: theme.typography.fontSize.xs,
@@ -71,7 +71,7 @@ export function createManualEntryModalStyles(theme: AppTheme) {
       color: theme.colors.onSurfaceVariant,
     },
     currencyToggleTextActive: {
-      color: theme.colors.onPrimary,
+      color: theme.colors.onSecondary,
     },
     errorText: {
       color: theme.colors.emberOrange,

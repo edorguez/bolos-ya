@@ -100,7 +100,7 @@ export function createCartDetailStyles(theme: AppTheme) {
       justifyContent: 'center',
       width: theme.sizes.circleButton,
       height: theme.sizes.circleButton,
-      backgroundColor: theme.colors.meadowGreen,
+      backgroundColor: theme.colors.secondary,
       borderRadius: theme.borderRadius.full,
       borderWidth: 2,
       borderColor: theme.colors.white,

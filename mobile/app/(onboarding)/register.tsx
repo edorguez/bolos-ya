@@ -135,7 +135,7 @@ export default function RegisterScreen() {
       color: theme.colors.textSecondary,
     },
     link: {
-      color: theme.colors.emberOrange,
+      color: theme.colors.secondaryText,
       fontWeight: theme.typography.fontWeight.semibold,
     },
   });

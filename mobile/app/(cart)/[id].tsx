@@ -353,7 +353,7 @@ export default function CartDetailScreen() {
           <Pressable
             style={({ pressed }) => [
               styles.buttonCircleComplete,
-              pressed && { backgroundColor: theme.colors.successPressed },
+              pressed && { backgroundColor: theme.colors.secondaryPressed },
             ]}
             onPress={() => setShowCompleteCartSheet(true)}
             accessibilityRole="button"

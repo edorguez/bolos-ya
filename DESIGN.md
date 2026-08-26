@@ -8,13 +8,22 @@ Family lands like a children's book dropped into a fintech dashboard — warm of
 ## Brand — Merki
 
 - **Primary / brand color:** `#339933` (green) — the app's main color, used for primary buttons, active/selected states, and accent links/text.
+- **Secondary / accent color:** `#F4A261` (warm sand) — secondary actions, selected/active states, link accents, and icon highlights. Used sparingly; never as the dominant surface color.
 - **Logo font:** `Poppins Bold` — used for the Merki logo wordmark.
+
+> **Note:** In the mobile app (`mobile/styles/theme.ts`) the `secondary` token previously mapped to Ember Orange (`#ff3e00`). It now maps to `#F4A261`. Ember Orange remains a distinct token reserved for urgency/status moments (see Color Usage Audit below).
 
 ## Tokens — Colors
 
 | Name | Value | Token | Role |
 |------|-------|-------|------|
 | Primary Green | `#339933` | `--color-primary` | Primary brand color — buttons, active/selected states, links |
+| Secondary Sand | `#F4A261` | `--color-secondary` | Secondary actions (buttons, cart-complete FAB), selected/active chips, currency toggle active, icon highlights |
+| Secondary Pressed | `#E08B3F` | `--color-secondary-pressed` | Pressed/hover state of secondary fills |
+| On Secondary | `#2A1C0E` | `--color-on-secondary` | Text/icons on secondary fills (dark warm brown, ≥4.5:1 on `#F4A261`) |
+| Secondary Container | `#FBE8D6` | `--color-secondary-container` | Soft 10% tint — selected chip backgrounds, secondary-tinted surfaces |
+| On Secondary Container | `#7C3E12` | `--color-on-secondary-container` | Text/icons on secondary container (≥4.5:1 on `#FBE8D6`) |
+| Secondary Text | `#A3521B` | `--color-secondary-text` | Link/accent text tone (AA-safe on cream and white; pure `#F4A261` is too low-contrast for text) |
 | Warm Canvas | `#fbfaf9` | `--color-warm-canvas` | Page background, nav background, light button fill |
 | Stone Surface | `#f2f0ed` | `--color-stone-surface` | Card inset border color, secondary button background, subtle dividers |
 | Parchment Card | `#f8f7f4` | `--color-parchment-card` | Feature card backgrounds (display-p3 0.984 0.980 0.976 approximation) |
@@ -26,7 +35,7 @@ Family lands like a children's book dropped into a fintech dashboard — warm of
 | Fog | `#c6c6c6` | `--color-fog` | Footer text, inactive borders, dividers |
 | Smoke | `#a7a7a7` | `--color-smoke` | Disabled states, placeholder text, tertiary labels |
 | Pepper | `#282624` | `--color-pepper` | Dark nav overlay text, deep secondary labels |
-| Ember Orange | `#ff3e00` | `--color-ember-orange` | Primary brand accent — CTA text links, icon highlights, illustration character color — the single most prominent chromatic color site-wide, heat against the cream canvas |
+| Ember Orange | `#ff3e00` | `--color-ember-orange` | Reserved for urgency/status and illustration accents — live scan indicator, scan "Volver" after error, login method icons, step/feature icons, warning text. No longer the general warm link accent (that role moved to Secondary Sand). |
 | Meadow Green | `#00ca48` | `--color-meadow-green` | Secondary brand accent — success indicators, illustration fills, receive/confirmation states |
 | Sky Blue | `#0090ff` | `--color-sky-blue` | Tertiary brand accent — links in body, illustration fills, Ethereum-related UI elements |
 | Sunburst Yellow | `#ffbb26` | `--color-sunburst-yellow` | Quaternary brand accent — coin illustrations, star motifs, card highlights |
@@ -38,6 +47,49 @@ Family lands like a children's book dropped into a fintech dashboard — warm of
 | Violet Pop | `#9f4fff` | `--color-violet-pop` | Illustration accent — purple character/NFT badge backgrounds |
 | Coral Red | `#ff2b3a` | `--color-coral-red` | Error state background, destructive action indicator |
 | Valid Green | `#00c454` | `--color-valid-green` | Success/valid input state — mapped to --background-valid |
+
+## Color Usage Audit
+
+Live audit of which tokens are actually rendered in the mobile app (`mobile/`). The web landing (`web/src`) uses only the neutral canvas/stone/parchment scale plus Ember Orange, Deep Amber, Sunburst Yellow, Flamingo, Violet Pop, Coral Red, and Midnight — it does **not** use Primary Green.
+
+### In use (mobile)
+
+| Token | Where |
+|-------|-------|
+| `primary` / `primaryPressed` / `primaryText` / `onPrimary` | Main CTA buttons, focus states, quantity increment, budget swap icon, primary links |
+| `secondary` / `secondaryPressed` / `onSecondary` | Secondary button variant, cart-complete FAB, selected supermarket chip (border/icon), currency toggle active, tab-bar active pill, product-form icon |
+| `secondaryContainer` / `onSecondaryContainer` | Selected supermarket chip background + label |
+| `secondaryText` | Text-link accents (login / register / forgot-password links) |
+| `emberOrange` | Urgency/status + illustration only: scan live pulse + "Volver", login method icons + spinner, onboarding step icons, history hero icon, NoRecognitionModal warning, BCV status indicator/error |
+| `meadowGreen` / `success` / `successPressed` | Success semantics — checkout success, verified badges, premium active, receipt icon, complete state |
+| `skyBlue` / `iceBlue` | Anonymous prompt card, onboarding feature accent, login method icon |
+| `sunburstYellow` / `deepAmber` / `pepper` | Premium/promo cards, tips, payment-pending |
+| `coralRed` / `error` / `errorContainer` | Errors, destructive actions, budget warnings |
+| `warning` | Pending status badge |
+| `graphite` / `charcoalPrimary` / `text` / `textSecondary` / `onSurface*` / `ash` / `outline` | Text, labels, icons |
+| `background` / `surfaceContainer*` / `stoneSurface` / `parchmentCard` / `white` / `obsidian` | Surfaces, cards, inputs, borders |
+| `midnight` | High-emphasis text, action sheet options |
+| `smoke` | Muted/tertiary text (BCV card) |
+
+### Not in use (mobile)
+
+The following tokens are defined in `mobile/styles/theme.ts` (and mirrored in the brand tokens below) but are **not referenced anywhere** in mobile app code. Keep them only if planned for future illustration work; otherwise remove.
+
+| Token | Value | Notes |
+|-------|-------|-------|
+| `validGreen` | `#00c454` | Duplicate of `success`/`meadowGreen` family — unused |
+| `flamingo` | `#ff58ae` | Illustration-only accent — unused in mobile |
+| `violetPop` | `#9f4fff` | Illustration-only accent — unused in mobile |
+| `spearmint` | `#00c978` | Illustration-only accent — unused in mobile |
+| `oceanBlue` | `#0086fc` | Illustration-only accent — unused in mobile |
+| `fog` | `#c6c6c6` | Shadow value only — unused as a color token |
+| `primaryContainer` / `onPrimaryContainer` | `#e5f2e5` / `#1d5c1d` | Light-green container pair — **became unused** when the secondary button variant moved to `secondary` and the selected supermarket chip moved to `secondaryContainer` |
+
+### Harmony validation (primary + secondary)
+
+- `#339933` (green, ~120°) and `#F4A261` (warm sand, ~28°) sit ~90° apart on the hue wheel — a complementary-adjacent nature pairing (leaves + sunset). **This is a good match; keep both.**
+- **Contrast rule:** white text on `#F4A261` fails AA (2.1:1), and `#F4A261` as body/link text on the cream canvas also fails AA (2.1:1). Always pair secondary fills with dark `onSecondary` (`#2A1C0E`, 7.7:1) and use the darker `secondaryText` (`#A3521B`, ≥5.1:1) for link/accent text.
+- Ember Orange (`#ff3e00`) and Secondary Sand are both orange-family. To keep the palette tight, **never render both as equal accents on one screen** — Ember is urgency/status only.
 
 ## Tokens — Typography
 
@@ -145,12 +197,12 @@ Background #121212, text #ffffff, border-radius 32px, padding 0px 14px. Inter 14
 ### Secondary CTA Button (Pill Light)
 **Role:** Alternative actions — 'Log In', 'Watch the Video'
 
-Background #f6f4ef (warm cream), text #121212, border-radius 32px, padding 0px 14px. Inter 14px weight 500. Creates a paired hierarchy with the dark pill without competing — same shape, inverted warmth.
+Background #f6f4ef (warm cream), text #121212, border-radius 32px, padding 0px 14px. Inter 14px weight 500. Creates a paired hierarchy with the dark pill without competing — same shape, inverted warmth. **Mobile equivalent:** the shared `Button` component's `secondary` variant uses `secondary` (#F4A261) fill with `onSecondary` (#2A1C0E) text — the warm-sand alternative action against the green primary button.
 
 ### Ghost Text Link Button
 **Role:** Inline navigation links — 'Watch the demo', section CTAs
 
-Background transparent, text color #ff3e00 (Ember Orange), border-radius 0px, padding 4px 0px. No border. Inter 14-15px weight 500. The underline-less orange text link is the signature inline action — orange on cream reads as warm urgency without a button shell.
+Background transparent, text color #ff3e00 (Ember Orange), border-radius 0px, padding 4px 0px. No border. Inter 14-15px weight 500. The underline-less orange text link is the signature inline action — orange on cream reads as warm urgency without a button shell. **Mobile:** inline text links (onboarding auth screens) use the AA-safe `secondaryText` (#A3521B) instead of raw #F4A261, which is too low-contrast on cream.
 
 ### Outlined Navigation Button
 **Role:** Tertiary actions in nav or contextual contexts
@@ -215,10 +267,14 @@ The mobile app (Expo/React Native) implements the same token system (`styles/the
 - Use border-radius 32px for all pill buttons (both #121212 dark and #f6f4ef light variants) — the pill shape is non-negotiable for interactive elements.
 - Apply tight negative letter-spacing to all large text: -2.11px at 68px display, -1.14px at 44px heading-lg, scaling to near-zero at body sizes.
 - Restrict the Family custom typeface to display and large section headings only (44px and 68px) — Inter handles all UI text regardless of weight.
-- Use Ember Orange (#ff3e00) exclusively for text-link CTAs and illustration accents — never as a button background fill; its power is as an inline pop against cream.
+- Use Ember Orange (#ff3e00) exclusively for urgency/status moments (live scan indicator, error-ish warnings, method icons) and illustration accents — never as a general warm link/button accent; that role belongs to Secondary Sand (#F4A261).
+- Use #F4A261 for secondary actions (secondary button variant, cart-complete FAB), selected/active states (supermarket chip, currency toggle, tab-bar active pill), and icon highlights — keep it to a few spots per screen, never as a page background.
+- Pair #F4A261 with dark text (#2A1C0E) on its fills, and use #A3521B for any secondary-colored link/accent text — the raw sand fails 4.5:1 contrast on cream/white.
 - Space illustration characters asymmetrically around hero text — overlap the headline bounding box with characters to create depth through layering, not z-index stacking.
 
 ### Don't
+- Don't use raw #F4A261 as paragraph or link text on cream/white — contrast is ~2.1:1 (fails AA). Use #A3521B.
+- Don't render Ember Orange (#ff3e00) and Secondary Sand (#F4A261) as equal accents on the same screen — Ember is urgency/status only, Sand is the general secondary accent.
 - Don't use drop shadows on content cards on the web landing — the inset warm-stone border is the surface definition mechanism there; shadows appear only on the dark phone mockup and hover-elevated states. On mobile, surfaces use the unified `--shadow-soft` elevation on cards, buttons, inputs, and quantity controls, with `--shadow-medium`/`--shadow-strong` reserved for selected states and emphasis.
 - Don't use pure #ffffff as a page background — it breaks the warm cream identity; #fbfaf9 is the minimum warmth threshold.
 - Don't use the illustration characters as pure decoration at small sizes — below 60px they lose their expressive faces and become abstract blobs.
@@ -260,7 +316,10 @@ Max-width ~1200px centered on the warm canvas. Hero is full-viewport with center
 - Heading text: #343433 (Charcoal Primary)
 - CTA button (dark): #121212 background, #ffffff text
 - CTA button (light): #f6f4ef background, #121212 text
-- Brand accent / link: #ff3e00 (Ember Orange)
+- Primary accent / action: #339933 (green)
+- Secondary accent: #F4A261 (warm sand) — secondary actions, selected/active states
+- Link / accent text: #A3521B (Secondary Text — AA-safe)
+- Urgency / status accent: #ff3e00 (Ember Orange) — scan pulse, warnings, method icons
 - Card border: box-shadow inset ~#f2f0ed 1px
 - Muted text: #848281
 
@@ -330,6 +389,12 @@ Motion personality is 'expressive' with 0.2s ease as the base duration (123 inst
   --color-fog: #c6c6c6;
   --color-smoke: #a7a7a7;
   --color-pepper: #282624;
+  --color-secondary: #F4A261;
+  --color-secondary-pressed: #E08B3F;
+  --color-on-secondary: #2A1C0E;
+  --color-secondary-container: #FBE8D6;
+  --color-on-secondary-container: #7C3E12;
+  --color-secondary-text: #A3521B;
   --color-ember-orange: #ff3e00;
   --color-meadow-green: #00ca48;
   --color-sky-blue: #0090ff;
@@ -449,6 +514,12 @@ Motion personality is 'expressive' with 0.2s ease as the base duration (123 inst
   --color-fog: #c6c6c6;
   --color-smoke: #a7a7a7;
   --color-pepper: #282624;
+  --color-secondary: #F4A261;
+  --color-secondary-pressed: #E08B3F;
+  --color-on-secondary: #2A1C0E;
+  --color-secondary-container: #FBE8D6;
+  --color-on-secondary-container: #7C3E12;
+  --color-secondary-text: #A3521B;
   --color-ember-orange: #ff3e00;
   --color-meadow-green: #00ca48;
   --color-sky-blue: #0090ff;
