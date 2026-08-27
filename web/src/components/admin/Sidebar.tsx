@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { sidebarContent } from '../../constants/admin/content'
+import { brandAssets } from '../../constants/home/content'
 import styles from './Sidebar.module.scss'
 
 interface SidebarProps {
@@ -24,8 +25,7 @@ export function Sidebar({ onLogout, isOpen, onClose }: SidebarProps) {
   return (
     <nav className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.brand}>
-        <h1 className={styles.brandTitle}>{sidebarContent.title}</h1>
-        <p className={styles.brandSub}>{sidebarContent.subtitle}</p>
+        <img src={brandAssets.logo} alt={sidebarContent.title} className={styles.logo} />
       </div>
 
       <div className={styles.nav}>

@@ -36,34 +36,6 @@ export function HomePage() {
         ease: 'power3.out',
       })
 
-      // Hero blobs — pop in + idle bob
-      gsap.from('.gsap-hero-blob', {
-        scale: 0,
-        opacity: 0,
-        duration: 1,
-        ease: 'back.out(1.6)',
-        stagger: 0.15,
-        delay: 0.3,
-      })
-
-      gsap.utils.toArray<HTMLElement>('.gsap-hero-blob').forEach((el, i) => {
-        gsap.to(el, {
-          y: 'random(-14, 14)',
-          rotation: 'random(-5, 5)',
-          duration: 3 + i,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-        })
-      })
-
-      // Hero parallax on scroll
-      gsap.to('.gsap-hero-blob', {
-        yPercent: 30,
-        ease: 'none',
-        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1 },
-      })
-
       // Scroll indicator fades as you leave hero
       gsap.to('.gsap-scroll-indicator', {
         opacity: 0,
@@ -85,7 +57,7 @@ export function HomePage() {
           }),
       })
 
-      // Product showcase — phone entrance + coin parallax + bubble pop
+      // Product showcase — phone entrance + bubble pop
       if (isDesktop) {
         gsap.from('.gsap-showcase-phone', {
           y: 90,
@@ -95,17 +67,6 @@ export function HomePage() {
           duration: 1,
           ease: 'power3.out',
           scrollTrigger: { trigger: '#soluciones', start: 'top 75%', toggleActions: 'play none none reverse' },
-        })
-
-        gsap.to('.gsap-coin-top', {
-          yPercent: 40,
-          ease: 'none',
-          scrollTrigger: { trigger: '#soluciones', start: 'top bottom', end: 'bottom top', scrub: 1 },
-        })
-        gsap.to('.gsap-coin-bottom', {
-          yPercent: -40,
-          ease: 'none',
-          scrollTrigger: { trigger: '#soluciones', start: 'top bottom', end: 'bottom top', scrub: 1 },
         })
 
         gsap.from('.gsap-showcase-bubble', {

@@ -1,6 +1,5 @@
 export const sidebarContent = {
-  title: 'Portal Admin',
-  subtitle: 'Gestión',
+  title: 'Merki',
   nav: [
     { label: 'Pagos', icon: 'payments', to: '/admin/payments' },
   ],
@@ -9,7 +8,7 @@ export const sidebarContent = {
 
 export const paymentsContent = {
   title: 'Historial de Pagos',
-  description: 'Gestione transacciones y liquidaciones recientes.',
+  description: 'Revisa y aprueba los pagos de suscripción premium.',
 }
 
 export const PAYMENT_COLUMNS = [

@@ -37,7 +37,7 @@
 .title {
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 7vw, 68px);
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.09;
   letter-spacing: -2.11px;
   color: var(--color-charcoal-primary);
@@ -63,49 +63,9 @@
   margin-top: 0.75rem;
 }
 
-/* Scattered floating illustration characters */
-.blobs {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.blob {
-  position: absolute;
-  object-fit: contain;
-  will-change: transform;
-}
-
-.blobBrand {
-  width: clamp(120px, 16vw, 220px);
-  top: 18%;
-  right: 8%;
+.heroImage {
+  width: clamp(120px, 18vw, 240px);
+  height: auto;
   filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.08));
-
-  @media (max-width: 900px) {
-    right: -30px;
-    opacity: 0.5;
-  }
 }
 
-.blobCoin {
-  width: clamp(110px, 14vw, 190px);
-  bottom: 12%;
-  left: 6%;
-
-  @media (max-width: 900px) {
-    left: -40px;
-    opacity: 0.5;
-  }
-}
-
-.blobPeek {
-  width: clamp(80px, 10vw, 130px);
-  top: 30%;
-  left: 18%;
-
-  @media (max-width: 900px) {
-    display: none;
-  }
-}

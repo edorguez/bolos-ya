@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth/useAuth'
 import { loginContent } from '../../constants/auth/content'
+import { brandAssets } from '../../constants/home/content'
 import styles from './LoginPage.module.scss'
 
 export function LoginPage() {
@@ -29,19 +30,16 @@ export function LoginPage() {
 
   return (
     <div className={styles.page}>
+      <div className={styles.blobs} aria-hidden="true">
+        <div className={styles.blobGreen} />
+        <div className={styles.blobSand} />
+      </div>
+
       <main className={styles.main}>
         <div className={styles.card}>
           <header className={styles.header}>
-            <div className={styles.iconWrap}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: 32 }}>
-                {loginContent.adminIcon}
-              </span>
-            </div>
-            <h1 className={styles.brand}>{loginContent.brand}</h1>
-            <div className={styles.titleGroup}>
-              <h2 className={styles.title}>{loginContent.title}</h2>
-              <p className={styles.subtitle}>{loginContent.subtitle}</p>
-            </div>
+            <img src={brandAssets.logo} alt={loginContent.brand} className={styles.logo} />
+            <h1 className={styles.title}>{loginContent.title}</h1>
           </header>
 
           <form className={styles.form} onSubmit={handleSubmit}>
@@ -82,7 +80,7 @@ export function LoginPage() {
                 type="submit"
                 disabled={loading}
               >
-                {loading ? 'Checking...' : loginContent.submitText}
+                {loading ? 'Verificando...' : loginContent.submitText}
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                   {loginContent.submitIcon}
                 </span>

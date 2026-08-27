@@ -3,12 +3,13 @@
 
 **Theme:** light
 
-Family lands like a children's book dropped into a fintech dashboard — warm off-white canvas (#fbfaf9) littered with expressive flat-illustrated characters in vivid primary colors (electric orange, grass green, sky blue, bright yellow) while the typography stays grounded and authoritative. The custom 'Family' typeface at 68px with tight -0.031em tracking carries the hero weight, while Inter handles everything else with progressively tighter letter-spacing as sizes increase. Cards use an inset warm-stone border (a single 1px shadow at #f2f0ed) instead of drop shadows, keeping surfaces flat and tactile. The only dark surface is the 'Get Started' pill button in near-black #121212 against the warm cream background — a single moment of contrast in an otherwise light, airy layout. The illustration vocabulary — wobbly blob creatures with stick legs and expressive faces — is the real identity system, not the color palette alone.
+Family lands like a children's book dropped into a fintech dashboard — warm off-white canvas (#fbfaf9) littered with expressive flat-illustrated characters in vivid primary colors (electric orange, grass green, sky blue, bright yellow) while the typography stays grounded and authoritative. Fraunces Bold at 68px with tight -0.031em tracking carries the hero weight, while Inter handles everything else with progressively tighter letter-spacing as sizes increase. Cards use an inset warm-stone border (a single 1px shadow at #f2f0ed) instead of drop shadows, keeping surfaces flat and tactile. The only dark surface is the 'Get Started' pill button in near-black #121212 against the warm cream background — a single moment of contrast in an otherwise light, airy layout. The illustration vocabulary — wobbly blob creatures with stick legs and expressive faces — is the real identity system, not the color palette alone.
 
 ## Brand — Merki
 
 - **Primary / brand color:** `#339933` (green) — the app's main color, used for primary buttons, active/selected states, and accent links/text.
 - **Secondary / accent color:** `#F4A261` (warm sand) — secondary actions, selected/active states, link accents, and icon highlights. Used sparingly; never as the dominant surface color.
+- **Display font:** `Fraunces Bold` — used for hero and section display headlines only.
 - **Logo font:** `Poppins Bold` — used for the Merki logo wordmark.
 
 > **Note:** In the mobile app (`mobile/styles/theme.ts`) the `secondary` token previously mapped to Ember Orange (`#ff3e00`). It now maps to `#F4A261`. Ember Orange remains a distinct token reserved for urgency/status moments (see Color Usage Audit below).
@@ -93,13 +94,12 @@ The following tokens are defined in `mobile/styles/theme.ts` (and mirrored in th
 
 ## Tokens — Typography
 
-### Family — Hero and section display headlines only. The 68px/500 weight with -0.031em tracking is the signature move — a custom typeface that reads as a friendly geometric serif hybrid, warmer than Inter but less precious than a display serif. Used sparingly: 2-3 instances per page maximum. · `--font-family`
-- **Substitute:** Fraunces or Playfair Display at weight 500
-- **Weights:** 500
+### Fraunces Bold — Hero and section display headlines only. The 68px/700 weight with -0.031em tracking is the signature move — a friendly optical-size serif that reads warmer than Inter but less precious than a display serif. Used sparingly: 2-3 instances per page maximum. · `--font-display`
+- **Weights:** 700 (Bold)
 - **Sizes:** 44px, 68px
 - **Line height:** 1.09–1.10
 - **Letter spacing:** -2.11px at 68px, -0.88px at 44px
-- **Role:** Hero and section display headlines only. The 68px/500 weight with -0.031em tracking is the signature move — a custom typeface that reads as a friendly geometric serif hybrid, warmer than Inter but less precious than a display serif. Used sparingly: 2-3 instances per page maximum.
+- **Role:** Hero and section display headlines only. The 68px/700 weight with -0.031em tracking is the signature move — a friendly optical-size serif that reads warmer than Inter but less precious than a display serif. Used sparingly: 2-3 instances per page maximum.
 
 ### Inter — All UI text: nav (14px/500), body copy (15-17px/400), card labels (13px/500), buttons (14-15px/500-600), captions (12px/400). Letter-spacing tightens with size — large Inter (44px) gets -0.026em to match the display font's density. · `--font-inter`
 - **Substitute:** System UI stack or IBM Plex Sans
@@ -242,7 +242,7 @@ Background #fbfaf9 (canvas), height ~64px, box-shadow rgba(0,0,0,0.04) 0px 0px 0
 ### Section Heading
 **Role:** Page section titles
 
-Family typeface 500 at 68px with -2.11px letter-spacing and line-height 1.09 for hero. Inter 600 at 44px with -1.14px letter-spacing for sub-section heads. Color #343433 or #121212. Always left-aligned or centered — no right-aligned headlines.
+Fraunces Bold 700 at 68px with -2.11px letter-spacing and line-height 1.09 for hero. Inter 600 at 44px with -1.14px letter-spacing for sub-section heads. Color #343433 or #121212. Always left-aligned or centered — no right-aligned headlines.
 
 ### Colored Action Badge
 **Role:** Transaction type labels inside wallet UI mockups — Send, Receive, Purchase
@@ -266,7 +266,7 @@ The mobile app (Expo/React Native) implements the same token system (`styles/the
 - Apply the inset stone border (box-shadow: color(display-p3 0.949 0.941 0.929) 0px 0px 0px 1px inset) on all white cards instead of a CSS border property — keeps cards off-layout-flow. On mobile, white cards use a 1px stone-surface CSS border (`borderColor: stoneSurface`) plus `--shadow-soft` instead of the inset technique.
 - Use border-radius 32px for all pill buttons (both #121212 dark and #f6f4ef light variants) — the pill shape is non-negotiable for interactive elements.
 - Apply tight negative letter-spacing to all large text: -2.11px at 68px display, -1.14px at 44px heading-lg, scaling to near-zero at body sizes.
-- Restrict the Family custom typeface to display and large section headings only (44px and 68px) — Inter handles all UI text regardless of weight.
+- Restrict the Fraunces display typeface to display and large section headings only (44px and 68px) — Inter handles all UI text regardless of weight.
 - Use Ember Orange (#ff3e00) exclusively for urgency/status moments (live scan indicator, error-ish warnings, method icons) and illustration accents — never as a general warm link/button accent; that role belongs to Secondary Sand (#F4A261).
 - Use #F4A261 for secondary actions (secondary button variant, cart-complete FAB), selected/active states (supermarket chip, currency toggle, tab-bar active pill), and icon highlights — keep it to a few spots per screen, never as a page background.
 - Pair #F4A261 with dark text (#2A1C0E) on its fills, and use #A3521B for any secondary-colored link/accent text — the raw sand fails 4.5:1 contrast on cream/white.
@@ -278,7 +278,7 @@ The mobile app (Expo/React Native) implements the same token system (`styles/the
 - Don't use drop shadows on content cards on the web landing — the inset warm-stone border is the surface definition mechanism there; shadows appear only on the dark phone mockup and hover-elevated states. On mobile, surfaces use the unified `--shadow-soft` elevation on cards, buttons, inputs, and quantity controls, with `--shadow-medium`/`--shadow-strong` reserved for selected states and emphasis.
 - Don't use pure #ffffff as a page background — it breaks the warm cream identity; #fbfaf9 is the minimum warmth threshold.
 - Don't use the illustration characters as pure decoration at small sizes — below 60px they lose their expressive faces and become abstract blobs.
-- Don't mix Inter weight 700+ with the Family display typeface — the site uses Inter max weight 600; heavier weights fight the custom font's personality.
+- Don't mix Inter weight 700+ with the Fraunces display typeface — the site uses Inter max weight 600; heavier weights fight the display font's personality.
 - Don't apply Ember Orange (#ff3e00) to more than one UI element per viewport — its rarity is what creates urgency; overuse collapses the hierarchy.
 - Don't use border-radius below 10px on cards — the minimum card radius is 10px; anything sharper breaks the soft-edged system.
 - Don't use the Violet Pop (#9f4fff), Flamingo (#ff58ae), or Coral Red (#ff2b3a) colors in UI chrome — these are illustration-only accents and have no role in buttons, nav, or body text.
@@ -306,7 +306,7 @@ Exclusively custom flat illustration — no photography anywhere on the page. Ch
 
 ## Layout
 
-Max-width ~1200px centered on the warm canvas. Hero is full-viewport with centered headline text (Family typeface), flanked by illustration characters positioned left and right of the text column — not a split layout but a 'headline-surrounded-by-friends' composition. Below hero: alternating sections with generous vertical gaps (120-180px). Feature section uses a 3-column card grid (white cards with inset borders). Phone mockup sections show 2-3 device frames side by side on white or cream bands. Social proof section ('Friends of Family') uses a horizontal scrolling card row. Navigation is a fixed top bar with logo left, links center, actions right. Footer is minimal — link grid on canvas background. No sidebar, no mega-menu. Page is text-dominant with illustrations as punctuation, not wallpaper.
+Max-width ~1200px centered on the warm canvas. Hero is full-viewport with centered headline text (Fraunces Bold), flanked by illustration characters positioned left and right of the text column — not a split layout but a 'headline-surrounded-by-friends' composition. Below hero: alternating sections with generous vertical gaps (120-180px). Feature section uses a 3-column card grid (white cards with inset borders). Phone mockup sections show 2-3 device frames side by side on white or cream bands. Social proof section ('Friends of Family') uses a horizontal scrolling card row. Navigation is a fixed top bar with logo left, links center, actions right. Footer is minimal — link grid on canvas background. No sidebar, no mega-menu. Page is text-dominant with illustrations as punctuation, not wallpaper.
 
 ## Agent Prompt Guide
 
@@ -325,7 +325,7 @@ Max-width ~1200px centered on the warm canvas. Hero is full-viewport with center
 
 **Example Component Prompts**
 
-1. **Hero Section**: Background #fbfaf9. Center-aligned headline in Family typeface 500 at 68px, color #343433, letter-spacing -2.11px, line-height 1.09. Subtext at 16px Inter 400, color #474645, max-width 480px. Two pill buttons below: dark (#121212 background, #ffffff text, 32px radius, 0px 14px padding) and light (#f6f4ef background, #121212 text, 32px radius, 0px 14px padding). Surround headline with flat illustrated characters in orange, green, blue, yellow at sizes 60-120px positioned asymmetrically.
+1. **Hero Section**: Background #fbfaf9. Center-aligned headline in Fraunces Bold 700 at 68px, color #343433, letter-spacing -2.11px, line-height 1.09. Subtext at 16px Inter 400, color #474645, max-width 480px. Two pill buttons below: dark (#121212 background, #ffffff text, 32px radius, 0px 14px padding) and light (#f6f4ef background, #121212 text, 32px radius, 0px 14px padding). Surround headline with flat illustrated characters in orange, green, blue, yellow at sizes 60-120px positioned asymmetrically.
 
 2. **Feature Card Grid (3-column)**: Each card: background #ffffff, box-shadow color(display-p3 0.949 0.941 0.929) 0px 0px 0px 1px inset, border-radius 10px, padding 32px. Heading in Inter 600 19px #343433. Body in Inter 400 15px #474645 line-height 1.47. Product screenshot or illustration inside card on #f8f7f4 panel with border-radius 12px.
 
@@ -409,8 +409,9 @@ Motion personality is 'expressive' with 0.2s ease as the base duration (123 inst
   --color-valid-green: #00c454;
 
   /* Typography — Font Families */
-  --font-family: 'Family', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
 
   /* Typography — Scale */
   --text-caption: 12px;
@@ -534,8 +535,9 @@ Motion personality is 'expressive' with 0.2s ease as the base duration (123 inst
   --color-valid-green: #00c454;
 
   /* Typography */
-  --font-family: 'Family', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
 
   /* Typography — Scale */
   --text-caption: 12px;

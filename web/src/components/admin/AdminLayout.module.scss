@@ -26,8 +26,36 @@
   min-width: 0;
 
   @media (min-width: 768px) {
-    margin-left: 240px;
+    margin-left: 264px;
     padding: 2rem;
     gap: 2rem;
+  }
+}
+
+.loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--color-ash);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  background: var(--color-warm-canvas);
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--color-stone-surface);
+  border-top-color: var(--color-primary);
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }

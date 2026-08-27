@@ -63,18 +63,15 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
 
   return (
     <Dialog key={open ? 'open' : 'closed'} open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle sx={{ position: 'relative' }}>
+      <DialogTitle>
         {paymentModalContent.rejectTitle}
-        <IconButton
-          onClick={onClose}
-          sx={{ position: 'absolute', right: 8, top: 8 }}
-        >
+        <IconButton onClick={onClose} sx={{ position: 'absolute', right: 12, top: 12 }}>
           <span className="material-symbols-outlined">close</span>
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ '&.MuiDialogContent-root': { padding: '1.25rem 1.25rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' } }}>
-        <FormControl fullWidth error={!!errors.reason}  >
+      <DialogContent sx={{ padding: '0.5rem 1.25rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <FormControl fullWidth error={!!errors.reason}>
           <InputLabel id="reject-reason-label">
             {paymentModalContent.rejectReasonLabel}
           </InputLabel>
@@ -83,9 +80,6 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
             value={reasonId}
             label={paymentModalContent.rejectReasonLabel}
             onChange={handleReasonChange}
-            sx={{
-              '&.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--color-coral-red)' },
-            }}
           >
             {reasons.map((r) => (
               <MenuItem key={r.id} value={r.id}>
@@ -94,7 +88,7 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
             ))}
           </Select>
           {errors.reason && (
-            <FormHelperText sx={{ color: 'var(--color-coral-red)' }}>{errors.reason}</FormHelperText>
+            <FormHelperText error>{errors.reason}</FormHelperText>
           )}
         </FormControl>
 
@@ -111,33 +105,14 @@ export function RejectReasonModal({ open, reasons, onClose, onConfirm }: RejectR
           slotProps={{
             htmlInput: { maxLength: 200 },
           }}
-          sx={{
-            '& .MuiFormHelperText-root': {
-              color: errors.message ? 'var(--color-coral-red)' : 'var(--color-ash)',
-              marginLeft: 0,
-            },
-            '&.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--color-coral-red)' },
-          }}
         />
       </DialogContent>
 
       <DialogActions>
-        <Button
-          variant="contained"
-          fullWidth
-          onClick={handleConfirm}
-          sx={{
-            backgroundColor: 'var(--color-coral-red)',
-            '&:hover': { backgroundColor: '#dc2626' },
-          }}
-        >
+        <Button variant="contained" color="error" fullWidth onClick={handleConfirm}>
           {paymentModalContent.rejectConfirmYes}
         </Button>
-        <Button
-          variant="outlined"
-          fullWidth
-          onClick={onClose}
-        >
+        <Button variant="outlined" fullWidth onClick={onClose}>
           {paymentModalContent.rejectConfirmNo}
         </Button>
       </DialogActions>

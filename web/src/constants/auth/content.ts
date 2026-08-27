@@ -1,7 +1,6 @@
 export const loginContent = {
   brand: 'Merki',
-  title: 'Inicio Admin',
-  subtitle: 'Solo Acceso Autorizado',
+  title: 'Portal de Administración',
   emailLabel: 'Correo',
   emailIcon: 'mail',
   passwordLabel: 'Contraseña',

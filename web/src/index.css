@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
@@ -72,8 +72,8 @@
   --font-weight-semibold: 600;
 
   /* Shorthand font props for convenience */
-  --font-display-lg: 68px/1.09 'Inter', sans-serif;
-  --font-display-md: 44px/1.09 'Inter', sans-serif;
+  --font-display-lg: 700 68px/1.09 'Fraunces', serif;
+  --font-display-md: 700 44px/1.09 'Fraunces', serif;
   --font-headline-lg: 32px/1.2 'Inter', sans-serif;
   --font-headline-md: 28px/1.2 'Inter', sans-serif;
   --font-title-lg: 23px/1.2 'Inter', sans-serif;

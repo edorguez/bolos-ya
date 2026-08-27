@@ -148,15 +148,26 @@ export function PaymentsPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <div>
+        <div className={styles.headerCopy}>
           <h2 className={styles.title}>{paymentsContent.title}</h2>
           <p className={styles.description}>{paymentsContent.description}</p>
         </div>
+        <button className={styles.refreshBtn} onClick={refetch}>
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+            refresh
+          </span>
+          Actualizar
+        </button>
       </header>
 
       <div className={styles.tableWrap}>
         {error ? (
           <div className={styles.errorState}>
+            <span className={styles.errorIcon}>
+              <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
+                error
+              </span>
+            </span>
             <span>{error}</span>
             <button className={styles.retryBtn} onClick={refetch}>
               Reintentar
@@ -191,6 +202,11 @@ export function PaymentsPage() {
                   <TableRow>
                     <TableCell colSpan={PAYMENT_COLUMNS.length} align="center" sx={{ py: 6 }}>
                       <div className={styles.emptyState}>
+                        <span className={styles.emptyIcon}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
+                            payments
+                          </span>
+                        </span>
                         No hay pagos registrados
                       </div>
                     </TableCell>

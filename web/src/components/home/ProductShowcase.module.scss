@@ -18,47 +18,6 @@
   overflow: hidden;
 }
 
-/* Floating coins */
-.coin {
-  position: absolute;
-  object-fit: contain;
-  z-index: 0;
-  will-change: transform;
-  animation: coinSpin 12s linear infinite;
-}
-
-.coinTop {
-  width: 64px;
-  top: 40px;
-  left: 12%;
-  animation-duration: 10s;
-
-  @media (max-width: 900px) {
-    left: 4%;
-  }
-}
-
-.coinBottom {
-  width: 96px;
-  bottom: 48px;
-  right: 12%;
-  animation-direction: reverse;
-  animation-duration: 15s;
-
-  @media (max-width: 900px) {
-    right: 4%;
-  }
-}
-
-@keyframes coinSpin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* Dark phone mockup */
 .phoneWrap {
   position: relative;
@@ -125,7 +84,7 @@
 .balanceValue {
   font-family: var(--font-display);
   font-size: 30px;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.75px;
 }

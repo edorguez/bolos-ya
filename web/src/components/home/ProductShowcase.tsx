@@ -5,21 +5,6 @@ export function ProductShowcase() {
   return (
     <section id="soluciones" className={styles.section}>
       <div className={styles.stage}>
-        <img
-          src={showcaseContent.coin1.src}
-          alt=""
-          aria-hidden="true"
-          className={`${styles.coin} ${styles.coinTop} gsap-coin-top`}
-          loading="lazy"
-        />
-        <img
-          src={showcaseContent.coin2.src}
-          alt=""
-          aria-hidden="true"
-          className={`${styles.coin} ${styles.coinBottom} gsap-coin-bottom`}
-          loading="lazy"
-        />
-
         <div className={styles.phoneWrap}>
           <div className={`${styles.phone} gsap-showcase-phone`}>
             <div className={styles.screen}>

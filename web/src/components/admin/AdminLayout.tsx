@@ -15,16 +15,9 @@ export function AdminLayout() {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        color: 'var(--color-ash)',
-        fontFamily: "'Inter', sans-serif",
-        fontSize: '0.875rem',
-      }}>
-        Verificando sesión...
+      <div className={styles.loading}>
+        <span className={styles.spinner} aria-hidden="true" />
+        <span>Verificando sesión...</span>
       </div>
     )
   }

@@ -36,25 +36,12 @@ export const brandAssets = {
 }
 
 export const heroContent = {
-  badge: 'Merki — Descarga gratis',
   badgeIcon: 'bolt',
   title: 'Tus compras, bajo control.',
   titleAccent: 'En cualquier moneda.',
   description:
     'Gestiona los carritos del supermercado, presupuestos y gastos diarios. Todo sincronizado en Bolívares y USD al instante. Totalmente gratis, sin hojas de cálculo aburridas, solo claridad.',
-  heroImages: [
-    { src: merkiIllustration, alt: 'Ilustración de marca Merki', className: 'blobBrand' },
-    {
-      src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuByqblivI-Q6f7Hop4_KQ97ktx8b_CjQ5xi2f4G_kRRndWRCAimnzhWx_KkvKJw-KO0JXTB3goTc-SudQ11XwaGf9qyBjyh8kemHI1WvRivxCWvTbcMKTBZ1_ROjShB5QzUvIi0iIJSA9shH5RbZD4oDfM7KMysz1u_Z4wz-xHAUiFUEt7vQvUJYthue8I_SyCjAsC8iRBciuZYqN-JdhLqxfj6yraS_6fDloEKk66lcDai7Xi_5sEL',
-      alt: 'Personaje ilustrado sosteniendo una moneda',
-      className: 'blobCoin',
-    },
-    {
-      src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuArnhqx-UPJNRysAVKuJRQ5G0oM0Iufn0ccOEnsXU6bFxn8BFiqyVyvp_vtdsc2BKQ-0n-SJIfege-E37td6OY3SNI9HutbieCXEUaM-1k93N5XQyQG74BP7ZE1TM7DB4LTR38gmsufCVxFE2WksH0Z1rFcUlU6uG0XA1B7rH2bz1r5D8zfN1oZRgOs8Hojw9WJDKL_KLidRB6h0QAMucl6ks4xjhVvrWWiRPlZSbcI2SIa-SC85b8W',
-      alt: 'Personaje ilustrado asomándose',
-      className: 'blobPeek',
-    },
-  ],
+  illustration: merkiIllustration,
 }
 
 export const navLinks: NavLink[] = [
@@ -101,12 +88,6 @@ export const showcaseContent = {
   balanceLabel: 'Balance Total',
   balanceValue: '$450.25',
   transactionsLabel: 'Transacciones Recientes',
-  coin1: {
-    src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCw9yUNyZrDI3YsdD0w-Nlhm47jkadXGT7IhoMAX07Vd6KL0PXSIuOxrPi9Q4bqC6P_ORoNqyLVItMeS8ETlUg2jCc0pW35q8lJ-Bxl0lbgrtOtuP8KN94JNUWkdXCMcH-JGAE4YEotvMSd73M_pPlA3y7va0IR9c6NzNrDXpLHdc9xdeDBNcQt-NfwtkxbDf_C-Uu_vCBAk2ibXeel84tRGtXk0FFnTwCMymvXUKhXOhYSWZH5v70w',
-  },
-  coin2: {
-    src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD0OL4YJGR2wOUfSGdWKQ5EX02pTSQ23D3ZdpZvdcNCHC-JNpyBJVian9YE7Fud5V3iBZNOx8AhxYJOAvkPCgr9PjQTp7Y0VW_wsYquuGYnraqTSyBdyWBVrIb3-rfAIBpVGnF_Au5S9j6Csd7FpO-FzUJJKpaWng0XIvzWLEX3-5vSPCeYUT7QJxU6_GE7WCLx6TnRPU_QIVW_k4Ah4vcB2bGWY6VGal1FSQEVCchN1YoeWqwSrmjA',
-  },
   character: {
     src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBtjhAM-6ISiZs9K-r0B8kOEh-SFdk4b0EIyZB7sAQ24Kcs1HcaQqAMmPvaIuGnodYf8IXu5oacSK8VKCix5v2eyPcGw0lWkH7DSxfH1iIEKUfqvczpPhhRzk2SirOnKNHp7-m9lZHUD_RSMJyUiasoagYMZI_LeEY0SzglmTmvB6WxwtDQh11wGwVNPD4swOh--ttg5z7y-q3xwHw-zqfN0eS_LW_TmDXaG7wRRq6sDwfblZSbhGdP',
   },

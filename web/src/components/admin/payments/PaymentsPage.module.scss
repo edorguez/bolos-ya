@@ -13,14 +13,22 @@
   @media (min-width: 768px) {
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
   }
 }
 
+.headerCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .title {
-  font-family: 'Inter', sans-serif;
-  font-size: 23px;
-  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -1px;
   color: var(--color-charcoal-primary);
   margin: 0;
 }
@@ -28,38 +36,55 @@
 .description {
   font-family: 'Inter', sans-serif;
   font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
   color: var(--color-ash);
-  margin: 0.5rem 0 0;
+  margin: 0;
 }
 
-.exportBtn {
-  background: var(--color-midnight);
-  color: #ffffff;
-  border: none;
-  border-radius: var(--radius-buttonspill);
-  padding: 0 14px;
+.refreshBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   height: 40px;
+  padding: 0 1.25rem;
+  border-radius: var(--radius-buttonspill);
+  border: 1px solid var(--color-stone-surface);
+  background: #ffffff;
+  color: var(--color-charcoal-primary);
   font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
+  letter-spacing: -0.15px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
   align-self: flex-start;
 
+  @media (min-width: 768px) {
+    align-self: auto;
+  }
+
   &:hover {
-    background: var(--color-charcoal-primary);
+    background: var(--color-parchment-card);
+    border-color: var(--color-fog);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 
 .tableWrap {
   background: #ffffff;
-  border-radius: var(--radius-cards);
+  border: 1px solid var(--color-stone-surface);
+  border-radius: var(--radius-cardslarge);
   padding: 1rem;
-  box-shadow: var(--shadow-subtle);
+  box-shadow: var(--shadow-subtle-2);
   overflow-x: auto;
 
   @media (min-width: 768px) {
-    border-radius: var(--radius-cardslarge);
     padding: 1.5rem;
   }
 }
@@ -75,18 +100,23 @@
   background: transparent;
   color: var(--color-ash);
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    background: var(--color-stone-surface);
-    color: var(--color-charcoal-primary);
+    background: var(--color-primary-container);
+    color: var(--color-primary);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.94);
   }
 }
 
 .skeleton {
   height: 1rem;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--color-parchment-card) 25%, var(--color-stone-surface) 50%, var(--color-parchment-card) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -116,27 +146,60 @@
   font-family: 'Inter', sans-serif;
 }
 
+.errorIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 43, 58, 0.08);
+  color: var(--color-coral-red);
+}
+
 .retryBtn {
-  background: var(--color-midnight);
+  background: var(--color-primary);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-buttonspill);
-  padding: 0.5rem 1.25rem;
+  padding: 0.5rem 1.5rem;
+  height: 40px;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -0.15px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    background: var(--color-charcoal-primary);
+    background: var(--color-primary-pressed);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 
 .emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
   text-align: center;
   padding: 3rem 1rem;
   color: var(--color-ash);
   font-family: 'Inter', sans-serif;
   font-size: 0.9375rem;
+}
+
+.emptyIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-parchment-card);
+  color: var(--color-fog);
 }
