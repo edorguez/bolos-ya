@@ -66,7 +66,7 @@ export function HomePage() {
           opacity: 0,
           duration: 1,
           ease: 'power3.out',
-          scrollTrigger: { trigger: '#soluciones', start: 'top 75%', toggleActions: 'play none none reverse' },
+          scrollTrigger: { trigger: '#la-app', start: 'top 75%', toggleActions: 'play none none reverse' },
         })
 
         gsap.from('.gsap-showcase-bubble', {
@@ -75,7 +75,7 @@ export function HomePage() {
           duration: 0.7,
           ease: 'back.out(1.8)',
           delay: 0.5,
-          scrollTrigger: { trigger: '#soluciones', start: 'top 70%', toggleActions: 'play none none reverse' },
+          scrollTrigger: { trigger: '#la-app', start: 'top 70%', toggleActions: 'play none none reverse' },
         })
       }
 

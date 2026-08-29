@@ -60,6 +60,10 @@ type EmailConfig struct {
 	ResendAPIKey string `mapstructure:"resend_api_key"`
 	FromEmail    string `mapstructure:"from_email"`
 	FromName     string `mapstructure:"from_name"`
+	ImageBaseURL string `mapstructure:"image_base_url"`
+	AppURL       string `mapstructure:"app_url"`
+	SupportEmail string `mapstructure:"support_email"`
+	SupportPhone string `mapstructure:"support_phone"`
 }
 
 // AppConfig holds general application configuration
@@ -138,6 +142,18 @@ func bindEnvVars() error {
 	}
 	if err := viper.BindEnv("email.from_name", "RESEND_FROM_NAME"); err != nil {
 		return fmt.Errorf("failed to bind RESEND_FROM_NAME: %w", err)
+	}
+	if err := viper.BindEnv("email.image_base_url", "EMAIL_IMAGE_BASE_URL"); err != nil {
+		return fmt.Errorf("failed to bind EMAIL_IMAGE_BASE_URL: %w", err)
+	}
+	if err := viper.BindEnv("email.app_url", "EMAIL_APP_URL"); err != nil {
+		return fmt.Errorf("failed to bind EMAIL_APP_URL: %w", err)
+	}
+	if err := viper.BindEnv("email.support_email", "EMAIL_SUPPORT_EMAIL"); err != nil {
+		return fmt.Errorf("failed to bind EMAIL_SUPPORT_EMAIL: %w", err)
+	}
+	if err := viper.BindEnv("email.support_phone", "EMAIL_SUPPORT_PHONE"); err != nil {
+		return fmt.Errorf("failed to bind EMAIL_SUPPORT_PHONE: %w", err)
 	}
 
 	// App

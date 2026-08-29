@@ -4,7 +4,7 @@ import styles from './SocialProofSection.module.scss'
 
 export function SocialProofSection() {
   return (
-    <section id="nosotros" className={styles.section}>
+    <section id="testimonios" className={styles.section}>
       <h2 className={`${styles.title} gsap-reveal`}>Amigos de Merki</h2>
 
       <div className={`${styles.stats} gsap-reveal`}>
@@ -19,20 +19,36 @@ export function SocialProofSection() {
       </div>
 
       <div className={styles.carousel}>
-        {testimonials.map((t, i) => (
-          <article key={i} className={`${styles.card} gsap-reveal`}>
-            <div className={styles.cardHeader}>
-              <div className={styles.avatar}>
-                <img src={t.avatar} alt={t.name} loading="lazy" />
+        <div className={styles.track}>
+          {testimonials.map((t, i) => (
+            <article key={i} className={`${styles.card} gsap-reveal`}>
+              <div className={styles.cardHeader}>
+                <div className={styles.avatar}>
+                  <img src={t.avatar} alt={t.name} loading="lazy" />
+                </div>
+                <div>
+                  <p className={styles.name}>{t.name}</p>
+                  <p className={styles.role}>{t.role}</p>
+                </div>
               </div>
-              <div>
-                <p className={styles.name}>{t.name}</p>
-                <p className={styles.role}>{t.role}</p>
+              <p className={styles.quote}>“{t.text}”</p>
+            </article>
+          ))}
+          {testimonials.map((t, i) => (
+            <article key={`clone-${i}`} className={styles.card} aria-hidden="true">
+              <div className={styles.cardHeader}>
+                <div className={styles.avatar}>
+                  <img src={t.avatar} alt="" loading="lazy" />
+                </div>
+                <div>
+                  <p className={styles.name}>{t.name}</p>
+                  <p className={styles.role}>{t.role}</p>
+                </div>
               </div>
-            </div>
-            <p className={styles.quote}>“{t.text}”</p>
-          </article>
-        ))}
+              <p className={styles.quote}>“{t.text}”</p>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   )

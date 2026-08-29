@@ -3,7 +3,7 @@ import styles from './ProductShowcase.module.scss'
 
 export function ProductShowcase() {
   return (
-    <section id="soluciones" className={styles.section}>
+    <section id="la-app" className={styles.section}>
       <div className={styles.stage}>
         <div className={styles.phoneWrap}>
           <div className={`${styles.phone} gsap-showcase-phone`}>

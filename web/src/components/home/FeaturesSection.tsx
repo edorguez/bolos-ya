@@ -19,18 +19,6 @@ export function FeaturesSection() {
                 <h3 className={styles.cardTitle}>{f.title}</h3>
               </div>
               <p className={styles.cardDesc}>{f.description}</p>
-              {f.chips && (
-                <div className={styles.chips}>
-                  {f.chips.map(chip => (
-                    <span
-                      key={chip.label}
-                      className={`${styles.chip} ${chip.variant === 'primary' ? styles.chipPrimary : styles.chipNeutral}`}
-                    >
-                      {chip.label}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
           </article>
         ))}

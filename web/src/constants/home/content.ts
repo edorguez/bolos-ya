@@ -46,28 +46,24 @@ export const heroContent = {
 
 export const navLinks: NavLink[] = [
   { label: 'Características', href: '#caracteristicas' },
-  { label: 'Soluciones', href: '#soluciones' },
-  { label: 'Nosotros', href: '#nosotros' },
+  { label: 'La App', href: '#la-app' },
+  { label: 'Testimonios', href: '#testimonios' },
 ]
 
 export const features: Feature[] = [
   {
     icon: 'document_scanner',
-    title: 'Escaneo OCR',
+    title: 'Escaneo de Producto',
     description:
-      'Fotografía tu factura y Merki extraerá automáticamente los productos y precios. Magia pura para tu despensa.',
+      'Toma una foto del precio con el nombre del productio y Merki extraerá automáticamente el precio y producto. Magia pura.',
     image: merkiScan,
   },
   {
     icon: 'currency_exchange',
-    title: 'Presupuesto Dual',
+    title: 'Conversión Automática',
     description:
-      'Define tus límites en USD o VES. La app calcula el cambio al instante para que nunca te pases del límite al pagar.',
+      'Merki calcula el cambio al instante entre USD y Bolívares usando la tasa actual BCV.',
     image: merkiCalculator,
-    chips: [
-      { label: 'VES 3,500', variant: 'primary' },
-      { label: 'USD 100', variant: 'neutral' },
-    ],
   },
   {
     icon: 'wifi_off',
@@ -116,6 +112,20 @@ export const testimonials: Testimonial[] = [
     text: 'Uso Merki para los gastos de mi pequeño negocio. El modo offline me salva cuando estoy en el mercado mayorista.',
     avatar:
       'https://lh3.googleusercontent.com/aida-public/AB6AXuA3SA9lFe0h0Jh_N7bAolZKF5r1xM53TwBxZaE9Su0SQzYhoLgBsKpugruJXwJMQljjCke9oqlbYkdeSKm_7_HuUcv2piqpvqbi6Qgw3PgJa_i0Ua7RkeFxyOJZUtg-VVgSvHQb2UogiojiPIjO-03Zq-qTH9G28KltAR7uKlWJkUftCIB-mya0K99yp0Ow1Qnpln21_G31GeOq-WAxwjcST5RhkAapsjUBnf_ETFfs9A7eQb5TXfJT',
+  },
+  {
+    name: 'Diego G.',
+    role: 'Ingeniero y papá',
+    text: 'Comparo precios entre mercados y Merki me dice al instante cuánto gastaré en dólares. Mi esposa y yo llevamos el presupuesto familiar sin pelear.',
+    avatar:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuA3SA9lFe0h0Jh_N7bAolZKF5r1xM53TwBxZaE9Su0SQzYhoLgBsKpugruJXwJMQljjCke9oqlbYkdeSKm_7_HuUcv2piqpvqbi6Qgw3PgJa_i0Ua7RkeFxyOJZUtg-VVgSvHQb2UogiojiPIjO-03Zq-qTH9G28KltAR7uKlWJkUftCIB-mya0K99yp0Ow1Qnpln21_G31GeOq-WAxwjcST5RhkAapsjUBnf_ETFfs9A7eQb5TXfJT',
+  },
+  {
+    name: 'Valentina L.',
+    role: 'Diseñadora freelance',
+    text: 'Escaneo mis compras del mes y al llegar a casa todo está ordenado por categorías. Ver el gasto en Bs y USD a la vez me cambió la vida.',
+    avatar:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuBJ1svke59E7bTh67JebghULfFpO_VHr1Jj738TkOKCkcWBOLm4R-d1wSrxohlj8t0AAEoVAFjQBkiAruoT3s_9ldZJWIKNX3QP0r0ldTkviQHO5NSEEuWJv9GQUEuNSwbf7mjYd6RUsynk8c2IsYcr_NZaS1DsTdCQ7TdncVgo9seD-rIpQQgEdKxHrq2y7Kv0pUdZBeeXICOv9WTbVRqJYwdOJlwUMaPudyQvXozG2bOuukFT0frQ',
   },
 ]
 

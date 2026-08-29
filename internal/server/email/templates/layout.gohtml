@@ -1,0 +1,64 @@
+{{/* Shared partials for the Merki transactional email system. */}}
+{{/* Each email template is a standalone document that reuses these blocks. */}}
+
+{{define "email-head"}}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>{{.Title}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+{{end}}
+
+{{define "email-logo"}}
+<a href="{{.AppURL}}" style="text-decoration:none;" target="_blank">
+  <img src="{{.ImageBaseURL}}/merki-logo.png" alt="Merki" width="72" height="28" style="display:block;border:0;outline:none;text-decoration:none;width:72px;height:28px;" />
+</a>
+{{end}}
+
+{{/* Bulletproof dark pill CTA — the signature landing-page button. */}}
+{{define "email-cta"}}
+<table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;">
+  <tr>
+    <td align="center" bgcolor="#121212" style="background-color:#121212;border-radius:32px;">
+      <a href="{{.URL}}" style="display:inline-block;color:#ffffff;font-family:Inter,Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:-0.18px;text-decoration:none;line-height:48px;padding:0 28px;border-radius:32px;">{{.Label}}</a>
+    </td>
+  </tr>
+</table>
+{{end}}
+
+{{define "email-footer"}}
+<tr>
+  <td style="background-color:#f8f7f4;padding:24px 40px;text-align:center;border-top:1px solid #f2f0ed;">
+    <p style="margin:0 0 4px 0;font-family:Inter,Arial,sans-serif;font-size:12px;line-height:1.58;letter-spacing:-0.14px;color:#848281;">Merki — Tus compras, bajo control.</p>
+    <p style="margin:0;font-family:Inter,Arial,sans-serif;font-size:12px;line-height:1.58;letter-spacing:-0.14px;color:#848281;">
+      ¿Dudas? Escríbenos a <a href="mailto:{{.SupportEmail}}" style="color:#A3521B;text-decoration:underline;">{{.SupportEmail}}</a>
+    </p>
+    <p style="margin:12px 0 0 0;font-family:Inter,Arial,sans-serif;font-size:11px;line-height:1.58;letter-spacing:-0.14px;color:#a7a7a7;">&copy; 2026 Merki. Todos los derechos reservados.</p>
+  </td>
+</tr>
+{{end}}
+
+{{define "email-badge-success"}}
+<table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 24px auto;">
+  <tr>
+    <td align="center" valign="middle" bgcolor="#00ca48" style="background-color:#00ca48;border-radius:50%;width:72px;height:72px;text-align:center;vertical-align:middle;">
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNOSAxNi4xN0w0LjgzIDEybC0xLjQyIDEuNDFMOSAxOSAyMSA3bC0xLjQxLTEuNDFMOSAxNi4xN3oiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=" width="36" height="36" alt="Aprobado" style="display:block;border:0;outline:none;margin:18px auto;" />
+    </td>
+  </tr>
+</table>
+{{end}}
+
+{{define "email-badge-error"}}
+<table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 24px auto;">
+  <tr>
+    <td align="center" valign="middle" bgcolor="#ff2b3a" style="background-color:#ff2b3a;border-radius:50%;width:72px;height:72px;text-align:center;vertical-align:middle;">
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTguMyA1LjcxTDEyIDEybDYuMyA2LjI5LTEuNDEgMS40MkwxMiAxMy40MWwtNS4yOSA1LjMtMS40Mi0xLjQyTDEwLjU5IDEyIDUuMyA2LjcxIDYuNzEgNS4zIDEyIDEwLjU5bDUuMjktNS4zIDEuNDIgMS40MnoiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=" width="36" height="36" alt="Rechazado" style="display:block;border:0;outline:none;margin:18px auto;" />
+    </td>
+  </tr>
+</table>
+{{end}}

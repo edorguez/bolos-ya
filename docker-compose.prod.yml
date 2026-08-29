@@ -53,6 +53,10 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY}
       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
       RESEND_FROM_NAME: ${RESEND_FROM_NAME}
+      EMAIL_IMAGE_BASE_URL: ${EMAIL_IMAGE_BASE_URL:-https://${DOMAIN}}
+      EMAIL_APP_URL: ${EMAIL_APP_URL:-https://${DOMAIN}}
+      EMAIL_SUPPORT_EMAIL: ${EMAIL_SUPPORT_EMAIL:-soporte@${DOMAIN}}
+      EMAIL_SUPPORT_PHONE: ${EMAIL_SUPPORT_PHONE:-+58 412-XXX-XXXX}
     depends_on:
       postgres:
         condition: service_healthy
