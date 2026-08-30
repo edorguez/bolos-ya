@@ -24,7 +24,7 @@ export function SocialProofSection() {
             <article key={i} className={`${styles.card} gsap-reveal`}>
               <div className={styles.cardHeader}>
                 <div className={styles.avatar}>
-                  <img src={t.avatar} alt={t.name} loading="lazy" />
+                  <img src={t.avatar} alt={t.name} width="48" height="48" loading="lazy" />
                 </div>
                 <div>
                   <p className={styles.name}>{t.name}</p>
@@ -38,7 +38,7 @@ export function SocialProofSection() {
             <article key={`clone-${i}`} className={styles.card} aria-hidden="true">
               <div className={styles.cardHeader}>
                 <div className={styles.avatar}>
-                  <img src={t.avatar} alt="" loading="lazy" />
+                  <img src={t.avatar} alt="" width="48" height="48" loading="lazy" />
                 </div>
                 <div>
                   <p className={styles.name}>{t.name}</p>

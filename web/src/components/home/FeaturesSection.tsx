@@ -1,4 +1,5 @@
 import { features } from '../../constants/home/content'
+import { MaterialIcon } from '../shared/MaterialIcon'
 import styles from './FeaturesSection.module.scss'
 
 export function FeaturesSection() {
@@ -13,9 +14,7 @@ export function FeaturesSection() {
             </div>
             <div className={styles.body}>
               <div className={styles.titleRow}>
-                <span className={`material-symbols-outlined ${styles.icon}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                  {f.icon}
-                </span>
+                <MaterialIcon name={f.icon} className={styles.icon} />
                 <h3 className={styles.cardTitle}>{f.title}</h3>
               </div>
               <p className={styles.cardDesc}>{f.description}</p>

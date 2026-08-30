@@ -1,4 +1,5 @@
 import { showcaseContent } from '../../constants/home/content'
+import { MaterialIcon } from '../shared/MaterialIcon'
 import styles from './ProductShowcase.module.scss'
 
 export function ProductShowcase() {
@@ -10,9 +11,7 @@ export function ProductShowcase() {
             <div className={styles.screen}>
               <div className={styles.walletHeader}>
                 <h4 className={styles.walletTitle}>{showcaseContent.title}</h4>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-graphite)' }}>
-                  notifications
-                </span>
+                <MaterialIcon name="notifications" style={{ color: 'var(--color-graphite)' }} />
               </div>
 
               <div className={styles.balanceCard}>
@@ -25,9 +24,7 @@ export function ProductShowcase() {
                 <div className={styles.txRow}>
                   <div className={styles.txLeft}>
                     <div className={`${styles.txBadge} ${styles.txBadgeNeutral}`}>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>
-                        shopping_cart
-                      </span>
+                      <MaterialIcon name="shopping_cart" style={{ color: 'var(--color-primary)' }} />
                     </div>
                     <div className={styles.txMeta}>
                       <span className={styles.txName}>Supermercado</span>
@@ -41,9 +38,7 @@ export function ProductShowcase() {
                   <div className={styles.txLeft}>
                     <div className={`${styles.txBadge} ${styles.txBadgeNeutral}`}>
                       <span className={`${styles.receiveDot}`} />
-                      <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>
-                        arrow_downward
-                      </span>
+                      <MaterialIcon name="arrow_downward" style={{ color: 'var(--color-primary)' }} />
                     </div>
                     <div className={styles.txMeta}>
                       <span className={styles.txName}>Transferencia</span>
@@ -58,7 +53,7 @@ export function ProductShowcase() {
         </div>
 
         <div className={`${styles.bubble} gsap-showcase-bubble`}>
-          <img src={showcaseContent.character.src} alt="" className={styles.bubbleAvatar} />
+          <img src={showcaseContent.character.src} alt="" width="40" height="40" className={styles.bubbleAvatar} />
           <p className={styles.bubbleText}>{showcaseContent.bubbleText}</p>
         </div>
       </div>

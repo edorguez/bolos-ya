@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { brandAssets, footerContent, navLinks } from '../../constants/home/content'
+import { MaterialIcon } from '../shared/MaterialIcon'
 import styles from './TopNavBar.module.scss'
 
 export function TopNavBar() {
@@ -18,7 +19,7 @@ export function TopNavBar() {
     <header className={`${styles.nav} ${scrolled ? styles.scrolled : ''}`}>
       <div className={styles.inner}>
         <a href="#hero" className={styles.brand} aria-label="Merki">
-          <img src={brandAssets.logo} alt="Merki" className={styles.logo} />
+          <img src={brandAssets.logo} alt="Merki" width="73" height="28" className={styles.logo} />
         </a>
 
         <nav className={styles.links} aria-label="Principal">
@@ -36,7 +37,7 @@ export function TopNavBar() {
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen(open => !open)}
         >
-          <span className="material-symbols-outlined">{menuOpen ? 'close' : 'menu'}</span>
+          <MaterialIcon name={menuOpen ? 'close' : 'menu'} />
         </button>
       </div>
 

@@ -14,6 +14,7 @@ import { PaymentStatusBadge } from './PaymentStatusBadge'
 import { paymentModalContent } from '../../../constants/admin/content'
 import { PENDING_STATUS_ID, APPROVED_STATUS_ID, REJECTED_STATUS_ID } from '../../../constants/admin/paymentStatus'
 import { formatAmount } from '../../../utils/format'
+import { MaterialIcon } from '../../shared/MaterialIcon'
 
 const labelSx = {
   fontSize: '0.6875rem',
@@ -88,7 +89,7 @@ export function PaymentDetailModal({ open, payment, onClose, onApprove, onReject
       <DialogTitle>
         {paymentModalContent.detailTitle}
         <IconButton onClick={onClose} sx={{ position: 'absolute', right: 12, top: 12 }}>
-          <span className="material-symbols-outlined">close</span>
+          <MaterialIcon name="close" />
         </IconButton>
       </DialogTitle>
 
@@ -113,7 +114,7 @@ export function PaymentDetailModal({ open, payment, onClose, onApprove, onReject
               variant="contained"
               fullWidth
               onClick={onApprove}
-              startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span>}
+              startIcon={<MaterialIcon name="check_circle" style={{ fontSize: 18 }} />}
             >
               {paymentModalContent.approveButton}
             </Button>
@@ -124,7 +125,7 @@ export function PaymentDetailModal({ open, payment, onClose, onApprove, onReject
               color="error"
               fullWidth
               onClick={onReject}
-              startIcon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>cancel</span>}
+              startIcon={<MaterialIcon name="cancel" style={{ fontSize: 18 }} />}
             >
               {paymentModalContent.rejectButton}
             </Button>

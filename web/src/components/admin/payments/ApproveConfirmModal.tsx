@@ -7,6 +7,7 @@ import {
   IconButton,
 } from '@mui/material'
 import { paymentModalContent } from '../../../constants/admin/content'
+import { MaterialIcon } from '../../shared/MaterialIcon'
 
 interface ApproveConfirmModalProps {
   open: boolean
@@ -20,7 +21,7 @@ export function ApproveConfirmModal({ open, onClose, onConfirm }: ApproveConfirm
       <DialogTitle>
         {paymentModalContent.approveConfirmTitle}
         <IconButton onClick={onClose} sx={{ position: 'absolute', right: 12, top: 12 }}>
-          <span className="material-symbols-outlined">close</span>
+          <MaterialIcon name="close" />
         </IconButton>
       </DialogTitle>
 

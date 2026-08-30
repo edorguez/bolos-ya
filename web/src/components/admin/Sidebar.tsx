@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { sidebarContent } from '../../constants/admin/content'
 import { brandAssets } from '../../constants/home/content'
+import { MaterialIcon } from '../shared/MaterialIcon'
 import styles from './Sidebar.module.scss'
 
 interface SidebarProps {
@@ -25,7 +26,7 @@ export function Sidebar({ onLogout, isOpen, onClose }: SidebarProps) {
   return (
     <nav className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.brand}>
-        <img src={brandAssets.logo} alt={sidebarContent.title} className={styles.logo} />
+        <img src={brandAssets.logo} alt={sidebarContent.title} width="73" height="28" className={styles.logo} />
       </div>
 
       <div className={styles.nav}>
@@ -39,9 +40,7 @@ export function Sidebar({ onLogout, isOpen, onClose }: SidebarProps) {
               `${styles.navItem} ${isActive ? styles.navActive : ''}`
             }
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-              {item.icon}
-            </span>
+            <MaterialIcon name={item.icon} style={{ fontSize: 24 }} />
             <span>{item.label}</span>
           </NavLink>
         ))}
@@ -49,9 +48,7 @@ export function Sidebar({ onLogout, isOpen, onClose }: SidebarProps) {
 
       <div className={styles.footer}>
         <button className={styles.logoutBtn} onClick={handleLogout}>
-          <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-            {sidebarContent.logout.icon}
-          </span>
+          <MaterialIcon name={sidebarContent.logout.icon} style={{ fontSize: 24 }} />
           <span>{sidebarContent.logout.label}</span>
         </button>
       </div>

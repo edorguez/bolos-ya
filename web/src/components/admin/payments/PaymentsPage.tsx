@@ -17,6 +17,7 @@ import type { PaymentResponse, RejectionReason } from '../../../types/payment'
 import { updatePaymentStatus, getRejectionReasons } from '../../../services/paymentService'
 import { useAuth } from '../../../hooks/auth/useAuth'
 import { formatAmount } from '../../../utils/format'
+import { MaterialIcon } from '../../shared/MaterialIcon'
 import { PaymentStatusBadge } from './PaymentStatusBadge'
 import { PaymentDetailModal } from './PaymentDetailModal'
 import { ApproveConfirmModal } from './ApproveConfirmModal'
@@ -153,9 +154,7 @@ export function PaymentsPage() {
           <p className={styles.description}>{paymentsContent.description}</p>
         </div>
         <button className={styles.refreshBtn} onClick={refetch}>
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
-            refresh
-          </span>
+          <MaterialIcon name="refresh" style={{ fontSize: 18 }} />
           Actualizar
         </button>
       </header>
@@ -164,9 +163,7 @@ export function PaymentsPage() {
         {error ? (
           <div className={styles.errorState}>
             <span className={styles.errorIcon}>
-              <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-                error
-              </span>
+              <MaterialIcon name="error" style={{ fontSize: 24 }} />
             </span>
             <span>{error}</span>
             <button className={styles.retryBtn} onClick={refetch}>
@@ -203,9 +200,7 @@ export function PaymentsPage() {
                     <TableCell colSpan={PAYMENT_COLUMNS.length} align="center" sx={{ py: 6 }}>
                       <div className={styles.emptyState}>
                         <span className={styles.emptyIcon}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 24 }}>
-                            payments
-                          </span>
+                          <MaterialIcon name="payments" style={{ fontSize: 24 }} />
                         </span>
                         No hay pagos registrados
                       </div>
@@ -229,9 +224,7 @@ export function PaymentsPage() {
                           onClick={() => openDetail(row)}
                           title="Ver detalle"
                         >
-                          <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
-                            visibility
-                          </span>
+                          <MaterialIcon name="visibility" style={{ fontSize: 22 }} />
                         </button>
                       </TableCell>
                     </TableRow>

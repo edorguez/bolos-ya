@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/auth/useAuth'
 import { loginContent } from '../../constants/auth/content'
 import { brandAssets } from '../../constants/home/content'
+import { MaterialIcon } from '../shared/MaterialIcon'
 import styles from './LoginPage.module.scss'
 
 export function LoginPage() {
@@ -38,16 +39,14 @@ export function LoginPage() {
       <main className={styles.main}>
         <div className={styles.card}>
           <header className={styles.header}>
-            <img src={brandAssets.logo} alt={loginContent.brand} className={styles.logo} />
+            <img src={brandAssets.logo} alt={loginContent.brand} width="73" height="28" className={styles.logo} />
             <h1 className={styles.title}>{loginContent.title}</h1>
           </header>
 
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.fields}>
               <div className={styles.field}>
-                <span className={`material-symbols-outlined ${styles.fieldIcon}`}>
-                  {loginContent.emailIcon}
-                </span>
+                <MaterialIcon name={loginContent.emailIcon} className={styles.fieldIcon} />
                 <input
                   className={styles.input}
                   type="email"
@@ -58,9 +57,7 @@ export function LoginPage() {
                 />
               </div>
               <div className={styles.field}>
-                <span className={`material-symbols-outlined ${styles.fieldIcon}`}>
-                  {loginContent.passwordIcon}
-                </span>
+                <MaterialIcon name={loginContent.passwordIcon} className={styles.fieldIcon} />
                 <input
                   className={styles.input}
                   type="password"
@@ -81,9 +78,7 @@ export function LoginPage() {
                 disabled={loading}
               >
                 {loading ? 'Verificando...' : loginContent.submitText}
-                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-                  {loginContent.submitIcon}
-                </span>
+                <MaterialIcon name={loginContent.submitIcon} style={{ fontSize: 20 }} />
               </button>
             </div>
           </form>

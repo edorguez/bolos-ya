@@ -1,4 +1,5 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react'
+import { MaterialIcon } from './MaterialIcon'
 
 interface Props {
   children: ReactNode
@@ -39,9 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
           padding: '2rem',
           textAlign: 'center',
         }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-coral-red)' }}>
-            error
-          </span>
+          <MaterialIcon name="error" style={{ fontSize: 48, color: 'var(--color-coral-red)' }} />
           <h2 style={{ color: 'var(--color-charcoal-primary)', fontWeight: 600, fontSize: '1.125rem' }}>
             Algo salió mal
           </h2>

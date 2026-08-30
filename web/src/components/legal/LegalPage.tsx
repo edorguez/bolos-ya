@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Footer } from '../home/Footer'
+import { MaterialIcon } from '../shared/MaterialIcon'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import styles from './legalPage.module.scss'
 
@@ -26,7 +27,7 @@ export function PageShell({ title, subtitle, meta, children, note }: PageShellPr
     <div className={styles.page}>
       <div className={styles.container}>
         <Link to="/" className={styles.backLink}>
-          <span className="material-symbols-outlined">arrow_back</span>
+          <MaterialIcon name="arrow_back" style={{ fontSize: 18 }} />
           Volver a Merki
         </Link>
 

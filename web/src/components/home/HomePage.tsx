@@ -1,6 +1,4 @@
 import { useEffect, useRef } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useReducedMotion } from '../../hooks/home/useReducedMotion'
 import { ProgressBar } from './ProgressBar'
 import { TopNavBar } from './TopNavBar'
@@ -12,86 +10,101 @@ import { CtaSection } from './CtaSection'
 import { Footer } from './Footer'
 import styles from '../../App.module.scss'
 
-gsap.registerPlugin(ScrollTrigger)
-
 export function HomePage() {
   const reduced = useReducedMotion()
-  const ctxRef = useRef<gsap.Context | null>(null)
   const tiltRef = useRef<{ raf: number; x: number; y: number; tx: number; ty: number }>({ raf: 0, x: 0, y: 0, tx: 0, ty: 0 })
 
   useEffect(() => {
     if (reduced) return
-    if (ctxRef.current) ctxRef.current.revert()
 
-    const ctx = gsap.context(() => {
-      const isDesktop = window.matchMedia('(min-width: 1024px)').matches
+    let alive = true
+    let ctx: { revert(): void } | null = null
 
-      // Hero entrance — staggered reveal
-      gsap.from('.gsap-hero-text', {
-        y: 32,
-        opacity: 0,
-        duration: 0.9,
-        stagger: 0.12,
-        ease: 'power3.out',
-      })
+    // GSAP is code-split so it doesn't ship in the initial landing bundle.
+    const init = async () => {
+      const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+        import('gsap'),
+        import('gsap/ScrollTrigger'),
+      ])
+      gsap.registerPlugin(ScrollTrigger)
 
-      // Scroll indicator fades as you leave hero
-      gsap.to('.gsap-scroll-indicator', {
-        opacity: 0,
-        scrollTrigger: { trigger: '#hero', start: 'top top', end: '60% top', scrub: 0.5 },
-      })
+      if (!alive) return
 
-      // Feature cards + social cards — staggered batch reveal per section
-      gsap.set('.gsap-reveal', { y: 40, opacity: 0 })
-      ScrollTrigger.batch('.gsap-reveal', {
-        start: 'top 88%',
-        onEnter: batch =>
-          gsap.to(batch, {
-            y: 0,
-            opacity: 1,
-            duration: 0.7,
-            stagger: 0.12,
-            ease: 'power2.out',
-            overwrite: true,
-          }),
-      })
+      ctx = gsap.context(() => {
+        const isDesktop = window.matchMedia('(min-width: 1024px)').matches
 
-      // Product showcase — phone entrance + bubble pop
-      if (isDesktop) {
-        gsap.from('.gsap-showcase-phone', {
-          y: 90,
-          rotationY: -18,
-          rotationX: 6,
+        // Hero entrance — staggered reveal
+        gsap.from('.gsap-hero-text', {
+          y: 32,
           opacity: 0,
-          duration: 1,
+          duration: 0.9,
+          stagger: 0.12,
           ease: 'power3.out',
-          scrollTrigger: { trigger: '#la-app', start: 'top 75%', toggleActions: 'play none none reverse' },
         })
 
-        gsap.from('.gsap-showcase-bubble', {
-          scale: 0,
+        // Scroll indicator fades as you leave hero
+        gsap.to('.gsap-scroll-indicator', {
           opacity: 0,
-          duration: 0.7,
-          ease: 'back.out(1.8)',
-          delay: 0.5,
-          scrollTrigger: { trigger: '#la-app', start: 'top 70%', toggleActions: 'play none none reverse' },
+          scrollTrigger: { trigger: '#hero', start: 'top top', end: '60% top', scrub: 0.5 },
         })
-      }
 
-      // CTA card — pop in
-      gsap.from('#cta-card', {
-        scale: 0.85,
-        opacity: 0,
-        y: 40,
-        duration: 0.9,
-        ease: 'power2.out',
-        scrollTrigger: { trigger: '#cta-section', start: 'top 85%', toggleActions: 'play none none reverse' },
+        // Feature cards + social cards — staggered batch reveal per section
+        gsap.set('.gsap-reveal', { y: 40, opacity: 0 })
+        ScrollTrigger.batch('.gsap-reveal', {
+          start: 'top 88%',
+          onEnter: batch =>
+            gsap.to(batch, {
+              y: 0,
+              opacity: 1,
+              duration: 0.7,
+              stagger: 0.12,
+              ease: 'power2.out',
+              overwrite: true,
+            }),
+        })
+
+        // Product showcase — phone entrance + bubble pop
+        if (isDesktop) {
+          gsap.from('.gsap-showcase-phone', {
+            y: 90,
+            rotationY: -18,
+            rotationX: 6,
+            opacity: 0,
+            duration: 1,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: '#la-app', start: 'top 75%', toggleActions: 'play none none reverse' },
+          })
+
+          gsap.from('.gsap-showcase-bubble', {
+            scale: 0,
+            opacity: 0,
+            duration: 0.7,
+            ease: 'back.out(1.8)',
+            delay: 0.5,
+            scrollTrigger: { trigger: '#la-app', start: 'top 70%', toggleActions: 'play none none reverse' },
+          })
+        }
+
+        // CTA card — pop in
+        gsap.from('#cta-card', {
+          scale: 0.85,
+          opacity: 0,
+          y: 40,
+          duration: 0.9,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: '#cta-section', start: 'top 85%', toggleActions: 'play none none reverse' },
+        })
       })
-    })
 
-    ctxRef.current = ctx
-    ScrollTrigger.refresh()
-    return () => ctx.revert()
+      ScrollTrigger.refresh()
+    }
+
+    void init()
+
+    return () => {
+      alive = false
+      ctx?.revert()
+    }
   }, [reduced])
 
   // Mouse tilt for the showcase phone (desktop only, GPU-friendly transform)

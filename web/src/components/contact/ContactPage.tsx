@@ -1,4 +1,5 @@
 import { PageShell } from '../legal/LegalPage'
+import { MaterialIcon } from '../shared/MaterialIcon'
 import styles from './contactPage.module.scss'
 
 // Update these values when the real contact channels are available.
@@ -18,7 +19,7 @@ export function ContactPage() {
       <div className={styles.channels}>
         <a href={`mailto:${CONTACT.email}`} className={styles.channelCard}>
           <div className={styles.iconWrap}>
-            <span className={`material-symbols-outlined ${styles.icon}`}>mail</span>
+            <MaterialIcon name="mail" className={styles.icon} style={{ fontSize: 22 }} />
           </div>
           <div className={styles.info}>
             <span className={styles.label}>Correo electrónico</span>

@@ -1,0 +1,12 @@
+# Merki
+
+Merki es una aplicación gratuita para crear carritos de supermercado con precios en bolívares y USD, gestionar presupuestos y llevar el control de tus gastos en Venezuela, usando la tasa oficial del BCV.
+
+- [Inicio](https://somosmerki.app/)
+- [Política de Privacidad](https://somosmerki.app/privacy)
+- [Términos de Servicio](https://somosmerki.app/terms)
+- [Contáctanos](https://somosmerki.app/contact)
+
+## About
+
+Merki helps users in Venezuela track supermarket spending with dual-currency pricing (bolívares and USD), budgets, and offline-first shopping carts.
