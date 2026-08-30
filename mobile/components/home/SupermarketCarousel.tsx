@@ -44,15 +44,15 @@ const stylesheet = StyleSheet.create(theme => ({
     marginVertical: 2,
   },
   optionSelected: {
-    backgroundColor: theme.colors.secondaryContainer,
-    borderColor: theme.colors.secondary,
+    backgroundColor: theme.colors.primaryContainer,
+    borderColor: theme.colors.primary,
     boxShadow: theme.shadows.medium,
   },
   icon: {
     color: theme.colors.ash,
   },
   iconSelected: {
-    color: theme.colors.secondary,
+    color: theme.colors.primary,
   },
   name: {
     fontSize: theme.typography.fontSize.xs,
@@ -61,7 +61,7 @@ const stylesheet = StyleSheet.create(theme => ({
     textAlign: 'center',
   },
   nameSelected: {
-    color: theme.colors.onSecondaryContainer,
+    color: theme.colors.onPrimaryContainer,
   },
 }));
 

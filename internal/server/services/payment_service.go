@@ -197,7 +197,10 @@ func (s *paymentService) UpdatePayment(ctx context.Context, paymentID uuid.UUID,
 		return nil, err
 	}
 
-	userName := userNameFromEmail(user.Email)
+	userName := user.Name
+	if userName == "" {
+		userName = userNameFromEmail(user.Email)
+	}
 
 	switch statusID.String() {
 	case models.ApprovedStatusID:

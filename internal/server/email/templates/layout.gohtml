@@ -38,6 +38,9 @@
     <p style="margin:0;font-family:Inter,Arial,sans-serif;font-size:12px;line-height:1.58;letter-spacing:-0.14px;color:#848281;">
       ¿Dudas? Escríbenos a <a href="mailto:{{.SupportEmail}}" style="color:#A3521B;text-decoration:underline;">{{.SupportEmail}}</a>
     </p>
+    <p style="margin:4px 0 0 0;font-family:Inter,Arial,sans-serif;font-size:12px;line-height:1.58;letter-spacing:-0.14px;color:#848281;">
+      o escríbenos al WhatsApp {{.SupportPhone}}
+    </p>
     <p style="margin:12px 0 0 0;font-family:Inter,Arial,sans-serif;font-size:11px;line-height:1.58;letter-spacing:-0.14px;color:#a7a7a7;">&copy; 2026 Merki. Todos los derechos reservados.</p>
   </td>
 </tr>
@@ -46,8 +49,8 @@
 {{define "email-badge-success"}}
 <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 24px auto;">
   <tr>
-    <td align="center" valign="middle" bgcolor="#00ca48" style="background-color:#00ca48;border-radius:50%;width:72px;height:72px;text-align:center;vertical-align:middle;">
-      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNOSAxNi4xN0w0LjgzIDEybC0xLjQyIDEuNDFMOSAxOSAyMSA3bC0xLjQxLTEuNDFMOSAxNi4xN3oiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=" width="36" height="36" alt="Aprobado" style="display:block;border:0;outline:none;margin:18px auto;" />
+    <td align="center" valign="middle" style="text-align:center;">
+      <img src="{{.ImageBaseURL}}/check.png" alt="Aprobado" width="72" height="72" style="display:block;width:72px;height:72px;border:0;outline:none;margin:0 auto;" />
     </td>
   </tr>
 </table>
@@ -56,8 +59,8 @@
 {{define "email-badge-error"}}
 <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 24px auto;">
   <tr>
-    <td align="center" valign="middle" bgcolor="#ff2b3a" style="background-color:#ff2b3a;border-radius:50%;width:72px;height:72px;text-align:center;vertical-align:middle;">
-      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTguMyA1LjcxTDEyIDEybDYuMyA2LjI5LTEuNDEgMS40MkwxMiAxMy40MWwtNS4yOSA1LjMtMS40Mi0xLjQyTDEwLjU5IDEyIDUuMyA2LjcxIDYuNzEgNS4zIDEyIDEwLjU5bDUuMjktNS4zIDEuNDIgMS40MnoiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=" width="36" height="36" alt="Rechazado" style="display:block;border:0;outline:none;margin:18px auto;" />
+    <td align="center" valign="middle" style="text-align:center;">
+      <img src="{{.ImageBaseURL}}/remove.png" alt="Rechazado" width="72" height="72" style="display:block;width:72px;height:72px;border:0;outline:none;margin:0 auto;" />
     </td>
   </tr>
 </table>

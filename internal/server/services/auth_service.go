@@ -151,7 +151,10 @@ func (s *authService) sendWelcomeEmail(user *models.User) {
 	}
 
 	email := user.Email
-	userName := strings.Split(email, "@")[0]
+	userName := user.Name
+	if userName == "" {
+		userName = strings.Split(email, "@")[0]
+	}
 
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

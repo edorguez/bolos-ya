@@ -41,7 +41,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       borderRadius: theme.borderRadius.md,
     },
     activeTabItem: {
-      backgroundColor: theme.colors.secondary,
+      backgroundColor: theme.colors.primary,
     },
     tabIcon: {
       marginBottom: theme.spacing.xxs,
@@ -98,13 +98,13 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               <MaterialIcons
                 name={iconName as keyof typeof MaterialIcons.glyphMap}
                 size={24}
-                color={isFocused ? theme.colors.onSecondary : theme.colors.textSecondary}
+                color={isFocused ? theme.colors.onPrimary : theme.colors.textSecondary}
                 style={styles.tabIcon}
               />
               <Text
                 style={[
                   styles.tabLabel,
-                  { color: isFocused ? theme.colors.onSecondary : theme.colors.textSecondary },
+                  { color: isFocused ? theme.colors.onPrimary : theme.colors.textSecondary },
                 ]}
               >
                 {label}

@@ -103,6 +103,11 @@ func (h *PaymentHandler) GetPaymentsByUserID(c *gin.Context) {
 		return
 	}
 
+	if !h.isAdminOrOwner(c, userID) {
+		utils.ForbiddenResponse(c)
+		return
+	}
+
 	statusIDStr := c.Query("statusId")
 	if statusIDStr != "" {
 		statusUUID, err := uuid.Parse(statusIDStr)
@@ -192,6 +197,19 @@ func (h *PaymentHandler) handleError(c *gin.Context, err error) {
 	default:
 		utils.InternalErrorResponse(c)
 	}
+}
+
+// isAdminOrOwner allows admins/staff to query any user's payments, and regular
+// users to query only their own payment records.
+func (h *PaymentHandler) isAdminOrOwner(c *gin.Context, targetUserID uuid.UUID) bool {
+	if role, exists := middleware.GetUserRoleFromContext(c); exists && (role == "admin" || role == "staff") {
+		return true
+	}
+	authUserID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		return false
+	}
+	return authUserID == targetUserID.String()
 }
 
 func toPaymentResponse(p *models.Payment) dto.PaymentResponse {

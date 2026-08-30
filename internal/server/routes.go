@@ -97,12 +97,12 @@ func SetupRoutes(
 			{
 				paymentsGroup.POST("", paymentHandler.CreatePayment)
 				paymentsGroup.GET("/:paymentId", paymentHandler.GetPaymentByID)
+				paymentsGroup.GET("/by-user/:userId", paymentHandler.GetPaymentsByUserID)
 
 				adminPayments := paymentsGroup.Group("")
 				adminPayments.Use(internalmiddleware.AdminRoleMiddleware())
 				{
 					adminPayments.GET("", paymentHandler.GetAllPayments)
-					adminPayments.GET("/by-user/:userId", paymentHandler.GetPaymentsByUserID)
 					adminPayments.GET("/by-email/:email", paymentHandler.GetPaymentsByEmail)
 					adminPayments.PUT("/:paymentId", paymentHandler.UpdatePayment)
 					adminPayments.DELETE("/:paymentId", paymentHandler.DeletePayment)
