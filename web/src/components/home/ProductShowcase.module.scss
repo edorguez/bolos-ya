@@ -65,7 +65,7 @@
 }
 
 .balanceCard {
-  background: var(--color-primary);
+  background: var(--color-primary-pressed);
   color: #ffffff;
   border-radius: 12px;
   padding: 1rem;
@@ -78,7 +78,6 @@
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 500;
-  opacity: 0.85;
 }
 
 .balanceValue {
@@ -172,7 +171,7 @@
 }
 
 .txPositive {
-  color: var(--color-primary);
+  color: var(--color-primary-pressed);
 }
 
 /* Speech bubble */

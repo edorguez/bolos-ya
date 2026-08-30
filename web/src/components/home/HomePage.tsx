@@ -33,10 +33,10 @@ export function HomePage() {
       ctx = gsap.context(() => {
         const isDesktop = window.matchMedia('(min-width: 1024px)').matches
 
-        // Hero entrance — staggered reveal
+        // Hero entrance — staggered reveal (translate only, so the LCP text
+        // never sits at a reduced opacity that hurts contrast or paint timing)
         gsap.from('.gsap-hero-text', {
           y: 32,
-          opacity: 0,
           duration: 0.9,
           stagger: 0.12,
           ease: 'power3.out',
@@ -99,10 +99,20 @@ export function HomePage() {
       ScrollTrigger.refresh()
     }
 
-    void init()
+    // Load GSAP after first paint so it stays out of the LCP critical path.
+    const canIdle = typeof window.requestIdleCallback === 'function'
+    let schedule: number | undefined
+    const run = () => void init()
+    if (canIdle) {
+      schedule = window.requestIdleCallback(run, { timeout: 2000 })
+    } else {
+      schedule = window.setTimeout(run, 600)
+    }
 
     return () => {
       alive = false
+      if (canIdle) window.cancelIdleCallback(schedule!)
+      else window.clearTimeout(schedule)
       ctx?.revert()
     }
   }, [reduced])

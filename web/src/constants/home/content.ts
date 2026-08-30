@@ -3,6 +3,10 @@ import merkiIllustration from '../../assets/merki-illustration.webp'
 import merkiScan from '../../assets/merki-scan.webp'
 import merkiCalculator from '../../assets/merki-calculator.webp'
 import merkiCheckout from '../../assets/merki-checkout.webp'
+import avatarSofia from '../../assets/avatar-sofia.webp'
+import avatarCarlos from '../../assets/avatar-carlos.webp'
+import avatarElena from '../../assets/avatar-elena.webp'
+import characterAvatar from '../../assets/character.webp'
 
 export interface Testimonial {
   name: string
@@ -85,7 +89,7 @@ export const showcaseContent = {
   balanceValue: '$450.25',
   transactionsLabel: 'Transacciones Recientes',
   character: {
-    src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBtjhAM-6ISiZs9K-r0B8kOEh-SFdk4b0EIyZB7sAQ24Kcs1HcaQqAMmPvaIuGnodYf8IXu5oacSK8VKCix5v2eyPcGw0lWkH7DSxfH1iIEKUfqvczpPhhRzk2SirOnKNHp7-m9lZHUD_RSMJyUiasoagYMZI_LeEY0SzglmTmvB6WxwtDQh11wGwVNPD4swOh--ttg5z7y-q3xwHw-zqfN0eS_LW_TmDXaG7wRRq6sDwfblZSbhGdP'
+    src: characterAvatar
   },
   bubbleText: '¡Llevas un 80% de tu presupuesto este mes!',
 }
@@ -96,36 +100,31 @@ export const testimonials: Testimonial[] = [
     name: 'Sofía R.',
     role: 'Madre de familia',
     text: 'Escanear las facturas del automercado me ha salvado horas. Y ver los precios en ambas monedas al instante es invaluable.',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBJ1svke59E7bTh67JebghULfFpO_VHr1Jj738TkOKCkcWBOLm4R-d1wSrxohlj8t0AAEoVAFjQBkiAruoT3s_9ldZJWIKNX3QP0r0ldTkviQHO5NSEEuWJv9GQUEuNSwbf7mjYd6RUsynk8c2IsYcr_NZaS1DsTdCQ7TdncVgo9seD-rIpQQgEdKxHrq2y7Kv0pUdZBeeXICOv9WTbVRqJYwdOJlwUMaPudyQvXozG2bOuukFT0frQ'
+    avatar: avatarSofia,
   },
   {
     name: 'Carlos M.',
     role: 'Estudiante',
     text: 'La interfaz es súper limpia. Nada de menús complicados, solo abro la app y anoto mis gastos diarios.',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBU7W6HkOFFdm6-0jIN82PY-dMrtwnqP_Mj0encax-jX7jH8b6yyPq6FuLK-cDEvXo7_VQYITtqU25vGTXiiRxCp_rjAaqyj8XJkQsteeuXEUndSFgHjq4ONA1DGMH23pZOKmh1HHjVt2bpBtgV73YDpVV5iYQvYl5NaKLeyji7kKsxfc-roxNP30KA0qtPm4MqmCRVCM-JGqEmQgMy82JZTY1-LjulcEbj1vsp9JQ52JK0aQE247t2'
+    avatar: avatarCarlos,
   },
   {
     name: 'Elena P.',
     role: 'Emprendedora',
     text: 'Uso Merki para los gastos de mi pequeño negocio. El modo offline me salva cuando estoy en el mercado mayorista.',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuA3SA9lFe0h0Jh_N7bAolZKF5r1xM53TwBxZaE9Su0SQzYhoLgBsKpugruJXwJMQljjCke9oqlbYkdeSKm_7_HuUcv2piqpvqbi6Qgw3PgJa_i0Ua7RkeFxyOJZUtg-VVgSvHQb2UogiojiPIjO-03Zq-qTH9G28KltAR7uKlWJkUftCIB-mya0K99yp0Ow1Qnpln21_G31GeOq-WAxwjcST5RhkAapsjUBnf_ETFfs9A7eQb5TXfJT'
+    avatar: avatarElena,
   },
   {
     name: 'Diego G.',
     role: 'Ingeniero y papá',
     text: 'Comparo precios entre mercados y Merki me dice al instante cuánto gastaré en dólares. Mi esposa y yo llevamos el presupuesto familiar sin pelear.',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuA3SA9lFe0h0Jh_N7bAolZKF5r1xM53TwBxZaE9Su0SQzYhoLgBsKpugruJXwJMQljjCke9oqlbYkdeSKm_7_HuUcv2piqpvqbi6Qgw3PgJa_i0Ua7RkeFxyOJZUtg-VVgSvHQb2UogiojiPIjO-03Zq-qTH9G28KltAR7uKlWJkUftCIB-mya0K99yp0Ow1Qnpln21_G31GeOq-WAxwjcST5RhkAapsjUBnf_ETFfs9A7eQb5TXfJT'
+    avatar: avatarElena,
   },
   {
     name: 'Valentina L.',
     role: 'Diseñadora freelance',
     text: 'Escaneo mis compras del mes y al llegar a casa todo está ordenado por categorías. Ver el gasto en Bs y USD a la vez me cambió la vida.',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBJ1svke59E7bTh67JebghULfFpO_VHr1Jj738TkOKCkcWBOLm4R-d1wSrxohlj8t0AAEoVAFjQBkiAruoT3s_9ldZJWIKNX3QP0r0ldTkviQHO5NSEEuWJv9GQUEuNSwbf7mjYd6RUsynk8c2IsYcr_NZaS1DsTdCQ7TdncVgo9seD-rIpQQgEdKxHrq2y7Kv0pUdZBeeXICOv9WTbVRqJYwdOJlwUMaPudyQvXozG2bOuukFT0frQ'
+    avatar: avatarSofia,
   },
 ]
 
