@@ -10,6 +10,9 @@ export function HeroSection() {
         <img
           src={heroContent.illustration}
           alt="Ilustración de marca Merki"
+          width="240"
+          height="240"
+          fetchPriority="high"
           className={`${styles.heroImage} gsap-hero-text`}
         />
         <h1 className={`${styles.title} gsap-hero-text`}>

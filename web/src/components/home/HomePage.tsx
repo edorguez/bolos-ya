@@ -10,7 +10,6 @@ import { ProductShowcase } from './ProductShowcase'
 import { SocialProofSection } from './SocialProofSection'
 import { CtaSection } from './CtaSection'
 import { Footer } from './Footer'
-import { MobileStickyCta } from './MobileStickyCta'
 import styles from '../../App.module.scss'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -142,7 +141,6 @@ export function HomePage() {
         <CtaSection />
       </main>
       <Footer />
-      <MobileStickyCta />
     </div>
   )
 }

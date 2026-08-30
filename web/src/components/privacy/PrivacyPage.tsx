@@ -1,6 +1,4 @@
-import { Link } from 'react-router-dom'
-import { Footer } from '../home/Footer'
-import styles from './PrivacyPage.module.scss'
+import { LegalPage } from '../legal/LegalPage'
 
 const sections = [
   {
@@ -10,13 +8,13 @@ const sections = [
   },
   {
     title: '2. Datos que Recopilamos',
-    content:
-      'Para ofrecerte una experiencia completa, recopilamos los siguientes datos personales:',
+    content: 'Para ofrecerte una experiencia completa, recopilamos los siguientes datos personales:',
     items: [
       'Correo electrónico y nombre (al registrarte con email o Google).',
       'Identificador de usuario anónimo (si usas la aplicación como invitado).',
       'Información de pago: número de referencia, banco, monto en bolívares y USD, identificación fiscal (cédula o RIF), al solicitar la suscripción Premium.',
       'Fotos de recibos o etiquetas de precios capturadas mediante la cámara para la función de escaneo OCR. Estas imágenes se procesan localmente en tu dispositivo y no se almacenan en nuestros servidores.',
+      'Identificadores de publicidad (ID de publicidad de Android o IDFA en iOS) y datos de uso de anuncios, cuando ves publicidad en el plan gratuito.',
       'Tasas de cambio del BCV consultadas para mostrar precios actualizados.',
       'Datos de uso básicos para mejorar la aplicación (rendimiento, errores).',
     ],
@@ -30,14 +28,14 @@ const sections = [
       'Procesar solicitudes de suscripción Premium y gestionar los pagos.',
       'Enviar notificaciones transaccionales (confirmación de registro, aprobación o rechazo de pago Premium).',
       'Sincronizar tus datos entre dispositivos cuando estés conectado a internet.',
+      'Mostrar publicidad en el plan gratuito.',
       'Mejorar la aplicación basándonos en patrones de uso y reportes de errores.',
       'Cumplir con obligaciones legales y regulatorias.',
     ],
   },
   {
     title: '4. Base Legal para el Tratamiento',
-    content:
-      'El tratamiento de tus datos personales se basa en las siguientes bases legales:',
+    content: 'El tratamiento de tus datos personales se basa en las siguientes bases legales:',
     items: [
       'Ejecución de un contrato: el uso de la aplicación y la gestión de tu cuenta.',
       'Consentimiento: al aceptar esta política de privacidad y al otorgar permisos de cámara.',
@@ -58,12 +56,12 @@ const sections = [
   },
   {
     title: '6. Servicios de Terceros',
-    content:
-      'Para el funcionamiento de la aplicación, utilizamos los siguientes servicios de terceros:',
+    content: 'Para el funcionamiento de la aplicación, utilizamos los siguientes servicios de terceros:',
     items: [
       'better-auth: plataforma de autenticación que gestiona el registro, inicio de sesión y sesiones de usuario. Almacena tu correo, nombre e identificador en una base de datos segura.',
       'Google OAuth: si inicias sesión con Google, recibimos tu nombre y correo electrónico de tu perfil de Google.',
       'Resend: servicio de envío de correos electrónicos transaccionales (bienvenida, notificaciones de pago).',
+      'Google AdMob: red de publicidad que muestra anuncios a los usuarios del plan gratuito. Puede recopilar identificadores de publicidad del dispositivo para personalizar anuncios, de acuerdo con las políticas de Google y la normativa aplicable.',
       'AWS S3: almacenamiento de imágenes de productos solo si decides subir una foto (funcionalidad futura).',
       'Google ML Kit: el reconocimiento de texto OCR se realiza completamente en tu dispositivo. No se envían imágenes a servidores externos.',
     ],
@@ -97,7 +95,7 @@ const sections = [
     content:
       'Implementamos medidas de seguridad técnicas y organizativas para proteger tus datos personales contra el acceso no autorizado, la alteración, la divulgación o la destrucción. Estas medidas incluyen:',
     items: [
-      'Cifrado de extremo a extremo en la transmisión de datos mediante TLS/SSL.',
+      'Cifrado en tránsito de los datos mediante TLS/SSL.',
       'Almacenamiento seguro de contraseñas mediante hash y salting.',
       'Tokens de sesión almacenados de forma segura en SecureStore.',
       'Acceso restringido a los servidores solo al personal autorizado.',
@@ -120,59 +118,21 @@ const sections = [
       'Si tienes preguntas, inquietudes o solicitudes relacionadas con esta política de privacidad o el tratamiento de tus datos personales, puedes contactarnos:',
     items: [
       'Correo electrónico: soporte@somosmerki.app',
-      'A través de la aplicación: sección de Perfil → Ayuda y Soporte',
+      'Página de contacto: visita nuestra página de contacto en somosmerki.app/contact',
     ],
   },
 ]
 
-const lastUpdated = '14 de julio de 2026'
+const lastUpdated = '30 de agosto de 2026'
 
 export function PrivacyPage() {
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <Link to="/" className={styles.backLink}>
-          <span className="material-symbols-outlined">arrow_back</span>
-          Volver a Merki
-        </Link>
-
-        <header className={styles.header}>
-          <h1 className={styles.title}>Política de Privacidad</h1>
-          <p className={styles.subtitle}>
-            Esta política explica cómo recopilamos, usamos y protegemos tus datos personales al
-            utilizar la aplicación Merki.
-          </p>
-          <p className={styles.lastUpdated}>Última actualización: {lastUpdated}</p>
-        </header>
-
-        <div className={styles.content}>
-          {sections.map((section, i) => (
-            <section key={i} className={styles.section}>
-              <h2 className={styles.sectionTitle}>{section.title}</h2>
-              <p className={styles.paragraph}>{section.content}</p>
-              {section.items && (
-                <ul className={styles.list}>
-                  {section.items.map((item, j) => (
-                    <li key={j} className={styles.listItem}>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {section.extra && <p className={styles.extra}>{section.extra}</p>}
-            </section>
-          ))}
-        </div>
-
-        <div className={styles.footerNote}>
-          <p>
-            Al utilizar Merki, aceptas los términos de esta política de privacidad. Si no estás
-            de acuerdo con esta política, por favor no utilices la aplicación.
-          </p>
-        </div>
-      </div>
-
-      <Footer />
-    </div>
+    <LegalPage
+      title="Política de Privacidad"
+      subtitle="Esta política explica cómo recopilamos, usamos y protegemos tus datos personales al utilizar la aplicación Merki."
+      lastUpdated={lastUpdated}
+      sections={sections}
+      note="Al utilizar Merki, aceptas los términos de esta política de privacidad. Si no estás de acuerdo con esta política, por favor no utilices la aplicación."
+    />
   )
 }

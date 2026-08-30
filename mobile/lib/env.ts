@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 // Override at build time via EXPO_PUBLIC_BETTER_AUTH_URL / EXPO_PUBLIC_GO_BACKEND_URL.
 const DEFAULT_AUTH_URL = 'https://auth.somosmerki.app/api/auth';
 const DEFAULT_BACKEND_URL = 'https://api.somosmerki.app/api/v1';
+const DEFAULT_WEB_URL = 'https://somosmerki.app';
 
 function getDevHost(): string {
   if (Platform.OS === 'ios') {
@@ -24,4 +25,11 @@ export function getGoBackendUrl(): string {
     return process.env.EXPO_PUBLIC_GO_BACKEND_URL || DEFAULT_BACKEND_URL;
   }
   return `http://${getDevHost()}:8080/api/v1`;
+}
+
+export function getWebBaseUrl(): string {
+  if (!__DEV__) {
+    return process.env.EXPO_PUBLIC_WEB_URL || DEFAULT_WEB_URL;
+  }
+  return `http://${getDevHost()}:5173`;
 }

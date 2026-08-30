@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { brandAssets, footerContent } from '../../constants/home/content'
 import styles from './Footer.module.scss'
 
@@ -14,9 +15,9 @@ export function Footer() {
         <div className={styles.linkCols}>
           {footerContent.links.map((link, i) => (
             <div key={i} className={styles.linkCol}>
-              <a href={link.href} className={styles.link}>
+              <Link to={link.href} className={styles.link}>
                 {link.label}
-              </a>
+              </Link>
             </div>
           ))}
         </div>

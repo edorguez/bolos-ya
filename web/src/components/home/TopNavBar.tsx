@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { brandAssets, navLinks } from '../../constants/home/content'
+import { Link } from 'react-router-dom'
+import { brandAssets, footerContent, navLinks } from '../../constants/home/content'
 import styles from './TopNavBar.module.scss'
 
 export function TopNavBar() {
@@ -49,6 +50,19 @@ export function TopNavBar() {
           >
             {link.label}
           </a>
+        ))}
+
+        <div className={styles.mobileDivider} />
+
+        {footerContent.links.map(link => (
+          <Link
+            key={link.label}
+            to={link.href}
+            className={styles.mobileLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            {link.label}
+          </Link>
         ))}
       </div>
     </header>

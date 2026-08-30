@@ -6,6 +6,7 @@ import {
   Dimensions,
   ScrollView,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
@@ -16,6 +17,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import * as Network from 'expo-network';
 import { getStoredSessionToken, clearSessionTokenCache } from '../../services/api';
+import { getWebBaseUrl } from '../../lib/env';
 import { Toast } from '../../components/shared/Toast';
 import Animated from 'react-native-reanimated';
 
@@ -40,6 +42,12 @@ export default function LoginChoiceScreen() {
   const buttonStyles = createButtonStyles(theme);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  const openWebPage = (path: string) => {
+    Linking.openURL(`${getWebBaseUrl()}${path}`).catch(() => {
+      setToast('No se pudo abrir el enlace');
+    });
+  };
 
   const handleGuestLogin = async () => {
     setIsGuestLoading(true);
@@ -531,8 +539,23 @@ export default function LoginChoiceScreen() {
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              Al continuar, aceptas nuestros <Text style={styles.link}>Términos de Servicio</Text> y{' '}
-              <Text style={styles.link}>Política de Privacidad</Text>.
+              Al continuar, aceptas nuestros{' '}
+              <Text
+                style={styles.link}
+                onPress={() => openWebPage('/terms')}
+                accessibilityRole="link"
+              >
+                Términos de Servicio
+              </Text>{' '}
+              y{' '}
+              <Text
+                style={styles.link}
+                onPress={() => openWebPage('/privacy')}
+                accessibilityRole="link"
+              >
+                Política de Privacidad
+              </Text>
+              .
             </Text>
           </View>
         </View>

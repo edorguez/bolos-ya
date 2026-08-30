@@ -143,9 +143,8 @@ export const footerContent = {
   year: new Date().getFullYear(),
   links: [
     { label: 'Política de Privacidad', href: '/privacy' },
-    { label: 'Términos de Servicio', href: '#' },
-    { label: 'Centro de Ayuda', href: '#' },
-    { label: 'Contáctanos', href: '#' },
+    { label: 'Términos de Servicio', href: '/terms' },
+    { label: 'Contáctanos', href: '/contact' },
   ],
 }
 
