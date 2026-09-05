@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/edorguez/merki/internal/server/services"
 	"github.com/edorguez/merki/pkg/constants"
+	"github.com/edorguez/merki/pkg/session"
 	"github.com/edorguez/merki/pkg/utils"
 )
 
@@ -77,11 +77,6 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 	}
 }
 
-func sessionCacheKey(token string) string {
-	h := sha256.Sum256([]byte(token))
-	return fmt.Sprintf("session:%x", h[:16])
-}
-
 type sessionCacheData struct {
 	User struct {
 		ID          string `json:"id"`
@@ -94,7 +89,7 @@ type sessionCacheData struct {
 
 func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (string, string, string, bool, string, error) {
 	if m.redisClient != nil {
-		cacheKey := sessionCacheKey(token)
+		cacheKey := session.CacheKey(token)
 		cached, err := m.redisClient.Get(ctx, cacheKey).Result()
 		if err == nil {
 			var cachedResult sessionCacheData
@@ -138,7 +133,7 @@ func (m *AuthMiddleware) validateSession(ctx context.Context, token string) (str
 	}
 
 	if m.redisClient != nil {
-		cacheKey := sessionCacheKey(token)
+		cacheKey := session.CacheKey(token)
 		if data, err := json.Marshal(result); err == nil {
 			m.redisClient.Set(ctx, cacheKey, data, sessionCacheTTL)
 		}

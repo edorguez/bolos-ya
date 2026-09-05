@@ -69,4 +69,23 @@ export const profileStyles = StyleSheet.create(theme => ({
     letterSpacing: 1,
     marginTop: theme.spacing.xl,
   },
+  deleteAccountLink: {
+    marginTop: theme.spacing.md,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.sm,
+    borderRadius: theme.borderRadius.full,
+  },
+  deleteAccountLinkPressed: {
+    backgroundColor: theme.colors.error + '14',
+  },
+  deleteAccountText: {
+    fontSize: theme.typography.fontSize.xxs,
+    fontWeight: theme.typography.fontWeight.medium,
+    color: theme.colors.outline,
+    letterSpacing: 0.5,
+  },
 }));

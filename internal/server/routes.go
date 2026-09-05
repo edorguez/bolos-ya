@@ -71,6 +71,7 @@ func SetupRoutes(
 		{
 			protected.POST("/auth/sync", authHandler.SyncUser)
 			protected.GET("/auth/me", authHandler.GetMe)
+			protected.DELETE("/auth/me", authHandler.DeleteAccount)
 
 			cartsGroup := protected.Group("/carts")
 			{

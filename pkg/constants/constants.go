@@ -26,6 +26,14 @@ const (
 	CtxUserKey     = "user"
 	CtxUserRoleKey = "userRole"
 
+	// Account deletion
+	// DeletedAccountUserID is the fixed UUID of the internal "tombstone" user
+	// that absorbs a deleted account's carts/products/supermarkets so they are
+	// preserved without any remaining personal data.
+	DeletedAccountUserID = "00000000-0000-4000-8000-0000000000de"
+	// DeletedAccountBAUserID is the unique better_auth_user_id for that row.
+	DeletedAccountBAUserID = "deleted-account"
+
 	// Cart statuses
 	CartStatusActive   = "active"
 	CartStatusArchived = "archived"

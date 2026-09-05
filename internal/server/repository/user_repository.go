@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/edorguez/merki/internal/server/models"
+	"github.com/edorguez/merki/pkg/constants"
 	"github.com/edorguez/merki/pkg/core/errors"
 )
 
@@ -21,6 +22,7 @@ type UserRepository interface {
 	Restore(ctx context.Context, user *models.User) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	TransferUserData(ctx context.Context, fromUserID, toUserID uuid.UUID) error
+	DeleteAccount(ctx context.Context, userID uuid.UUID) error
 }
 
 type userRepository struct {
@@ -146,5 +148,53 @@ func (r *userRepository) TransferUserData(ctx context.Context, fromUserID, toUse
 			return err
 		}
 		return nil
+	})
+}
+
+// DeleteAccount permanently removes a user's account while preserving the carts,
+// cart products, products and supermarkets it created. Those rows are detached
+// from the deleted account and re-assigned to a fixed internal "tombstone" user
+// (no email, no personal data) so referential integrity is kept and the records
+// never leak back to real users. The user's payments are deleted outright since
+// they contain personal/financial information.
+//
+// The operation is idempotent: running it again for an already-removed user is a
+// no-op, so a retry after a partial failure is safe.
+func (r *userRepository) DeleteAccount(ctx context.Context, userID uuid.UUID) error {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	tombstoneID := uuid.MustParse(constants.DeletedAccountUserID)
+
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// Ensure the tombstone row exists before rows are re-assigned to it
+		// (its user_id foreign key must resolve).
+		if err := tx.Exec(
+			`INSERT INTO users (id, better_auth_user_id, name, auth_provider, is_anonymous, created_at, updated_at)
+			 VALUES (?, ?, 'cuenta eliminada', 'guest', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+			 ON CONFLICT DO NOTHING`,
+			tombstoneID, constants.DeletedAccountBAUserID,
+		).Error; err != nil {
+			return err
+		}
+
+		// Preserve the user's carts/products/supermarkets under the tombstone.
+		if err := tx.Exec(`UPDATE supermarkets SET user_id = ? WHERE user_id = ?`, tombstoneID, userID).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec(`UPDATE products SET user_id = ? WHERE user_id = ?`, tombstoneID, userID).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec(`UPDATE carts SET user_id = ? WHERE user_id = ?`, tombstoneID, userID).Error; err != nil {
+			return err
+		}
+
+		// Payments hold personal data (identification, bank, reference) — purge.
+		if err := tx.Exec(`DELETE FROM payments WHERE user_id = ?`, userID).Error; err != nil {
+			return err
+		}
+
+		// Hard-delete the account row (no soft-delete tombstone left behind).
+		return tx.Exec(`DELETE FROM users WHERE id = ?`, userID).Error
 	})
 }

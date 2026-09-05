@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -122,6 +123,33 @@ func (h *AuthHandler) RequestPasswordReset(c *gin.Context) {
 	}
 
 	utils.SuccessResponse(c, gin.H{"message": "email de restablecimiento enviado"})
+}
+
+func (h *AuthHandler) DeleteAccount(c *gin.Context) {
+	userAny, exists := c.Get(constants.CtxUserKey)
+	if !exists {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+	user, ok := userAny.(*models.User)
+	if !ok {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	authHeader := c.GetHeader("Authorization")
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		utils.UnauthorizedResponse(c)
+		return
+	}
+
+	if err := h.authService.DeleteAccount(c.Request.Context(), user, parts[1]); err != nil {
+		h.handleError(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, gin.H{"message": "cuenta eliminada"})
 }
 
 func (h *AuthHandler) MigrateUserData(c *gin.Context) {

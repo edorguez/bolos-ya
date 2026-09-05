@@ -10,10 +10,12 @@ import (
 	"strings"
 	"time"
 
+	goredis "github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
 	"github.com/edorguez/merki/pkg/constants"
 	apperrors "github.com/edorguez/merki/pkg/core/errors"
+	"github.com/edorguez/merki/pkg/session"
 
 	"github.com/edorguez/merki/internal/server/email"
 	"github.com/edorguez/merki/internal/server/models"
@@ -25,23 +27,28 @@ type AuthService interface {
 	GetOrCreateUserFromHeaders(ctx context.Context, userID, userEmail, name, authProvider string, isAnonymous bool) (*models.User, error)
 	GetUserByID(ctx context.Context, betterAuthUserID string) (*models.User, error)
 	UpdateUserPremium(ctx context.Context, betterAuthUserID string, isPremium bool, premiumUntil *time.Time) error
+	DeleteAccount(ctx context.Context, user *models.User, sessionToken string) error
 	MigrateUserData(ctx context.Context, fromBetterAuthUserId, toBetterAuthUserId, email, name, authProvider string) error
 	SendPasswordResetEmail(ctx context.Context, email, name, resetURL string) error
 }
 
 type authService struct {
-	userRepo      repository.UserRepository
-	emailSvc      email.Service
-	log           *zap.Logger
-	betterAuthURL string
+	userRepo           repository.UserRepository
+	emailSvc           email.Service
+	log                *zap.Logger
+	betterAuthURL      string
+	internalAuthSecret string
+	redisClient        goredis.Cmdable
 }
 
-func NewAuthService(userRepo repository.UserRepository, emailSvc email.Service, log *zap.Logger, betterAuthURL string) AuthService {
+func NewAuthService(userRepo repository.UserRepository, emailSvc email.Service, log *zap.Logger, betterAuthURL string, internalAuthSecret string, redisClient goredis.Cmdable) AuthService {
 	return &authService{
-		userRepo:      userRepo,
-		emailSvc:      emailSvc,
-		log:           log,
-		betterAuthURL: betterAuthURL,
+		userRepo:           userRepo,
+		emailSvc:           emailSvc,
+		log:                log,
+		betterAuthURL:      betterAuthURL,
+		internalAuthSecret: internalAuthSecret,
+		redisClient:        redisClient,
 	}
 }
 
@@ -257,6 +264,73 @@ func (s *authService) UpdateUserPremium(ctx context.Context, betterAuthUserID st
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("auth server returned status %d for premium update", resp.StatusCode)
+	}
+
+	return nil
+}
+
+// DeleteAccount permanently removes a user account:
+//  1. wipes the application data (payments purged, carts/products/supermarkets
+//     preserved under the internal tombstone user, app user row hard-deleted);
+//  2. deletes the better-auth identity so the session can never authenticate
+//     again (revoking every device session via ON DELETE CASCADE);
+//  3. purges the Redis session cache for the current token;
+//  4. re-runs the (idempotent) data wipe as a safety net against a user row
+//     being recreated by a concurrent request between steps 1 and 2.
+func (s *authService) DeleteAccount(ctx context.Context, user *models.User, sessionToken string) error {
+	if user == nil {
+		return fmt.Errorf("cannot delete a nil user")
+	}
+
+	if err := s.userRepo.DeleteAccount(ctx, user.ID); err != nil {
+		return fmt.Errorf("failed to delete account data: %w", err)
+	}
+
+	if err := s.deleteIdentity(ctx, user.BetterAuthUserID); err != nil {
+		return fmt.Errorf("failed to delete auth identity: %w", err)
+	}
+
+	if err := session.Delete(ctx, s.redisClient, sessionToken); err != nil {
+		s.log.Warn("failed to purge session cache after account deletion",
+			zap.String("betterAuthUserID", user.BetterAuthUserID),
+			zap.Error(err),
+		)
+	}
+
+	if err := s.userRepo.DeleteAccount(ctx, user.ID); err != nil {
+		return fmt.Errorf("failed to finalize account deletion: %w", err)
+	}
+
+	return nil
+}
+
+// deleteIdentity asks the auth server to remove the better-auth user record for
+// the given better-auth user ID. It is a service-to-service call authenticated
+// with the shared internal API key.
+func (s *authService) deleteIdentity(ctx context.Context, betterAuthUserID string) error {
+	body := map[string]string{"userId": betterAuthUserID}
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("failed to marshal account deletion request: %w", err)
+	}
+
+	url := s.betterAuthURL + "/api/auth/delete-account"
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(jsonBody))
+	if err != nil {
+		return fmt.Errorf("failed to create account deletion request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+s.internalAuthSecret)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to call auth server for account deletion: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("auth server returned status %d for account deletion", resp.StatusCode)
 	}
 
 	return nil

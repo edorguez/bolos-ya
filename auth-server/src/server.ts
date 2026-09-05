@@ -97,6 +97,37 @@ app.post('/api/auth/update-premium', async (c) => {
   return c.json({ success: true })
 })
 
+// Deletes a better-auth identity (user row). Sessions and linked accounts are
+// removed via ON DELETE CASCADE, which revokes the user's access on every
+// device. Only reachable from the Go backend, which authenticates with the
+// shared internal API key.
+app.post('/api/auth/delete-account', async (c) => {
+  const expected = process.env.INTERNAL_API_KEY
+  const authHeader = c.req.header('Authorization') || ''
+  if (!expected || authHeader !== `Bearer ${expected}`) {
+    return c.json({ error: 'unauthorized' }, 401)
+  }
+
+  const { userId } = await c.req.json<{ userId?: string }>()
+  if (!userId) {
+    return c.json({ error: 'userId is required' }, 400)
+  }
+
+  // Clean up password-reset/verification tokens keyed by the account email.
+  const userResult = await pool.query(`SELECT email FROM "user" WHERE id = $1`, [userId])
+  if (userResult.rows.length > 0) {
+    const email = userResult.rows[0].email
+    if (email) {
+      await pool.query(`DELETE FROM "verification" WHERE identifier = $1`, [email])
+    }
+  }
+
+  // session/account rows cascade on delete. Idempotent by design.
+  await pool.query(`DELETE FROM "user" WHERE id = $1`, [userId])
+
+  return c.json({ success: true })
+})
+
 // Expo OAuth authorization proxy — returns HTML with client-side redirect
 // instead of HTTP 302 because ASWebAuthenticationSession on iOS doesn't
 // follow 302 redirects from HTTP to HTTPS, causing a blank page.

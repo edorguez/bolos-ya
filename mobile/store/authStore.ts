@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useSession, signOut } from '../lib/auth-client';
 import { apiGet, clearSessionTokenCache } from '../services/api';
+import { deleteAccount as deleteAccountRequest } from '../services/accountService';
+import { clearAllLocalData } from '../lib/local/cleanup';
+import { useCartStore } from './cartStore';
 
 interface AuthUser {
   id: string;
@@ -87,11 +90,27 @@ export function useAuth() {
     await signOut();
   };
 
+  const handleDeleteAccount = async () => {
+    if (!session?.user) return;
+    await deleteAccountRequest();
+    clearSessionTokenCache();
+    await signOut().catch(() => {});
+    await clearAllLocalData();
+    useCartStore.setState({
+      carts: [],
+      activeCartId: null,
+      isLoading: false,
+      pendingSyncCount: 0,
+      lastSyncedAt: null,
+    });
+  };
+
   return {
     user,
     isLoading: isPending,
     premiumResolved,
     logout: handleLogout,
+    deleteAccount: handleDeleteAccount,
   };
 }
 
